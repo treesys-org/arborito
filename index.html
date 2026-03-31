@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- CSP: no third-party fonts/trackers; jsDelivr/HF only used after user accepts in-browser AI (no preconnect — avoids contact before consent) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net blob:; worker-src 'self' blob: https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https://avatars.githubusercontent.com https://raw.githubusercontent.com; connect-src 'self' https://raw.githubusercontent.com https://huggingface.co https://*.huggingface.co https://*.hf.co https://*.amazonaws.com https://*.cloudfront.net https://api.github.com http://127.0.0.1:11434 http://localhost:11434 https://cdn.jsdelivr.net blob:;">
+  
+  <title>Arborito — Visual Knowledge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#a8e8ff">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#312e81">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <!-- Intentionally no dns-prefetch/preconnect to AI CDNs: connections start only after explicit in-browser AI consent. -->
+
+  <!-- Transformers.js vía CDN (carga real del script solo cuando el worker de IA se crea tras consentimiento) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@huggingface/transformers": "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/dist/transformers.min.js"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import { ARBORITO_BUILD_ID } from './src/version.js';
+    const v = encodeURIComponent(ARBORITO_BUILD_ID || 'dev');
+
+    const css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = `./src/styles/main.css?v=${v}`;
+    document.head.appendChild(css);
+
+    const app = document.createElement('script');
+    app.type = 'module';
+    app.src = `./src/main.js?v=${v}`;
+    document.body.appendChild(app);
+  </script>
+
+</head>
+<body class="arborito-app bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-200 transition-colors duration-500">
+  
+  <div id="app" class="arborito-shell h-full w-full flex relative min-h-0">
+     <arborito-sidebar></arborito-sidebar>
+     
+     <main class="flex-1 relative flex flex-col h-full min-w-0 min-h-0 overflow-hidden">
+        <div id="arborito-graph-tour-anchor" class="w-full h-full absolute inset-0 z-10" data-arbor-tour="graph">
+            <arborito-graph></arborito-graph>
+        </div>
+     </main>
+     
+     <arborito-content></arborito-content>
+     <arborito-construction-panel></arborito-construction-panel>
+  </div>
+
+  <arborito-modals></arborito-modals>
+  <arborito-editor></arborito-editor>
+  <arborito-sage></arborito-sage>
+  <arborito-version-widget></arborito-version-widget>
+  <arborito-progress-widget></arborito-progress-widget>
+  <arborito-product-tour></arborito-product-tour>
+
+</body>
+</html>

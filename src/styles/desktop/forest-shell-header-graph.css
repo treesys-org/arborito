@@ -1,0 +1,451 @@
+/* =============================================================================
+   DESKTOP FOREST — pantalla ancha, tronco amplio, ramas laterales; nav = mismo dock móvil (píldora inferior)
+   ============================================================================= */
+html.arborito-desktop {
+    /* Franja superior: marca, nav, búsqueda, acciones */
+    --arborito-desktop-header-height: 3.75rem;
+    --arborito-forest-glass: rgb(15 23 42 / 0.42);
+    --arborito-forest-glass-light: rgb(255 255 255 / 0.55);
+    --arborito-forest-edge: rgb(94 234 212 / 0.35);
+    --arborito-forest-glow: rgb(52 211 153 / 0.45);
+    --arborito-forest-text: rgb(241 245 249);
+    --arborito-forest-text-muted: rgb(186 230 253 / 0.92);
+}
+
+html.arborito-desktop.arborito-shell-mobile body.arborito-app #app.arborito-shell {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    min-height: 100dvh;
+    box-shadow: none;
+}
+
+/* Escritorio sin shell-mobile: mismo escenario Hi-Bit y #app a ancho completo */
+html.arborito-desktop:not(.arborito-shell-mobile):not(.dark) body.arborito-app {
+    background-color: #a8e8ff !important;
+    background-image: var(--arborito-pixel-landscape-day) !important;
+    background-size: var(--arborito-hibit-bg-size) !important;
+    background-position: var(--arborito-hibit-bg-position) !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+    image-rendering: auto;
+}
+html.dark.arborito-desktop:not(.arborito-shell-mobile) body.arborito-app {
+    background-color: #312e81 !important;
+    background-image: var(--arborito-pixel-landscape-night) !important;
+    background-size: var(--arborito-hibit-bg-size) !important;
+    background-position: var(--arborito-hibit-bg-position) !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+    image-rendering: auto;
+}
+html.arborito-desktop:not(.arborito-shell-mobile) body.arborito-app #app.arborito-shell {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    min-height: 100dvh;
+    box-shadow: none;
+}
+
+/* Tronco: ancho completo; padding sup. = header (también en modo construcción: el header sigue visible en escritorio) */
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-sizing: border-box;
+    padding-top: var(--arborito-desktop-header-height);
+}
+
+/* Grafo: aire a los lados para ramas hacia el borde */
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-trunk-scroll-content {
+    max-width: min(1920px, 100%);
+    margin: 0 auto;
+    padding-left: clamp(0.5rem, 3vw, 2.5rem);
+    padding-right: clamp(0.5rem, 3vw, 2.5rem);
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-trunk-col {
+    width: 7rem;
+    min-width: 7rem;
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-trunk-path {
+    stroke-width: 22px;
+    filter: drop-shadow(0 0 12px rgb(34 197 94 / 0.25));
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-trunk-path-active {
+    stroke-width: 14px;
+    filter: drop-shadow(0 0 14px rgb(251 191 36 / 0.45));
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-knot {
+    width: 4rem;
+    height: 4rem;
+    font-size: 1.5rem;
+    border-width: 3px;
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-trunk-fade {
+    width: 8rem;
+    background: linear-gradient(to right, rgb(2 6 23 / 0.35) 0%, transparent 100%);
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-right-col {
+    flex: 1 1 0%;
+    min-width: 0;
+    padding: var(--space-lg) 0 calc(env(safe-area-inset-bottom, 0px) + 0.75rem) clamp(0.5rem, 2vw, 1.25rem);
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-label-text {
+    font-size: 0.9375rem;
+    font-weight: 800;
+    color: var(--arborito-forest-text);
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 0 20px rgb(52 211 153 / 0.2);
+    -webkit-line-clamp: 3;
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-label-row.is-active .mobile-label-text {
+    font-size: 1rem;
+    color: rgb(255 255 255);
+    text-shadow: 0 2px 8px rgb(0 0 0 / 0.5), 0 0 24px rgb(94 234 212 / 0.35);
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-label-meta,
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-child-meta {
+    font-size: 0.6875rem;
+    color: var(--arborito-forest-text-muted);
+    font-weight: 600;
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-child-name {
+    font-size: 0.9375rem;
+    font-weight: 800;
+    color: rgb(248 250 252);
+    text-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+}
+
+/*
+ * Panel hijos (viñetas desde el tronco): en escritorio solo geometría.
+ * Bordes, colores y sombras alineados con mobile/graph-knowledge-cards.css
+ * (antes el cristal de bosque ganaba por mayor especificidad y se veía distinto al móvil).
+ */
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-children-panel {
+    width: min(100%, min(42vw, 36rem));
+    margin-left: 0;
+    margin-right: 0;
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-children-panel .mobile-panel-header {
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    font-weight: 800;
+}
+
+html.arborito-desktop:not(.dark) .arborito-mobile-path.mobile-tree-ui .mobile-children-panel .mobile-panel-header {
+    color: rgb(15 23 42) !important;
+    text-shadow: none;
+    background: linear-gradient(180deg, rgb(241 245 249), rgb(226 232 240));
+    border: 1px solid rgb(148 163 184 / 0.4);
+    border-radius: 0.65rem;
+    box-shadow:
+        0 1px 2px rgb(15 23 42 / 0.06),
+        inset 0 1px 0 rgb(255 255 255 / 0.85);
+}
+
+html.arborito-desktop.dark .arborito-mobile-path.mobile-tree-ui .mobile-children-panel .mobile-panel-header {
+    color: rgb(167 243 208) !important;
+    text-shadow:
+        0 0 2px rgb(0 0 0 / 0.9),
+        0 1px 4px rgb(0 0 0 / 0.82),
+        0 2px 18px rgb(0 0 0 / 0.48);
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-child-row {
+    border-radius: 1rem;
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-child-row:hover {
+    background: rgb(52 211 153 / 0.12);
+}
+
+/* Escritorio: misma píldora que móvil — ancho máximo para no parecer barra de sistema */
+html.arborito-desktop .arborito-mob-dock {
+    max-width: min(42rem, calc(100vw - 2rem));
+    width: 100%;
+}
+
+/* Header fino: solo en escritorio; marca | contexto (el dock sigue abajo) */
+.arborito-desktop-app-header {
+    display: none;
+}
+
+html.arborito-desktop .arborito-desktop-app-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, min(44rem, 92vw)) minmax(0, 1fr);
+    align-items: center;
+    column-gap: 0.75rem;
+    row-gap: 0.35rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 111;
+    min-height: var(--arborito-desktop-header-height);
+    padding: 0.45rem max(1rem, env(safe-area-inset-right, 0px)) 0.45rem max(1rem, env(safe-area-inset-left, 0px));
+    padding-top: max(0.45rem, env(safe-area-inset-top, 0px));
+    box-sizing: border-box;
+    pointer-events: none;
+    border-bottom: 1px solid rgb(209 215 220 / 0.95);
+    background: rgb(255 255 255 / 0.98);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.85) inset;
+}
+
+html.arborito-desktop .arborito-desktop-header__left {
+    grid-column: 1;
+    justify-self: start;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+    max-width: 100%;
+}
+
+html.arborito-desktop .arborito-desktop-header__search-wrap {
+    grid-column: 2;
+    justify-self: stretch;
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+html.arborito-desktop .arborito-desktop-actions {
+    grid-column: 3;
+    justify-self: end;
+}
+
+/* Desktop header is interactive: only its controls receive events */
+html.arborito-desktop .arborito-desktop-app-header {
+    pointer-events: none;
+}
+html.arborito-desktop .arborito-desktop-hit {
+    pointer-events: auto;
+}
+
+html.arborito-desktop .arborito-desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex: 0 0 auto;
+    min-width: 0;
+    max-width: min(44vw, 40rem);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+}
+html.arborito-desktop .arborito-desktop-nav::-webkit-scrollbar {
+    display: none;
+}
+
+html.arborito-desktop .arborito-desktop-nav__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid rgb(226 232 240 / 0.9);
+    background: rgb(255 255 255 / 0.6);
+    border-radius: 999px;
+    padding: 0.28rem 0.7rem;
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    font-weight: 850;
+    font-size: 0.82rem;
+    letter-spacing: -0.015em;
+    color: rgb(15 23 42);
+    user-select: none;
+    white-space: nowrap;
+    transition: transform 120ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+html.dark.arborito-desktop .arborito-desktop-nav__btn {
+    border-color: rgb(51 65 85 / 0.85);
+    background: rgb(30 41 59 / 0.55);
+    color: rgb(241 245 249);
+}
+html.arborito-desktop .arborito-desktop-nav__btn:hover {
+    transform: translateY(-1px);
+    background: rgb(255 255 255 / 0.8);
+    border-color: rgb(148 163 184 / 0.75);
+}
+html.dark.arborito-desktop .arborito-desktop-nav__btn:hover {
+    background: rgb(30 41 59 / 0.75);
+    border-color: rgb(100 116 139 / 0.55);
+}
+/* Aviso “salir de construcción”: brillo estático (sin pulso — fotosensible). */
+html.arborito-desktop .arborito-desktop-nav__ic--construct-exit-blink {
+    display: inline-block;
+    filter: drop-shadow(0 0 8px rgb(251 191 36 / 0.9));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    html.arborito-desktop .arborito-desktop-nav__ic--construct-exit-blink {
+        transition: filter 0.35s ease;
+    }
+}
+
+html.arborito-desktop .arborito-desktop-nav__btn.is-active,
+html.arborito-desktop .arborito-desktop-nav__btn[aria-current="page"] {
+    border-color: rgb(45 212 191 / 0.55);
+    box-shadow:
+        0 0 0 3px rgb(45 212 191 / 0.18),
+        0 10px 26px -24px rgb(45 212 191 / 0.65);
+}
+
+html.arborito-desktop .arborito-desktop-nav__btn--construct-on.is-active {
+    border-color: rgb(249 115 22 / 0.58);
+    box-shadow:
+        0 0 0 3px rgb(249 115 22 / 0.22),
+        0 10px 26px -24px rgb(249 115 22 / 0.5);
+}
+
+html.dark.arborito-desktop .arborito-desktop-nav__btn--construct-on.is-active {
+    border-color: rgb(251 146 60 / 0.5);
+    box-shadow:
+        0 0 0 3px rgb(251 146 60 / 0.2),
+        0 10px 26px -24px rgb(251 146 60 / 0.4);
+}
+
+html.arborito-desktop .arborito-desktop-nav__ic {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    line-height: 1;
+}
+html.arborito-desktop .arborito-desktop-nav__lb {
+    line-height: 1;
+}
+
+/* Nav en la barra superior (junto a la marca; sin Home — el logo lleva a inicio) */
+html.arborito-desktop .arborito-desktop-nav.arborito-desktop-header__nav {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: min(42vw, 28rem);
+    justify-content: flex-start;
+}
+
+html.arborito-desktop .arborito-desktop-nav__btn.relative {
+    position: relative;
+}
+
+html.arborito-desktop .arborito-desktop-nav__badge {
+    position: absolute;
+    top: 0.1rem;
+    right: 0.15rem;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 999px;
+    background: rgb(239 68 68);
+    box-shadow: 0 0 0 2px rgb(255 255 255);
+}
+
+html.dark.arborito-desktop .arborito-desktop-nav__badge {
+    box-shadow: 0 0 0 2px rgb(15 23 42);
+}
+
+@media (max-width: 1100px) {
+    html.arborito-desktop .arborito-desktop-nav__lb {
+        display: none;
+    }
+    html.arborito-desktop .arborito-desktop-nav__btn {
+        padding: 0.28rem 0.52rem;
+    }
+}
+
+html.arborito-desktop .arborito-desktop-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+html.arborito-desktop .arborito-desktop-action {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid rgb(226 232 240 / 0.9);
+    background: rgb(255 255 255 / 0.65);
+    box-shadow: 0 2px 10px rgb(15 23 42 / 0.06);
+    font-size: 1.05rem;
+    user-select: none;
+    transition: transform 120ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+html.dark.arborito-desktop .arborito-desktop-action {
+    border-color: rgb(51 65 85 / 0.85);
+    background: rgb(30 41 59 / 0.6);
+    box-shadow: 0 2px 12px rgb(0 0 0 / 0.25);
+}
+html.arborito-desktop .arborito-desktop-action:hover {
+    transform: translateY(-1px);
+    border-color: rgb(148 163 184 / 0.8);
+    background: rgb(255 255 255 / 0.85);
+    box-shadow: 0 10px 26px -22px rgb(15 23 42 / 0.28);
+}
+html.dark.arborito-desktop .arborito-desktop-action:hover {
+    border-color: rgb(100 116 139 / 0.6);
+    background: rgb(30 41 59 / 0.78);
+    box-shadow: 0 12px 28px -22px rgb(0 0 0 / 0.45);
+}
+
+html.arborito-desktop .arborito-desktop-action--profile {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.2rem;
+    border-width: 2px;
+    border-color: rgb(209 215 220 / 0.95);
+    box-shadow: 0 1px 3px rgb(15 23 42 / 0.08);
+}
+
+html.dark.arborito-desktop .arborito-desktop-action--profile {
+    border-color: rgb(71 85 105 / 0.85);
+}
+
+/* Sage: acceso flotante (solo escritorio; no sustituye al dock móvil) */
+html.arborito-desktop .arborito-desktop-sage-fab {
+    display: inline-flex;
+    position: fixed;
+    z-index: 108;
+    left: auto;
+    right: max(1rem, env(safe-area-inset-right, 0px));
+    bottom: max(1.1rem, env(safe-area-inset-bottom, 0px));
+    width: 3.5rem;
+    height: 3.5rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    background: linear-gradient(145deg, rgb(255 255 255 / 0.98) 0%, rgb(248 250 252 / 0.95) 100%);
+    border: 1px solid rgb(209 215 220 / 0.95);
+    box-shadow:
+        0 4px 14px rgb(15 23 42 / 0.12),
+        0 0 0 1px rgb(255 255 255 / 0.8) inset;
+    transition:
+        transform 140ms ease,
+        box-shadow 180ms ease,
+        border-color 180ms ease;
+}
+
+html.dark.arborito-desktop .arborito-desktop-sage-fab {
+    background: linear-gradient(145deg, rgb(30 41 59 / 0.98) 0%, rgb(15 23 42 / 0.96) 100%);
+    border-color: rgb(71 85 105 / 0.85);
+    box-shadow:
+        0 6px 22px rgb(0 0 0 / 0.35),
+        0 0 0 1px rgb(255 255 255 / 0.06) inset;
+}

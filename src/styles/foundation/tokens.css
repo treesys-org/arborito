@@ -1,0 +1,81 @@
+/*
+   Arborito — tokens semánticos y sombras.
+   La paleta --slate-*, --red-*, etc. la inyecta tailwind.config.js desde el theme de Tailwind
+   (no duplicar hex aquí). Usa var(--slate-900) en CSS custom; las variables --slate-* las inyecta tailwind.config.js (solo familias usadas).
+*/
+
+:root {
+    /* --- SHADOWS (soft, low drama — readable for all ages) --- */
+    --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.04);
+    --shadow-md: 0 4px 12px rgb(15 23 42 / 0.06);
+    --shadow-lg: 0 10px 28px rgb(15 23 42 / 0.07);
+    --shadow-xl: 0 18px 40px rgb(15 23 42 / 0.08);
+    --shadow-2xl: 0 22px 48px rgb(15 23 42 / 0.1);
+    --shadow-inner: inset 0 1px 0 rgb(255 255 255 / 0.65);
+
+    /* --- SEMANTIC DESIGN TOKENS --- */
+    --color-surface: var(--slate-50);
+    --color-surface-elevated: white;
+    --color-surface-dark: var(--slate-900);
+    --color-text-primary: #3d4f5c;
+    --color-text-secondary: var(--slate-500);
+    --color-text-muted: var(--slate-400);
+    --color-accent: var(--green-500);
+    --color-node-root: #8D6E63;
+    --color-node-branch: var(--amber-500);
+    --color-node-leaf: var(--purple-500);
+    --color-node-exam: var(--red-500);
+    --color-node-completed: var(--green-500);
+    --color-node-empty: var(--slate-300);
+    --color-node-harvested: #D97706;
+    --color-link-default: #8D6E63;
+    --color-link-completed: var(--green-500);
+    --color-mobile-bg: var(--slate-950);
+    --color-mobile-surface: var(--slate-900);
+    --color-mobile-border: var(--slate-700);
+    --color-mobile-text: var(--slate-200);
+    --color-mobile-text-muted: var(--slate-400);
+    --color-mobile-trunk: var(--slate-700);
+    --color-mobile-trunk-active: #9a3412;
+    --arborito-trunk-base-min-from-bottom: 72px;
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+    --radius-sm: 0.625rem;
+    --radius-md: 0.875rem;
+    --radius-lg: 1.125rem;
+    --radius-xl: 1.625rem;
+    --font-size-min: 0.75rem;
+    --font-family-base: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    --bp-sm: 640;
+    --bp-md: 768;
+    --bp-lg: 1024;
+
+    --bg-app: #e8fbff;
+    --text-main: var(--color-text-primary);
+}
+
+.dark {
+    --bg-app: #1e1b4b;
+    --text-main: var(--slate-200);
+    --color-surface: var(--slate-950);
+    --color-surface-elevated: var(--slate-900);
+    --color-text-primary: var(--slate-200);
+    --color-text-secondary: var(--slate-400);
+    --color-text-muted: var(--slate-500);
+    --color-mobile-bg: var(--slate-950);
+    --color-mobile-surface: var(--slate-800);
+    --color-mobile-border: var(--slate-700);
+    --color-mobile-text: var(--slate-200);
+    --color-mobile-text-muted: var(--slate-500);
+    --color-mobile-trunk-active: #c2410c;
+}
+
+/* Shell background: Tailwind bg-slate-* on body would fight semantic --bg-app */
+body.arborito-app {
+    background-color: var(--bg-app) !important;
+    color: var(--text-main);
+}

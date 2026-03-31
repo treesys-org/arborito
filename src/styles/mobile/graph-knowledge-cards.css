@@ -1,0 +1,52 @@
+/* Mobile knowledge path (graph) — tarjetas sólidas, estilo kid-friendly (sin cristal) */
+.arborito-mobile-path {
+    --path-bg-top: #121a2e;
+    --path-bg-bottom: #0a0f1a;
+    --path-glass: rgb(41 53 72);
+    --path-glass-border: rgb(100 116 139);
+}
+
+html.dark .arborito-mobile-path {
+    --path-bg-top: #0e1524;
+    --path-bg-bottom: #080c14;
+    /* Panel hijos: superficie oscura (antes blanco sobre tema oscuro = texto ilegible) */
+    --path-glass: rgb(30 41 59);
+    --path-glass-border: rgb(71 85 105);
+}
+
+.arborito-mobile-path .mobile-children-panel {
+    background: var(--path-glass) !important;
+    border: 2px solid var(--path-glass-border) !important;
+    border-radius: 1.125rem !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow:
+        0 8px 24px rgb(0 0 0 / 0.12),
+        0 2px 0 rgb(71 85 105);
+    scroll-margin-top: max(0.75rem, env(safe-area-inset-top, 0px));
+    scroll-margin-bottom: calc(var(--arborito-mob-dock-clearance, 4.25rem) + 0.35rem);
+}
+
+html:not(.dark) .arborito-mobile-path .mobile-children-panel {
+    background: rgb(255 255 255) !important;
+    border-color: rgb(134 211 170) !important;
+    box-shadow:
+        0 8px 24px rgb(15 23 42 / 0.07),
+        0 3px 0 rgb(134 211 170);
+}
+
+html.dark .arborito-mobile-path .mobile-children-panel {
+    box-shadow:
+        0 8px 24px rgb(15 23 42 / 0.14),
+        0 3px 0 rgb(129 140 248);
+}
+
+.arborito-mobile-path .mobile-child-row {
+    border-radius: 0.875rem !important;
+}
+
+.arborito-mobile-path .mobile-child-row:active {
+    background: rgba(16, 185, 129, 0.1) !important;
+}
+
+

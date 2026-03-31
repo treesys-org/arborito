@@ -1,0 +1,71 @@
+/*
+ * Escritorio: los modales (fuentes, perfil, manual, versiones, certificados) usan el mismo
+ * patrón que Arcade — ventana flotante centrada y velo .arborito-modal-root (system-root).
+ * El panel lateral estrecho (justify-content: flex-end + 36rem) rompía el degradado y el ×.
+ */
+
+arborito-modal-manual #manual-content,
+arborito-modal-certificates #certs-list-container,
+arborito-modal-sources #tab-content,
+arborito-modal-profile .overflow-y-auto.custom-scrollbar,
+.arborito-sheet.arborito-sheet--mobile-more .arborito-mmenu-scroll { 
+    overscroll-behavior: contain;
+ }
+@media (min-width: 768px) {
+arborito-modal-welcome > div > div {  max-width: 64rem; height: 600px;  }
+arborito-modal-welcome.arborito-welcome--single > div > div {
+    max-width: 28rem;
+    width: min(92vw, 28rem);
+    height: auto;
+    min-height: 0;
+    max-height: min(90vh, 720px);
+}
+}
+html.force-mobile arborito-modal-welcome > div > div { 
+    max-width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+ }
+#modal-backdrop {  z-index: 125 !important;  }
+arborito-modal-search #modal-backdrop.arborito-modal-search-dock { 
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-mob-dock-clearance, 4.25rem) !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+ }
+@media (max-width: 767px) {
+arborito-modal-readme #readme-backdrop { 
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+     }
+arborito-modal-readme #readme-backdrop .readme-panel--mobile { 
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        height: 100% !important;
+        max-height: none !important;
+     }
+}
+html.force-mobile arborito-modal-readme #readme-backdrop { 
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+ }
+html.force-mobile arborito-modal-readme #readme-backdrop .readme-panel--mobile { 
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    max-height: none !important;
+ }
+html.force-mobile #modal-backdrop { 
+    z-index: 125 !important;
+ }

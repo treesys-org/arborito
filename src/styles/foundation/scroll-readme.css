@@ -1,0 +1,26 @@
+/*
+ * Tailwind no incluye estilos de scrollbar (Firefox + WebKit) ni el ajuste fino de readme.
+ * Mantener aquí (~25 líneas) evita dependencias extra y miles de líneas de plugin de scrollbar.
+ */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(148 163 184 / 0.55) transparent;
+}
+.custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgb(148 163 184 / 0.45);
+    border-radius: 9999px;
+}
+html.dark .custom-scrollbar {
+    scrollbar-color: rgb(71 85 105 / 0.65) transparent;
+}
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgb(71 85 105 / 0.55);
+}
+
+.readme-markdown.prose p,
+.readme-markdown.prose li {
+    font-size: 1.0625rem;
+    line-height: 1.65;
+}

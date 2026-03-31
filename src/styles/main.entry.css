@@ -1,0 +1,38 @@
+/**
+ * Arborito — fuente de estilos para PostCSS + Tailwind (sin CDN).
+ * Ver `README.md` en esta carpeta. Compilar: npm run build:css
+ *
+ * Orden: tokens → reset → módulos propios → @tailwind (al final para cascada).
+ * El CSS propio va ANTES de @tailwind: el CLI de Tailwind no conserva reglas
+ * colocadas después de @tailwind utilities.
+ */
+@import "./foundation/tokens.css";
+@import "./foundation/reset.css";
+@import "./utilities/arborito-animations-prose.css";
+@import url("utilities/modal-backdrop-base.css");
+@import url("utilities/construction-dock.css");
+@import url("utilities/mobile-node-chrome.css");
+@import url("utilities/mobile-tree-ui-extras.css");
+@import "./foundation/scroll-readme.css";
+@import "./mobile/executive.css";
+@import url("desktop/forest-shell-header-graph.css");
+@import url("desktop/profile-popover-mochila.css");
+@import url("desktop/mochila-inline-search.css");
+@import url("desktop/dock-versions-curriculum.css");
+@import url("desktop/more-menu-version-chip.css");
+@import url("mobile/lesson-and-more-menu.css");
+@import url("desktop/syllabus-reader.css");
+@import url("mobile/lesson-toc-and-footer.css");
+@import url("mobile/graph-knowledge-cards.css");
+@import url("layout/app-flex-and-pointer-hosts.css");
+@import url("product-tour.css");
+@import url("modals/host-arborito-modals.css");
+@import url("modals/system-root-and-variants.css");
+@import url("modals/welcome-modal-step1.css");
+@import url("modals/desktop-dock-and-global-modal-layout.css");
+@import url("modals/mobile-sheets-and-dock-panels.css");
+@import url("mobile/mobile-landscape-shell.css");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

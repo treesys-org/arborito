@@ -1,0 +1,165 @@
+html.arborito-construction-mobile .arborito-mob-dock-wrap > nav.arborito-mob-dock {  
+    display: none !important;
+  }
+.construction-panel-host {  
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 100vw;
+    z-index: 110;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    pointer-events: none;
+    padding: 0 0.75rem;
+    padding-bottom: calc(0.35rem + env(safe-area-inset-bottom, 10px));
+    box-sizing: border-box;
+  }
+.construction-panel-stack {  
+    width: 100%;
+    max-width: 28rem;
+    pointer-events: auto;
+  }
+.construction-panel-popover {  
+    margin-bottom: 0.35rem;
+  }
+.construction-panel-sheet {  
+    box-sizing: border-box;
+    width: 100%;
+    pointer-events: auto;
+    border-radius: 1.25rem;
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    background: rgb(248 250 252);
+    border: 1px solid rgb(226 232 240);
+    box-shadow: 0 4px 18px rgb(15 23 42 / 0.07);
+    padding: 0.3rem 0.35rem 0.35rem;
+    min-height: 3.35rem;
+  }
+html.dark .construction-panel-sheet {  
+    background: rgb(15 23 42);
+    border-color: rgb(51 65 85);
+    box-shadow: 0 4px 20px rgb(0 0 0 / 0.35);
+  }
+.cp-dock-row {  
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0.2rem;
+    min-width: 0;
+    width: 100%;
+  }
+.cp-dock-scroll {  
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 0.125rem;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    padding: 0 0.1rem;
+    mask-image: linear-gradient(to right, transparent, black 6px, black calc(100% - 6px), transparent);
+  }
+.cp-dock-tab {  
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 3.25rem;
+    max-width: 5rem;
+    min-height: 2.75rem;
+    padding: 0.25rem 0.25rem;
+    border: none;
+    border-radius: 0.875rem;
+    background: transparent;
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    color: rgb(100 116 139);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.2s ease, transform 0.15s ease, background 0.2s ease;
+  }
+html.dark .cp-dock-tab {  
+    color: rgb(148 163 184);
+  }
+.cp-dock-tab:active {  
+    transform: scale(0.94);
+  }
+.cp-dock-tab--edge {  
+    min-width: 2.6rem;
+    max-width: 3.1rem;
+    padding-left: 0.15rem;
+    padding-right: 0.15rem;
+  }
+.cp-dock-tab--accent {  
+    color: rgb(234 88 12);
+  }
+html.dark .cp-dock-tab--accent {  
+    color: rgb(251 146 60);
+  }
+.cp-dock-tab--blue {  
+    color: rgb(37 99 235);
+  }
+html.dark .cp-dock-tab--blue {  
+    color: rgb(96 165 250);
+  }
+.cp-dock-tab--login {  
+    color: rgb(22 163 74);
+  }
+html.dark .cp-dock-tab--login {  
+    color: rgb(74 222 128);
+  }
+.cp-dock-tab--logout {  
+    color: rgb(220 38 38);
+  }
+html.dark .cp-dock-tab--logout {  
+    color: rgb(248 113 113);
+  }
+.cp-dock-tab__icon-badge {  
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+.cp-dock-tab__mini {  
+    position: absolute;
+    top: -0.2rem;
+    right: -0.35rem;
+    font-size: 0.55rem;
+    line-height: 1;
+  }
+.cp-dock-scroll .arborito-mob-tab__label {  
+    max-width: 4.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+.mobile-node-toolbar {  
+    width: 100%;
+    margin: 0 0 0.5rem 0;
+    padding: 0.35rem 0.4rem;
+    border-radius: 0.85rem;
+    background: rgb(15 23 42 / 0.45);
+    border: 1px solid rgb(51 65 85 / 0.55);
+    box-sizing: border-box;
+  }
+html:not(.dark) .mobile-node-toolbar {  
+    background: rgb(255 255 255 / 0.94);
+    border-color: rgb(226 232 240 / 0.95);
+  }
+.mobile-node-toolbar-inner {  
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.35rem;
+  }

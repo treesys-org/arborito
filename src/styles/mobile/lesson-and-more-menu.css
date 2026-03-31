@@ -1,0 +1,374 @@
+html.dark .arborito-sheet__hero {
+    background: linear-gradient(135deg, rgb(5 150 105 / 0.18) 0%, rgb(14 165 233 / 0.1) 100%);
+    border-bottom-color: rgb(51 65 85 / 0.7);
+}
+
+.arborito-sheet__grab {
+    width: 2.5rem;
+    height: 0.25rem;
+    border-radius: 9999px;
+    background: rgb(203 213 225);
+    margin: 0 auto 0.75rem;
+}
+
+html.dark .arborito-sheet__grab {
+    background: rgb(71 85 105);
+}
+
+.arborito-profile-card {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-radius: 1.125rem;
+    border: 1px solid rgb(226 232 240 / 0.95);
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.15s ease;
+}
+
+.arborito-profile-card:active {
+    transform: scale(0.99);
+}
+
+html.dark .arborito-profile-card {
+    border-color: rgb(51 65 85 / 0.9);
+    background: rgb(30 41 59 / 0.65);
+}
+
+.arborito-menu-section {
+    font-size: 0.6875rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--slate-400);
+    padding: 0 0.25rem;
+    margin: 0.75rem 0 0.5rem;
+}
+
+html.dark .arborito-menu-section {
+    color: var(--slate-500);
+}
+
+/* Mobile “More” menu — Android-style drill-down header */
+.arborito-mmenu-back {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    line-height: 1;
+    font-weight: 900;
+    color: var(--slate-600);
+    background: rgb(241 245 249 / 0.95);
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s ease, transform 0.12s ease;
+}
+
+.arborito-mmenu-back:active {
+    transform: scale(0.94);
+    background: rgb(226 232 240);
+}
+
+html.dark .arborito-mmenu-back {
+    color: var(--slate-200);
+    background: rgb(30 41 59 / 0.95);
+}
+
+html.dark .arborito-mmenu-back:active {
+    background: rgb(51 65 85 / 0.9);
+}
+
+.arborito-sheet__hero--mmenu-sub {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1rem 0.85rem;
+}
+
+/* Misma cabecera que Búsqueda / Arcade (safe-area); no aplica a “Más” raíz con asa */
+.arborito-sheet__hero--mmenu-sub.arborito-dock-modal-hero:not(.arborito-mmenu-hero--root) {
+    padding-top: max(0.65rem, env(safe-area-inset-top)) !important;
+    padding-bottom: 0.75rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+/* Fila título + atrás — misma geometría que modales dock (search, sage…) */
+.arborito-mmenu-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    width: 100%;
+}
+
+/* “Más” raíz: asa + misma barra que sub-paneles (padding superior = .arborito-dock-modal-hero) */
+.arborito-mmenu-hero--root.arborito-sheet__hero--mmenu-sub {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.35rem;
+}
+
+.arborito-mmenu-hero--root .arborito-sheet__grab {
+    margin-bottom: 0.15rem;
+}
+
+.arborito-mmenu-subtitle {
+    font-size: 1.0625rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--slate-800);
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+html.dark .arborito-mmenu-subtitle {
+    color: var(--slate-50);
+}
+
+.arborito-mmenu-drill-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    text-align: left;
+    padding: 0.95rem 1rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--slate-700);
+    border: 1px solid rgb(226 232 240 / 0.9);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.65);
+    margin-bottom: 0.5rem;
+    transition: background 0.15s ease, transform 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html.dark .arborito-mmenu-drill-row {
+    color: var(--slate-100);
+    border-color: rgb(51 65 85 / 0.75);
+    background: rgb(30 41 59 / 0.45);
+}
+
+.arborito-mmenu-drill-row:active {
+    transform: scale(0.99);
+    background: rgb(241 245 249);
+}
+
+html.dark .arborito-mmenu-drill-row:active {
+    background: rgb(51 65 85 / 0.55);
+}
+
+.arborito-mmenu-divider {
+    height: 1px;
+    margin: 0.65rem 0 0.85rem;
+    background: rgb(226 232 240 / 0.95);
+    border: none;
+}
+
+html.dark .arborito-mmenu-divider {
+    background: rgb(51 65 85 / 0.85);
+}
+
+/* Lesson reader chrome */
+.arborito-lesson-aside {
+    box-shadow:
+        -24px 0 80px -20px rgb(15 23 42 / 0.12),
+        -1px 0 0 rgb(226 232 240 / 0.9) !important;
+}
+html.dark .arborito-lesson-aside {
+    box-shadow:
+        -24px 0 80px -20px rgb(0 0 0 / 0.45),
+        -1px 0 0 rgb(51 65 85 / 0.6) !important;
+}
+
+/* --- Mobile lesson sheet (full-bleed reader, node content) --- */
+/* Sin línea superior “fantasma” (inset) que competía con el topbar táctil */
+.arborito-lesson-sheet.arborito-lesson-aside {
+    box-shadow: -32px 0 96px -24px rgb(15 23 42 / 0.2) !important;
+    border-left: 1px solid rgb(226 232 240 / 0.85) !important;
+    border-radius: 0 !important;
+}
+
+html.dark .arborito-lesson-sheet.arborito-lesson-aside {
+    box-shadow: -32px 0 96px -24px rgb(0 0 0 / 0.55) !important;
+    border-left-color: rgb(51 65 85 / 0.65) !important;
+}
+
+.arborito-lesson-mobile-head {
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    padding: calc(0.35rem + env(safe-area-inset-top, 0px)) 1rem 0.65rem;
+    /* Misma cabecera que “Más” / búsqueda (.arborito-sheet__hero) */
+    background: linear-gradient(135deg, rgb(5 150 105 / 0.12) 0%, rgb(14 165 233 / 0.08) 100%);
+    border-bottom: 1px solid rgb(226 232 240 / 0.8);
+}
+
+html.dark .arborito-lesson-mobile-head {
+    background: linear-gradient(135deg, rgb(5 150 105 / 0.18) 0%, rgb(14 165 233 / 0.1) 100%);
+    border-bottom-color: rgb(51 65 85 / 0.7);
+}
+
+.arborito-lesson-mobile-grab {
+    width: 2.5rem;
+    height: 0.28rem;
+    border-radius: 9999px;
+    background: rgb(203 213 225);
+    margin: 0 auto 0.65rem;
+}
+
+html.dark .arborito-lesson-mobile-grab {
+    background: rgb(71 85 105);
+}
+
+.arborito-lesson-mobile-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.arborito-lesson-mobile-titleblock {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.arborito-lesson-mobile-titleblock .arborito-lesson-emoji {
+    font-size: 1.35rem;
+    line-height: 1.2;
+    flex-shrink: 0;
+}
+
+.arborito-lesson-mobile-titleblock h1 {
+    font-size: 1.0625rem;
+    font-weight: 850;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+    color: var(--slate-800);
+    margin: 0;
+}
+
+html.dark .arborito-lesson-mobile-titleblock h1 {
+    color: var(--slate-100);
+}
+
+.arborito-lesson-mobile-breadcrumb {
+    font-size: 0.625rem;
+    font-weight: 650;
+    letter-spacing: 0.02em;
+    color: var(--slate-400);
+    margin-top: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+html.dark .arborito-lesson-mobile-breadcrumb {
+    color: var(--slate-500);
+}
+
+.arborito-lesson-toc-pill {
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 9999px;
+    border: 1px solid rgb(226 232 240);
+    background: rgb(255 255 255);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--slate-600);
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.arborito-lesson-toc-pill.is-active {
+    color: rgb(3 105 161);
+    background: rgb(224 242 254);
+    border-color: rgb(125 211 252);
+}
+
+html.dark .arborito-lesson-toc-pill {
+    border-color: rgb(51 65 85);
+    background: rgb(30 41 59);
+    color: var(--slate-200);
+}
+
+html.dark .arborito-lesson-toc-pill.is-active {
+    color: rgb(186 230 253);
+    background: rgb(12 74 110);
+    border-color: rgb(14 165 233);
+}
+
+.arborito-lesson-toc-pill:active {
+    transform: scale(0.94);
+}
+
+/* Cabecera lección: título a la izquierda, herramientas (IA, favorito, edición, PDF) alineadas a la derecha */
+.arborito-lesson-head-main {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    width: 100%;
+    min-width: 0;
+}
+
+.arborito-lesson-head-primary {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.arborito-lesson-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    width: 100%;
+    padding-bottom: 0.15rem;
+}
+
+/* Móvil / vista no escritorio: temario (hamburger) a la izquierda; demás acciones a la derecha */
+html:not(.arborito-desktop) .arborito-lesson-actions #btn-toggle-toc {
+    margin-right: auto;
+}
+
+@media (min-width: 768px) {
+    .arborito-lesson-head-main {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.75rem 1rem;
+    }
+
+    .arborito-lesson-actions {
+        width: auto;
+        max-width: min(32rem, 52vw);
+        flex: 0 0 auto;
+        align-content: flex-start;
+    }
+}
+
+html.arborito-desktop .arborito-lesson-head-main {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.85rem 1.25rem;
+}

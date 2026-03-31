@@ -1,0 +1,456 @@
+html.arborito-desktop .arborito-desktop-sage-fab:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 10px 28px rgb(15 23 42 / 0.18),
+        0 0 0 1px rgb(255 255 255 / 0.85) inset;
+}
+
+html.dark.arborito-desktop .arborito-desktop-sage-fab:hover {
+    box-shadow:
+        0 12px 32px rgb(0 0 0 / 0.45),
+        0 0 0 1px rgb(255 255 255 / 0.08) inset;
+}
+
+html.arborito-desktop .arborito-desktop-sage-fab.is-active {
+    border-color: rgb(45 212 191 / 0.65);
+    box-shadow:
+        0 0 0 3px rgb(45 212 191 / 0.22),
+        0 6px 20px rgb(15 23 42 / 0.14);
+}
+
+html.arborito-desktop .arborito-desktop-sage-fab__ic {
+    font-size: 1.65rem;
+    line-height: 1;
+}
+
+html.arborito-desktop.arborito-construction-mobile .arborito-desktop-sage-fab {
+    display: none !important;
+}
+
+/* Avatar: hover/focus muestra el menú que antes abría "⋯" (más) */
+html.arborito-desktop .arborito-desktop-profile-wrap {
+    position: relative;
+    z-index: 12;
+    display: inline-flex;
+    align-items: center;
+}
+
+html.arborito-desktop .arborito-desktop-profile-popover {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    right: 0;
+    z-index: 120;
+    width: min(17.5rem, calc(100vw - 2rem));
+    border-radius: 1.25rem;
+    border: 1px solid rgb(226 232 240 / 0.9);
+    background: rgb(255 255 255);
+    box-shadow: 0 18px 50px -24px rgb(15 23 42 / 0.35);
+    padding: 0.5rem;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-6px);
+    transition:
+        opacity 140ms ease,
+        transform 140ms ease,
+        visibility 0s linear 140ms;
+}
+html.arborito-desktop .arborito-desktop-profile-popover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    height: 0.45rem;
+}
+
+html.arborito-desktop .arborito-desktop-profile-wrap:hover .arborito-desktop-profile-popover,
+html.arborito-desktop .arborito-desktop-profile-wrap:focus-within .arborito-desktop-profile-popover,
+html.arborito-desktop .arborito-desktop-profile-wrap.arborito-tour-popover-open .arborito-desktop-profile-popover {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    transition-delay: 0s;
+}
+
+html.dark.arborito-desktop .arborito-desktop-profile-popover {
+    border-color: rgb(51 65 85 / 0.8);
+    background: rgb(15 23 42);
+}
+
+/* Mochila (escritorio): panel fijo con progreso, semillas y trofeos — sin clic previo */
+html.arborito-desktop .arborito-desktop-mochila-host {
+    position: fixed;
+    z-index: 108;
+    top: calc(var(--arborito-desktop-header-height) + max(0.65rem, env(safe-area-inset-top, 0px)));
+    right: max(1rem, env(safe-area-inset-right, 0px));
+    width: min(20.5rem, calc(100vw - 1.75rem));
+    max-height: min(calc(100vh - var(--arborito-desktop-header-height) - 1.5rem), 36rem);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    pointer-events: none;
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+}
+
+html.arborito-desktop .arborito-mochila-card {
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-height: inherit;
+    border-radius: 1.2rem;
+    border: 1px solid rgb(226 232 240 / 0.95);
+    background: rgb(255 255 255);
+    box-shadow: 0 16px 40px -24px rgb(15 23 42 / 0.45);
+    overflow: hidden;
+}
+
+html.dark.arborito-desktop .arborito-mochila-card {
+    border-color: rgb(51 65 85 / 0.88);
+    background: rgb(15 23 42 / 0.96);
+    box-shadow: 0 20px 50px -20px rgb(0 0 0 / 0.5);
+}
+
+html.arborito-desktop .arborito-mochila-card__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    padding: 0.85rem 1rem 0.65rem;
+    border-bottom: 1px solid rgb(226 232 240 / 0.85);
+    flex-shrink: 0;
+}
+
+html.dark.arborito-desktop .arborito-mochila-card__head {
+    border-bottom-color: rgb(51 65 85 / 0.75);
+}
+
+html.arborito-desktop .arborito-mochila-card__mark {
+    font-size: 1.6rem;
+    line-height: 1;
+}
+
+html.arborito-desktop .arborito-mochila-card__titles {
+    min-width: 0;
+    flex: 1;
+}
+
+html.arborito-desktop .arborito-mochila-card__title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    color: rgb(15 23 42);
+}
+
+html.dark.arborito-desktop .arborito-mochila-card__title {
+    color: rgb(248 250 252);
+}
+
+html.arborito-desktop .arborito-mochila-card__sub {
+    margin: 0.15rem 0 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: rgb(100 116 139);
+}
+
+html.dark.arborito-desktop .arborito-mochila-card__sub {
+    color: rgb(148 163 184);
+}
+
+html.arborito-desktop .arborito-mochila-card__body {
+    padding: 0.75rem 1rem 0.9rem;
+    overflow-y: auto;
+    min-height: 0;
+    flex: 1 1 auto;
+}
+
+html.arborito-desktop .arborito-mochila-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+html.arborito-desktop .arborito-mochila-stat {
+    position: relative;
+    border-radius: 0.85rem;
+    padding: 0.5rem 0.45rem;
+    text-align: center;
+    overflow: hidden;
+    border: 1px solid transparent;
+}
+
+html.arborito-desktop .arborito-mochila-stat--blue {
+    background: rgb(239 246 255 / 0.95);
+    border-color: rgb(191 219 254 / 0.6);
+}
+
+html.dark.arborito-desktop .arborito-mochila-stat--blue {
+    background: rgb(30 58 138 / 0.25);
+    border-color: rgb(59 130 246 / 0.25);
+}
+
+html.arborito-desktop .arborito-mochila-stat--amber {
+    background: rgb(255 247 237 / 0.95);
+    border-color: rgb(254 215 170 / 0.65);
+}
+
+html.dark.arborito-desktop .arborito-mochila-stat--amber {
+    background: rgb(154 52 18 / 0.2);
+    border-color: rgb(251 146 60 / 0.2);
+}
+
+html.arborito-desktop .arborito-mochila-stat__ic {
+    display: block;
+    font-size: 1.1rem;
+    line-height: 1;
+    margin-bottom: 0.15rem;
+}
+
+html.arborito-desktop .arborito-mochila-stat__val {
+    font-size: 1.05rem;
+    font-weight: 950;
+    color: rgb(15 23 42);
+    line-height: 1.1;
+}
+
+html.dark.arborito-desktop .arborito-mochila-stat__val {
+    color: rgb(248 250 252);
+}
+
+html.arborito-desktop .arborito-mochila-stat__lb {
+    display: block;
+    font-size: 0.58rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgb(100 116 139);
+    margin-top: 0.1rem;
+}
+
+html.dark.arborito-desktop .arborito-mochila-stat__lb {
+    color: rgb(148 163 184);
+}
+
+html.arborito-desktop .arborito-mochila-stat__fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgb(251 191 36 / 0.35);
+    pointer-events: none;
+    z-index: 0;
+}
+
+html.arborito-desktop .arborito-mochila-stat--amber > :not(.arborito-mochila-stat__fill) {
+    position: relative;
+    z-index: 1;
+}
+
+html.arborito-desktop .arborito-mochila-course {
+    margin-bottom: 0.75rem;
+}
+
+html.arborito-desktop .arborito-mochila-course__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+
+html.arborito-desktop .arborito-mochila-course__title {
+    font-size: 0.62rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgb(100 116 139);
+}
+
+html.dark.arborito-desktop .arborito-mochila-course__title {
+    color: rgb(148 163 184);
+}
+
+html.arborito-desktop .arborito-mochila-course__pct {
+    font-size: 0.85rem;
+    font-weight: 950;
+    color: rgb(22 163 74);
+}
+
+html.dark.arborito-desktop .arborito-mochila-course__pct {
+    color: rgb(74 222 128);
+}
+
+html.arborito-desktop .arborito-mochila-course__bar {
+    height: 0.35rem;
+    min-height: 6px;
+    border-radius: 999px;
+    background: rgb(226 232 240 / 0.95);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+html.dark.arborito-desktop .arborito-mochila-course__bar {
+    background: rgb(51 65 85 / 0.75);
+}
+
+html.arborito-desktop .arborito-mochila-course__bar > span {
+    display: block;
+    height: 100%;
+    min-width: 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgb(34 197 94), rgb(45 212 191));
+    transition: width 280ms ease-out;
+}
+
+html.arborito-desktop .arborito-mochila-course__meta {
+    margin: 0.35rem 0 0;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: rgb(100 116 139);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+}
+
+html.dark.arborito-desktop .arborito-mochila-course__meta {
+    color: rgb(148 163 184);
+}
+
+html.arborito-desktop .arborito-mochila-dot {
+    opacity: 0.45;
+}
+
+html.arborito-desktop .arborito-mochila-block {
+    margin-bottom: 0.65rem;
+}
+
+html.arborito-desktop .arborito-mochila-block__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem;
+    margin-bottom: 0.35rem;
+}
+
+html.arborito-desktop .arborito-mochila-block__title {
+    font-size: 0.62rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgb(71 85 105);
+}
+
+html.dark.arborito-desktop .arborito-mochila-block__title {
+    color: rgb(148 163 184);
+}
+
+html.arborito-desktop .arborito-mochila-block__badge {
+    font-size: 0.58rem;
+    font-weight: 900;
+    padding: 0.12rem 0.45rem;
+    border-radius: 999px;
+    background: rgb(241 245 249);
+    color: rgb(51 65 85);
+}
+
+html.dark.arborito-desktop .arborito-mochila-block__badge {
+    background: rgb(30 41 59);
+    color: rgb(203 213 225);
+}
+
+html.arborito-desktop .arborito-mochila-block__badge--gold {
+    background: rgb(254 243 199);
+    color: rgb(146 64 14);
+}
+
+html.dark.arborito-desktop .arborito-mochila-block__badge--gold {
+    background: rgb(120 53 15 / 0.45);
+    color: rgb(253 230 138);
+}
+
+html.arborito-desktop .arborito-mochila-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+    min-height: 2.35rem;
+    padding: 0.35rem 0.4rem;
+    border-radius: 0.75rem;
+    background: rgb(248 250 252 / 0.9);
+    border: 1px solid rgb(226 232 240 / 0.85);
+}
+
+html.dark.arborito-desktop .arborito-mochila-strip {
+    background: rgb(30 41 59 / 0.5);
+    border-color: rgb(51 65 85 / 0.75);
+}
+
+html.arborito-desktop .arborito-mochila-strip--trophies {
+    background: rgb(255 251 235 / 0.65);
+    border-color: rgb(253 230 138 / 0.55);
+}
+
+html.dark.arborito-desktop .arborito-mochila-strip--trophies {
+    background: rgb(69 26 3 / 0.35);
+    border-color: rgb(180 83 9 / 0.35);
+}
+
+html.arborito-desktop .arborito-mochila-ico {
+    font-size: 1.15rem;
+    line-height: 1;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.45rem;
+    background: rgb(255 255 255 / 0.9);
+    border: 1px solid rgb(226 232 240 / 0.9);
+}
+
+html.dark.arborito-desktop .arborito-mochila-ico {
+    background: rgb(15 23 42 / 0.6);
+    border-color: rgb(51 65 85 / 0.85);
+}
+
+html.arborito-desktop .arborito-mochila-trophy {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: none;
+    border-radius: 0.55rem;
+    cursor: pointer;
+    background: rgb(255 255 255 / 0.95);
+    border: 1px solid rgb(251 191 36 / 0.55);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 120ms ease, box-shadow 160ms ease;
+}
+
+html.dark.arborito-desktop .arborito-mochila-trophy {
+    background: rgb(30 41 59 / 0.85);
+    border-color: rgb(245 158 11 / 0.4);
+}
+
+html.arborito-desktop .arborito-mochila-trophy:hover {
+    transform: scale(1.06);
+    box-shadow: 0 4px 12px rgb(245 158 11 / 0.25);
+}
+
+html.arborito-desktop .arborito-mochila-trophy__ic {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+html.arborito-desktop .arborito-mochila-empty {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: rgb(148 163 184);
+    font-style: italic;
+    padding: 0.15rem 0.25rem;
+}

@@ -1,0 +1,48 @@
+{
+  "name": "arborito",
+  "version": "1.0.0",
+  "description": "Visual Knowledge Explorer. Tailwind CSS v3 compiled locally (no CDN); run npm run build:css after style changes.",
+  "main": "electron-main.js",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/styles/main.entry.css -o ./src/styles/main.css",
+    "build:css:min": "tailwindcss -i ./src/styles/main.entry.css -o ./src/styles/main.css --minify",
+    "watch:css": "tailwindcss -i ./src/styles/main.entry.css -o ./src/styles/main.css --watch",
+    "prestart": "npm run build:css",
+    "start": "electron .",
+    "predist": "npm run build:css",
+    "dist": "electron-builder"
+  },
+  "author": "Treesys",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "postcss": "^8.4.49",
+    "postcss-import": "^16.1.0",
+    "tailwindcss": "^3.4.17"
+  },
+  "build": {
+    "appId": "org.treesys.arborito",
+    "productName": "Arborito",
+    "files": [
+      "**/*",
+      "!dist/",
+      "!release/",
+      "!package/"
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Education"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    }
+  }
+}

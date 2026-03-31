@@ -1,0 +1,142 @@
+/* =============================================================================
+   Móvil en apaisado (landscape): poca altura útil — dock, modales y lección.
+   Cubre html.arborito-shell-mobile y html.force-mobile (teléfono rotado, ancho ≥ md).
+   ============================================================================= */
+
+@media (orientation: landscape) and (max-height: 560px) {
+    html.arborito-shell-mobile,
+    html.force-mobile {
+        --arborito-mob-dock-clearance: calc(3.05rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    html.arborito-shell-mobile .arborito-mob-dock,
+    html.force-mobile .arborito-mob-dock {
+        min-height: 2.7rem !important;
+        padding: 0.22rem 0.3rem !important;
+    }
+
+    html.arborito-shell-mobile .arborito-mob-tab,
+    html.force-mobile .arborito-mob-tab {
+        gap: 0;
+        padding: 0.12rem 0.08rem;
+        line-height: 1.1;
+    }
+
+    html.arborito-shell-mobile .arborito-mob-tab__label,
+    html.force-mobile .arborito-mob-tab__label {
+        font-size: 0.62rem;
+        font-weight: 800;
+    }
+
+    html.arborito-shell-mobile .arborito-mob-tab__icon,
+    html.force-mobile .arborito-mob-tab__icon {
+        font-size: 1.05rem;
+        line-height: 1;
+    }
+
+    /* Cabeceras tipo dock (Más, búsqueda, sub-paneles) — solo shell móvil */
+    html.arborito-shell-mobile .arborito-sheet__hero--mmenu-sub.arborito-dock-modal-hero:not(.arborito-mmenu-hero--root),
+    html.force-mobile .arborito-sheet__hero--mmenu-sub.arborito-dock-modal-hero:not(.arborito-mmenu-hero--root) {
+        padding-top: max(0.35rem, env(safe-area-inset-top, 0px)) !important;
+        padding-bottom: 0.45rem !important;
+    }
+
+    html.arborito-shell-mobile .arborito-mmenu-subtitle,
+    html.force-mobile .arborito-mmenu-subtitle {
+        font-size: 0.8rem !important;
+        line-height: 1.2 !important;
+    }
+
+    /* Hojas modales móvil: menos padding superior */
+    html.arborito-shell-mobile
+        #modal-backdrop.arborito-modal-root.arborito-modal--mobile:not(.arborito-modal--immersive):not(.arborito-modal--welcome)
+        > div:first-child,
+    html.force-mobile
+        #modal-backdrop.arborito-modal-root.arborito-modal--mobile:not(.arborito-modal--immersive):not(.arborito-modal--welcome)
+        > div:first-child {
+        padding-top: max(0.4rem, env(safe-area-inset-top, 0px)) !important;
+    }
+
+    /* Lección a pantalla completa */
+    html:not(.arborito-desktop) .arborito-lesson-mobile-head {
+        padding: max(0.2rem, env(safe-area-inset-top, 0px)) 0.65rem 0.4rem;
+    }
+
+    html:not(.arborito-desktop) .arborito-lesson-mobile-grab {
+        margin-bottom: 0.35rem;
+    }
+
+    html:not(.arborito-desktop) .arborito-lesson-head-main {
+        gap: 0.4rem;
+    }
+
+    html:not(.arborito-desktop) .arborito-lesson-mobile-titleblock .arborito-lesson-emoji {
+        font-size: 1.1rem;
+    }
+
+    html:not(.arborito-desktop) .arborito-lesson-mobile-titleblock h1 {
+        font-size: 0.95rem;
+        line-height: 1.2;
+    }
+
+    html:not(.arborito-desktop) .arborito-lesson-mobile-breadcrumb {
+        margin-top: 0.1rem;
+    }
+
+    html:not(.arborito-desktop) .arborito-lesson-mobile-footer {
+        padding: 0.35rem 0.6rem calc(0.45rem + env(safe-area-inset-bottom, 8px));
+    }
+
+    html:not(.arborito-desktop) .arborito-lesson-footer-meta-row {
+        margin-bottom: 0.4rem;
+    }
+
+    html:not(.arborito-desktop) .arborito-lesson-footer-meta-pill {
+        padding: 0.28rem 0.65rem;
+    }
+
+    html:not(.arborito-desktop) .arborito-lesson-footer-btn {
+        padding: 0.45rem 0.65rem;
+        font-size: 0.7rem;
+    }
+
+    /* Grafo móvil: chip versión un poco más bajo si el dock es más bajo */
+    .mobile-version-fixed-slot {
+        bottom: calc(var(--arborito-mob-dock-clearance, 3.05rem) + 0.25rem) !important;
+    }
+
+    /* Mochila (overlay): más área útil para el scroll */
+    #mobile-widget-overlay .arborito-mochila-mobile-scroll {
+        padding: 0.5rem 0.75rem !important;
+    }
+
+    /* Menú Más — filas drill más bajas */
+    html.arborito-shell-mobile .arborito-mmenu-drill-row,
+    html.force-mobile .arborito-mmenu-drill-row {
+        min-height: 2.65rem !important;
+    }
+
+    /* Raíz “Más”: menos aire bajo el asa */
+    html.arborito-shell-mobile .arborito-mmenu-hero--root .arborito-sheet__grab,
+    html.force-mobile .arborito-mmenu-hero--root .arborito-sheet__grab {
+        margin-bottom: 0.25rem;
+    }
+}
+
+/*
+ * Teléfono ancho en landscape (force-mobile + columna 28rem): aprovechar anchura para leer el árbol / lección.
+ */
+@media (min-width: 900px) and (orientation: landscape) and (max-height: 560px) {
+    html.arborito-shell-mobile body.arborito-app #app.arborito-shell,
+    html.force-mobile body.arborito-app #app.arborito-shell {
+        max-width: min(calc(100vw - 1.25rem), 52rem);
+    }
+}
+
+/* Certificado: apaisado con poca altura (móvil ancho ≥ md incl.) — altura estable con barra de URL */
+@media (orientation: landscape) and (max-height: 480px) {
+    html.arborito-shell-mobile .arborito-float-modal-card.arborito-float-modal-card--certificate,
+    html.force-mobile .arborito-float-modal-card.arborito-float-modal-card--certificate {
+        max-height: min(100svh, 100dvh) !important;
+    }
+}
