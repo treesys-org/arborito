@@ -1,0 +1,632 @@
+/* Construcción móvil: ficha del curso en scroll del tronco + exploración con hueco bajo ficha flotante.
+ * Reglas del dock compartidas: utilities/construction-dock.css. Escritorio: desktop/dock-versions-curriculum.css.
+ */
+
+html.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-pres-anchor--flow-empty {
+  display: none !important;
+}
+
+/*
+ * Igual que la ancla flotante en exploración: el slot no consume alto del flex del tronco;
+ * el hueco lo marca --arbor-mobile-pres-clearance en tree-presentation (ResizeObserver).
+ */
+/* Misma posición vertical que `.arborito-tree-pres-anchor` (top-2 + safe-area). */
+html.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-tree-ui
+  > .arborito-tree-pres-flow-slot:not([hidden]) {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0.5rem;
+  z-index: 4;
+  max-width: 100%;
+  padding-left: max(0.25rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.25rem, env(safe-area-inset-right, 0px));
+  padding-top: max(0.35rem, env(safe-area-inset-top, 0px));
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+/* Tema + perfil: por encima del dock de construcción (z~130) y del grafo. */
+html.arborito-construction-mobile:not(.arborito-desktop) arborito-sidebar .arborito-mob-top-actions {
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+  z-index: 135;
+}
+
+/* Modal Perfil abierto: ocultar luna + chip (misma especificidad que «Más»; vence a la regla anterior). */
+html.arborito-profile-modal-open.arborito-construction-mobile:not(.arborito-desktop)
+  arborito-sidebar
+  .arborito-mob-top-actions {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Modal Colaboradores: vencer a la regla «tema + perfil visible» de construcción (misma especificidad que Perfil). */
+html.arborito-contributor-modal-open.arborito-construction-mobile:not(.arborito-desktop)
+  arborito-sidebar
+  .arborito-mob-top-actions,
+html.force-mobile.arborito-contributor-modal-open.arborito-construction-mobile:not(.arborito-desktop)
+  arborito-sidebar
+  .arborito-mob-top-actions {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Hoja «Más» compacta abierta: ocultar luna y perfil (igual criterio que fuera de arborito-mob-tree-home). */
+html.arborito-construction-mobile.arborito-construction-more-open:not(.arborito-desktop)
+  arborito-sidebar
+  .arborito-mob-top-actions {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+html.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-pres-flow-slot arborito-tree-presentation {
+  display: block;
+  position: relative;
+  max-width: min(36rem, 100%);
+  margin-left: 0;
+  margin-right: auto;
+  pointer-events: auto;
+  padding-bottom: 0.35rem;
+}
+
+/* Chip compacto: no invadir tema + perfil (z ~135); al abrir la hoja, :has() deja de aplicar y el panel fijo cubre toda la UI */
+html.arborito-construction-mobile:not(.arborito-desktop)
+  .arborito-tree-pres-flow-slot
+  arborito-tree-presentation.arborito-tree-pres--flow-compact:not(:has(.arborito-tree-pres-sheet-root)) {
+  max-width: min(19rem, calc(100vw - 6.75rem));
+}
+
+/* CC BY-SA: aviso corto sobre el árbol (exploración + construcción), alineado con welcome/sources. */
+.arborito-tree-pres-cc-wrap {
+  width: 100%;
+  max-width: calc(100% - 3.5rem);
+  box-sizing: border-box;
+}
+
+.arborito-tree-pres-cc-notice {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(147 197 253);
+  background: rgb(255 255 255);
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1.35;
+  color: rgb(30 64 175);
+  text-align: left;
+}
+
+.arborito-tree-pres-cc-notice--btn {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.arborito-tree-pres-cc-notice--btn:hover {
+  border-color: rgb(96 165 250);
+  background: rgb(239 246 255);
+}
+
+html.dark .arborito-tree-pres-cc-notice {
+  border-color: rgb(59 130 246 / 0.45);
+  background: rgb(15 23 42 / 0.92);
+  color: rgb(191 219 254);
+}
+
+html.dark .arborito-tree-pres-cc-notice--btn:hover {
+  border-color: rgb(96 165 250 / 0.65);
+  background: rgb(30 41 59 / 0.95);
+}
+
+.arborito-tree-pres-compact {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.arborito-tree-pres-compact__btn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.55rem 0.65rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: rgb(248 250 252 / 0.98);
+  color: rgb(30 41 59);
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.65) inset;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+
+.arborito-tree-pres-compact__btn:active {
+  transform: scale(0.99);
+}
+
+html.dark .arborito-tree-pres-compact__btn {
+  background: rgb(30 41 59 / 0.92);
+  color: rgb(226 232 240);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.05) inset;
+}
+
+.arborito-tree-pres-compact__glyph {
+  flex: 0 0 auto;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.arborito-tree-pres-compact__main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.arborito-tree-pres-compact__title {
+  font-size: 0.6875rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(100 116 139);
+}
+
+html.dark .arborito-tree-pres-compact__title {
+  color: rgb(148 163 184);
+}
+
+.arborito-tree-pres-compact__hint {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgb(51 65 85);
+  line-height: 1.25;
+}
+
+html.dark .arborito-tree-pres-compact__hint {
+  color: rgb(203 213 225);
+}
+
+.arborito-tree-pres-compact__chev {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  color: rgb(100 116 139);
+  opacity: 0.85;
+}
+
+.arborito-tree-pres-sheet-root {
+  position: fixed;
+  inset: 0;
+  z-index: 128;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: stretch;
+  pointer-events: none;
+}
+
+/* Por encima de .arborito-mob-top-actions (135) para que el velo + hoja tapen tema y perfil al editar */
+html.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-pres-sheet-root {
+  z-index: 140;
+}
+
+/* Hoja “About” en construcción móvil: entra desde arriba y queda por encima del dock (capas en graph-construction-flow + tree-presentation). */
+html.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-pres-sheet-root {
+  justify-content: flex-start;
+  padding-top: 0;
+}
+
+html.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-pres-sheet-panel {
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid rgb(226 232 240 / 0.95);
+  background: rgb(255 255 255) !important;
+  max-height: min(82dvh, calc(100dvh - var(--arborito-construction-dock-clearance, 12rem) - 0.5rem));
+  box-shadow: 0 8px 28px rgb(15 23 42 / 0.12);
+}
+
+html.dark.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-pres-sheet-panel {
+  border-bottom-color: rgb(51 65 85 / 0.95);
+  background: rgb(15 23 42) !important;
+  box-shadow: 0 10px 32px rgb(0 0 0 / 0.35);
+}
+
+/* Cabecera sin gradiente ni curvas: mismo blanco que el cuerpo, texto legible */
+html.arborito-construction-mobile:not(.arborito-desktop)
+  .arborito-tree-pres-sheet-head.arborito-dock-modal-hero {
+  background: rgb(255 255 255) !important;
+  background-image: none !important;
+  border-bottom: 1px solid rgb(226 232 240 / 0.95);
+  border-radius: 0 !important;
+}
+
+html.dark.arborito-construction-mobile:not(.arborito-desktop)
+  .arborito-tree-pres-sheet-head.arborito-dock-modal-hero {
+  background: rgb(15 23 42) !important;
+  background-image: none !important;
+  border-bottom-color: rgb(51 65 85 / 0.85);
+}
+
+html.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-pres-sheet-body {
+  background: rgb(255 255 255);
+}
+
+html.dark.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-pres-sheet-body {
+  background: rgb(15 23 42);
+}
+
+/*
+ * Hoja «Sobre el árbol» abierta:
+ * - Subir el bloque del grafo por encima de tema+perfil (135).
+ * - clip-path: el main ya no pinta la franja del dock → se ve el panel de construcción (z 130) sin bajarlo.
+ * - El velo del sheet no baja hasta el borde físico (inset) para no tapar el dock.
+ */
+html.arborito-tree-pres-course-sheet-open.arborito-construction-mobile:not(.arborito-desktop) #arborito-graph-tour-anchor {
+  z-index: 138;
+  clip-path: inset(0 0 var(--arborito-construction-tab-dock-gap) 0);
+}
+
+html.arborito-tree-pres-course-sheet-open:not(.arborito-desktop) arborito-graph {
+  z-index: 112;
+}
+
+/* Velo + sheet: solo hasta encima del dock compacto (mismo criterio que #cp-construct-more-pop). */
+html.arborito-tree-pres-course-sheet-open.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-pres-sheet-root {
+  inset: 0 0 var(--arborito-construction-tab-dock-gap) 0;
+}
+
+/* Cabeza + cuerpo del formulario: no invadir la franja del dock al hacer scroll. */
+html.arborito-tree-pres-course-sheet-open.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-pres-sheet-panel {
+  max-height: min(
+    78dvh,
+    calc(100dvh - env(safe-area-inset-top, 0px) - var(--arborito-construction-tab-dock-gap) - 3.5rem)
+  );
+}
+
+/* Tronco / cable / conector al panel: ocultos mientras el modal cubre el mapa (refuerzo junto al velo). */
+html.arborito-tree-pres-course-sheet-open.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-tree-ui.mobile-tree-ui--construction #mobile-trunk-svg,
+html.arborito-tree-pres-course-sheet-open.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-tree-ui.mobile-tree-ui--construction .mobile-branch-connector-svg,
+html.arborito-tree-pres-course-sheet-open.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-tree-ui.mobile-tree-ui--construction .mobile-trunk-fade,
+html.arborito-tree-pres-course-sheet-open.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-tree-ui.mobile-tree-ui--construction #mobile-knots-container {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Trazo del tronco: no recibe toques ni selección (solo los .mobile-knot son interactivos). */
+html.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-trunk-svg,
+html.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-trunk-svg * {
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+/* El margen al dock lo da --arborito-mobile-tree-ui-bottom; quitar padding-bottom extra en columnas. */
+html.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-trunk-col,
+html.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-right-col {
+  padding-bottom: 0.2rem;
+}
+
+/* Dock compacto construcción: misma altura mínima con o sin hoja «Más»; franja rectangular (sin redondeo del bloque). */
+html.arborito-construction-mobile:not(.arborito-desktop) .cp-construct-mob-dock {
+  min-height: 3.75rem;
+  padding: 0.45rem 0.4rem 0.5rem;
+  gap: 0.15rem;
+  position: relative;
+  z-index: 141;
+  border-radius: 0;
+  box-sizing: border-box;
+  /* Fondo explícito: sin él, al abrir «Más» el velo/sheet dejan ver el grid del mapa y parece otra barra. */
+  background: rgb(248 250 252);
+}
+
+html.dark.arborito-construction-mobile:not(.arborito-desktop) .cp-construct-mob-dock {
+  background: rgb(15 23 42);
+}
+
+html.arborito-construction-mobile:not(.arborito-desktop) .cp-construct-mob-dock .arborito-mob-tab {
+  gap: 0.08rem;
+  padding: 0.2rem 0.12rem;
+  overflow: visible;
+  min-height: 0;
+}
+
+html.arborito-construction-mobile:not(.arborito-desktop) .cp-construct-mob-dock .arborito-mob-tab__label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  /* !important: va después de @tailwind y gana a .arborito-mob-tab__label (-webkit-line-clamp: 2). */
+  display: block !important;
+  -webkit-box-orient: unset !important;
+  -webkit-line-clamp: unset !important;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html.arborito-construction-mobile:not(.arborito-desktop) .cp-construct-mob-dock .arborito-mob-tab__icon {
+  font-size: 1.28rem;
+  line-height: 1;
+}
+
+.arborito-tree-pres-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: rgb(15 23 42 / 0.45);
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html.dark .arborito-tree-pres-sheet-backdrop {
+  background: rgb(0 0 0 / 0.55);
+}
+
+.arborito-tree-pres-sheet-panel {
+  position: relative;
+  pointer-events: auto;
+  max-height: min(88dvh, 100%);
+  overflow: hidden auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 1.15rem 1.15rem 0 0;
+  border: 1px solid rgb(226 232 240 / 0.95);
+  border-bottom: none;
+  background: rgb(255 255 255 / 0.98);
+  box-shadow: 0 -12px 40px rgb(15 23 42 / 0.18);
+  box-sizing: border-box;
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+html.dark .arborito-tree-pres-sheet-panel {
+  border-color: rgb(51 65 85 / 0.95);
+  background: rgb(15 23 42 / 0.98);
+  box-shadow: 0 -14px 48px rgb(0 0 0 / 0.45);
+}
+
+/* Cabecera por defecto (exploración / fallback) */
+.arborito-tree-pres-sheet-head:not(.arborito-dock-modal-hero) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.65rem 0.75rem 0.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: inherit;
+  border-bottom: 1px solid rgb(241 245 249 / 0.95);
+}
+
+html.dark .arborito-tree-pres-sheet-head:not(.arborito-dock-modal-hero) {
+  border-bottom-color: rgb(51 65 85 / 0.85);
+}
+
+/* Cabecera con .arborito-dock-modal-hero: gradiente y safe-area vienen de lesson-and-more-menu.css */
+.arborito-tree-pres-sheet-head.arborito-dock-modal-hero {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-radius: 0;
+}
+
+.arborito-tree-pres-sheet-body {
+  padding: 0.5rem 0.85rem 0.75rem;
+}
+
+html.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-pres-sheet-body .text-slate-500 {
+  color: rgb(51 65 85) !important;
+}
+
+html.dark.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-pres-sheet-body .text-slate-500,
+html.dark.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-pres-sheet-body .dark\:text-slate-400 {
+  color: rgb(203 213 225) !important;
+}
+
+/* Exploración móvil: ficha flotante por encima del tronco; --arbor-mobile-pres-clearance en tree-presentation.js */
+html:not(.arborito-desktop) .arborito-tree-pres-anchor:not(.arborito-tree-pres-anchor--flow-empty) {
+  z-index: 45 !important;
+}
+
+html:not(.arborito-desktop) .arborito-mobile-path.mobile-tree-ui .mobile-trunk-scroll-content {
+  padding-top: var(--arbor-mobile-pres-clearance, 0px);
+}
+
+html:not(.arborito-desktop) .arborito-mobile-path.mobile-tree-ui .mobile-trunk-container {
+  scroll-padding-top: max(0.5rem, var(--arbor-mobile-pres-clearance, 0px));
+}
+
+html.arborito-construction-mobile:not(.arborito-desktop) .mobile-tree-ui.mobile-tree-ui--construction .mobile-trunk-fade {
+  opacity: 0.22;
+}
+
+html.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-panel-head
+  .mobile-inline-tools-host {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 100%;
+}
+
+html.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-panel-head
+  .mobile-panel-header {
+  flex: 1 1 100%;
+  width: 100%;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  row-gap: 0.35rem;
+}
+
+/* Unified “Version and tree” chip: full row so text is not squeezed beside back / emoji */
+html.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-panel-header
+  .mobile-panel-root-head,
+html.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-panel-header
+  .mobile-panel-version-slot {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+html.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-panel-header
+  .arborito-curriculum-switcher-host {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+html:not(.dark).arborito-construction-mobile:not(.arborito-desktop)
+  .arborito-mobile-path.mobile-tree-ui--construction
+  .mobile-child-name {
+  color: rgb(15 23 42);
+}
+
+html:not(.dark).arborito-construction-mobile:not(.arborito-desktop)
+  .arborito-mobile-path.mobile-tree-ui--construction
+  .mobile-panel-title {
+  color: rgb(51 65 85);
+}
+
+/* “Fin de la rama” in construction: increase contrast on light panel. */
+html:not(.dark).arborito-construction-mobile:not(.arborito-desktop)
+  .arborito-mobile-path.mobile-tree-ui--construction
+  .mobile-empty-branch-text {
+  color: rgb(51 65 85) !important;
+  opacity: 1 !important;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+html.dark.arborito-construction-mobile:not(.arborito-desktop)
+  .arborito-mobile-path.mobile-tree-ui--construction
+  .mobile-empty-branch-text {
+  color: rgb(226 232 240) !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.45);
+}
+
+/* Fallback: if wrapper classes differ, still ensure “Fin de la rama” is readable. */
+html.arborito-construction-mobile:not(.arborito-desktop) .mobile-tree-ui--construction .mobile-empty-branch {
+  opacity: 1 !important;
+}
+html.arborito-construction-mobile:not(.arborito-desktop) .mobile-tree-ui--construction .mobile-empty-branch-text {
+  opacity: 1 !important;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+html:not(.dark).arborito-construction-mobile:not(.arborito-desktop) .mobile-tree-ui--construction .mobile-empty-branch-text {
+  color: rgb(51 65 85) !important;
+  text-shadow: none !important;
+}
+html.dark.arborito-construction-mobile:not(.arborito-desktop) .mobile-tree-ui--construction .mobile-empty-branch-text {
+  color: rgb(226 232 240) !important;
+}
+
+html.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-inline-tool {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-construction-mobile) .arborito-tree-pres-anchor:not(.arborito-tree-pres-anchor--flow-empty) {
+  display: none !important;
+  visibility: hidden;
+  height: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+html.arborito-shell-mobile:not(.arborito-construction-mobile) .arborito-mobile-path.mobile-tree-ui .mobile-trunk-scroll-content {
+  padding-top: 0 !important;
+}
+
+html.arborito-shell-mobile:not(.arborito-construction-mobile) .arborito-mobile-path.mobile-tree-ui .mobile-trunk-container {
+  scroll-padding-top: 0.5rem;
+}
+
+/* Construction «Más»: selector de idioma dentro de la hoja tipo menú Más */
+.cp-construct-more__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.cp-construct-more__field-lb {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: rgb(71 85 105);
+}
+
+html.dark .cp-construct-more__field-lb {
+  color: rgb(203 213 225);
+}
+
+.cp-construct-more__select {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 0.8125rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 0.65rem;
+  border: 1px solid rgb(226 232 240);
+  background: rgb(255 255 255 / 0.98);
+  color: rgb(15 23 42);
+}
+
+html.dark .cp-construct-more__select {
+  border-color: rgb(51 65 85);
+  background: rgb(15 23 42 / 0.95);
+  color: rgb(241 245 249);
+}
+
+.cp-construct-mob-tab--pub {
+  color: rgb(180 83 9);
+}
+
+html.dark .cp-construct-mob-tab--pub {
+  color: rgb(251 191 36);
+}
+
+.arborito-mmenu-course-about-host arborito-tree-presentation {
+  display: block;
+  min-height: 5rem;
+}

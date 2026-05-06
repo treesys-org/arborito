@@ -1,0 +1,924 @@
+/**
+ * Runtime overrides loaded after `main.css`.
+ *
+ * Goal: avoid Firefox "font-visibility" console noise by not enumerating many named fonts.
+ * Use generic stacks only (system-ui + sans-serif).
+ */
+
+:root {
+  --font-family-base: system-ui, sans-serif;
+  --arborito-font-display: system-ui, sans-serif;
+}
+
+/* In some builds, typography/prose can introduce serif stacks via utility classes. */
+.font-serif {
+  font-family: var(--font-family-base);
+}
+
+/* --- Tree switcher overlay (graph chrome) --- */
+.arborito-version-control-stack {
+  width: 100%;
+}
+
+.arborito-curriculum-switcher-host {
+  width: 100%;
+}
+
+.arborito-curriculum-switcher-scroll {
+  padding: 0.9rem;
+  overflow: auto;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.arborito-curriculum-switcher-divider {
+  height: 1px;
+  background: rgba(148, 163, 184, 0.25);
+}
+html.dark .arborito-curriculum-switcher-divider {
+  background: rgba(148, 163, 184, 0.18);
+}
+
+.arborito-curriculum-switcher-block__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.arborito-curriculum-switcher-block__title {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 950;
+  color: rgba(15, 23, 42, 0.92);
+}
+html.dark .arborito-curriculum-switcher-block__title {
+  color: rgba(226, 232, 240, 0.95);
+}
+.arborito-curriculum-switcher-block__sub {
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: rgba(100, 116, 139, 1);
+}
+html.dark .arborito-curriculum-switcher-block__sub {
+  color: rgba(148, 163, 184, 0.92);
+}
+
+.arborito-curriculum-switcher-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.arborito-curriculum-switcher-row {
+  width: 100%;
+  min-height: 2.5rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  font-weight: 900;
+  color: rgba(15, 23, 42, 0.92);
+  text-align: left;
+}
+html.dark .arborito-curriculum-switcher-row {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(148, 163, 184, 0.2);
+  color: rgba(226, 232, 240, 0.95);
+}
+.arborito-curriculum-switcher-row.is-active {
+  border-color: rgba(59, 130, 246, 0.55);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.25);
+}
+.arborito-curriculum-switcher-row__left {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+.arborito-curriculum-switcher-row__left span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.arborito-curriculum-switcher-row__right {
+  flex: 0 0 auto;
+  opacity: 0.9;
+}
+
+.arborito-curriculum-switcher-hint {
+  margin-top: 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: rgba(100, 116, 139, 1);
+}
+html.dark .arborito-curriculum-switcher-hint {
+  color: rgba(148, 163, 184, 0.9);
+}
+
+.arborito-curriculum-switcher-empty {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: rgba(100, 116, 139, 1);
+  padding: 0.65rem 0.75rem;
+  border-radius: 1rem;
+  border: 1px dashed rgba(148, 163, 184, 0.35);
+}
+html.dark .arborito-curriculum-switcher-empty {
+  color: rgba(148, 163, 184, 0.95);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+.arborito-curriculum-switcher-action {
+  width: 100%;
+  min-height: 2.75rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.12);
+  color: rgba(6, 95, 70, 1);
+  font-weight: 950;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+html.dark .arborito-curriculum-switcher-action {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: rgba(167, 243, 208, 0.95);
+}
+
+.arborito-curriculum-switcher-snap-create {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+}
+.arborito-curriculum-switcher-snap-label {
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: rgba(100, 116, 139, 1);
+}
+html.dark .arborito-curriculum-switcher-snap-label {
+  color: rgba(148, 163, 184, 0.92);
+}
+.arborito-curriculum-switcher-snap-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.arborito-curriculum-switcher-snap-row input {
+  flex: 1 1 auto;
+  height: 2.5rem;
+  padding: 0 0.85rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(241, 245, 249, 0.8);
+  color: rgba(15, 23, 42, 0.92);
+  outline: none;
+  font-weight: 800;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+html.dark .arborito-curriculum-switcher-snap-row input {
+  background: rgba(15, 23, 42, 0.65);
+  border-color: rgba(148, 163, 184, 0.2);
+  color: rgba(226, 232, 240, 0.95);
+}
+.arborito-curriculum-switcher-snap-row button {
+  flex: 0 0 auto;
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  background: rgba(59, 130, 246, 0.14);
+  color: rgba(30, 64, 175, 1);
+  font-weight: 950;
+}
+html.dark .arborito-curriculum-switcher-snap-row button {
+  border-color: rgba(59, 130, 246, 0.25);
+  background: rgba(59, 130, 246, 0.18);
+  color: rgba(191, 219, 254, 0.95);
+}
+.arborito-curriculum-switcher-snap-row button:disabled,
+.arborito-curriculum-switcher-snap-row input:disabled {
+  opacity: 0.65;
+}
+
+.arborito-curriculum-switcher-snap-del {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: transparent;
+  color: rgba(100, 116, 139, 1);
+  font-weight: 900;
+}
+html.dark .arborito-curriculum-switcher-snap-del {
+  border-color: rgba(148, 163, 184, 0.18);
+  color: rgba(148, 163, 184, 0.95);
+}
+.arborito-curriculum-switcher-snap-del:hover {
+  color: rgba(220, 38, 38, 1);
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.25);
+}
+html.dark .arborito-curriculum-switcher-snap-del:hover {
+  background: rgba(220, 38, 38, 0.18);
+  border-color: rgba(220, 38, 38, 0.25);
+}
+
+.arborito-tree-switcher-host {
+  width: 100%;
+}
+.arborito-tree-switcher-host--chip {
+  /* Chip trigger is full-width; keep overlays above version timeline popover (z~135). */
+  position: relative;
+  z-index: 1;
+}
+.arborito-tree-switcher-btn {
+  max-width: min(18rem, 56vw);
+  height: 2.25rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.55); /* slate-400-ish */
+  background: rgba(255, 255, 255, 0.9);
+  color: rgba(15, 23, 42, 0.9);
+  font-weight: 800;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0 0.75rem;
+  flex: 0 0 auto;
+}
+html.dark .arborito-tree-switcher-btn {
+  background: rgba(15, 23, 42, 0.65);
+  border-color: rgba(148, 163, 184, 0.25);
+  color: rgba(226, 232, 240, 0.95);
+}
+.arborito-tree-switcher-btn__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: rgba(15, 23, 42, 0.92);
+}
+html.dark .arborito-tree-switcher-btn__name {
+  color: rgba(226, 232, 240, 0.95);
+}
+.arborito-tree-switcher-btn__chev {
+  opacity: 0.85;
+  font-weight: 1000;
+}
+
+.arborito-tree-switcher-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  background: rgba(2, 6, 23, 0.86);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+.arborito-tree-switcher-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.arborito-tree-switcher-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: min(420px, 92vw);
+  z-index: 145;
+  background: rgb(255, 255, 255);
+  border-left: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: -24px 0 80px rgba(0, 0, 0, 0.25);
+  transform: translateX(104%);
+  opacity: 0.98;
+  transition: transform 200ms ease, opacity 200ms ease;
+  display: flex;
+  flex-direction: column;
+}
+.arborito-tree-switcher-panel--portaled {
+  position: fixed;
+}
+html.dark .arborito-tree-switcher-panel {
+  background: rgb(2, 6, 23);
+  border-left-color: rgba(148, 163, 184, 0.2);
+  box-shadow: -24px 0 90px rgba(0, 0, 0, 0.6);
+}
+
+/* Chip (current tree/version) contrast in dark mode */
+html.dark .arborito-curriculum-switcher-chip.arborito-timeline-chip--btn {
+  background: rgba(30, 41, 59, 0.92) !important;
+  border-color: rgba(148, 163, 184, 0.32) !important;
+  box-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+/* Differentiate tree name vs Local line */
+.arborito-curriculum-switcher-chip .arborito-chip-tree-line {
+  color: rgba(15, 23, 42, 0.95);
+}
+html.dark .arborito-curriculum-switcher-chip .arborito-chip-tree-line {
+  color: rgba(255, 255, 255, 0.96);
+}
+.arborito-curriculum-switcher-chip .arborito-chip-version-line--local {
+  color: rgb(88 28 135) !important;
+}
+html.dark .arborito-curriculum-switcher-chip .arborito-chip-version-line--local {
+  color: rgb(233 213 255) !important;
+}
+html.dark .arborito-curriculum-switcher-chip .arborito-chip-version-line:not(.arborito-chip-version-line--local) {
+  color: rgba(203, 213, 225, 0.92);
+}
+
+/* Tree / curriculum switcher chip typography (replaces tiny Tailwind text-* on trigger) */
+.arborito-switcher-chip-eyebrow,
+.arborito-switcher-chip-title,
+.arborito-switcher-chip-sub {
+  display: block;
+}
+.arborito-switcher-chip-eyebrow {
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  color: rgb(100 116 139);
+}
+html.dark .arborito-tree-switcher-chip .arborito-switcher-chip-eyebrow,
+html.dark .arborito-curriculum-switcher-chip .arborito-switcher-chip-eyebrow {
+  color: rgb(148 163 184);
+}
+.arborito-tree-switcher-chip .arborito-switcher-chip-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: rgba(15, 23, 42, 0.92);
+}
+html.dark .arborito-tree-switcher-chip .arborito-switcher-chip-title {
+  color: rgba(248, 250, 252, 0.94);
+}
+.arborito-tree-switcher-chip .arborito-switcher-chip-sub {
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: rgb(71 85 105);
+}
+html.dark .arborito-tree-switcher-chip .arborito-switcher-chip-sub {
+  color: rgb(203 213 225);
+}
+.arborito-curriculum-switcher-chip .arborito-switcher-chip-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.arborito-curriculum-switcher-chip .arborito-switcher-chip-sub {
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.arborito-switcher-chip-chev {
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+  color: rgb(148 163 184);
+}
+html.dark .arborito-switcher-chip-chev {
+  color: rgba(148, 163, 184, 0.92);
+}
+
+/* Hide the horizontal scroll indicator line under the chip row */
+#arborito-curriculum-chrome,
+.arborito-mobile-curriculum-chrome,
+#arborito-mobile-version-fixed {
+  overflow-x: hidden !important;
+  scrollbar-width: none;
+}
+#arborito-curriculum-chrome::-webkit-scrollbar,
+.arborito-mobile-curriculum-chrome::-webkit-scrollbar,
+#arborito-mobile-version-fixed::-webkit-scrollbar {
+  display: none;
+}
+
+/* Version filter spacing: avoid sticking to first row */
+#arborito-curriculum-switcher-version-block .arborito-tree-switcher-search-row {
+  margin-top: 0.65rem;
+  margin-bottom: 0.7rem;
+}
+#arborito-curriculum-switcher-snapshots-admin .arborito-tree-switcher-search-row {
+  margin-top: 0.65rem;
+  margin-bottom: 0.7rem;
+}
+.arborito-tree-switcher-panel.is-open {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.arborito-tree-switcher-head {
+  padding: 0.9rem 0.9rem 0.6rem 0.9rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.arborito-curriculum-switcher-tabs {
+  margin-top: 0.65rem;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(241, 245, 249, 0.75);
+}
+html.dark .arborito-curriculum-switcher-tabs {
+  background: rgba(15, 23, 42, 0.55);
+  border-color: rgba(148, 163, 184, 0.18);
+}
+.arborito-curriculum-switcher-tab {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: rgba(71, 85, 105, 1);
+  font-weight: 900;
+  font-size: 0.78rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.75rem;
+  flex: 1 1 0;
+  min-width: 0;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease, box-shadow 140ms ease;
+}
+html.dark .arborito-curriculum-switcher-tab {
+  color: rgba(203, 213, 225, 0.95);
+}
+.arborito-curriculum-switcher-tab.is-active {
+  background: rgba(255, 255, 255, 0.92);
+  color: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 8px 20px rgba(2, 6, 23, 0.08);
+}
+html.dark .arborito-curriculum-switcher-tab.is-active {
+  background: rgba(2, 6, 23, 0.65);
+  color: rgba(248, 250, 252, 0.98);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+/* Tab panes: toggle via panel[data-tab] without re-rendering (prevents handler accumulation). */
+.arborito-tree-switcher-panel[data-tab="version"] .arborito-switcher-pane--tree {
+  display: none;
+}
+.arborito-tree-switcher-panel[data-tab="tree"] .arborito-switcher-pane--version {
+  display: none;
+}
+.arborito-tree-switcher-panel[data-tab="version"] .arborito-tree-switcher-footer {
+  display: none;
+}
+.arborito-tree-switcher-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.arborito-tree-switcher-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: rgba(15, 23, 42, 0.92);
+}
+html.dark .arborito-tree-switcher-title {
+  color: rgba(226, 232, 240, 0.95);
+}
+.arborito-tree-switcher-close {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: transparent;
+  color: rgba(100, 116, 139, 1);
+  font-weight: 900;
+}
+html.dark .arborito-tree-switcher-close {
+  color: rgba(148, 163, 184, 0.95);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+.arborito-tree-switcher-search-row {
+  margin-top: 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.arborito-tree-switcher-search {
+  flex: 1 1 auto;
+  height: 2.5rem;
+  padding: 0 0.85rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(241, 245, 249, 0.8);
+  color: rgba(15, 23, 42, 0.92);
+  outline: none;
+  font-weight: 700;
+}
+html.dark .arborito-tree-switcher-search {
+  background: rgba(15, 23, 42, 0.65);
+  border-color: rgba(148, 163, 184, 0.2);
+  color: rgba(226, 232, 240, 0.95);
+}
+.arborito-tree-switcher-loading {
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: rgba(100, 116, 139, 1);
+  white-space: nowrap;
+}
+html.dark .arborito-tree-switcher-loading {
+  color: rgba(148, 163, 184, 0.9);
+}
+
+.arborito-tree-switcher-list {
+  padding: 0.9rem;
+  overflow: auto;
+  flex: 1 1 auto;
+}
+.arborito-tree-switcher-footer {
+  padding: 0.75rem 0.9rem calc(0.9rem + env(safe-area-inset-bottom)) 0.9rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  flex-shrink: 0;
+}
+.arborito-tree-switcher-more {
+  width: 100%;
+  min-height: 2.75rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.12);
+  color: rgba(6, 95, 70, 1);
+  font-weight: 950;
+  letter-spacing: -0.01em;
+}
+html.dark .arborito-tree-switcher-more {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: rgba(167, 243, 208, 0.95);
+}
+.arborito-tree-switcher-more:active {
+  transform: translateY(1px);
+}
+.arborito-tree-switcher-carousel {
+  display: flex;
+  gap: 0.65rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+.arborito-tree-switcher-item {
+  flex: 0 0 auto;
+  min-width: 12.5rem;
+  max-width: 16rem;
+  padding: 0.8rem 0.85rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.7rem;
+  text-align: left;
+}
+html.dark .arborito-tree-switcher-item {
+  background: rgba(30, 41, 59, 0.92);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+.arborito-tree-switcher-item {
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.04);
+}
+html.dark .arborito-tree-switcher-item {
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
+}
+.arborito-tree-switcher-item.is-active {
+  border-color: rgba(16, 185, 129, 0.65);
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35);
+}
+.arborito-tree-switcher-avatar {
+  flex-shrink: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  line-height: 1;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+.arborito-tree-switcher-avatar--local {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.arborito-tree-switcher-avatar--installed {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+html.dark .arborito-tree-switcher-avatar {
+  border-color: rgba(148, 163, 184, 0.22);
+}
+html.dark .arborito-tree-switcher-avatar--local {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.28);
+}
+html.dark .arborito-tree-switcher-avatar--installed {
+  background: rgba(59, 130, 246, 0.16);
+  border-color: rgba(59, 130, 246, 0.28);
+}
+.arborito-tree-switcher-item-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.arborito-tree-switcher-item-check {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  font-weight: 900;
+  line-height: 1;
+  color: rgb(5 150 105);
+}
+html.dark .arborito-tree-switcher-item-check {
+  color: rgb(52 211 153);
+}
+.arborito-tree-switcher-item-name {
+  font-size: 0.9rem;
+  font-weight: 900;
+  color: rgba(15, 23, 42, 0.92);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+html.dark .arborito-tree-switcher-item-name {
+  color: rgba(226, 232, 240, 0.95);
+}
+.arborito-tree-switcher-pill {
+  align-self: flex-start;
+  font-size: 0.7rem;
+  font-weight: 900;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: rgba(51, 65, 85, 1);
+  background: rgba(241, 245, 249, 0.9);
+}
+html.dark .arborito-tree-switcher-pill {
+  color: rgba(226, 232, 240, 0.9);
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+.arborito-tree-switcher-pill--local {
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.arborito-tree-switcher-pill--installed {
+  border-color: rgba(59, 130, 246, 0.35);
+}
+.arborito-tree-switcher-empty {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: rgba(100, 116, 139, 1);
+  padding: 0.75rem;
+  border-radius: 1rem;
+  border: 1px dashed rgba(148, 163, 184, 0.35);
+}
+html.dark .arborito-tree-switcher-empty {
+  color: rgba(148, 163, 184, 0.95);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arborito-tree-switcher-backdrop,
+  .arborito-tree-switcher-panel {
+    transition: none;
+  }
+}
+
+/* Construcción móvil: panel “Versión y árbol” no debe quedar bajo la barra de acciones ni cortarse abajo */
+html.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-switcher-backdrop.is-open {
+  bottom: var(--arborito-construction-tab-dock-gap);
+}
+
+/* --- Mobile shell: tree switcher panel (safe areas, list layout, touch, chip) --- */
+/* Full-screen modal on phone: slide up from bottom (desktop keeps right drawer). */
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-panel,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-panel {
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100vw;
+  max-width: 100vw;
+  border-left: none;
+  box-shadow: none;
+  transform: translateY(110%);
+  transition: transform 200ms ease, opacity 200ms ease;
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-panel.is-open,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-panel.is-open {
+  transform: translateY(0);
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-head,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-head {
+  flex-shrink: 0;
+  background: rgb(255, 255, 255);
+  padding-top: max(0.6rem, env(safe-area-inset-top, 0px));
+  padding-right: max(0.9rem, env(safe-area-inset-right, 0px));
+  padding-left: max(0.9rem, env(safe-area-inset-left, 0px));
+}
+html.dark.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-head,
+html.dark.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-head {
+  background: rgb(2, 6, 23);
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-scroll,
+html.force-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-scroll {
+  padding-right: max(0.9rem, env(safe-area-inset-right, 0px));
+  padding-left: max(0.9rem, env(safe-area-inset-left, 0px));
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-panel > .arborito-tree-switcher-list,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-panel > .arborito-tree-switcher-list {
+  padding-right: max(0.9rem, env(safe-area-inset-right, 0px));
+  padding-left: max(0.9rem, env(safe-area-inset-left, 0px));
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-scroll .arborito-tree-switcher-list,
+html.force-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-scroll .arborito-tree-switcher-list {
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0.5rem;
+  padding-bottom: 0.35rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-footer,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-footer {
+  padding-right: max(0.9rem, env(safe-area-inset-right, 0px));
+  padding-left: max(0.9rem, env(safe-area-inset-left, 0px));
+  flex-shrink: 0;
+}
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-more,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-more {
+  min-height: 3rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-carousel,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-carousel {
+  flex-direction: column;
+  overflow-x: visible;
+  gap: 0.55rem;
+  padding-bottom: 0;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-item,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-item {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  flex: 0 0 auto;
+  padding: 0.85rem 0.95rem;
+  border-radius: 1rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-close,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-close {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  flex-shrink: 0;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-tab,
+html.force-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-tab {
+  min-height: 2.75rem;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-search-row,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-search-row {
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-search-row .arborito-tree-switcher-search,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-search-row .arborito-tree-switcher-search {
+  flex: 1 1 12rem;
+  min-width: 0;
+  min-height: 2.75rem;
+  height: auto;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-search-row .arborito-tree-switcher-loading,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-search-row .arborito-tree-switcher-loading {
+  flex: 1 1 100%;
+  text-align: center;
+  padding-top: 0.2rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-switcher-chip-eyebrow,
+html.force-mobile:not(.arborito-desktop) .arborito-switcher-chip-eyebrow {
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip .arborito-switcher-chip-title,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip .arborito-switcher-chip-title,
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip .arborito-switcher-chip-title,
+html.force-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip .arborito-switcher-chip-title {
+  font-size: 0.8125rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip .arborito-switcher-chip-sub,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip .arborito-switcher-chip-sub,
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip .arborito-switcher-chip-sub,
+html.force-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip .arborito-switcher-chip-sub {
+  font-size: 0.8125rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-switcher-chip-chev,
+html.force-mobile:not(.arborito-desktop) .arborito-switcher-chip-chev {
+  font-size: 0.8125rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip,
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip,
+html.force-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip {
+  border-radius: 1rem;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+html:not(.dark).arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip,
+html:not(.dark).force-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip,
+html:not(.dark).arborito-shell-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip,
+html:not(.dark).force-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip {
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.85) inset;
+}
+
+/* Construction mobile: panel height clears tab dock (after shell fullscreen rules). */
+html.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-switcher-panel {
+  top: 0;
+  bottom: var(--arborito-construction-tab-dock-gap);
+  max-height: calc(100dvh - var(--arborito-construction-tab-dock-gap));
+  height: calc(100dvh - var(--arborito-construction-tab-dock-gap));
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-btn,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-btn {
+  max-width: min(20rem, 72vw);
+  min-height: 2.75rem;
+  padding: 0 0.85rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-btn__name,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-btn__name {
+  font-size: 0.8rem;
+}
+
+@media (min-width: 768px) {
+  html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-carousel,
+  html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-carousel {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0.65rem;
+    padding-bottom: 0.25rem;
+  }
+  html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-item,
+  html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-item {
+    width: auto;
+    min-width: 12.5rem;
+    max-width: 16rem;
+    flex: 0 0 auto;
+    padding: 0.8rem 0.85rem;
+    border-radius: 1.1rem;
+  }
+}
+
+/* (Removed) Emergency dock override: rely on real construction state */

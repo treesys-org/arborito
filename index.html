@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- Nostr: vendored `nostr-tools` + `@noble/*` under `./vendor/`. Each entry ends in `.js` so static servers (e.g. `python -m http.server`) return `application/javascript`, not an HTML 404. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@noble/ciphers/aes": "./vendor/deps/noble-ciphers/esm/aes.js",
+      "@noble/ciphers/chacha": "./vendor/deps/noble-ciphers/esm/chacha.js",
+      "@noble/ciphers/crypto": "./vendor/deps/noble-ciphers/esm/crypto.js",
+      "@noble/ciphers/utils": "./vendor/deps/noble-ciphers/esm/utils.js",
+      "@noble/curves/secp256k1": "./vendor/deps/noble-curves/esm/secp256k1.js",
+      "@noble/hashes/crypto": "./vendor/deps/noble-hashes/esm/crypto.js",
+      "@noble/hashes/hkdf": "./vendor/deps/noble-hashes/esm/hkdf.js",
+      "@noble/hashes/hmac": "./vendor/deps/noble-hashes/esm/hmac.js",
+      "@noble/hashes/scrypt": "./vendor/deps/noble-hashes/esm/scrypt.js",
+      "@noble/hashes/sha256": "./vendor/deps/noble-hashes/esm/sha256.js",
+      "@noble/hashes/utils": "./vendor/deps/noble-hashes/esm/utils.js",
+      "@scure/base": "./vendor/deps/scure-base/lib/esm/index.js",
+      "@scure/bip32": "./vendor/deps/scure-bip32/lib/esm/index.js",
+      "@scure/bip39": "./vendor/deps/scure-bip39/lib/esm/index.js"
+    }
+  }
+  </script>
+  <!-- CSP: third-party script CDN = jsDelivr for wllama only (worker after explicit in-browser AI consent). No preconnect to AI CDNs. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net blob:; worker-src 'self' blob: https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; connect-src * https: http: https://huggingface.co https://*.huggingface.co https://*.hf.co https://*.amazonaws.com https://*.cloudfront.net http://127.0.0.1:11434 http://localhost:11434 https://cdn.jsdelivr.net wss: ws: blob:;">
+  
+  <title>Arborito — Visual Knowledge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#a8e8ff">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#312e81">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <!-- Intentionally no dns-prefetch/preconnect to AI CDNs: connections start only after explicit in-browser AI consent. -->
+
+  <!-- wllama via CDN (loaded only when AI worker is created after consent) -->
+
+  <!-- Nostr relays (wss): defaults in `src/config/nostr-relays-runtime.js`; overrides and precedence in `docs/NOSTR_RELAYS_CONFIGURATION.md`. -->
+  <!-- Optional: `window.ARBORITO_NOSTR_RELAYS` or localStorage `arborito-nostr-relays-v1` (JSON array of wss://…). -->
+  <!-- <script>window.ARBORITO_NOSTR_RELAYS = ['wss://relay.example.com'];</script> -->
+  <!-- Optional global directory mirror. GitHub Pages: static JSON in the repo (recommended). See `src/config/global-directory-torrent-runtime.js`. -->
+  <!-- <script>window.ARBORITO_GLOBAL_DIRECTORY_JSON_URL = './global-directory.json';</script> -->
+  <!-- WebTorrent (optional): fixed magnet -->
+  <!-- <script>window.ARBORITO_GLOBAL_DIRECTORY_MAGNET = 'magnet:?xt=urn:btih:...';</script> -->
+  <!-- WebTorrent + “latest torrent” pointer: fixed URL to JSON `{ "magnet": "...", "path": "global-directory.json" }` that CI updates when the torrent is rebuilt (if you set an explicit MAGNET above, the pointer is ignored). -->
+  <!-- <script>window.ARBORITO_GLOBAL_DIRECTORY_POINTER_URL = './global-directory-pointer.json';</script> -->
+  <!-- <script>window.ARBORITO_GLOBAL_DIRECTORY_POINTER_TTL_MS = 120000;</script> -->
+
+  <!-- QRCode (MIT, davidshimjs/qrcodejs) — global `QRCode` for identity cards; same-origin only. -->
+  <script src="./src/vendor/qrcode-davidshimjs.min.js"></script>
+  <script type="module" src="./src/boot.js"></script>
+
+</head>
+<body class="arborito-app bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-200 transition-colors duration-500">
+  
+  <div id="app" class="arborito-shell h-full w-full flex relative min-h-0">
+     <arborito-sidebar></arborito-sidebar>
+     
+     <main class="flex-1 relative flex flex-col h-full min-w-0 min-h-0 overflow-hidden">
+        <div id="arborito-graph-tour-anchor" class="w-full h-full absolute inset-0 z-10" data-arbor-tour="graph">
+            <arborito-graph></arborito-graph>
+        </div>
+     </main>
+     
+     <arborito-content></arborito-content>
+     <arborito-construction-panel></arborito-construction-panel>
+  </div>
+
+  <arborito-modals></arborito-modals>
+  <arborito-toast-stack></arborito-toast-stack>
+  <arborito-modal-overlay-host></arborito-modal-overlay-host>
+  <arborito-sage></arborito-sage>
+  <arborito-version-widget></arborito-version-widget>
+  <arborito-progress-widget></arborito-progress-widget>
+  <arborito-product-tour></arborito-product-tour>
+
+</body>
+</html>

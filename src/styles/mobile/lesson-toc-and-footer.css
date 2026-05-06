@@ -1,0 +1,851 @@
+html.dark .arborito-lesson-toc-sheet .btn-toc.arborito-lesson-toc-item {
+    color: rgb(241 245 249);
+    background-color: transparent;
+    border-color: transparent;
+}
+
+.arborito-lesson-toc-sheet .btn-toc.arborito-lesson-toc-item:hover {
+    background-color: rgb(241 245 249);
+}
+
+html.dark .arborito-lesson-toc-sheet .btn-toc.arborito-lesson-toc-item:hover {
+    background-color: rgb(51 65 85);
+}
+
+.arborito-lesson-toc-sheet .btn-toc.arborito-lesson-toc-item.is-active,
+.arborito-lesson-toc-sheet .btn-toc.arborito-lesson-toc-item[aria-current="true"] {
+    color: rgb(12 74 110);
+    background-color: rgb(224 242 254);
+    border-color: rgb(125 211 252);
+}
+
+html.dark .arborito-lesson-toc-sheet .btn-toc.arborito-lesson-toc-item.is-active,
+html.dark .arborito-lesson-toc-sheet .btn-toc.arborito-lesson-toc-item[aria-current="true"] {
+    color: rgb(224 242 254);
+    background-color: rgb(12 74 110);
+    border-color: rgb(56 189 248);
+}
+
+/* Punto / tick en la lista de temas */
+.arborito-lesson-toc-sheet .arborito-lesson-toc-item .js-toc-tick span.rounded-full.border {
+    border-color: rgb(148 163 184);
+}
+
+html.dark .arborito-lesson-toc-sheet .arborito-lesson-toc-item .js-toc-tick span.rounded-full.border {
+    border-color: rgb(100 116 139);
+}
+
+/* Móvil: el panel del temario flota sobre #content-area; sin z-index explícito el área de lectura robaba los toques en +/- */
+html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area {
+    position: relative;
+    z-index: 0;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-toc-sheet {
+    z-index: 50;
+}
+
+/* Barra de formato lección (modo construcción): dos filas, sin menú desplegable recortado */
+.lesson-editor-toolbar-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+    flex: 1;
+}
+
+.lesson-editor-toolbar-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.lesson-editor-toolbar-row--insert {
+    padding-top: 0.15rem;
+}
+
+.lesson-editor-insert-panel__opt.block-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    min-height: 2.75rem;
+    padding: 0.55rem 0.65rem;
+    border-radius: 0.65rem;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: 1px solid rgb(251 191 36 / 0.35);
+    background: rgb(255 251 235 / 0.85);
+    color: rgb(120 53 15);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        background 0.12s ease,
+        transform 0.1s ease;
+}
+
+html.dark .lesson-editor-insert-panel__opt.block-btn {
+    border-color: rgb(180 83 9 / 0.45);
+    background: rgb(66 32 6 / 0.55);
+    color: rgb(254 243 199);
+}
+
+.lesson-editor-insert-panel__opt.block-btn:active {
+    transform: scale(0.99);
+}
+
+.arborito-lesson-actions--construct {
+    align-items: stretch;
+}
+
+.arborito-lesson-actions--construct .lesson-editor-toolbar-rows {
+    max-width: 100%;
+}
+
+.lesson-editor-toolbar-spacer {
+    flex: 1 1 0.5rem;
+    min-width: 0.25rem;
+}
+
+/*
+ * Patrón «nodo del grafo» para el temario en modo construcción:
+ *   - «Añadir sección» pegado al filtro (cabecera del sheet).
+ *   - «X» inline por fila para borrar (como la X de los nodos en `bindMobileInlineNodeTools`).
+ * El pie separado con +/– queda retirado para evitar el múltiple clic.
+ */
+.arborito-lesson-toc-add-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    align-items: stretch;
+}
+
+.arborito-lesson-toc-add-btn {
+    flex: 1 1 10rem;
+    min-height: 2.5rem;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    border: 1px solid rgb(167 243 208);
+    background: linear-gradient(180deg, rgb(236 253 245), rgb(209 250 229));
+    color: rgb(6 95 70);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.85) inset;
+    transition:
+        transform 0.12s ease,
+        filter 0.15s ease;
+}
+
+.arborito-lesson-toc-add-btn:hover {
+    filter: brightness(1.02);
+}
+
+.arborito-lesson-toc-add-btn:active {
+    transform: scale(0.98);
+}
+
+html.dark .arborito-lesson-toc-add-btn {
+    border-color: rgb(6 78 59);
+    color: rgb(167 243 208);
+    background: linear-gradient(180deg, rgb(6 78 59 / 0.5), rgb(2 44 34 / 0.85));
+    box-shadow: none;
+}
+
+.arborito-lesson-toc-add-btn--sub {
+    border-color: rgb(125 211 252);
+    background: linear-gradient(180deg, rgb(240 249 255), rgb(224 242 254));
+    color: rgb(3 105 161);
+}
+
+.arborito-lesson-toc-add-btn--sub:hover {
+    filter: brightness(1.02);
+}
+
+html.dark .arborito-lesson-toc-add-btn--sub {
+    border-color: rgb(12 74 110);
+    color: rgb(186 230 253);
+    background: linear-gradient(180deg, rgb(12 74 110 / 0.45), rgb(7 47 73 / 0.9));
+}
+
+.arborito-lesson-toc-add-btn__glyph {
+    font-size: 1.1rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.arborito-lesson-toc-row--construct {
+    padding-right: 0;
+    align-items: stretch;
+    border-radius: 0.8rem;
+    position: relative;
+    background: rgb(255 255 255 / 0.58);
+    /* `margin-left` viene inline desde JS según `data-toc-depth`. */
+    transition: margin-left 0.18s ease;
+}
+
+html.dark .arborito-lesson-toc-row--construct {
+    background: rgb(15 23 42 / 0.42);
+}
+
+/* Variables de geometría para conectores del árbol */
+.arborito-lesson-toc-sheet {
+    --toc-indent-w: 16px;
+    --toc-connector-color: rgb(148 163 184 / 0.55);
+}
+html.dark .arborito-lesson-toc-sheet {
+    --toc-connector-color: rgb(100 116 139 / 0.6);
+}
+
+/*
+ * Guía de árbol: línea vertical y "elbow" horizontal que conectan cada fila
+ * indentada con su padre. Solo se dibujan cuando la fila está realmente
+ * anidada (depth >= 2) y se ven en el hueco que dejó `margin-left`.
+ * El elemento `::before` cae en el área negativa antes del handle.
+ */
+.arborito-lesson-toc-row--construct[data-toc-depth="2"]::before,
+.arborito-lesson-toc-row--construct[data-toc-depth="3"]::before,
+.arborito-lesson-toc-row--construct[data-toc-depth="4"]::before,
+.arborito-lesson-toc-row--construct[data-toc-depth="5"]::before,
+.arborito-lesson-toc-row--construct[data-toc-depth="6"]::before {
+    content: "";
+    position: absolute;
+    /* ancla: centro visual del handle (aprox). */
+    left: calc((var(--toc-indent-w) / 2) * -1);
+    top: 0.25rem;
+    bottom: 50%;
+    width: 0;
+    border-left: 1px solid var(--toc-connector-color);
+    pointer-events: none;
+}
+
+.arborito-lesson-toc-row--construct[data-toc-depth="2"]::after,
+.arborito-lesson-toc-row--construct[data-toc-depth="3"]::after,
+.arborito-lesson-toc-row--construct[data-toc-depth="4"]::after,
+.arborito-lesson-toc-row--construct[data-toc-depth="5"]::after,
+.arborito-lesson-toc-row--construct[data-toc-depth="6"]::after {
+    content: "";
+    position: absolute;
+    left: calc((var(--toc-indent-w) / 2) * -1);
+    top: 50%;
+    width: calc(var(--toc-indent-w) / 2);
+    height: 0;
+    border-bottom: 1px solid var(--toc-connector-color);
+    pointer-events: none;
+}
+
+/* Cuando es objetivo de drop, escondemos la guía de árbol propia para no
+ * competir con el indicador (outline o ↳). El ::after solo se oculta en
+ * reorder; en `nestUnder` lo reemplaza la regla del ↳ con mayor especificidad. */
+.arborito-lesson-toc-row--construct.is-toc-drop-target::before,
+.arborito-lesson-toc-row--construct.is-toc-drop-target:not(.is-toc-drop-nest)::after {
+    display: none;
+}
+
+/* Indicador de caída: línea horizontal punteada (posición absoluta dentro del nav). */
+.arborito-lesson-toc-drop-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 0;
+    border-top: 2px dashed rgb(2 132 199); /* sky-600 */
+    pointer-events: none;
+    z-index: 5;
+}
+
+html.dark .arborito-lesson-toc-drop-indicator {
+    border-top-color: rgb(56 189 248); /* sky-400 */
+}
+
+.arborito-lesson-toc-drag {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.9rem;
+    min-height: 2.75rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0.5rem;
+    background: transparent;
+    color: rgb(100 116 139);
+    cursor: grab;
+    touch-action: none;
+}
+
+.arborito-lesson-toc-nav--dragging .arborito-lesson-toc-drag {
+    cursor: grabbing;
+}
+
+.arborito-lesson-toc-drag--muted {
+    cursor: default;
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.arborito-lesson-toc-drag__svg {
+    display: block;
+}
+
+.arborito-lesson-toc-row.is-toc-drop-target {
+    outline: 2px dashed rgb(14 165 233);
+    outline-offset: 2px;
+    border-radius: 0.75rem;
+}
+
+html.dark .arborito-lesson-toc-drag {
+    color: rgb(148 163 184);
+}
+
+.arborito-lesson-toc-add-inline {
+    flex-shrink: 0;
+    align-self: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    min-width: 1.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0.1rem;
+    padding: 0;
+    border-radius: 0.6rem;
+    border: 1px solid rgb(167 243 208);
+    background: rgb(236 253 245);
+    color: rgb(5 122 85);
+    font-size: 1.1rem;
+    font-weight: 900;
+    line-height: 1;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        background 0.12s ease,
+        transform 0.1s ease;
+}
+
+.arborito-lesson-toc-add-inline:hover {
+    background: rgb(209 250 229);
+}
+
+.arborito-lesson-toc-add-inline:active {
+    transform: scale(0.94);
+}
+
+html.dark .arborito-lesson-toc-add-inline {
+    border-color: rgb(6 78 59);
+    background: rgb(6 78 59 / 0.35);
+    color: rgb(167 243 208);
+}
+
+.arborito-lesson-toc-del {
+    flex-shrink: 0;
+    align-self: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    min-width: 1.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0.15rem;
+    padding: 0;
+    border-radius: 0.6rem;
+    border: 1px solid rgb(254 202 202);
+    background: rgb(254 242 242);
+    color: rgb(153 27 27);
+    font-size: 0.8rem;
+    font-weight: 900;
+    line-height: 1;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        background 0.12s ease,
+        transform 0.1s ease;
+}
+
+.arborito-lesson-toc-row--construct .arborito-lesson-toc-item {
+    min-width: 0;
+    padding-top: 0.45rem !important;
+    padding-bottom: 0.45rem !important;
+}
+
+.arborito-lesson-toc-row--construct .js-toc-name-slot {
+    min-height: 2.2rem !important;
+    line-height: 1.15;
+}
+
+@media (max-width: 420px) {
+    .arborito-lesson-toc-row--construct {
+        gap: 0.15rem;
+    }
+
+    .arborito-lesson-toc-drag {
+        width: 1.65rem;
+    }
+
+    .arborito-lesson-toc-add-inline,
+    .arborito-lesson-toc-del {
+        width: 1.7rem;
+        height: 1.7rem;
+        min-width: 1.7rem;
+        border-radius: 0.5rem;
+    }
+}
+
+.arborito-lesson-toc-del:hover {
+    background: rgb(254 226 226);
+}
+
+.arborito-lesson-toc-del:active {
+    transform: scale(0.94);
+}
+
+html.dark .arborito-lesson-toc-del {
+    border-color: rgb(127 29 29);
+    background: rgb(69 10 10 / 0.55);
+    color: rgb(254 202 202);
+}
+
+html.dark .arborito-lesson-toc-del:hover {
+    background: rgb(127 29 29 / 0.55);
+}
+
+.arborito-lesson-save-btn--saved {
+    background: linear-gradient(180deg, rgb(226 232 240) 0%, rgb(203 213 225) 100%) !important;
+    border-color: rgb(148 163 184 / 0.65) !important;
+    color: rgb(30 41 59) !important;
+    box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.14), inset 0 1px 0 rgb(255 255 255 / 0.85) !important;
+    transform: translateY(1px) !important;
+    filter: none !important;
+    cursor: default !important;
+}
+
+/* Marca clara de campo obligatorio vacío. */
+.arborito-input-required-empty,
+input.arborito-input-required-empty,
+textarea.arborito-input-required-empty {
+    border-color: rgb(239 68 68) !important;
+    box-shadow: 0 0 0 3px rgb(239 68 68 / 0.18) !important;
+    outline: none !important;
+    background-color: rgb(254 242 242) !important;
+}
+
+.dark .arborito-input-required-empty,
+.dark input.arborito-input-required-empty,
+.dark textarea.arborito-input-required-empty {
+    background-color: rgb(127 29 29 / 0.25) !important;
+}
+
+.arborito-input-required-empty::placeholder {
+    color: rgb(239 68 68 / 0.6);
+}
+
+/* Sheet en columna: scroll ocupa espacio entre cabecera y pie */
+.arborito-lesson-toc-sheet {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.arborito-lesson-toc-sheet__scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.arborito-lesson-mobile-footer {
+    flex-shrink: 0;
+    background: rgb(255 255 255);
+    border-top: 1px solid rgb(226 232 240);
+    padding: 0.5rem 0.75rem calc(0.65rem + env(safe-area-inset-bottom, 12px));
+    box-shadow: 0 -8px 24px -12px rgb(15 23 42 / 0.12);
+}
+
+html.dark .arborito-lesson-mobile-footer {
+    background: rgb(12 18 34);
+    border-top-color: rgb(51 65 85);
+    box-shadow: 0 -8px 28px -14px rgb(0 0 0 / 0.4);
+}
+
+.arborito-lesson-mobile-footer .arborito-lesson-footer-meta {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--slate-400);
+}
+
+/* Fila superior: un solo bloque centrado (progreso + leer después) */
+.arborito-lesson-footer-meta-row {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 0.65rem;
+}
+
+.arborito-lesson-footer-meta-pill {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    max-width: 100%;
+    padding: 0.4rem 0.9rem;
+    border-radius: 9999px;
+    background: rgb(241 245 249);
+    border: 1px solid rgb(226 232 240);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7);
+}
+
+html.dark .arborito-lesson-footer-meta-pill {
+    background: rgb(30 41 59);
+    border-color: rgb(51 65 85);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+}
+
+.arborito-lesson-footer-meta-pill .arborito-lesson-footer-meta--progress {
+    color: var(--slate-500);
+    flex-shrink: 0;
+}
+
+html.dark .arborito-lesson-footer-meta-pill .arborito-lesson-footer-meta--progress {
+    color: var(--slate-400);
+}
+
+.arborito-lesson-footer-meta-sep {
+    color: var(--slate-300);
+    font-weight: 800;
+    user-select: none;
+}
+
+html.dark .arborito-lesson-footer-meta-sep {
+    color: var(--slate-600);
+}
+
+.arborito-lesson-footer-later {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--slate-500);
+    -webkit-tap-highlight-color: transparent;
+    border-radius: 0.25rem;
+}
+
+.arborito-lesson-footer-later:hover {
+    color: var(--slate-700);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+html.dark .arborito-lesson-footer-later {
+    color: var(--slate-400);
+}
+
+html.dark .arborito-lesson-footer-later:hover {
+    color: var(--slate-200);
+}
+
+.arborito-lesson-footer-later:active {
+    transform: scale(0.98);
+}
+
+.arborito-lesson-mobile-footer .arborito-lesson-footer-btn {
+    border-radius: 0.875rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+/* Pie de lección: atrás / siguiente con borde claro (no “planos” sobre el fondo) */
+.arborito-lesson-footer-btn--secondary {
+    border: 1px solid rgb(203 213 225);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.06);
+}
+
+html.dark .arborito-lesson-footer-btn--secondary {
+    border-color: rgb(71 85 105);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+}
+
+.arborito-lesson-footer-btn--secondary:hover {
+    border-color: rgb(148 163 184);
+}
+
+html.dark .arborito-lesson-footer-btn--secondary:hover {
+    border-color: rgb(100 116 139);
+}
+
+.arborito-lesson-footer-btn--primary {
+    border-radius: 0.875rem;
+    border: 1px solid rgb(5 150 105);
+    box-shadow: 0 2px 8px rgb(16 185 129 / 0.35);
+}
+
+html.dark .arborito-lesson-footer-btn--primary {
+    border-color: rgb(52 211 153);
+}
+
+/* Pie: dos columnas iguales (simetría); el verde sigue siendo CTA por color */
+.arborito-lesson-footer-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    gap: 0.65rem;
+    width: 100%;
+}
+
+.arborito-lesson-footer-nav .arborito-lesson-footer-btn--back {
+    min-width: 0;
+    width: 100%;
+    min-height: 3.15rem;
+    padding: 0.85rem 0.65rem;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    border-radius: 0.9rem;
+    border: 1px solid rgb(125 211 252);
+    color: rgb(12 74 110);
+    background: linear-gradient(180deg, rgb(224 242 254), rgb(186 230 253) 55%, rgb(125 211 252));
+    box-shadow:
+        0 4px 0 rgb(14 116 144),
+        0 6px 14px rgb(14 165 233 / 0.35),
+        inset 0 1px 0 rgb(255 255 255 / 0.75);
+}
+
+html.dark .arborito-lesson-footer-nav .arborito-lesson-footer-btn--back {
+    border-color: rgb(56 189 248);
+    color: rgb(224 242 254);
+    background: linear-gradient(180deg, rgb(71 85 105), rgb(51 65 85) 50%, rgb(30 41 59));
+    box-shadow:
+        0 4px 0 rgb(15 23 42),
+        0 6px 16px rgb(0 0 0 / 0.45),
+        inset 0 1px 0 rgb(255 255 255 / 0.12);
+}
+
+.arborito-lesson-footer-nav .arborito-lesson-footer-btn--back:active {
+    transform: translateY(2px);
+    box-shadow:
+        0 2px 0 rgb(14 116 144),
+        0 3px 8px rgb(14 165 233 / 0.3),
+        inset 0 1px 0 rgb(255 255 255 / 0.5);
+}
+
+html.dark .arborito-lesson-footer-nav .arborito-lesson-footer-btn--back:active {
+    box-shadow:
+        0 2px 0 rgb(15 23 42),
+        0 3px 10px rgb(0 0 0 / 0.4),
+        inset 0 1px 0 rgb(255 255 255 / 0.08);
+}
+
+.arborito-lesson-footer-nav .arborito-lesson-footer-btn--back:hover {
+    filter: brightness(1.03);
+}
+
+html.dark .arborito-lesson-footer-nav .arborito-lesson-footer-btn--back:hover {
+    filter: brightness(1.06);
+}
+
+.arborito-lesson-footer-nav #btn-exit-mobile:hover {
+    color: rgb(185 28 28);
+    border-color: rgb(252 165 165);
+}
+
+html.dark .arborito-lesson-footer-nav #btn-exit-mobile:hover {
+    color: rgb(254 202 202);
+}
+
+.arborito-lesson-footer-btn__label {
+    font-size: 0.8125rem;
+    font-weight: 800;
+    line-height: 1.25;
+    text-align: center;
+    min-width: 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.arborito-lesson-footer-btn__icon {
+    font-size: 1.125rem;
+    font-weight: 900;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.arborito-lesson-footer-nav .arborito-lesson-footer-btn--next {
+    min-width: 0;
+    width: 100%;
+    min-height: 3.15rem;
+    padding: 0.9rem 0.75rem;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    border-radius: 0.9rem;
+    border: 1px solid rgb(134 239 172) !important;
+    color: rgb(255 255 255) !important;
+    background: linear-gradient(180deg, rgb(52 211 153), rgb(16 185 129) 45%, rgb(5 122 85)) !important;
+    box-shadow:
+        0 4px 0 rgb(6 78 59),
+        0 8px 20px rgb(16 185 129 / 0.45),
+        inset 0 1px 0 rgb(255 255 255 / 0.35);
+}
+
+html.dark .arborito-lesson-footer-nav .arborito-lesson-footer-btn--next {
+    border-color: rgb(52 211 153) !important;
+    box-shadow:
+        0 4px 0 rgb(6 78 59),
+        0 8px 22px rgb(0 0 0 / 0.45),
+        inset 0 1px 0 rgb(255 255 255 / 0.12);
+}
+
+.arborito-lesson-footer-nav .arborito-lesson-footer-btn--next:active {
+    transform: translateY(2px);
+    box-shadow:
+        0 2px 0 rgb(6 78 59),
+        0 4px 12px rgb(16 185 129 / 0.35),
+        inset 0 1px 0 rgb(255 255 255 / 0.25);
+}
+
+.arborito-lesson-footer-nav .arborito-lesson-footer-btn--next .arborito-lesson-footer-btn__label {
+    color: rgb(255 255 255);
+    font-size: 0.875rem;
+    flex: 1 1 auto;
+    text-align: center;
+    -webkit-line-clamp: 2;
+}
+
+.arborito-lesson-footer-nav .arborito-lesson-footer-btn--next .arborito-lesson-footer-btn__icon--chev {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 9999px;
+    background: rgb(255 255 255 / 0.22);
+    color: rgb(255 255 255);
+    font-size: 1rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+/* Profundidad del temario (lectura y construcción): guía tipo árbol */
+.arborito-lesson-toc-depth-1 {
+    border-left: 3px solid rgb(14 165 233);
+    padding-left: 0.35rem;
+}
+.arborito-lesson-toc-depth-2 {
+    border-left: 3px solid rgb(56 189 248);
+    padding-left: 0.35rem;
+}
+.arborito-lesson-toc-depth-3 {
+    border-left: 3px solid rgb(125 211 252);
+    padding-left: 0.35rem;
+}
+.arborito-lesson-toc-depth-4 {
+    border-left: 3px solid rgb(165 180 252);
+    padding-left: 0.35rem;
+}
+.arborito-lesson-toc-depth-5 {
+    border-left: 3px solid rgb(196 181 253);
+    padding-left: 0.35rem;
+}
+.arborito-lesson-toc-depth-6 {
+    border-left: 3px solid rgb(216 180 254);
+    padding-left: 0.35rem;
+}
+
+html.dark .arborito-lesson-toc-depth-1 {
+    border-left-color: rgb(56 189 248);
+}
+html.dark .arborito-lesson-toc-depth-2 {
+    border-left-color: rgb(125 211 252);
+}
+html.dark .arborito-lesson-toc-depth-3 {
+    border-left-color: rgb(186 230 253);
+}
+
+.arborito-lesson-toc-row.is-toc-drop-nest.is-toc-drop-target {
+    position: relative;
+    outline-color: rgb(168 85 247);
+    background: rgb(250 245 255 / 0.5);
+}
+
+.arborito-lesson-toc-row.is-toc-drop-nest.is-toc-drop-target::after {
+    content: "↳";
+    position: absolute;
+    /*
+     * `--toc-drop-depth` ya tiene en cuenta cuántos niveles más profundos será
+     * el resultado, así que el ↳ se dibuja por delante del handle de arrastre
+     * a una distancia consistente con la indentación real (16px por nivel).
+     */
+    left: calc(2.1rem + (var(--toc-drop-depth, 2) - 1) * 16px);
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 9999px;
+    background: rgb(168 85 247);
+    color: white;
+    font-weight: 900;
+    pointer-events: none;
+    box-shadow: 0 5px 16px rgb(88 28 135 / 0.35);
+    z-index: 2;
+}
+
+html.dark .arborito-lesson-toc-row.is-toc-drop-nest.is-toc-drop-target {
+    background: rgb(88 28 135 / 0.35);
+}
+
+/* Editor lección: encabezados de esquema invisibles (solo temario) */
+.arborito-lesson-editor--ghost-outline .arborito-authoring-outline {
+    display: none !important;
+}
+
+.arborito-lesson-editor--ghost-outline .arborito-authoring-outline__rail {
+    flex: 0 0 3px;
+    align-self: stretch;
+    min-height: 0.75rem;
+    border-radius: 9999px;
+    background: linear-gradient(180deg, rgb(14 165 233), rgb(56 189 248));
+    opacity: 0.55;
+}
+
+.arborito-lesson-editor--ghost-outline .arborito-authoring-outline__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+

@@ -1,0 +1,846 @@
+/* =============================================================================
+   ARBORITO MODAL SYSTEM — one professional surface for every modal
+   (.arborito-modal-root, search/releases/immersive variants)
+   See also: modals/host-arborito-modals.css, modals/mobile-sheets-and-dock-panels.css
+   ============================================================================= */
+/* Fondos semánticos explícitos (gradientes modales; no solo utilidades arbitrarias) */
+.arborito-sage-desk-scrim {
+    background: var(--arborito-modal-overlay) !important;
+}
+
+html.dark .arborito-sage-desk-scrim {
+    background: linear-gradient(165deg, rgb(0 0 0 / 0.55) 0%, rgb(15 23 42 / 0.92) 100%) !important;
+}
+
+.arborito-game-immersive-scrim {
+    background: var(--arborito-modal-overlay) !important;
+}
+
+html.dark .arborito-game-immersive-scrim {
+    background: linear-gradient(165deg, rgb(0 0 0 / 0.6) 0%, rgb(15 23 42 / 0.9) 100%) !important;
+}
+
+/* Sage “External download”: no estirar como tarjeta ancha */
+arborito-sage.arborito-sage--open .arborito-sage-external-download-card {
+    width: min(22rem, calc(100vw - 2rem)) !important;
+    max-width: min(22rem, calc(100vw - 2rem)) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+:root {
+    --arborito-modal-overlay: linear-gradient(165deg, rgb(15 23 42 / 0.72) 0%, rgb(17 28 46 / 0.88) 100%);
+    --arborito-modal-radius: 1.5rem;
+    --arborito-modal-shadow: 0 22px 48px -12px rgb(0 0 0 / 0.38), 0 0 0 1px rgb(255 255 255 / 0.05);
+    --arborito-modal-shadow-light: 0 22px 48px -12px rgb(15 23 42 / 0.12), 0 0 0 1px rgb(167 243 208 / 0.35);
+    /* Misma familia que .arborito-modal-dock-panel (móvil) — escritorio float cards */
+    --arborito-modal-surface-gradient-light: linear-gradient(180deg, rgb(240 253 250) 0%, rgb(255 255 255) 28%);
+    --arborito-modal-surface-gradient-dark: linear-gradient(180deg, rgb(15 23 42) 0%, rgb(15 23 42) 100%);
+}
+
+#modal-backdrop.arborito-modal-root,
+#readme-backdrop.arborito-modal-root {
+    background: var(--arborito-modal-overlay) !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(0.75rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left)) !important;
+}
+
+/* Ventana flotante escritorio: alto fijo; el scroll vive en el cuerpo (tabs / listas) */
+.arborito-float-modal-card {
+    width: min(92vw, 72rem);
+    max-width: min(92vw, 72rem);
+    height: min(86vh, 720px);
+    min-height: min(86vh, 720px);
+    max-height: min(86vh, 720px);
+    flex-shrink: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.arborito-float-modal-card__inner {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Escritorio: superficie alineada al dock móvil (degradado suave) */
+@media (min-width: 768px) {
+    #modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive)
+        .arborito-float-modal-card:not(.arborito-float-modal-card--certificate) {
+        background: var(--arborito-modal-surface-gradient-light) !important;
+    }
+
+    html.dark
+        #modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive)
+        .arborito-float-modal-card:not(.arborito-float-modal-card--certificate) {
+        background: var(--arborito-modal-surface-gradient-dark) !important;
+    }
+
+    #readme-backdrop.arborito-modal-root .arborito-float-modal-card {
+        background: var(--arborito-modal-surface-gradient-light) !important;
+    }
+
+    html.dark #readme-backdrop.arborito-modal-root .arborito-float-modal-card {
+        background: var(--arborito-modal-surface-gradient-dark) !important;
+    }
+
+    /* Sage (host propio, no #modal-backdrop) */
+    arborito-sage.arborito-sage--open .arborito-float-modal-card {
+        background: var(--arborito-modal-surface-gradient-light) !important;
+    }
+
+    html.dark arborito-sage.arborito-sage--open .arborito-float-modal-card {
+        background: var(--arborito-modal-surface-gradient-dark) !important;
+    }
+}
+
+/* Búsqueda modal tarjeta (escritorio): un poco más estrecha */
+.arborito-float-modal-card.arborito-float-modal-card--search {
+    width: min(92vw, 42rem);
+    max-width: min(92vw, 42rem);
+}
+
+/* Diálogos / idioma / tarjetas compactas: alto según contenido, tope máximo */
+.arborito-float-modal-card.arborito-float-modal-card--auto-h {
+    height: auto;
+    min-height: 0;
+    max-height: min(86vh, 720px);
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--narrow {
+    width: min(92vw, 26rem);
+    max-width: min(92vw, 26rem);
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--md {
+    width: min(92vw, 36rem);
+    max-width: min(92vw, 36rem);
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--lg {
+    width: min(92vw, 42rem);
+    max-width: min(92vw, 42rem);
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--xl {
+    width: min(92vw, 48rem);
+    max-width: min(92vw, 48rem);
+}
+
+/* Diploma / vista certificado (proporción apaisada) */
+.arborito-float-modal-card.arborito-float-modal-card--certificate {
+    width: min(92vw, 56rem);
+    max-width: min(92vw, 56rem);
+    height: auto;
+    min-height: 0;
+    max-height: min(90vh, 720px);
+    aspect-ratio: 1.414 / 1;
+}
+
+/* Móvil / landscape bajo: el aspect-ratio recortaba pie y texto; scroll suave + sombras de lectura */
+.arborito-cert-view h2,
+.arborito-cert-view h3,
+.arborito-cert-view p {
+    text-shadow:
+        0 1px 2px rgb(0 0 0 / 0.45),
+        0 2px 16px rgb(0 0 0 / 0.35);
+}
+
+html.dark .arborito-cert-view h2,
+html.dark .arborito-cert-view h3,
+html.dark .arborito-cert-view p {
+    text-shadow:
+        0 1px 3px rgb(0 0 0 / 0.9),
+        0 2px 20px rgb(0 0 0 / 0.65);
+}
+
+.arborito-cert-view__watermark {
+    opacity: 0.07;
+    filter: drop-shadow(0 4px 18px rgb(0 0 0 / 0.5));
+}
+
+.arborito-cert-view__frame {
+    box-shadow:
+        inset 0 0 0 1px rgb(234 179 8 / 0.12),
+        0 12px 40px -8px rgb(0 0 0 / 0.35);
+}
+
+html.dark .arborito-cert-view__frame {
+    box-shadow:
+        inset 0 0 0 1px rgb(250 204 21 / 0.08),
+        0 14px 48px -6px rgb(0 0 0 / 0.55);
+}
+
+.arborito-cert-view__medallion {
+    box-shadow:
+        0 4px 6px rgb(0 0 0 / 0.2),
+        0 12px 28px rgb(0 0 0 / 0.35);
+}
+
+.arborito-cert-view__accent {
+    box-shadow: 0 1px 8px rgb(234 179 8 / 0.45);
+}
+
+.arborito-cert-view__print {
+    box-shadow:
+        0 2px 8px rgb(0 0 0 / 0.35),
+        0 4px 20px rgb(0 0 0 / 0.25);
+}
+
+@media (max-width: 767px) {
+    .arborito-float-modal-card.arborito-float-modal-card--certificate {
+        aspect-ratio: auto;
+        max-height: min(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px), 920px);
+        width: 100%;
+        max-width: 100%;
+        border-radius: 0;
+    }
+
+    #modal-backdrop.arborito-modal-root.arborito-modal-backdrop--certificate {
+        padding: 0 !important;
+    }
+}
+
+html.force-mobile #modal-backdrop.arborito-modal-root.arborito-modal-backdrop--certificate {
+    padding: 0 !important;
+}
+
+html.force-mobile .arborito-float-modal-card.arborito-float-modal-card--certificate {
+    aspect-ratio: auto;
+    max-height: min(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px), 920px);
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Modal contribuidor (admin): ventana fija en escritorio */
+@media (min-width: 768px) {
+    .arborito-contributor-modal-shell {
+        width: min(92vw, 72rem) !important;
+        max-width: min(92vw, 72rem) !important;
+        height: min(86vh, 720px) !important;
+        min-height: min(86vh, 720px) !important;
+        max-height: min(86vh, 720px) !important;
+        flex-shrink: 0;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border-radius: var(--arborito-modal-radius);
+    }
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--certs {
+    width: min(92vw, 64rem);
+    max-width: min(92vw, 64rem);
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--readme {
+    width: min(92vw, 56rem);
+    max-width: min(92vw, 56rem);
+}
+
+/* Cabecera fila: alinea título multilínea con × */
+.arborito-float-modal-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.arborito-float-modal-head .arborito-modal-window-x {
+    align-self: center;
+}
+
+/* Separación cabecera ↔ contenido (quien ya trae border-b no duplica) */
+#modal-backdrop.arborito-modal-root .arborito-float-modal-head.arborito-dock-modal-hero:not(.border-b),
+#readme-backdrop.arborito-modal-root .arborito-float-modal-head.arborito-dock-modal-hero:not(.border-b) {
+    border-bottom: 1px solid rgb(226 232 240 / 0.9);
+}
+
+html.dark #modal-backdrop.arborito-modal-root .arborito-float-modal-head.arborito-dock-modal-hero:not(.border-b),
+html.dark #readme-backdrop.arborito-modal-root .arborito-float-modal-head.arborito-dock-modal-hero:not(.border-b) {
+    border-bottom-color: rgb(51 65 85 / 0.85);
+}
+
+/* Phones: fondo opaco; sin padding en el backdrop (antes ganaba sobre utilities y dejaba bandas) */
+@media (max-width: 767px) {
+    #modal-backdrop.arborito-modal-root {
+        background: rgb(240 253 250) !important;
+        padding: 0 !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+    }
+    .dark #modal-backdrop.arborito-modal-root {
+        background: rgb(17 28 46) !important;
+    }
+}
+html.force-mobile #modal-backdrop.arborito-modal-root {
+    background: rgb(240 253 250) !important;
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+}
+html.force-mobile.dark #modal-backdrop.arborito-modal-root {
+    background: rgb(17 28 46) !important;
+}
+
+.readme-intro-topbar {
+    box-sizing: border-box;
+    min-height: 3.25rem;
+}
+
+/* Inner card: first direct child panel */
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive):not(.arborito-modal--search):not(.arborito-modal--arcade) > div:first-child,
+#readme-backdrop.arborito-modal-root > div:first-child {
+    border-radius: var(--arborito-modal-radius) !important;
+    overflow: hidden !important;
+    box-shadow: var(--arborito-modal-shadow-light) !important;
+    border: 1px solid rgb(167 243 208 / 0.5) !important;
+}
+
+html.dark #modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive):not(.arborito-modal--search):not(.arborito-modal--arcade) > div:first-child,
+html.dark #readme-backdrop.arborito-modal-root > div:first-child {
+    background: rgb(23 37 54) !important;
+    border-color: rgb(71 85 105 / 0.55) !important;
+    box-shadow: var(--arborito-modal-shadow) !important;
+}
+
+html:not(.dark) #modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive):not(.arborito-modal--search):not(.arborito-modal--arcade) > div:first-child,
+html:not(.dark) #readme-backdrop.arborito-modal-root > div:first-child {
+    background: rgb(255 255 255) !important;
+}
+
+/* Search — escritorio: tarjeta centrada con aire arriba (no aplica al layout dock de forest/móvil) */
+#modal-backdrop.arborito-modal-root.arborito-modal--search:not(.arborito-modal--mobile):not(.arborito-modal-search-dock) {
+    align-items: flex-start !important;
+    justify-content: center !important;
+    padding-top: max(1rem, env(safe-area-inset-top)) !important;
+}
+
+/* Búsqueda dock (useDockModalChrome): ancho completo; si no, .arborito-modal-root centra y deja bandas */
+#modal-backdrop.arborito-modal-root.arborito-modal--search.arborito-modal-search-dock {
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    padding: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-mob-dock-clearance, 4.25rem) !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Modal búsqueda “tarjeta” centrada: misma lógica claro/oscuro que otros float modales */
+html:not(.dark) #modal-backdrop.arborito-modal--search > #modal-panel:not(.arborito-modal-dock-panel) {
+    border-radius: var(--arborito-modal-radius) !important;
+    background: rgb(255 255 255 / 0.98) !important;
+    border: 1px solid rgb(226 232 240) !important;
+    box-shadow: var(--arborito-modal-shadow) !important;
+}
+
+html.dark #modal-backdrop.arborito-modal--search > #modal-panel:not(.arborito-modal-dock-panel) {
+    border-radius: var(--arborito-modal-radius) !important;
+    background: rgb(23 37 54 / 0.96) !important;
+    border: 1px solid rgb(71 85 105 / 0.55) !important;
+    box-shadow: var(--arborito-modal-shadow) !important;
+}
+
+/* Búsqueda móvil: borde superior al límite físico; inferior libre para el dock */
+@media (max-width: 767px) {
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--search {
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: var(--arborito-mob-dock-clearance) !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        padding: 0 !important;
+    }
+}
+html.force-mobile #modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--search {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-mob-dock-clearance) !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    padding: 0 !important;
+}
+
+/* Mobile search: reliable taps on results (no 300ms delay, no swallowed clicks) */
+.arborito-search-results-list,
+.arborito-search-results-list .btn-search-result {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Versiones / timeline — móvil: misma lógica de altura que otros modales a pantalla */
+/* Móvil: fondo blanco (el menta anterior hacía ilegible el texto vacío y desentonaba con el dock). */
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--releases > #modal-panel.arborito-releases-panel {
+    background: rgb(255 255 255) !important;
+    border-radius: 0 !important;
+}
+
+html.dark #modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--releases > #modal-panel.arborito-releases-panel {
+    background: rgb(15 23 42) !important;
+    border-radius: 0 !important;
+}
+
+@media (max-width: 767px) {
+    .arborito-releases-panel--mobile .arborito-releases-admin {
+        padding: 0.75rem 1rem;
+    }
+    .arborito-releases-panel--mobile .arborito-releases-scroll {
+        padding: 0.75rem;
+    }
+    .arborito-releases-panel--mobile .arborito-releases-live-card,
+    .arborito-releases-panel--mobile .arborito-releases-snap-card {
+        padding: 0.75rem 0.875rem;
+        border-radius: 0.875rem;
+    }
+    .arborito-releases-panel--mobile .arborito-releases-timeline-dot {
+        display: none;
+    }
+    .arborito-releases-panel--mobile .arborito-releases-row-wrap {
+        padding-left: 0;
+    }
+}
+
+/* Timeline: línea vertical y puntos comparten el mismo eje (spine a 2.5rem, centro +1px por w-0.5) */
+.arborito-releases-panel:not(.arborito-releases-panel--mobile) .arborito-releases-timeline-spine {
+    left: 2.5rem;
+}
+
+.arborito-releases-panel:not(.arborito-releases-panel--mobile) .arborito-releases-timeline-dot--live {
+    left: calc(2.5rem + 1px - 0.5rem);
+}
+
+.arborito-releases-panel:not(.arborito-releases-panel--mobile) .arborito-releases-timeline-dot--snap {
+    left: calc(2.5rem + 1px - 0.375rem);
+}
+
+/* Viñetas timeline: escritorio = sombra suave; móvil = relieve cartoon */
+.arborito-releases-panel .arborito-releases-live-card,
+.arborito-releases-panel .arborito-releases-snap-card {
+    position: relative;
+}
+
+.arborito-releases-panel:not(.arborito-releases-panel--mobile) .arborito-releases-live-card {
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.05), 0 2px 8px rgb(15 23 42 / 0.04);
+}
+
+.arborito-releases-panel:not(.arborito-releases-panel--mobile) .arborito-releases-live-card.border-green-500 {
+    box-shadow:
+        0 1px 2px rgb(22 163 74 / 0.12),
+        0 2px 10px rgb(22 163 74 / 0.08);
+}
+
+html.dark .arborito-releases-panel:not(.arborito-releases-panel--mobile) .arborito-releases-live-card {
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.25), 0 1px 0 rgb(255 255 255 / 0.04) inset;
+}
+
+.arborito-releases-panel:not(.arborito-releases-panel--mobile) .arborito-releases-snap-card {
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.06), 0 2px 6px rgb(15 23 42 / 0.035);
+}
+
+html.dark .arborito-releases-panel:not(.arborito-releases-panel--mobile) .arborito-releases-snap-card {
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 0 rgb(255 255 255 / 0.03) inset;
+}
+
+.arborito-releases-panel:not(.arborito-releases-panel--mobile) .arborito-releases-snap-card:hover {
+    box-shadow: 0 2px 4px rgb(15 23 42 / 0.08), 0 4px 12px rgb(15 23 42 / 0.05);
+}
+
+html.dark .arborito-releases-panel:not(.arborito-releases-panel--mobile) .arborito-releases-snap-card:hover {
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.4);
+}
+
+.arborito-releases-panel:not(.arborito-releases-panel--mobile) .arborito-releases-snap-card--active {
+    box-shadow:
+        0 0 0 1px rgb(59 130 246 / 0.35),
+        0 2px 8px rgb(59 130 246 / 0.12);
+}
+
+html.dark .arborito-releases-panel:not(.arborito-releases-panel--mobile) .arborito-releases-snap-card--active {
+    box-shadow:
+        0 0 0 1px rgb(59 130 246 / 0.45),
+        0 2px 10px rgb(37 99 235 / 0.2);
+}
+
+.arborito-releases-panel:not(.arborito-releases-panel--mobile) .arborito-releases-snap-card--active:hover {
+    box-shadow:
+        0 0 0 1px rgb(59 130 246 / 0.4),
+        0 3px 12px rgb(59 130 246 / 0.15);
+}
+
+html.dark .arborito-releases-panel:not(.arborito-releases-panel--mobile) .arborito-releases-snap-card--active:hover {
+    box-shadow:
+        0 0 0 1px rgb(96 165 250 / 0.5),
+        0 3px 14px rgb(37 99 235 / 0.25);
+}
+
+.arborito-releases-panel--mobile .arborito-releases-live-card {
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.09),
+        4px 5px 0 rgb(15 23 42 / 0.14),
+        1px 1px 0 rgb(15 23 42 / 0.06);
+}
+
+.arborito-releases-panel--mobile .arborito-releases-live-card.border-green-500 {
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.12),
+        4px 5px 0 rgb(22 163 74 / 0.28),
+        1px 1px 0 rgb(22 163 74 / 0.12);
+}
+
+html.dark .arborito-releases-panel--mobile .arborito-releases-live-card.border-green-500 {
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.06),
+        3px 4px 0 rgb(22 163 74 / 0.28);
+}
+
+.arborito-releases-panel--mobile .arborito-releases-snap-card {
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.08),
+        4px 5px 0 rgb(15 23 42 / 0.16),
+        1px 1px 0 rgb(15 23 42 / 0.07);
+}
+
+html.dark .arborito-releases-panel--mobile .arborito-releases-live-card {
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.05),
+        3px 4px 0 rgb(0 0 0 / 0.5);
+}
+
+html.dark .arborito-releases-panel--mobile .arborito-releases-snap-card {
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.04),
+        3px 4px 0 rgb(0 0 0 / 0.45);
+}
+
+.arborito-releases-panel--mobile .arborito-releases-snap-card:hover {
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.1),
+        5px 6px 0 rgb(15 23 42 / 0.18),
+        1px 1px 0 rgb(15 23 42 / 0.08);
+}
+
+html.dark .arborito-releases-panel--mobile .arborito-releases-snap-card:hover {
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.06),
+        4px 5px 0 rgb(0 0 0 / 0.55);
+}
+
+.arborito-releases-panel--mobile .arborito-releases-snap-card--active {
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.08),
+        4px 5px 0 rgb(59 130 246 / 0.28),
+        1px 1px 0 rgb(59 130 246 / 0.12);
+}
+
+html.dark .arborito-releases-panel--mobile .arborito-releases-snap-card--active {
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.05),
+        3px 4px 0 rgb(37 99 235 / 0.35);
+}
+
+.arborito-releases-panel--mobile .arborito-releases-snap-card--active:hover {
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.09),
+        5px 6px 0 rgb(59 130 246 / 0.32),
+        1px 1px 0 rgb(59 130 246 / 0.14);
+}
+
+html.dark .arborito-releases-panel--mobile .arborito-releases-snap-card--active:hover {
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.06),
+        4px 5px 0 rgb(37 99 235 / 0.42);
+}
+
+/* Fullscreen / game — don’t force light card on desktop (iframe shell only; dialogs use --center) */
+#modal-backdrop.arborito-modal--immersive:not(.arborito-modal-immersive--center) > div:first-child {
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+@media (max-width: 767px) {
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--immersive > div:first-child {
+        background: rgb(0 0 0) !important;
+    }
+}
+html.force-mobile #modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--immersive > div:first-child {
+    background: rgb(0 0 0) !important;
+}
+
+/*
+ * Juegos en móvil: el dock se oculta (clase en <html> desde game-player) y cabecera compacta.
+ */
+html.arborito-game-immersive-open .arborito-mob-dock-wrap {
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    transition: opacity 0.12s ease;
+}
+
+html.arborito-game-immersive-open .arborito-mob-top-actions {
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    transition: opacity 0.12s ease;
+}
+
+@media (max-width: 767px) {
+    #modal-backdrop.arborito-modal--immersive .animate-in {
+        animation: none !important;
+        transform: none !important;
+    }
+}
+
+html.force-mobile #modal-backdrop.arborito-modal--immersive .animate-in {
+    animation: none !important;
+    transform: none !important;
+}
+
+/* Barra superior del reproductor (Classroom, etc.): mínima en móvil */
+@media (max-width: 767px) {
+    .arborito-game-player-toolbar {
+        padding: 0.12rem 0.35rem !important;
+        padding-top: max(0.12rem, env(safe-area-inset-top, 0px)) !important;
+        min-height: 0 !important;
+        border-bottom-width: 1px;
+    }
+
+    .arborito-game-player-toolbar .arborito-game-player-back {
+        padding: 0.15rem 0.4rem !important;
+        font-size: 0.65rem !important;
+        font-weight: 800;
+        max-width: 38vw;
+        gap: 0.15rem !important;
+    }
+
+    .arborito-game-player-toolbar .arborito-game-player-title {
+        font-size: 0.68rem !important;
+        line-height: 1.15 !important;
+        letter-spacing: 0.01em;
+    }
+
+    .arborito-game-player-toolbar .arborito-game-player-title .arborito-game-player-emoji {
+        margin-right: 0.2rem !important;
+        font-size: 0.85em;
+    }
+
+    .arborito-game-player-toolbar .arborito-game-player-head-spacer {
+        width: 2.25rem !important;
+    }
+}
+
+html.force-mobile .arborito-game-player-toolbar {
+    padding: 0.12rem 0.35rem !important;
+    padding-top: max(0.12rem, env(safe-area-inset-top, 0px)) !important;
+    min-height: 0 !important;
+}
+
+html.force-mobile .arborito-game-player-toolbar .arborito-game-player-back {
+    padding: 0.15rem 0.4rem !important;
+    font-size: 0.65rem !important;
+    font-weight: 800;
+    max-width: 38vw;
+    gap: 0.15rem !important;
+}
+
+html.force-mobile .arborito-game-player-toolbar .arborito-game-player-title {
+    font-size: 0.68rem !important;
+    line-height: 1.15 !important;
+}
+
+html.force-mobile .arborito-game-player-toolbar .arborito-game-player-head-spacer {
+    width: 2.25rem !important;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+    html.arborito-shell-mobile .arborito-game-player-toolbar,
+    html.force-mobile .arborito-game-player-toolbar {
+        padding-top: max(0.08rem, env(safe-area-inset-top, 0px)) !important;
+        padding-bottom: 0.08rem !important;
+        padding-left: 0.35rem !important;
+        padding-right: 0.35rem !important;
+    }
+
+    html.arborito-shell-mobile .arborito-game-player-toolbar .arborito-game-player-title,
+    html.force-mobile .arborito-game-player-toolbar .arborito-game-player-title {
+        font-size: 0.6rem !important;
+    }
+
+    html.arborito-shell-mobile .arborito-game-player-toolbar .arborito-game-player-back,
+    html.force-mobile .arborito-game-player-toolbar .arborito-game-player-back {
+        padding: 0.1rem 0.3rem !important;
+        font-size: 0.58rem !important;
+        max-width: 32vw !important;
+    }
+}
+
+/* Arcade + juego en escritorio: iframe a ancho completo bajo una cabecera mínima */
+@media (min-width: 768px) {
+    /*
+     * #modal-backdrop.arborito-modal-root fuerza align-items:center + padding; en flex-col eso
+     * encoge el reproductor a una columna estrecha. Aquí se anula para pantalla casi completa.
+     */
+    html:not(.force-mobile) #modal-backdrop.arborito-game-player--desktop-widescreen {
+        min-height: 100dvh;
+        min-height: 100vh;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+    }
+
+    html:not(.force-mobile) #modal-backdrop.arborito-game-player--desktop-widescreen > main {
+        min-height: 0;
+        flex: 1 1 0%;
+    }
+
+    html:not(.force-mobile) #modal-backdrop.arborito-game-player--desktop-widescreen .arborito-game-player-frame {
+        width: 100%;
+        flex: 1 1 0%;
+        min-height: 0;
+        max-width: 100%;
+    }
+}
+
+/* Header bars inside modals — subtle separation */
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-100,
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-200,
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-700,
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-800 {
+    border-bottom-color: rgb(148 163 184 / 0.2) !important;
+}
+
+html.dark #modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-100,
+html.dark #modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-200 {
+    border-bottom-color: rgb(51 65 85 / 0.85) !important;
+}
+
+/*
+ * slideInBottom (html.force-mobile #modal-backdrop .animate-in) sets transform on the sheet.
+ * Any non-none transform on an ancestor makes position:fixed descendants relative to that sheet — back buttons jump.
+ */
+@media (max-width: 767px) {
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile > div:first-child,
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile > #modal-panel {
+        animation: none !important;
+        transform: none !important;
+    }
+}
+html.force-mobile #modal-backdrop.arborito-modal-root.arborito-modal--mobile > div:first-child,
+html.force-mobile #modal-backdrop.arborito-modal-root.arborito-modal--mobile > #modal-panel {
+    animation: none !important;
+    transform: none !important;
+}
+
+/* Primary dismiss in modals — 44px target (use .arborito-mmenu-back on real back buttons; not plain .btn-close) */
+#modal-backdrop.arborito-modal-root button.arborito-mmenu-back {
+    min-width: 2.75rem !important;
+    min-height: 2.75rem !important;
+    border-radius: 9999px !important;
+}
+
+/* Cierre explícito × (ventana emergente) — mismo tamaño táctil que atrás */
+#modal-backdrop .arborito-modal-window-x,
+arborito-sage.arborito-sage--open .arborito-modal-window-x,
+#mobile-widget-overlay .arborito-modal-window-x,
+#readme-backdrop .arborito-modal-window-x {
+    box-sizing: border-box;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    min-width: 2.75rem !important;
+    min-height: 2.75rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 9999px !important;
+    border: 1px solid rgb(148 163 184 / 0.45) !important;
+    background: rgb(255 255 255 / 0.9) !important;
+    color: rgb(51 65 85) !important;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+html.dark #modal-backdrop .arborito-modal-window-x,
+html.dark arborito-sage.arborito-sage--open .arborito-modal-window-x,
+html.dark #readme-backdrop .arborito-modal-window-x {
+    border-color: rgb(71 85 105 / 0.65) !important;
+    background: rgb(30 41 59 / 0.92) !important;
+    color: rgb(226 232 240) !important;
+}
+
+#modal-backdrop .arborito-modal-window-x:hover,
+arborito-sage.arborito-sage--open .arborito-modal-window-x:hover,
+#readme-backdrop .arborito-modal-window-x:hover {
+    border-color: rgb(100 116 139 / 0.65) !important;
+    background: rgb(241 245 249) !important;
+    color: rgb(30 41 59) !important;
+}
+
+html.dark #modal-backdrop .arborito-modal-window-x:hover,
+html.dark arborito-sage.arborito-sage--open .arborito-modal-window-x:hover,
+html.dark #readme-backdrop .arborito-modal-window-x:hover {
+    border-color: rgb(100 116 139 / 0.75) !important;
+    background: rgb(51 65 85 / 0.95) !important;
+    color: rgb(248 250 252) !important;
+}
+
+/* Cabeceras oscuras / gradiente (Sage escritorio, game-player) */
+.arborito-modal-window-x.arborito-modal-window-x--inverse {
+    border-color: rgb(255 255 255 / 0.35) !important;
+    background: rgb(0 0 0 / 0.22) !important;
+    color: rgb(248 250 252) !important;
+}
+
+.arborito-modal-window-x.arborito-modal-window-x--inverse:hover {
+    border-color: rgb(255 255 255 / 0.5) !important;
+    background: rgb(0 0 0 / 0.35) !important;
+}
+
+/*
+ * × en hojas móviles: ocultar solo con viewport estrecho.
+ * No usar html.force-mobile aquí: en landscape ancho (p. ej. ≥768px) el HTML ya no incluye ×
+ * salvo showOnMobile, y forzar display:none rompía Welcome / hojas que sí la pintan.
+ */
+@media (max-width: 767px) {
+    .arborito-modal-window-x {
+        display: none !important;
+    }
+}
+
+/* About: una sola fila (atrás + pestañas) — evita doble “flecha” visual */
+#modal-backdrop.arborito-modal-root .arborito-about-inline-back.arborito-mmenu-back {
+    border-radius: 0.75rem !important;
+    min-width: 2.5rem !important;
+    min-height: 2.5rem !important;
+}
+
+/* Mobile modals: back stays in layout (avoids transform/fixed bugs); optional sticky chrome */
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile > div:first-child,
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile > #modal-panel {
+    position: relative !important;
+}
+

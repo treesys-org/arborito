@@ -1,0 +1,333 @@
+.mobile-node-tool {  
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    padding: 0 0.35rem;
+    border-radius: 0.65rem;
+    border: 1px solid rgb(71 85 105 / 0.75);
+    background: rgb(30 41 59 / 0.55);
+    color: rgb(226 232 240);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.12s ease,
+        background 0.15s ease;
+  }
+html:not(.dark) .mobile-node-tool {  
+    background: rgb(248 250 252 / 0.92);
+    border-color: rgb(226 232 240 / 0.95);
+    color: rgb(51 65 85);
+  }
+.mobile-node-tool:active:not(:disabled) {  
+    transform: scale(0.95);
+  }
+.mobile-node-tool:disabled {  
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+.mobile-node-tool--danger {  
+    border-color: rgb(248 113 113 / 0.45);
+    color: rgb(248 113 113);
+  }
+.mobile-node-toolbar-structure {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+.mobile-node-toolbar-structure-dropdown {
+    position: absolute;
+    top: calc(100% + 0.2rem);
+    left: 0;
+    min-width: 12rem;
+    padding: 0.35rem;
+    border-radius: 0.65rem;
+    border: 1px solid rgb(71 85 105 / 0.75);
+    background: rgb(30 41 59 / 0.98);
+    box-shadow: 0 8px 22px rgb(0 0 0 / 0.28);
+    z-index: 25;
+  }
+.mobile-node-toolbar--readonly {  
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--slate-500);
+    padding: 0.25rem 0.35rem;
+  }
+.mobile-inline-tools {  
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto;
+    gap: 0.35rem;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+.mobile-inline-tools--compact {  
+    padding: 0;
+    border-radius: 0;
+  }
+.mobile-inline-tool {  
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgb(241 245 249);
+    font-size: 1.15rem;
+    line-height: 1;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        transform 0.15s cubic-bezier(0.34, 1.2, 0.64, 1),
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+  }
+.mobile-inline-tool:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+.mobile-inline-tool:active {
+    transform: scale(0.92);
+    background: rgba(255, 255, 255, 0.2);
+  }
+.mobile-inline-tool + .mobile-inline-tool {  
+    box-shadow: none;
+  }
+.mobile-inline-tool__pair {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    line-height: 1;
+  }
+.mobile-inline-tool__pair-plus {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: rgb(74 222 128);
+    line-height: 1;
+  }
+html:not(.dark) .mobile-inline-tool__pair-plus {
+    color: rgb(22 163 74);
+  }
+.mobile-inline-tool--danger {  
+    color: rgb(252 165 165);
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+.mobile-inline-tool--danger:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.35);
+  }
+
+/* Construction: “View folder” pill in inline tools (beside delete ✕). */
+.mobile-inline-tool--view-folder {
+    width: auto;
+    min-width: 0;
+    padding: 0 0.75rem;
+    gap: 0.4rem;
+    border-radius: 0.85rem;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.mobile-inline-tool--view-folder .mobile-inline-tool__label {
+    display: inline-block;
+    line-height: 1;
+}
+.mobile-inline-tool--view-folder + .mobile-inline-tool--danger {
+    /* Ensure visible separation between pill and delete */
+    margin-left: 0.5rem;
+}
+.mobile-inline-tools-host {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+    max-width: 100%;
+  }
+/* Barra de la carpeta abierta: sigue visible al elegir un hijo (atenuada = contexto carpeta vs fila). */
+.mobile-inline-tools-host--folder-context-dimmed {
+    opacity: 0.5;
+    filter: saturate(0.88);
+    transition: opacity 0.15s ease, filter 0.15s ease;
+  }
+.mobile-inline-tools-host--folder-context-dimmed:active,
+.mobile-inline-tools-host--folder-context-dimmed:focus-within {
+    opacity: 0.78;
+  }
+.mobile-structure-dropdown {
+    position: absolute;
+    top: calc(100% + 0.2rem);
+    left: 0;
+    right: 0;
+    min-width: min(100%, 12.5rem);
+    padding: 0.3rem;
+    border-radius: 0.65rem;
+    border: 1px solid rgb(100 116 139 / 0.55);
+    background: rgb(30 41 59 / 0.97);
+    box-shadow: 0 8px 22px rgb(0 0 0 / 0.3);
+    z-index: 30;
+  }
+.mobile-structure-menu__action {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.45rem 0.5rem;
+    border: none;
+    border-radius: 0.45rem;
+    background: rgb(51 65 85 / 0.4);
+    color: rgb(241 245 249);
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: 1.25;
+    cursor: pointer;
+  }
+html:not(.dark) .mobile-inline-tools {  
+    /* Keep buttons visually separated (no “single pill” behind them). */
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+  }
+html:not(.dark) .mobile-inline-tool {  
+    color: rgb(51 65 85);
+    background: rgba(241, 245, 249, 0.85);
+    border-color: rgba(203, 213, 225, 0.5);
+  }
+html:not(.dark) .mobile-inline-tool:hover {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(203, 213, 225, 0.8);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  }
+html:not(.dark) .mobile-inline-tool:active {
+    background: rgba(226, 232, 240, 0.9);
+  }
+html:not(.dark) .mobile-inline-tool + .mobile-inline-tool {  
+    box-shadow: none;
+  }
+html:not(.dark) .mobile-inline-tool--danger {  
+    color: rgb(220 38 38);
+    background: rgba(254, 226, 226, 0.6);
+    border-color: rgba(252, 165, 165, 0.5);
+  }
+html:not(.dark) .mobile-inline-tool--danger:hover {
+    background: rgba(254, 226, 226, 0.9);
+    border-color: rgba(252, 165, 165, 0.8);
+  }
+.mobile-inline-tools--compact .mobile-inline-tool {  
+    width: 2.15rem;
+    height: 2.15rem;
+    font-size: 1.1rem;
+  }
+.mobile-inline-tools--compact .mobile-inline-tool[data-act="add-folder"],
+.mobile-inline-tools--compact .mobile-inline-tool[data-act="add-file"] {
+    width: 2.5rem;
+    min-width: 2.5rem;
+  }
+.mobile-panel-head {  
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem 0.65rem;
+    margin-bottom: var(--space-sm, 0.5rem);
+    overflow: visible;
+  }
+.mobile-panel-move-here-wrap {
+    width: 100%;
+  }
+.mobile-panel-move-here {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    border: 2px solid rgb(34 197 94 / 0.55);
+    background: rgb(22 163 74 / 0.16);
+    color: rgb(187 247 208);
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      transform 0.12s ease,
+      background 0.15s ease,
+      border-color 0.15s ease;
+  }
+.mobile-panel-move-here:hover {
+    background: rgb(22 163 74 / 0.24);
+    border-color: rgb(34 197 94 / 0.75);
+  }
+.mobile-panel-move-here:active {
+    transform: scale(0.99);
+  }
+html:not(.dark) .mobile-panel-move-here {
+    color: rgb(21 128 61);
+    background: rgb(220 252 231 / 0.95);
+    border-color: rgb(34 197 94 / 0.45);
+  }
+html:not(.dark) .mobile-panel-move-here:hover {
+    background: rgb(187 247 208 / 0.95);
+  }
+.mobile-child-row .mobile-inline-tools-host {
+    align-self: center;
+  }
+
+/* Prevent inline tools from “floating” out of their row at deep nesting. */
+.mobile-child-row {
+    position: relative;
+}
+.mobile-child-row .mobile-inline-tools-host {
+    position: static;
+}
+.mobile-panel-head .mobile-panel-header {  
+    margin-bottom: 0;
+  }
+.mobile-panel-head .mobile-inline-tools {  
+    margin-left: 0;
+    flex-shrink: 0;
+  }
+.mobile-label-row .mobile-inline-tools {  
+    margin-left: 0.35rem;
+  }
+.mobile-label-row--with-version .mobile-inline-tools {  
+    flex-basis: 100%;
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.35rem;
+    justify-content: flex-end;
+  }
+.mobile-child-row .mobile-inline-tools {  
+    margin-left: 0.3rem;
+  }
+.mobile-child-wrap {  
+    margin-bottom: 0.35rem;
+  }
+.mobile-child-row--selected {  
+    outline: 2px solid rgb(250 204 21 / 0.85);
+    outline-offset: 1px;
+    border-radius: var(--radius-md, 12px);
+  }
+html.dark .mobile-child-row--selected {  
+    outline-color: rgb(253 224 71 / 0.65);
+  }

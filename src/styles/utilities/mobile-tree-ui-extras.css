@@ -1,0 +1,146 @@
+.arborito-lesson-mobile-scrim { 
+    background: rgb(240 253 250);
+ }
+html.dark .arborito-lesson-mobile-scrim { 
+    background: rgb(17 28 46);
+ }
+.arborito-mobile-path.mobile-tree-ui .backdrop-blur-sm,
+.arborito-mobile-path.mobile-tree-ui .backdrop-blur-md,
+.arborito-mobile-path.mobile-tree-ui .backdrop-blur-xl,
+.arborito-mobile-path.mobile-tree-ui [class*="backdrop-blur"] { 
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+ }
+/* Tema claro: etiquetas del camino junto al tronco (fuera de la viñeta del panel) — blanco + sombra oscura sobre el cielo */
+html:not(.dark) .arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--construction) #mobile-right-col .mobile-label-row .mobile-label-text {
+    color: #fff !important;
+    text-shadow:
+        0 1px 2px rgb(0 0 0 / 0.92),
+        0 2px 14px rgb(0 0 0 / 0.55);
+}
+html:not(.dark) .arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--construction) #mobile-right-col .mobile-label-row .mobile-label-meta {
+    color: rgb(248 250 252) !important;
+    text-shadow:
+        0 1px 2px rgb(0 0 0 / 0.88),
+        0 1px 8px rgb(0 0 0 / 0.45);
+}
+/* Viñeta (panel de hijos): tema oscuro = texto claro; tema claro = panel blanco → texto oscuro */
+
+/* Encabezado tipo “N caminos” encima de la viñeta: relieve, aire interno y sombra para separarlo del listado */
+.arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--construction) .mobile-children-panel .mobile-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-height: auto;
+    padding: 0.65rem 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+    text-transform: none;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    overflow: visible;
+}
+html:not(.dark) .arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--construction) .mobile-children-panel .mobile-panel-header {
+    color: rgb(15 23 42) !important;
+    text-shadow: none;
+    background: linear-gradient(180deg, rgb(241 245 249), rgb(226 232 240));
+    border: 1px solid rgb(148 163 184 / 0.4);
+    border-radius: 0.65rem;
+    box-shadow:
+        0 1px 2px rgb(15 23 42 / 0.06),
+        inset 0 1px 0 rgb(255 255 255 / 0.85);
+}
+html.dark .arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--construction) .mobile-children-panel .mobile-panel-header {
+    color: rgb(167 243 208) !important;
+    text-shadow:
+        0 0 2px rgb(0 0 0 / 0.9),
+        0 1px 4px rgb(0 0 0 / 0.82),
+        0 2px 18px rgb(0 0 0 / 0.48);
+}
+
+/* Tema claro: Arcade y «atrás» legibles sobre la franja del panel */
+html:not(.dark) .arborito-mobile-path .mobile-panel-cta--arcade,
+html:not(.dark) .arborito-mobile-path .mobile-path-cta--arcade {
+    border-color: rgb(234 88 12 / 0.65);
+    background: rgb(255 237 213);
+    color: rgb(124 45 18);
+}
+html:not(.dark) .arborito-mobile-path .mobile-panel-cta--arcade:hover,
+html:not(.dark) .arborito-mobile-path .mobile-path-cta--arcade:hover {
+    background: rgb(255 228 194);
+    border-color: rgb(234 88 12 / 0.85);
+}
+html:not(.dark) .arborito-mobile-path .mobile-panel-back {
+    border-color: rgb(148 163 184 / 0.85);
+    background: rgb(255 255 255 / 0.92);
+    color: rgb(15 23 42);
+}
+html:not(.dark) .arborito-mobile-path .mobile-panel-back:hover {
+    background: rgb(255 255 255);
+    border-color: rgb(100 116 139 / 0.75);
+}
+
+/* Título del panel: tipografía compacta, alineado con el flex del encabezado */
+.arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--construction) .mobile-children-panel .mobile-panel-title {
+    display: inline-block;
+    min-width: 0;
+    max-width: 100%;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+html:not(.dark) .arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--construction) .mobile-children-panel .mobile-panel-title {
+    color: rgb(15 23 42);
+}
+html.dark .arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--construction) .mobile-children-panel .mobile-panel-title {
+    color: rgb(236 253 245);
+}
+html:not(.dark) .arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--construction) .mobile-children-panel .mobile-child-name {
+    color: rgb(15 23 42) !important;
+    text-shadow: none;
+}
+html:not(.dark) .arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--construction) .mobile-children-panel .mobile-child-meta {
+    color: rgb(71 85 105) !important;
+}
+html:not(.dark) .arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--construction) .mobile-children-panel .mobile-child-arrow {
+    color: rgb(100 116 139) !important;
+}
+
+/* Tema oscuro: etiquetas del camino con contraste explícito sobre panel oscuro */
+html.dark .arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--construction) .mobile-label-text,
+html.dark .arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--construction) .mobile-child-name,
+html.dark #arborito-curriculum-chrome.arborito-mobile-path .mobile-label-text {
+    color: rgb(248 250 252) !important;
+    text-shadow:
+        0 0 1px rgb(15 23 42 / 0.95),
+        0 1px 2px rgb(15 23 42 / 0.88),
+        0 2px 14px rgb(15 23 42 / 0.55);
+}
+html.dark .arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--construction) .mobile-label-meta,
+html.dark .arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--construction) .mobile-child-meta,
+html.dark #arborito-curriculum-chrome.arborito-mobile-path .mobile-label-meta {
+    color: rgb(148 163 184) !important;
+}
+
+#mobile-tree-ui #mobile-overlays:empty { 
+    display: none !important;
+ }
+
+/* Modo construcción: rejilla del plano más gruesa en vista estrecha (móvil) */
+@media (max-width: 1023.98px) {
+    .graph-container.bg-blueprint {
+        background-size: 48px 48px, 48px 48px, 12px 12px, 12px 12px !important;
+    }
+}

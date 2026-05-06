@@ -1,0 +1,612 @@
+/* Ajustes solo bosque escritorio + barra de versiones; la base del dock de construcción está en utilities/construction-dock.css. */
+
+html.arborito-desktop .construction-panel-sheet {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    border-radius: 0;
+    background: rgb(15 23 42 / 0.55);
+    border: 1px solid rgb(94 234 212 / 0.25);
+    box-shadow: 0 -2px 12px rgb(0 0 0 / 0.25);
+}
+
+/* Barra de construcción a todo el ancho, pegada al borde inferior (sin “isla” centrada). */
+html.arborito-desktop.arborito-construction-mobile .construction-panel-stack {
+    width: 100%;
+    max-width: none;
+    align-self: stretch;
+}
+
+html.arborito-desktop.arborito-construction-mobile .construction-panel-host {
+    align-items: stretch;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Escritorio + construcción: “Espacio de trabajo” chocaba con la tarjeta del curso; versiones vía barra del dock */
+html.arborito-desktop.arborito-construction-mobile .mobile-version-fixed-slot {
+    display: none !important;
+}
+
+html.arborito-desktop:not(.dark) .construction-panel-sheet {
+    background: rgb(255 255 255 / 0.72);
+    border-color: rgb(45 212 191 / 0.35);
+}
+
+/* Chip de versiones: más legible sobre bosque */
+html.arborito-desktop .arborito-timeline-chip--btn {
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+}
+
+html.arborito-desktop:not(.dark) .arborito-mobile-path.mobile-tree-ui .mobile-label-text,
+html.arborito-desktop:not(.dark) .arborito-mobile-path.mobile-tree-ui .mobile-label-row.is-active .mobile-label-text {
+    color: rgb(15 23 42);
+    text-shadow:
+        0 1px 0 rgb(255 255 255 / 0.5),
+        0 1px 4px rgb(15 23 42 / 0.14),
+        0 0 12px rgb(255 255 255 / 0.35);
+}
+
+html.arborito-desktop:not(.dark) .arborito-mobile-path.mobile-tree-ui .mobile-child-name {
+    color: rgb(15 23 42);
+    text-shadow:
+        0 1px 0 rgb(255 255 255 / 0.5),
+        0 1px 4px rgb(15 23 42 / 0.14);
+}
+
+/* Floating dock — superficie sólida, misma familia que el resto de la app (Nunito) */
+.arborito-mob-dock-wrap {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    margin: 0;
+    z-index: 110;
+    pointer-events: none;
+    display: flex;
+    justify-content: stretch;
+    align-items: flex-end;
+    padding: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* Por encima del host de modales (z~125): el dock sigue clicable con búsqueda u otras hojas abiertas */
+arborito-sidebar .arborito-mob-dock-wrap {
+    z-index: 130;
+}
+
+/* Móvil (no escritorio): tema + perfil arriba a la derecha — misma capa que el dock del sidebar */
+.arborito-mob-top-actions {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 118;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding-top: max(0.35rem, env(safe-area-inset-top, 0px));
+    padding-right: max(0.45rem, env(safe-area-inset-right, 0px));
+    padding-bottom: 0.35rem;
+    padding-left: 0.35rem;
+    pointer-events: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Debajo de `arborito-modals` (z 125): no tapar modales con perfil/tema */
+arborito-sidebar .arborito-mob-top-actions {
+    z-index: 118;
+}
+
+/*
+ * Solo pantalla principal del mapa: ficha del curso + perfil/tema.
+ * Fuera de eso (lección, modal, «Más») se ocultan vía `html.arborito-mob-tree-home` en ui-store + sidebar.
+ */
+html.arborito-shell-mobile:not(.arborito-mob-tree-home) arborito-sidebar .arborito-mob-top-actions,
+html.force-mobile:not(.arborito-mob-tree-home) arborito-sidebar .arborito-mob-top-actions {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+html.arborito-shell-mobile:not(.arborito-mob-tree-home) .arborito-tree-pres-anchor,
+html.force-mobile:not(.arborito-mob-tree-home) .arborito-tree-pres-anchor {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Chip «árbol / versión» (p. ej. curso local 🏡): mismo criterio que la ficha del curso */
+html.arborito-shell-mobile:not(.arborito-mob-tree-home) .mobile-tree-ui .arborito-curriculum-switcher-host,
+html.force-mobile:not(.arborito-mob-tree-home) .mobile-tree-ui .arborito-curriculum-switcher-host {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/*
+ * Bottom dock uses z-index above #modal-backdrop so dock modals stay usable; during first-run
+ * onboarding and the gated Trees modal, hide the dock so only the fullscreen flow is visible.
+ */
+html.arborito-shell-mobile.arborito-mob-first-run-gate arborito-sidebar .arborito-mob-dock-wrap,
+html.force-mobile.arborito-mob-first-run-gate arborito-sidebar .arborito-mob-dock-wrap {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.arborito-mob-top-actions__btn {
+    pointer-events: auto;
+    width: 2.4rem;
+    height: 2.4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid rgb(226 232 240 / 0.95);
+    background: rgb(255 255 255 / 0.72);
+    box-shadow: 0 2px 10px rgb(15 23 42 / 0.08);
+    font-size: 1.12rem;
+    line-height: 1;
+    color: inherit;
+    cursor: pointer;
+    user-select: none;
+    transition:
+        transform 0.12s ease,
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.arborito-mob-top-actions__btn:active {
+    transform: scale(0.94);
+}
+
+html.dark .arborito-mob-top-actions__btn {
+    border-color: rgb(51 65 85 / 0.9);
+    background: rgb(30 41 59 / 0.72);
+    box-shadow: 0 2px 12px rgb(0 0 0 / 0.28);
+}
+
+.arborito-mob-top-actions__btn--profile {
+    width: auto;
+    max-width: min(11.5rem, 46vw);
+    height: 2.4rem;
+    padding: 0 0.5rem 0 0.28rem;
+    gap: 0.35rem;
+    justify-content: flex-start;
+}
+
+.arborito-mob-top-actions__profile-ic {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.68rem;
+    height: 1.68rem;
+    font-size: 1.05rem;
+}
+
+.arborito-mob-top-actions__profile-name {
+    min-width: 0;
+    font-size: 0.6875rem;
+    font-weight: 850;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+/* Contenedor flex: dock a ancho completo, sin centrar como pastilla */
+.arborito-app-nav-inner {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: stretch;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+}
+
+/* Los grupos no envuelven el layout: las pestañas comparten una fila en .arborito-mob-dock */
+.arborito-desktop-nav-group {
+    display: contents;
+}
+
+.arborito-mob-dock {
+    pointer-events: auto;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-around;
+    width: 100%;
+    max-width: none;
+    min-height: 3.35rem;
+    padding: 0.4rem 0.35rem;
+    border-radius: 0;
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    background: rgb(248 250 252);
+    border-top: 1px solid rgb(226 232 240);
+    box-shadow: 0 -2px 10px rgb(15 23 42 / 0.05);
+}
+
+html.dark .arborito-mob-dock {
+    background: rgb(15 23 42);
+    border-top: 1px solid rgb(51 65 85);
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    box-shadow: 0 -2px 10px rgb(0 0 0 / 0.25);
+}
+.arborito-mob-tab {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 0.25rem 0.125rem;
+    border: none;
+    border-radius: 1rem;
+    background: transparent;
+    font-family: inherit;
+    color: rgb(100 116 139);
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.2s ease, transform 0.15s ease, background 0.2s ease;
+}
+
+html.dark .arborito-mob-tab {
+    color: rgb(148 163 184);
+}
+
+.arborito-mob-tab:active {
+    transform: scale(0.94);
+}
+
+.arborito-mob-tab--active {
+    color: rgb(5 122 85);
+    background: rgb(220 252 231);
+}
+
+html.dark .arborito-mob-tab--active {
+    color: rgb(167 243 208);
+    background: rgb(6 78 59 / 0.55);
+}
+
+.arborito-mob-tab:focus-visible {
+    outline: 2px solid var(--arborito-brand, #14b8a6);
+    outline-offset: 2px;
+}
+
+.arborito-mob-tab__icon {
+    font-size: 1.35rem;
+    line-height: 1;
+    height: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.arborito-mob-tab__icon--menu {
+    font-weight: 700;
+}
+
+.arborito-mob-tab__badge {
+    position: absolute;
+    top: 2px;
+    right: calc(50% - 22px);
+    width: 7px;
+    height: 7px;
+    background: var(--red-500);
+    border-radius: 50%;
+}
+
+.arborito-mob-tab__label {
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+    max-width: 100%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    white-space: normal;
+    padding: 0 1px;
+    text-align: center;
+}
+
+/* Curriculum chrome: fila única (móvil + overlay); chip real: .arborito-timeline-chip--btn vía graph-version.js */
+#arborito-curriculum-chrome .arborito-timeline-chip,
+#arborito-mobile-version-fixed .arborito-timeline-chip,
+.arborito-mobile-curriculum-chrome .arborito-timeline-chip {
+    max-width: min(100%, 14rem);
+}
+
+@media (max-width: 767px) {
+    .arborito-mobile-curriculum-chrome {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .arborito-mobile-curriculum-chrome .arborito-mobile-version-root {
+        margin-left: 0 !important;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .arborito-mobile-curriculum-chrome .arborito-timeline-chip--btn {
+        max-width: 100%;
+    }
+}
+
+#arborito-curriculum-chrome {
+    font-family: var(--arborito-font-display, var(--font-family-base, ui-sans-serif, system-ui, sans-serif));
+    overflow: visible;
+    position: relative;
+}
+
+/* Chip “Versions” — fondos opacos por modo (sin /90) */
+.arborito-timeline-chip--btn {
+    max-width: min(100%, 14rem);
+    color: rgb(21 128 61);
+    background: rgb(236 253 245) !important;
+    border-color: rgb(167 243 208) !important;
+}
+
+.arborito-timeline-chip--btn[data-arborito-version-kind="archive"] {
+    color: rgb(30 64 175);
+    background: rgb(239 246 255) !important;
+    border-color: rgb(147 197 253) !important;
+}
+
+html.dark .arborito-timeline-chip--btn[data-arborito-version-kind="rolling"] {
+    color: rgb(209 250 229);
+    background: rgb(6 78 59) !important;
+    border-color: rgb(22 101 52) !important;
+}
+
+html.dark .arborito-timeline-chip--btn[data-arborito-version-kind="archive"] {
+    color: rgb(191 219 254);
+    background: rgb(30 58 138) !important;
+    border-color: rgb(59 130 246) !important;
+}
+
+.arborito-timeline-chip--btn:active {
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .arborito-timeline-chip--btn {
+        transition: none;
+    }
+}
+
+.arborito-timeline-local-pill {
+    color: rgb(88 28 135);
+    background: rgb(250 245 255) !important;
+    border-color: rgb(216 180 254) !important;
+}
+
+html.dark .arborito-timeline-local-pill {
+    color: rgb(233 213 255);
+    background: rgb(59 7 100) !important;
+    border-color: rgb(147 51 234) !important;
+}
+
+.arborito-version-dropdown.arborito-version-dropdown--popover {
+    background: rgb(255 255 255) !important;
+}
+
+html.dark .arborito-version-dropdown.arborito-version-dropdown--popover {
+    background: rgb(15 23 42) !important;
+}
+
+.arborito-version-dropdown {
+    pointer-events: auto;
+}
+
+/* Panel de versiones: posición y tamaño los fija graph.positionVersionDropdownPanel() */
+.arborito-version-dropdown--popover {
+    pointer-events: auto;
+}
+
+/* Portal al body: debajo de modales (125); velo solo visual (pointer-events: none) */
+.arborito-version-dropdown-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 123;
+    background: rgb(15 23 42 / 0.22);
+    /* Deja pasar clics al chip del grafo (z-10) y al resto; el cierre lo hace document (graph._onDocClickCurriculum) */
+    pointer-events: none;
+}
+
+html.dark .arborito-version-dropdown-backdrop {
+    background: rgb(0 0 0 / 0.42);
+}
+
+.arborito-version-dropdown--portaled.arborito-version-dropdown--popover {
+    border-radius: 1rem;
+    box-shadow:
+        0 22px 50px -12px rgb(0 0 0 / 0.28),
+        0 0 0 1px rgb(15 23 42 / 0.06);
+}
+
+html.dark .arborito-version-dropdown--portaled.arborito-version-dropdown--popover {
+    box-shadow:
+        0 24px 56px -14px rgb(0 0 0 / 0.55),
+        0 0 0 1px rgb(148 163 184 / 0.12);
+}
+
+@media (min-width: 768px) {
+    .arborito-version-dropdown--portaled.arborito-version-dropdown--popover {
+        min-width: 17.5rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .arborito-mobile-curriculum-chrome .arborito-timeline-chip {
+        max-width: min(100%, 14rem);
+    }
+}
+
+html.dark #arborito-curriculum-chrome.arborito-mobile-path .mobile-label-text {
+    color: rgb(255 255 255) !important;
+    text-shadow:
+        0 0 1px rgb(15 23 42 / 0.95),
+        0 1px 2px rgb(15 23 42 / 0.88),
+        0 2px 14px rgb(15 23 42 / 0.55);
+}
+html.dark #arborito-curriculum-chrome.arborito-mobile-path .mobile-label-meta {
+    color: rgb(226 232 240 / 0.95) !important;
+    text-shadow:
+        0 0 1px rgb(15 23 42 / 0.9),
+        0 1px 2px rgb(15 23 42 / 0.82),
+        0 2px 12px rgb(15 23 42 / 0.48);
+}
+
+/* Sin chip flotante de versiones en el tronco (control en la viñeta del panel raíz) */
+html:not(.arborito-desktop) .mobile-version-fixed-slot {
+    display: none !important;
+}
+
+html:not(.arborito-desktop) #arborito-curriculum-chrome .mobile-trunk-version-static {
+    padding-left: var(--space-sm);
+    line-height: 1.35;
+}
+
+/* Móvil: el nombre del árbol puede caer sobre fondos muy oscuros; fuerza contraste legible. */
+html:not(.arborito-desktop) #arborito-curriculum-chrome .arborito-mobile-trunk-static .mobile-label-text {
+    color: rgb(248 250 252);
+    text-shadow:
+        0 0 1px rgb(15 23 42 / 0.95),
+        0 1px 2px rgb(15 23 42 / 0.88),
+        0 2px 14px rgb(15 23 42 / 0.55);
+}
+html:not(.arborito-desktop) #arborito-curriculum-chrome .arborito-mobile-trunk-static .mobile-label-meta {
+    color: rgb(226 232 240 / 0.95);
+    text-shadow:
+        0 0 1px rgb(15 23 42 / 0.9),
+        0 1px 2px rgb(15 23 42 / 0.82),
+        0 2px 12px rgb(15 23 42 / 0.48);
+}
+
+/* Escritorio: el tronco puede ir sobre fondo oscuro (rejilla) incluso en tema claro → mismo contraste alto. */
+html.arborito-desktop #arborito-curriculum-chrome .arborito-mobile-trunk-static .mobile-label-text {
+    color: rgb(248 250 252) !important;
+    text-shadow:
+        0 0 1px rgb(15 23 42 / 0.95),
+        0 1px 2px rgb(15 23 42 / 0.88),
+        0 2px 14px rgb(15 23 42 / 0.55) !important;
+}
+html.arborito-desktop #arborito-curriculum-chrome .arborito-mobile-trunk-static .mobile-label-meta {
+    color: rgb(226 232 240 / 0.95) !important;
+    text-shadow:
+        0 0 1px rgb(15 23 42 / 0.9),
+        0 1px 2px rgb(15 23 42 / 0.82),
+        0 2px 12px rgb(15 23 42 / 0.48) !important;
+}
+
+/* Versiones: sin slot flotante (#arborito-mobile-version-fixed); el control vive en la viñeta del panel raíz */
+#arborito-mobile-version-fixed.mobile-version-fixed-slot {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* =============================================================================
+ * Construcción en escritorio (bosque): dock tipo “isla” — ancho según iconos, bordes redondeados.
+ * ============================================================================= */
+html.arborito-desktop.arborito-construction-mobile
+    .construction-panel-host.construction-panel-host--desk-compact-dock {
+    align-items: center;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    padding-bottom: max(0.45rem, env(safe-area-inset-bottom, 0px));
+}
+
+html.arborito-desktop.arborito-construction-mobile
+    .construction-panel-host.construction-panel-host--desk-compact-dock
+    .construction-panel-stack {
+    width: auto;
+    max-width: min(96vw, calc(100vw - 1.5rem));
+    align-self: center;
+}
+
+html.arborito-desktop.arborito-construction-mobile
+    .construction-panel-host.construction-panel-host--desk-compact-dock
+    .construction-panel-sheet {
+    width: max-content;
+    max-width: min(96vw, calc(100vw - 1.5rem));
+    margin: 0 auto;
+    margin-bottom: 0.35rem;
+    border-radius: 1.35rem;
+    border: 1px solid rgb(94 234 212 / 0.28);
+    box-shadow:
+        0 10px 28px rgb(15 23 42 / 0.18),
+        0 2px 8px rgb(15 23 42 / 0.1);
+    padding: 0.38rem 0.5rem 0.42rem;
+}
+
+html.arborito-desktop:not(.dark).arborito-construction-mobile
+    .construction-panel-host.construction-panel-host--desk-compact-dock
+    .construction-panel-sheet {
+    border-color: rgb(45 212 191 / 0.35);
+    box-shadow:
+        0 10px 28px rgb(15 23 42 / 0.1),
+        0 2px 10px rgb(15 23 42 / 0.06);
+}
+
+html.arborito-desktop.arborito-construction-mobile
+    .construction-panel-host.construction-panel-host--desk-compact-dock
+    .cp-dock-main {
+    flex: 0 0 auto;
+    width: max-content;
+    min-width: 0;
+}
+
+html.arborito-desktop.arborito-construction-mobile
+    .construction-panel-host.construction-panel-host--desk-compact-dock
+    .cp-dock-row {
+    width: max-content;
+    min-width: 0;
+}
+
+html.arborito-desktop.arborito-construction-mobile
+    .construction-panel-host.construction-panel-host--desk-compact-dock
+    .cp-dock-scroll {
+    flex: 0 0 auto;
+    width: max-content;
+    min-width: 0;
+    max-width: none;
+    justify-content: center;
+    gap: 0.2rem;
+    mask-image: none;
+    overflow-x: visible;
+}
+
+@media (min-width: 900px) {
+    html.arborito-desktop.arborito-construction-mobile
+        .construction-panel-host.construction-panel-host--desk-compact-dock:not(.construction-panel-host--mob-dock)
+        .cp-dock-scroll {
+        justify-content: center;
+        flex: 0 0 auto;
+        width: max-content;
+    }
+
+    html.arborito-desktop.arborito-construction-mobile
+        .construction-panel-host.construction-panel-host--desk-compact-dock:not(.construction-panel-host--mob-dock)
+        .cp-dock-scroll
+        .cp-dock-tab {
+        flex: 0 0 auto;
+        min-width: 2.85rem;
+        max-width: 5.25rem;
+    }
+}
