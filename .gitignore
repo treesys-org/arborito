@@ -1,0 +1,23 @@
+/node_modules
+/dist
+/release
+/package
+*.cache
+*.tgz
+
+# Cursor: configuración local (no subir). La plantilla versionada es .cursorignore.example
+.cursorignore
+
+# Entorno y secretos (nunca commitear)
+.env
+.env.*
+!.env.example
+
+# Sistema / logs
+.DS_Store
+Thumbs.db
+*.log
+
+# Pruebas / cobertura
+coverage/
+.nyc_output/
