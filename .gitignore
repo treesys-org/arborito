@@ -1,0 +1,30 @@
+/node_modules
+/dist
+/release
+/package
+*.cache
+*.tgz
+
+# CSS: fuente en src/shared/styles/** (main.entry.css + parciales shared) y src/features/*/styles/** (CSS por feature). Salida compilada main.css
+# debe commitearse para GitHub Pages si el deploy es desde rama (no solo Actions).
+# Regenerar: npm run build:css  (o build:css:min para producción)
+# Cursor: configuración local (no subir). La plantilla versionada es .cursorignore.example
+.cursorignore
+
+# Entorno y secretos (nunca commitear)
+.env
+.env.*
+!.env.example
+
+# Sistema / logs
+.DS_Store
+Thumbs.db
+*.log
+
+# Pruebas / cobertura
+coverage/
+.nyc_output/
+
+# Python (scripts/validate-locales.py et al.)
+__pycache__/
+*.pyc

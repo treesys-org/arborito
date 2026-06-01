@@ -1,0 +1,77 @@
+# Deploy Arborito (static app) to GitHub Pages.
+# This file is meant for the repo whose ROOT is the `arborito/` folder.
+name: Arborito Pages
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "**"
+      - ".github/workflows/arborito-pages.yml"
+      - ".github/workflows/arborito-css.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          # Node 22 LTS — required by electron@42, @electron/get@5,
+          # @electron/rebuild@4 and node-llama-cpp@3.x (silences EBADENGINE warns).
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      # `npm ci` is strict on purpose: the lock must match package.json. If the
+      # lock drifts (someone edits package.json without running `npm install`
+      # locally), the deploy breaks even though nothing changed in this workflow.
+      # Strategy: try `npm ci` first (reproducible); if it fails because of lock
+      # drift, fall back to `npm install` so CI keeps green and surfaces a
+      # GitHub warning instead of a hard failure.
+      # `--omit=optional` skips node-llama-cpp (only the packaged Electron build
+      # needs it; the Tailwind build that runs here does not).
+      - name: Install (auto-recover from lock drift)
+        run: |
+          npm ci --omit=optional --no-audit --no-fund --prefer-offline \
+            || (echo "::warning::package-lock.json drift detected; falling back to 'npm install'. Run 'npm install' locally and commit the updated lock to restore reproducible builds." \
+                && npm install --omit=optional --no-audit --no-fund --prefer-offline)
+
+      - name: Build Tailwind (min)
+        run: npm run build:css:min
+
+      - name: Verify main.css exists
+        run: test -s src/shared/styles/main.css
+
+      - name: Stamp build id (cache bust)
+        run: |
+          node -e "const fs=require('fs');const p='src/core/version.js';const sha=process.env.GITHUB_SHA||'';const short=sha?sha.slice(0,10):'dev';const d=new Date();const iso=d.toISOString().slice(0,19).replace(/[:T]/g,'-');const id=`${iso}-${short}`;let s=fs.readFileSync(p,'utf8');s=s.replace(/export const ARBORITO_BUILD_ID\\s*=\\s*'[^']*'\\s*;?/m,`export const ARBORITO_BUILD_ID = '${id}';`);fs.writeFileSync(p,s);console.log('ARBORITO_BUILD_ID=',id);"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+

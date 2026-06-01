@@ -1,0 +1,40 @@
+/**
+ * Edit-lock overlay used while a public-tree publish is in flight.
+ *
+ * The store sets `html.arborito-publishing-tree` while
+ * `publishTreePublicInteractive` is awaiting the chunked uploads + directory
+ * bump + code claim. Blocking pointer + keyboard input during that window
+ * prevents the worst failure mode (user keeps editing the tree while half
+ * its chunks are already on the network, producing inconsistent published
+ * state) and makes the "Publicando árbol…" toast feel intentional instead
+ * of "is the app frozen?".
+ *
+ * The toast itself (`.arborito-tree-growing-toast`) lives at z-index 10000
+ * with `pointer-events: none` so it stays visible above the lock and never
+ * intercepts the user's clicks.
+ */
+
+html.arborito-publishing-tree arborito-construction-panel,
+html.arborito-publishing-tree arborito-graph,
+html.arborito-publishing-tree #modal-backdrop {
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Soft visual cue so the user knows interaction is paused, without
+ * blanking the whole UI (they should still be able to read where they were). */
+html.arborito-publishing-tree arborito-construction-panel,
+html.arborito-publishing-tree arborito-graph {
+    opacity: 0.7;
+    filter: saturate(0.85);
+    transition: opacity 180ms ease, filter 180ms ease;
+}
+
+/* Block keyboard focus on form fields too — "tab" should not move into
+ * inputs the user can no longer commit. */
+html.arborito-publishing-tree arborito-construction-panel input,
+html.arborito-publishing-tree arborito-construction-panel textarea,
+html.arborito-publishing-tree arborito-construction-panel select,
+html.arborito-publishing-tree arborito-construction-panel button {
+    pointer-events: none;
+}

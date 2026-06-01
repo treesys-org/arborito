@@ -1,0 +1,29 @@
+/*
+ * Escritorio: los modales (fuentes, perfil, versiones, certificados) usan el mismo
+ * pattern as Arcade — centered floating window and .arborito-modal-root scrim (system-root).
+ * Narrow side panel (justify-content: flex-end + 36rem) broke gradient and ×.
+ */
+
+arborito-modal-certificates #certs-list-container,
+arborito-modal-sources #tab-content,
+arborito-modal-profile .overflow-y-auto.custom-scrollbar,
+.arborito-sheet.arborito-sheet--mobile-more .arborito-mmenu-scroll {
+    overscroll-behavior: contain;
+}
+#modal-backdrop { z-index: 1 !important; }
+arborito-modal-search #modal-backdrop.arborito-modal-search-dock {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-mob-dock-clearance, 4.25rem) !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+html.force-mobile #modal-backdrop {
+    z-index: 1 !important;
+}

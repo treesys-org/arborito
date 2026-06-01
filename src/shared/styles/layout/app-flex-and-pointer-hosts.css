@@ -1,0 +1,393 @@
+/* =============================================================================
+   HIT TARGETING — flex row was leaving invisible hosts over the graph (#app)
+   ============================================================================= */
+#app {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    min-height: 0;
+}
+
+#app > main {
+    flex: 1 1 0%;
+    min-width: 0;
+    min-height: 0;
+    position: relative;
+}
+
+/*
+ * Grafo: el host <arborito-graph> es un custom element.
+ * Without display:block + height:100% the host collapses (inline by default) and on mobile
+ * the map is invisible or has no usable height (WebKit/Android).
+ */
+arborito-graph {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    position: relative;
+    z-index: 0;
+}
+
+/* Hosts must NOT steal touches; only real UI inside them receives events */
+/* Lesson open: zero-width flex host must still paint fixed reader above the graph */
+html.arborito-lesson-open arborito-content {
+    position: fixed;
+    inset: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    z-index: 150;
+    pointer-events: none;
+}
+
+arborito-sidebar,
+arborito-content,
+arborito-modals,
+arborito-construction-panel,
+arborito-sage,
+arborito-version-widget,
+arborito-progress-widget {
+    flex: 0 0 auto;
+    width: 0;
+    min-width: 0;
+    max-width: 100%;
+    overflow: visible;
+    pointer-events: none;
+    align-self: stretch;
+}
+
+arborito-sidebar button,
+arborito-sidebar .arborito-app-nav-inner,
+arborito-sidebar nav.arborito-mob-dock,
+arborito-sidebar #mobile-menu-backdrop,
+arborito-sidebar #mobile-menu,
+/* Desktop: host has width:0; reinforce hit targets for inline search and results */
+arborito-sidebar .arborito-desktop-header__search-wrap,
+arborito-sidebar .arborito-desktop-search-inline,
+arborito-sidebar .arborito-desktop-search-inline__results {
+    pointer-events: auto;
+}
+
+/* pointer-events inherits — descendants must be re-enabled for the whole lesson surface */
+arborito-content * {
+    pointer-events: auto;
+}
+
+/* Lesson toolbar lives in a width:0 flex host; ensure the sticky header stack wins hit-testing over the reader body */
+arborito-content .arborito-lesson-mobile-head {
+    pointer-events: auto;
+    z-index: 130;
+}
+
+/* Same width as modals: width:0 on host breaks hit-test for 🎒 (backpack) chip on desktop */
+body > arborito-progress-widget {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    pointer-events: none !important;
+    z-index: 108 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+}
+
+/* Construction dock: host stays none — only inner controls use auto (already in component) */
+arborito-construction-panel > *,
+arborito-sage > *,
+arborito-version-widget > * {
+    pointer-events: auto;
+}
+
+/* No dar pointer-events al wrapper ancho-cero: evita capas fantasma sobre el grafo */
+arborito-progress-widget > * {
+    pointer-events: none;
+}
+
+arborito-progress-widget .arborito-desktop-mochila-host,
+arborito-progress-widget #mobile-widget-overlay {
+    pointer-events: auto;
+}
+
+/* Sage: flex host uses width:0 — must expand when open or the panel never paints / receives taps */
+html:not(.arborito-sage-open) arborito-sage {
+    display: none !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+}
+
+arborito-sage.arborito-sage--open {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    flex: 0 0 auto !important;
+}
+
+/* Dark theme: mobile frame must not stay light gray if dark: utilities fail on the host */
+html.dark arborito-sage.arborito-sage--open.arborito-sage-mob-frame {
+    background-color: rgb(2 6 23 / 0.96) !important;
+}
+
+/*
+ * Sage Guide (no LLM): fixed-size shell so hub → topic → tip do not resize the panel.
+ */
+arborito-sage.arborito-sage--open .arborito-sage-guide-shell {
+    box-sizing: border-box;
+    width: min(28rem, calc(100vw - 2rem));
+    height: min(72vh, 36rem);
+    min-height: min(72vh, 36rem);
+    max-height: calc(100vh - 2.5rem);
+    border-radius: 1rem;
+    border: 1px solid rgb(226 232 240);
+    background: var(--arborito-modal-surface-gradient-light);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+}
+
+html.dark arborito-sage.arborito-sage--open .arborito-sage-guide-shell {
+    border-color: rgb(51 65 85);
+    background: var(--arborito-modal-surface-gradient-dark);
+}
+
+/* Mobile construction: guide full screen between safe-area and construction dock */
+arborito-sage.arborito-sage--open .arborito-sage-guide-full-mob {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    max-height: 100%;
+    background: var(--arborito-modal-surface-gradient-light);
+}
+
+html.dark arborito-sage.arborito-sage--open .arborito-sage-guide-full-mob {
+    background: var(--arborito-modal-surface-gradient-dark);
+}
+
+/* Desktop + construction: raise Sage above bottom dock */
+html.arborito-desktop.arborito-construction-mobile arborito-sage.arborito-sage--open.fixed {
+    bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+html.arborito-desktop.arborito-construction-mobile arborito-sage.arborito-sage--open .arborito-sage-guide-shell,
+html.arborito-desktop.arborito-construction-mobile arborito-sage.arborito-sage--open .arborito-sage-chat-shell {
+    max-height: min(72vh, calc(100vh - 6.5rem - env(safe-area-inset-bottom, 0px)));
+}
+
+arborito-sage.arborito-sage--open .arborito-sage-body--guide {
+    min-height: 0;
+}
+
+/*
+ * Desktop Sage chat: fixed shell size (complements Tailwind utilities in HTML).
+ */
+arborito-sage.arborito-sage--open .arborito-sage-chat-shell {
+    box-sizing: border-box;
+    width: min(26.25rem, calc(100vw - 2rem));
+    height: min(80vh, 40rem);
+    min-height: min(80vh, 40rem);
+    max-height: calc(100vh - 2.5rem);
+    border-radius: 1rem;
+    border: 1px solid rgb(226 232 240);
+    background: var(--arborito-modal-surface-gradient-light);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+}
+
+html.dark arborito-sage.arborito-sage--open .arborito-sage-chat-shell {
+    border-color: rgb(51 65 85);
+    background: var(--arborito-modal-surface-gradient-dark);
+}
+
+/* Mobile / dock: fills frame between safe-area and bottom bar (same bottom as search/arcade) */
+arborito-sage.arborito-sage--open .arborito-sage-chat-shell-mob {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    background: var(--arborito-modal-surface-gradient-light);
+}
+
+html.dark arborito-sage.arborito-sage--open .arborito-sage-chat-shell-mob {
+    background: var(--arborito-modal-surface-gradient-dark);
+}
+
+arborito-sage.arborito-sage--open .arborito-sage-chat-shell-mob > .arborito-modal-dock-panel,
+arborito-sage.arborito-sage--open .arborito-sage-chat-stack {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+arborito-sage.arborito-sage--open .arborito-sage-chat-shell-mob > .arborito-modal-dock-panel {
+    height: 100%;
+}
+
+arborito-sage.arborito-sage--open #sage-chat-area {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* With lesson open: hide reader footer (it peeked into the dock strip) */
+html.arborito-sage-open .arborito-lesson-mobile-footer {
+    display: none !important;
+    pointer-events: none;
+}
+
+/* Ajustes Sage escritorio: caja acotada (antes max-h-[90vh] sin CSS) */
+arborito-sage.arborito-sage--open .arborito-sage-settings-shell {
+    box-sizing: border-box;
+    width: min(32rem, calc(100vw - 2rem));
+    max-width: 100%;
+    max-height: min(90vh, 42rem);
+    min-height: 0;
+}
+
+/* Sage: marco fijo que deja libre el dock (no usar inset-0 en el host) */
+.arborito-sage-mob-frame {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: var(--arborito-mob-dock-clearance);
+    height: auto;
+    max-height: none;
+}
+
+/* Sage (y cualquier overlay del dock): nunca cubrir la barra inferior — mismo hueco que el dock */
+@media (max-width: 767px) {
+    arborito-sage.arborito-sage--open {
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: var(--arborito-mob-dock-clearance) !important;
+        height: auto !important;
+        max-height: none !important;
+    }
+}
+html.force-mobile arborito-sage.arborito-sage--open {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-mob-dock-clearance) !important;
+    height: auto !important;
+    max-height: none !important;
+}
+
+html.arborito-mob-first-run-gate arborito-sage.arborito-sage--open,
+html.force-mobile.arborito-mob-first-run-gate arborito-sage.arborito-sage--open {
+    bottom: 0 !important;
+}
+
+html.arborito-mob-first-run-gate .arborito-sage-mob-frame,
+html.force-mobile.arborito-mob-first-run-gate .arborito-sage-mob-frame {
+    bottom: 0 !important;
+}
+
+/* Sage from lesson (“Pregunta al sabio”): full viewport, dock hidden. */
+html.arborito-sage-lesson-overlay arborito-sage.arborito-sage--open,
+html.force-mobile.arborito-sage-lesson-overlay arborito-sage.arborito-sage--open {
+    bottom: 0 !important;
+    min-height: 100dvh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+}
+html.arborito-sage-lesson-overlay .arborito-sage-mob-frame,
+html.arborito-sage-lesson-overlay .arborito-sage-mob-frame--lesson,
+html.force-mobile.arborito-sage-lesson-overlay .arborito-sage-mob-frame,
+html.force-mobile.arborito-sage-lesson-overlay .arborito-sage-mob-frame--lesson {
+    bottom: 0 !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+}
+html.arborito-shell-mobile arborito-sage.arborito-sage--open {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-mob-dock-clearance) !important;
+    height: auto !important;
+    max-height: none !important;
+}
+
+/* Lesson sage must win over shell-mobile dock clearance (same specificity, later in cascade). */
+html.arborito-sage-lesson-overlay.arborito-shell-mobile arborito-sage.arborito-sage--open,
+html.force-mobile.arborito-sage-lesson-overlay.arborito-shell-mobile arborito-sage.arborito-sage--open {
+    bottom: 0 !important;
+    min-height: 100dvh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+}
+html.arborito-sage-lesson-overlay .arborito-mob-dock-wrap,
+html.arborito-sage-lesson-overlay .cp-construct-mob-dock,
+html.force-mobile.arborito-sage-lesson-overlay .arborito-mob-dock-wrap,
+html.force-mobile.arborito-sage-lesson-overlay .cp-construct-mob-dock {
+    display: none !important;
+    pointer-events: none !important;
+}
+
+@media (max-width: 767px) {
+    arborito-sage.arborito-sage--open > div:first-child {
+        height: 100% !important;
+        max-height: 100% !important;
+        min-height: 0 !important;
+    }
+    arborito-sage.arborito-sage--open .bg-gradient-to-r {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 30 !important;
+    }
+}
+html.force-mobile arborito-sage.arborito-sage--open > div:first-child {
+    height: 100% !important;
+    max-height: 100% !important;
+    min-height: 0 !important;
+}
+html.force-mobile arborito-sage.arborito-sage--open .bg-gradient-to-r {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 30 !important;
+}
+
+/* Other full-screen overlays (backpack, lesson): gap for dock */
+@media (max-width: 767px) {
+    #mobile-widget-overlay,
+    #backdrop-overlay.arborito-lesson-mobile-scrim {
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: var(--arborito-mob-dock-clearance) !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        height: auto !important;
+        max-height: none !important;
+    }
+}
+html.force-mobile #mobile-widget-overlay,
+html.force-mobile #backdrop-overlay.arborito-lesson-mobile-scrim {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-mob-dock-clearance) !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    height: auto !important;
+    max-height: none !important;
+}
+
+/* Reinforcement: no backdrop-blur on any overlay (classes in modal templates, etc.) */
+body.arborito-app,
+body.arborito-app * {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}

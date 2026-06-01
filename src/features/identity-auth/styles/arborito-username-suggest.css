@@ -1,0 +1,97 @@
+/**
+ * Username suggest dropdown — shared "name already taken" suggestion strip.
+ *
+ * Extracted from two near-identical copies that lived inside the onboarding
+ * and profile modal partials. The container's `padding` and `background`
+ * differ very slightly between the two modals and remain as modal-specific
+ * overrides (alongside the chip's `padding`); everything else (label, chip
+ * grid, the chip itself, hover / active, dark mode) is identical and lives
+ * here.
+ *
+ * Used by:
+ *   - `.arborito-modal--onboarding .arborito-onb-suggest{,-chip,__label,__chips}` (onboarding register flow)
+ *   - `.profile-username-suggest{,-chip,__label,__chips}`                         (profile register flow)
+ *
+ * HTML shape (both modals):
+ *   <div class="<root>" role="group">
+ *       <p class="<root>__label">Probá con:</p>
+ *       <div class="<root>__chips">
+ *           <button class="<root>-chip">…</button>
+ *       </div>
+ *   </div>
+ *
+ * Import this file BEFORE the per-modal partials in `main.entry.css` so the
+ * modal-side override blocks for `padding` / `background` win the cascade
+ * for those properties only.
+ */
+
+.arborito-modal--onboarding .arborito-onb-suggest,
+.profile-username-suggest {
+    margin: 0 0 0.5rem;
+    border-radius: 0.625rem;
+    border: 1px solid rgb(254 215 170);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-suggest,
+html.dark .profile-username-suggest {
+    border-color: rgb(154 52 18 / 0.5);
+    background: rgb(67 20 7 / 0.4);
+}
+
+.arborito-modal--onboarding .arborito-onb-suggest__label,
+.profile-username-suggest__label {
+    margin: 0 0 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: rgb(124 45 18);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-suggest__label,
+html.dark .profile-username-suggest__label {
+    color: rgb(254 215 170);
+}
+
+.arborito-modal--onboarding .arborito-onb-suggest__chips,
+.profile-username-suggest__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-suggest-chip,
+.profile-username-suggest-chip {
+    appearance: none;
+    border: 1px solid rgb(251 146 60);
+    background: rgb(255 255 255 / 0.85);
+    color: rgb(124 45 18);
+    font-family: ui-monospace, "Cascadia Code", monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.arborito-modal--onboarding .arborito-onb-suggest-chip:hover,
+.profile-username-suggest-chip:hover {
+    background: rgb(255 237 213);
+}
+
+.arborito-modal--onboarding .arborito-onb-suggest-chip:active,
+.profile-username-suggest-chip:active {
+    transform: scale(0.97);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-suggest-chip,
+html.dark .profile-username-suggest-chip {
+    border-color: rgb(234 88 12);
+    background: rgb(67 20 7 / 0.6);
+    color: rgb(254 215 170);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-suggest-chip:hover,
+html.dark .profile-username-suggest-chip:hover {
+    background: rgb(124 45 18 / 0.6);
+}

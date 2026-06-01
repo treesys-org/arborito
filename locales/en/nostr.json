@@ -1,0 +1,16 @@
+{
+  "nostrAccountRemovedByAdminBody": "You can still use the course here with your local progress in this browser. Your forum messages and synced progress for this tree were cleared from the public network. If you did not expect this, contact the course administrator to ask why.",
+  "nostrAccountRemovedByAdminTitle": "Your online account was removed from this tree",
+  "nostrBundleFormatUnsupported": "This public course uses an old or incompatible package format. Ask whoever published it to republish with the current Arborito. Meanwhile you can ask for a .arborito file or another link if they have one.",
+  "nostrIdentityUnavailable": "For forum, publishing, or share codes with full encryption, open this page with <strong>https://</strong> or from <strong>http://localhost</strong>. On a plain local address like <code>http://192.168…</code> the browser limits crypto: some online features may be unavailable or reduced.",
+  "nostrLessonLoadEmpty": "(This lesson had no text on the network.)",
+  "nostrLessonLoadError": "Could not load this lesson from peers. Try again or check your connection.",
+  "nostrLoadFailedError": "Could not load this public tree.",
+  "nostrNotLoadedHint": "Could not enable the connection for public online courses. Try reloading the page, another network, or opening Arborito with https://. Without it, share codes, publishing, and the online forum may be unavailable.",
+  "nostrPublicWarningBody": "This link opens a course hosted on a <strong>shared public network</strong> (anyone with the link can join the same copy). Anything you write in the forum can be read by anyone with the link. Cloud progress sync is <strong>optional</strong>: only if you turn it on, encrypted with your key; you can turn it off in Profile. Do not post secrets or personal data you would not want shared.",
+  "nostrPublicWarningCheck": "You can delete posts, remove your online identity for this course from the Forum, or talk to the course admin if something disappeared.",
+  "nostrPublicWarningConfirm": "I understand",
+  "nostrPublicWarningTitle": "Course shared on the network",
+  "nostrStructureEditHint": "Structure edits stay in this tab’s memory until you publish the course to the public network.",
+  "nostrUniverseRevokedError": "This public tree was retracted by the publisher."
+}

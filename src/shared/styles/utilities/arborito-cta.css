@@ -1,0 +1,216 @@
+/**
+ * Semantic CTA color classes.
+ *
+ * Why this file exists: across the codebase, the same Tailwind color soup
+ * (`bg-emerald-600 hover:bg-emerald-500 text-white …`) is repeated 30+ times,
+ * with inconsistent dark-mode handling — some sites add
+ * `dark:bg-emerald-500 dark:hover:bg-emerald-400` for higher contrast and
+ * others don't. Centralizing the COLOR contract here means:
+ *   - One place to tweak the brand palette.
+ *   - Consistent dark-mode contrast everywhere.
+ *   - Call sites still own padding/font/shadow/rounding via Tailwind utilities
+ *     (those genuinely vary by context).
+ *
+ * Usage:
+ *   <button class="arborito-cta-emerald px-4 py-2 rounded-xl text-xs font-black">…</button>
+ *
+ * These classes intentionally only touch background, text color, and hover/
+ * dark state. They use plain CSS so they are unaffected by Tailwind purging.
+ *
+ * Tokens (light → dark):
+ *   - emerald: primary action / publish / start
+ *   - slate  : neutral / cancel / secondary
+ *   - amber  : warning / report / destructive-with-undo
+ *   - rose   : danger / delete-with-confirm
+ */
+
+.arborito-cta-emerald {
+    background-color: rgb(5 150 105);          /* emerald-600 */
+    color: rgb(255 255 255);
+    transition: background-color 150ms;
+}
+.arborito-cta-emerald:hover:not(:disabled) {
+    background-color: rgb(16 185 129);         /* emerald-500 */
+}
+html.dark .arborito-cta-emerald {
+    background-color: rgb(5 120 85);           /* muted green in dark mode — not neon apple */
+}
+html.dark .arborito-cta-emerald:hover:not(:disabled) {
+    background-color: rgb(16 145 99);
+}
+.arborito-cta-emerald:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.arborito-cta-slate {
+    background-color: rgb(236 253 245);        /* mint tile — light */
+    color: rgb(6 78 59);
+    transition: background-color 150ms;
+}
+.arborito-cta-slate:hover:not(:disabled) {
+    background-color: rgb(209 250 229);
+}
+html.dark .arborito-cta-slate {
+    background-color: rgb(48 40 36);           /* bark — dark */
+    color: rgb(214 211 209);
+}
+html.dark .arborito-cta-slate:hover:not(:disabled) {
+    background-color: rgb(58 48 42);
+}
+.arborito-cta-slate:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-amber {
+    background-color: rgb(217 119 6);          /* amber-600 */
+    color: rgb(255 255 255);
+    transition: background-color 150ms;
+}
+.arborito-cta-amber:hover:not(:disabled) {
+    background-color: rgb(245 158 11);         /* amber-500 */
+}
+html.dark .arborito-cta-amber {
+    background-color: rgb(245 158 11);
+}
+html.dark .arborito-cta-amber:hover:not(:disabled) {
+    background-color: rgb(251 191 36);         /* amber-400 */
+}
+.arborito-cta-amber:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-rose {
+    background-color: rgb(225 29 72);          /* rose-600 */
+    color: rgb(255 255 255);
+    transition: background-color 150ms;
+}
+.arborito-cta-rose:hover:not(:disabled) {
+    background-color: rgb(244 63 94);          /* rose-500 */
+}
+html.dark .arborito-cta-rose {
+    background-color: rgb(244 63 94);
+}
+html.dark .arborito-cta-rose:hover:not(:disabled) {
+    background-color: rgb(251 113 133);        /* rose-400 */
+}
+.arborito-cta-rose:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-purple {
+    background-color: rgb(147 51 234);         /* purple-600 */
+    color: rgb(255 255 255);
+    transition: background-color 150ms;
+}
+.arborito-cta-purple:hover:not(:disabled) {
+    background-color: rgb(168 85 247);         /* purple-500 */
+}
+html.dark .arborito-cta-purple {
+    background-color: rgb(168 85 247);
+}
+html.dark .arborito-cta-purple:hover:not(:disabled) {
+    background-color: rgb(192 132 252);        /* purple-400 */
+}
+.arborito-cta-purple:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-blue {
+    background-color: rgb(37 99 235);          /* blue-600 */
+    color: rgb(255 255 255);
+    transition: background-color 150ms;
+}
+.arborito-cta-blue:hover:not(:disabled) {
+    background-color: rgb(59 130 246);         /* blue-500 */
+}
+html.dark .arborito-cta-blue {
+    background-color: rgb(59 130 246);
+}
+html.dark .arborito-cta-blue:hover:not(:disabled) {
+    background-color: rgb(96 165 250);         /* blue-400 */
+}
+.arborito-cta-blue:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-green {
+    background-color: rgb(22 163 74);          /* green-600 */
+    color: rgb(255 255 255);
+    transition: background-color 150ms;
+}
+.arborito-cta-green:hover:not(:disabled) {
+    background-color: rgb(34 197 94);          /* green-500 */
+}
+html.dark .arborito-cta-green {
+    background-color: rgb(34 197 94);
+}
+html.dark .arborito-cta-green:hover:not(:disabled) {
+    background-color: rgb(74 222 128);         /* green-400 */
+}
+.arborito-cta-green:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-red {
+    background-color: rgb(220 38 38);          /* red-600 */
+    color: rgb(255 255 255);
+    transition: background-color 150ms;
+}
+.arborito-cta-red:hover:not(:disabled) {
+    background-color: rgb(239 68 68);          /* red-500 */
+}
+html.dark .arborito-cta-red {
+    background-color: rgb(239 68 68);
+}
+html.dark .arborito-cta-red:hover:not(:disabled) {
+    background-color: rgb(248 113 113);        /* red-400 */
+}
+.arborito-cta-red:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-sky {
+    background-color: rgb(2 132 199);          /* sky-600 */
+    color: rgb(255 255 255);
+    transition: background-color 150ms;
+}
+.arborito-cta-sky:hover:not(:disabled) {
+    background-color: rgb(14 165 233);         /* sky-500 */
+}
+html.dark .arborito-cta-sky {
+    background-color: rgb(14 165 233);
+}
+html.dark .arborito-cta-sky:hover:not(:disabled) {
+    background-color: rgb(56 189 248);         /* sky-400 */
+}
+.arborito-cta-sky:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-indigo {
+    background-color: rgb(79 70 229);          /* indigo-600 */
+    color: rgb(255 255 255);
+    transition: background-color 150ms;
+}
+.arborito-cta-indigo:hover:not(:disabled) {
+    background-color: rgb(99 102 241);         /* indigo-500 */
+}
+html.dark .arborito-cta-indigo {
+    background-color: rgb(99 102 241);
+}
+html.dark .arborito-cta-indigo:hover:not(:disabled) {
+    background-color: rgb(129 140 248);        /* indigo-400 */
+}
+.arborito-cta-indigo:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}

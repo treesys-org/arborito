@@ -1,0 +1,56 @@
+/* =========================================================================
+ * Light mode — replace pure whites (Tailwind bg-white) with mint/canopy
+ * ONLY inside modals. Outside modals (e.g. icons over a dark background)
+ * we don't touch them so contrasts stay intact.
+ * ========================================================================= */
+html:not(.dark) #modal-backdrop button.bg-white,
+html:not(.dark) #modal-backdrop a.bg-white,
+html:not(.dark) #modal-backdrop .bg-white,
+html:not(.dark) arborito-sage button.bg-white,
+html:not(.dark) arborito-sage a.bg-white,
+html:not(.dark) arborito-sage .bg-white,
+html:not(.dark) arborito-arcade button.bg-white,
+html:not(.dark) arborito-arcade a.bg-white,
+html:not(.dark) arborito-arcade .bg-white,
+html:not(.dark) arborito-profile button.bg-white,
+html:not(.dark) arborito-profile a.bg-white,
+html:not(.dark) arborito-profile .bg-white {
+  background-color: var(--arborito-chrome-tile) !important;
+  border-color: var(--arborito-moss-border) !important;
+  color: var(--arborito-bark-ink) !important;
+}
+
+/* Opacity variants (bg-white/55, /80, /90, /95) on modal surfaces */
+html:not(.dark) #modal-backdrop [class*="bg-white/"],
+html:not(.dark) arborito-arcade [class*="bg-white/"],
+html:not(.dark) arborito-sage [class*="bg-white/"],
+html:not(.dark) arborito-profile [class*="bg-white/"] {
+  background-color: var(--arborito-canopy-mid) !important;
+}
+
+/* Hover cards for arcade / profile list rows */
+html:not(.dark) #modal-backdrop .bg-slate-50,
+html:not(.dark) arborito-arcade .bg-slate-50,
+html:not(.dark) arborito-profile .bg-slate-50 {
+  background-color: var(--arborito-canopy-deep) !important;
+}
+
+/* Internal arcade tabs (#main-tabs): mint background, not white/55 */
+html:not(.dark) arborito-arcade #main-tabs {
+  background: var(--arborito-canopy-mid) !important;
+  border-color: var(--arborito-moss-border) !important;
+}
+
+html.dark arborito-arcade #main-tabs {
+  background: var(--arborito-bark-tile) !important;
+  border-color: var(--arborito-bark-border) !important;
+}
+
+/* Inputs / textareas in modals: mint tile surface in light, bark in dark */
+html:not(.dark) #modal-backdrop input.bg-white,
+html:not(.dark) #modal-backdrop textarea.bg-white,
+html:not(.dark) #modal-backdrop select.bg-white {
+  background-color: var(--arborito-canopy-light) !important;
+  border-color: var(--arborito-moss-border) !important;
+  color: var(--arborito-bark-ink) !important;
+}

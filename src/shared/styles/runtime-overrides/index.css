@@ -1,0 +1,18 @@
+/**
+ * Runtime overrides — sibling partials concatenated in cascade order.
+ *
+ * Loaded by `boot.js` as a regular `<link rel="stylesheet">` after `main.css`,
+ * so the browser resolves these `@import`s natively.
+ *
+ * Order matters: each partial may rely on, or correct, rules from earlier
+ * partials. Keep them in the same sequence the original monolithic file used.
+ */
+@import './00-tokens.css';
+@import './01-curriculum-switcher.css';
+@import './02-tree-switcher-chrome.css';
+@import './03-tree-switcher-tabs.css';
+@import './04-tree-switcher-list.css';
+@import './05-mobile-tree-switcher.css';
+@import './06-gpu-and-trunk.css';
+@import './07-modal-bg-white.css';
+@import './08-sage-overrides.css';

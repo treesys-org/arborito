@@ -1,0 +1,852 @@
+/* =============================================================================
+   ARBORITO MODAL SYSTEM — one professional surface for every modal
+   (.arborito-modal-root, search/releases/immersive variants)
+   See also: modals/host-arborito-modals.css, modals/mobile-sheets-and-dock-panels.css
+   ============================================================================= */
+/* Explicit semantic backgrounds (modal gradients; not only arbitrary utilities) */
+.arborito-sage-desk-scrim {
+    background: var(--arborito-modal-overlay) !important;
+}
+
+html.dark .arborito-sage-desk-scrim {
+    background: linear-gradient(165deg, rgb(0 0 0 / 0.55) 0%, rgb(15 23 42 / 0.92) 100%) !important;
+}
+
+.arborito-game-immersive-scrim {
+    background: var(--arborito-modal-overlay) !important;
+}
+
+html.dark .arborito-game-immersive-scrim {
+    background: linear-gradient(165deg, rgb(0 0 0 / 0.6) 0%, rgb(15 23 42 / 0.9) 100%) !important;
+}
+
+/* Sage "External download": don't stretch like a wide card. */
+arborito-sage.arborito-sage--open .arborito-sage-external-download-card {
+    width: min(22rem, calc(100vw - 2rem)) !important;
+    max-width: min(22rem, calc(100vw - 2rem)) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+:root {
+    /* Scrim: faint top-center *light* glow over the canonical slate gradient.
+     * The white tint at the top gives modals a "spotlight" feel without using
+     * backdrop-blur (globally disabled — see app-flex-and-pointer-hosts.css).
+     * Note: the previous version put a *dark* radial here, which actually
+     * deepened the top instead of lighting it. Now it's a true highlight. */
+    --arborito-modal-overlay:
+        radial-gradient(ellipse 65% 45% at 50% 0%, rgb(255 255 255 / 0.07) 0%, transparent 65%),
+        linear-gradient(165deg, rgb(15 23 42 / 0.8) 0%, rgb(17 28 46 / 0.92) 100%);
+    --arborito-modal-radius: 1.5rem;
+    --arborito-modal-shadow: 0 22px 48px -12px rgb(0 0 0 / 0.38), 0 0 0 1px rgb(255 255 255 / 0.05);
+    --arborito-modal-shadow-light: 0 22px 48px -12px rgb(15 23 42 / 0.12), 0 0 0 1px rgb(167 243 208 / 0.35);
+    /* Modal surface — mint gradient (app standard, no blur) */
+    --arborito-modal-surface-gradient-light: linear-gradient(
+        180deg,
+        rgb(240 253 250) 0%,
+        rgb(236 253 245) 32%,
+        rgb(209 250 229) 100%
+    );
+    --arborito-modal-surface-gradient-dark: linear-gradient(
+        180deg,
+        rgb(42 50 46) 0%,
+        rgb(32 40 36) 45%,
+        rgb(24 32 28) 100%
+    );
+    --arborito-surface-tile-light: rgb(236 253 245);
+    --arborito-surface-tile-dark: rgb(48 40 36);
+    --arborito-surface-tile-border-light: rgb(167 243 208 / 0.65);
+    --arborito-surface-tile-border-dark: rgb(141 110 99 / 0.32);
+    --arborito-surface-panel-border-light: rgb(167 243 208 / 0.55);
+    --arborito-surface-panel-border-dark: rgb(141 110 99 / 0.28);
+}
+
+/* Canonical surface — modals, popovers, tiles (use in JS shells instead of bg-white) */
+.arborito-surface-panel {
+    background: var(--arborito-modal-surface-gradient-light);
+    border-color: var(--arborito-surface-panel-border-light);
+}
+
+html.dark .arborito-surface-panel {
+    background: var(--arborito-modal-surface-gradient-dark);
+    border-color: var(--arborito-surface-panel-border-dark);
+}
+
+.arborito-surface-panel-border {
+    border-color: var(--arborito-surface-panel-border-light);
+}
+
+html.dark .arborito-surface-panel-border {
+    border-color: var(--arborito-surface-panel-border-dark);
+}
+
+.arborito-surface-tile {
+    background: var(--arborito-surface-tile-light);
+    border-color: var(--arborito-surface-tile-border-light);
+}
+
+html.dark .arborito-surface-tile {
+    background: var(--arborito-surface-tile-dark);
+    border-color: var(--arborito-surface-tile-border-dark);
+}
+
+#modal-backdrop.arborito-modal-root {
+    background: var(--arborito-modal-overlay) !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(0.75rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left)) !important;
+}
+
+/* Ventana flotante escritorio: alto fijo; el scroll vive en el cuerpo (tabs / listas) */
+.arborito-float-modal-card {
+    width: min(92vw, 72rem);
+    max-width: min(92vw, 72rem);
+    height: min(86vh, 720px);
+    min-height: min(86vh, 720px);
+    max-height: min(86vh, 720px);
+    flex-shrink: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.arborito-float-modal-card__inner {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Desktop: surface aligned with mobile dock (soft gradient) */
+@media (min-width: 768px) {
+    /* Shadow + capillary ring for every floating modal. Reemplaza al
+     * flat Tailwind `shadow-2xl` with a tri-part shadow for more
+     * profundidad y un ring de 1px que separa el panel del scrim. `!important`
+     * depth vs Tailwind `shadow-2xl` (injected AFTER in main.css).
+     * `--lift-soft/strong` variants carry their own richer shadow;
+     * las tarjetas de certificado se excluyen para no romper aspect-ratio. */
+    .arborito-float-modal-card:not(.arborito-float-modal-card--certificate):not(.arborito-float-modal-card--lift-soft):not(.arborito-float-modal-card--lift-strong) {
+        box-shadow:
+            0 28px 64px -14px rgb(15 23 42 / 0.22),
+            0 4px 12px -2px rgb(15 23 42 / 0.07),
+            0 0 0 1px rgb(15 23 42 / 0.07) !important;
+    }
+    html.dark .arborito-float-modal-card:not(.arborito-float-modal-card--certificate):not(.arborito-float-modal-card--lift-soft):not(.arborito-float-modal-card--lift-strong) {
+        box-shadow:
+            0 30px 72px -16px rgb(0 0 0 / 0.62),
+            0 4px 12px -2px rgb(0 0 0 / 0.32),
+            0 0 0 1px rgb(255 255 255 / 0.08) !important;
+    }
+
+    #modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive)
+        .arborito-float-modal-card:not(.arborito-float-modal-card--certificate) {
+        background: var(--arborito-modal-surface-gradient-light) !important;
+    }
+
+    html.dark
+        #modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive)
+        .arborito-float-modal-card:not(.arborito-float-modal-card--certificate) {
+        background: var(--arborito-modal-surface-gradient-dark) !important;
+    }
+
+    /* Sage (host propio, no #modal-backdrop) */
+    arborito-sage.arborito-sage--open .arborito-float-modal-card {
+        background: var(--arborito-modal-surface-gradient-light) !important;
+    }
+
+    html.dark arborito-sage.arborito-sage--open .arborito-float-modal-card {
+        background: var(--arborito-modal-surface-gradient-dark) !important;
+    }
+}
+
+/* Search modal card (desktop): slightly narrower */
+.arborito-float-modal-card.arborito-float-modal-card--search {
+    width: min(92vw, 42rem);
+    max-width: min(92vw, 42rem);
+}
+
+/* Dialogs / language / compact cards: height from content, max cap */
+.arborito-float-modal-card.arborito-float-modal-card--auto-h {
+    height: auto;
+    min-height: 0;
+    max-height: min(86vh, 720px);
+}
+
+/* Canonical width grid (xs → huge). Height comes from `.arborito-float-modal-card`
+ * base (min(86vh, 720px)) salvo que la entrada se combine con `--auto-h`.
+ * Any modal needing a width outside this grid is wrong — add
+ * a new entry here instead of `max-w-*` via `panelClass`. */
+.arborito-float-modal-card.arborito-float-modal-card--xs {
+    width: min(92vw, 24rem);
+    max-width: min(92vw, 24rem);
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--narrow {
+    width: min(92vw, 26rem);
+    max-width: min(92vw, 26rem);
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--lg-tight {
+    width: min(92vw, 32rem);
+    max-width: min(92vw, 32rem);
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--md {
+    width: min(92vw, 36rem);
+    max-width: min(92vw, 36rem);
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--lg {
+    width: min(92vw, 42rem);
+    max-width: min(92vw, 42rem);
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--xl {
+    width: min(92vw, 48rem);
+    max-width: min(92vw, 48rem);
+}
+
+/* Forum modal — the wide master/detail shell. Tall, generous, breathing room.
+ * Mobile = fullbleed (handled by .arborito-modal--mobile-fullbleed rules).
+ * Desktop = wide card capped at 80rem (~1280px) with extra height. */
+.arborito-float-modal-card.arborito-float-modal-card--forum {
+    width: min(95vw, 80rem);
+    max-width: min(95vw, 80rem);
+    height: min(94vh, 920px);
+    min-height: min(94vh, 920px);
+    max-height: min(94vh, 920px);
+}
+
+/* "Lift" — outer ring + richer shadow. Adds depth without backdrop-blur
+ * (which is globally disabled — see app-flex-and-pointer-hosts.css).
+ * `--soft` is subtle; `--strong` matches the forum/master-detail aesthetic. */
+@media (min-width: 768px) {
+    .arborito-float-modal-card--lift-soft {
+        box-shadow:
+            0 24px 56px -16px rgb(15 23 42 / 0.18),
+            0 2px 8px -2px rgb(15 23 42 / 0.06),
+            0 0 0 1px rgb(15 23 42 / 0.04) !important;
+    }
+    html.dark .arborito-float-modal-card--lift-soft {
+        box-shadow:
+            0 28px 72px -18px rgb(0 0 0 / 0.55),
+            0 2px 8px -2px rgb(0 0 0 / 0.25),
+            0 0 0 1px rgb(255 255 255 / 0.06) !important;
+    }
+
+    .arborito-float-modal-card--lift-strong {
+        box-shadow:
+            0 32px 120px -20px rgb(15 23 42 / 0.32),
+            0 4px 16px -4px rgb(15 23 42 / 0.08),
+            0 0 0 1px rgb(15 23 42 / 0.05) !important;
+    }
+    html.dark .arborito-float-modal-card--lift-strong {
+        box-shadow:
+            0 32px 120px -20px rgb(0 0 0 / 0.75),
+            0 4px 16px -4px rgb(0 0 0 / 0.35),
+            0 0 0 1px rgb(255 255 255 / 0.10) !important;
+    }
+}
+
+/* Diploma / certificate view (landscape ratio) */
+.arborito-float-modal-card.arborito-float-modal-card--certificate {
+    width: min(92vw, 56rem);
+    max-width: min(92vw, 56rem);
+    height: auto;
+    min-height: 0;
+    max-height: min(90vh, 720px);
+    aspect-ratio: 1.414 / 1;
+}
+
+/* Mobile / short landscape: aspect-ratio clipped footer and text; smooth scroll + reading shadows */
+.arborito-cert-view h2,
+.arborito-cert-view h3,
+.arborito-cert-view p {
+    text-shadow:
+        0 1px 2px rgb(0 0 0 / 0.45),
+        0 2px 16px rgb(0 0 0 / 0.35);
+}
+
+html.dark .arborito-cert-view h2,
+html.dark .arborito-cert-view h3,
+html.dark .arborito-cert-view p {
+    text-shadow:
+        0 1px 3px rgb(0 0 0 / 0.9),
+        0 2px 20px rgb(0 0 0 / 0.65);
+}
+
+.arborito-cert-view__watermark {
+    opacity: 0.07;
+    filter: drop-shadow(0 4px 18px rgb(0 0 0 / 0.5));
+}
+
+.arborito-cert-view__frame {
+    box-shadow:
+        inset 0 0 0 1px rgb(234 179 8 / 0.12),
+        0 12px 40px -8px rgb(0 0 0 / 0.35);
+}
+
+html.dark .arborito-cert-view__frame {
+    box-shadow:
+        inset 0 0 0 1px rgb(250 204 21 / 0.08),
+        0 14px 48px -6px rgb(0 0 0 / 0.55);
+}
+
+.arborito-cert-view__medallion {
+    box-shadow:
+        0 4px 6px rgb(0 0 0 / 0.2),
+        0 12px 28px rgb(0 0 0 / 0.35);
+}
+
+.arborito-cert-view__accent {
+    box-shadow: 0 1px 8px rgb(234 179 8 / 0.45);
+}
+
+.arborito-cert-view__print {
+    box-shadow:
+        0 2px 8px rgb(0 0 0 / 0.35),
+        0 4px 20px rgb(0 0 0 / 0.25);
+}
+
+@media (max-width: 767px) {
+    .arborito-float-modal-card.arborito-float-modal-card--certificate {
+        aspect-ratio: auto;
+        max-height: min(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px), 920px);
+        width: 100%;
+        max-width: 100%;
+        border-radius: 0;
+    }
+
+    #modal-backdrop.arborito-modal-root.arborito-modal-backdrop--certificate {
+        padding: 0 !important;
+    }
+}
+
+html.force-mobile #modal-backdrop.arborito-modal-root.arborito-modal-backdrop--certificate {
+    padding: 0 !important;
+}
+
+html.force-mobile .arborito-float-modal-card.arborito-float-modal-card--certificate {
+    aspect-ratio: auto;
+    max-height: min(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px), 920px);
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Contributor (admin) modal: fixed window on desktop. */
+@media (min-width: 768px) {
+    .arborito-contributor-modal-shell {
+        width: min(92vw, 72rem) !important;
+        max-width: min(92vw, 72rem) !important;
+        height: min(86vh, 720px) !important;
+        min-height: min(86vh, 720px) !important;
+        max-height: min(86vh, 720px) !important;
+        flex-shrink: 0;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border-radius: var(--arborito-modal-radius);
+    }
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--certs {
+    width: min(92vw, 64rem);
+    max-width: min(92vw, 64rem);
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--readme {
+    width: min(92vw, 56rem);
+    max-width: min(92vw, 56rem);
+}
+
+/* Header row: aligns multiline title with × */
+.arborito-float-modal-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.arborito-float-modal-head .arborito-modal-window-x {
+    align-self: center;
+}
+
+/* Header ↔ content spacing (skip if border-b already present) */
+#modal-backdrop.arborito-modal-root .arborito-float-modal-head.arborito-dock-modal-hero:not(.border-b) {
+    border-bottom: 1px solid rgb(226 232 240 / 0.9);
+}
+
+html.dark #modal-backdrop.arborito-modal-root .arborito-float-modal-head.arborito-dock-modal-hero:not(.border-b) {
+    border-bottom-color: rgb(51 65 85 / 0.85);
+}
+
+/* Phones: opaque background; no padding on the backdrop (the previous version beat
+ * Tailwind utilities by !important and left visible bands around the modal). */
+@media (max-width: 767px) {
+    #modal-backdrop.arborito-modal-root {
+        background: rgb(240 253 250) !important;
+        padding: 0 !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+    }
+    .dark #modal-backdrop.arborito-modal-root {
+        background: rgb(17 28 46) !important;
+    }
+}
+html.force-mobile #modal-backdrop.arborito-modal-root {
+    background: rgb(240 253 250) !important;
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+}
+html.force-mobile.dark #modal-backdrop.arborito-modal-root {
+    background: rgb(17 28 46) !important;
+}
+
+/* Inner card: first direct child panel.
+ *
+ * IMPORTANT: `:not(.arborito-modal--mobile-fullbleed)` keeps this rule from beating
+ * the fullbleed rule on specificity (which sets border-radius:0 and border:none).
+ * Previously the forum / sources / tree-info mobile panel got the rounded corner
+ * + light-green border + white background "on top of" the fullbleed look, leaving
+ * a visible margin around the hero. With the `:not()` mobile-fullbleed modals lose
+ * this inner card and stay truly edge-to-edge. */
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive):not(.arborito-modal--search):not(.arborito-modal--arcade):not(.arborito-modal--mobile-fullbleed) > div:first-child {
+    border-radius: var(--arborito-modal-radius) !important;
+    overflow: hidden !important;
+    box-shadow: var(--arborito-modal-shadow-light) !important;
+    border: 1px solid rgb(167 243 208 / 0.5) !important;
+}
+
+html.dark #modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive):not(.arborito-modal--search):not(.arborito-modal--arcade):not(.arborito-modal--mobile-fullbleed) > div:first-child {
+    background: var(--arborito-modal-surface-gradient-dark) !important;
+    border-color: var(--arborito-surface-panel-border-dark) !important;
+    box-shadow: var(--arborito-modal-shadow) !important;
+}
+
+html:not(.dark) #modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive):not(.arborito-modal--search):not(.arborito-modal--arcade):not(.arborito-modal--mobile-fullbleed):not(.arborito-modal--onboarding) > div:first-child {
+    background: var(--arborito-modal-surface-gradient-light) !important;
+}
+
+html:not(.dark) #modal-backdrop.arborito-modal-root.arborito-modal--onboarding > .arborito-onboarding-shell {
+    background: var(--arborito-modal-surface-gradient-light) !important;
+    border-color: var(--arborito-surface-panel-border-light) !important;
+}
+
+html.dark #modal-backdrop.arborito-modal-root.arborito-modal--onboarding > .arborito-onboarding-shell {
+    background: var(--arborito-modal-surface-gradient-dark) !important;
+    border-color: var(--arborito-surface-panel-border-dark) !important;
+}
+
+/* Search — desktop: centered card with top breathing room (not forest/mobile dock layout) */
+#modal-backdrop.arborito-modal-root.arborito-modal--search:not(.arborito-modal--mobile):not(.arborito-modal-search-dock) {
+    align-items: flex-start !important;
+    justify-content: center !important;
+    padding-top: max(1rem, env(safe-area-inset-top)) !important;
+}
+
+/* Search dock (useDockModalChrome): full width; otherwise .arborito-modal-root centers with side bands */
+#modal-backdrop.arborito-modal-root.arborito-modal--search.arborito-modal-search-dock {
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    padding: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-mob-dock-clearance, 4.25rem) !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Centered search "card" modal: same light/dark logic as other float modales */
+html:not(.dark) #modal-backdrop.arborito-modal--search > #modal-panel:not(.arborito-modal-dock-panel) {
+    border-radius: var(--arborito-modal-radius) !important;
+    background: var(--arborito-modal-surface-gradient-light) !important;
+    border: 1px solid var(--arborito-surface-panel-border-light) !important;
+    box-shadow: var(--arborito-modal-shadow) !important;
+}
+
+html.dark #modal-backdrop.arborito-modal--search > #modal-panel:not(.arborito-modal-dock-panel) {
+    border-radius: var(--arborito-modal-radius) !important;
+    background: var(--arborito-modal-surface-gradient-dark) !important;
+    border: 1px solid var(--arborito-surface-panel-border-dark) !important;
+    box-shadow: var(--arborito-modal-shadow) !important;
+}
+
+/* Mobile search: top border at physical edge; bottom open for dock */
+@media (max-width: 767px) {
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--search {
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: var(--arborito-mob-dock-clearance) !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        padding: 0 !important;
+    }
+}
+html.force-mobile #modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--search {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-mob-dock-clearance) !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    padding: 0 !important;
+}
+
+/* Mobile search: reliable taps on results (no 300ms delay, no swallowed clicks) */
+.arborito-search-results-list,
+.arborito-search-results-list .btn-search-result {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Fullscreen / game — don’t force light card on desktop (iframe shell only; dialogs use --center) */
+#modal-backdrop.arborito-modal--immersive:not(.arborito-modal-immersive--center) > div:first-child {
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+@media (max-width: 767px) {
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--immersive > div:first-child {
+        background: rgb(0 0 0) !important;
+    }
+}
+html.force-mobile #modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--immersive > div:first-child {
+    background: rgb(0 0 0) !important;
+}
+
+/*
+ * Mobile games: dock hidden (class on <html> from game-player) and compact header.
+ */
+html.arborito-game-immersive-open .arborito-mob-dock-wrap {
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    transition: opacity 0.12s ease;
+}
+
+html.arborito-game-immersive-open .arborito-mob-top-actions {
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    transition: opacity 0.12s ease;
+}
+
+@media (max-width: 767px) {
+    #modal-backdrop.arborito-modal--immersive .animate-in {
+        animation: none !important;
+        transform: none !important;
+    }
+}
+
+html.force-mobile #modal-backdrop.arborito-modal--immersive .animate-in {
+    animation: none !important;
+    transform: none !important;
+}
+
+/* Player top bar (all games): balanced mobile header, more room for the game canvas */
+@media (max-width: 767px) {
+    .arborito-game-player-toolbar {
+        padding: 0.5rem 0.75rem !important;
+        padding-top: max(0.5rem, env(safe-area-inset-top, 0px)) !important;
+        min-height: 3rem !important;
+        border-bottom-width: 1px;
+    }
+
+    .arborito-game-player-toolbar .arborito-game-player-back {
+        padding: 0.45rem 0.65rem !important;
+        font-size: 0.875rem !important;
+        font-weight: 800;
+        max-width: none;
+        gap: 0.35rem !important;
+        min-height: 2.75rem;
+    }
+
+    .arborito-game-player-toolbar .arborito-game-player-title {
+        font-size: 1rem !important;
+        line-height: 1.15 !important;
+        letter-spacing: 0.01em;
+    }
+
+    .arborito-game-player-toolbar .arborito-game-player-title .arborito-pill {
+        font-size: 0.625rem;
+        vertical-align: middle;
+    }
+
+    .arborito-game-player-toolbar .arborito-game-player-head-spacer {
+        width: 0 !important;
+    }
+}
+
+html.force-mobile .arborito-game-player-toolbar {
+    padding: 0.5rem 0.75rem !important;
+    padding-top: max(0.5rem, env(safe-area-inset-top, 0px)) !important;
+    min-height: 3rem !important;
+}
+
+html.force-mobile .arborito-game-player-toolbar .arborito-game-player-back {
+    padding: 0.45rem 0.65rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 800;
+    max-width: none;
+    gap: 0.35rem !important;
+    min-height: 2.75rem;
+}
+
+html.force-mobile .arborito-game-player-toolbar .arborito-game-player-title {
+    font-size: 1rem !important;
+    line-height: 1.15 !important;
+}
+
+html.force-mobile .arborito-game-player-toolbar .arborito-game-player-head-spacer {
+    width: 2.75rem !important;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+    html.arborito-shell-mobile .arborito-game-player-toolbar,
+    html.force-mobile .arborito-game-player-toolbar {
+        padding-top: max(0.25rem, env(safe-area-inset-top, 0px)) !important;
+        padding-bottom: 0.25rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+        min-height: 2.5rem !important;
+    }
+
+    html.arborito-shell-mobile .arborito-game-player-toolbar .arborito-game-player-title,
+    html.force-mobile .arborito-game-player-toolbar .arborito-game-player-title {
+        font-size: 0.875rem !important;
+    }
+
+    html.arborito-shell-mobile .arborito-game-player-toolbar .arborito-game-player-back,
+    html.force-mobile .arborito-game-player-toolbar .arborito-game-player-back {
+        padding: 0.3rem 0.5rem !important;
+        font-size: 0.8125rem !important;
+        max-width: none !important;
+        min-height: 2.25rem;
+    }
+}
+
+/* Game player: widescreen fullscreen (mobile + desktop) */
+#modal-backdrop.arborito-game-player--desktop-widescreen {
+    min-height: 100dvh;
+    min-height: 100vh;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+}
+
+#modal-backdrop.arborito-game-player--desktop-widescreen > main {
+    min-height: 0;
+    flex: 1 1 0%;
+    width: 100%;
+}
+
+#modal-backdrop.arborito-game-player--desktop-widescreen .arborito-game-player-frame {
+    width: 100%;
+    flex: 1 1 0%;
+    min-height: 0;
+    max-width: 100%;
+}
+
+/* Arcade + game on desktop: full-width iframe under minimal header */
+@media (min-width: 768px) {
+    html:not(.force-mobile) #modal-backdrop.arborito-game-player--desktop-widescreen {
+        min-height: 100dvh;
+        min-height: 100vh;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+    }
+
+    html:not(.force-mobile) #modal-backdrop.arborito-game-player--desktop-widescreen > main {
+        min-height: 0;
+        flex: 1 1 0%;
+    }
+
+    html:not(.force-mobile) #modal-backdrop.arborito-game-player--desktop-widescreen .arborito-game-player-frame {
+        width: 100%;
+        flex: 1 1 0%;
+        min-height: 0;
+        max-width: 100%;
+    }
+}
+
+/* Mobile games: true fullscreen (override dock clearance) + iframe fills remaining height */
+@media (max-width: 767px) {
+    #modal-backdrop.arborito-modal-root.arborito-modal--immersive.arborito-modal--mobile {
+        bottom: 0 !important;
+        min-height: 100dvh !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        padding: 0 !important;
+    }
+
+    #modal-backdrop.arborito-modal-root.arborito-modal--immersive.arborito-modal--mobile > main {
+        flex: 1 1 0%;
+        min-height: 0;
+        width: 100%;
+    }
+
+    #modal-backdrop.arborito-modal-root.arborito-modal--immersive.arborito-modal--mobile .arborito-game-player-frame {
+        width: 100%;
+        flex: 1 1 0%;
+        min-height: 0;
+        max-width: 100%;
+    }
+}
+
+html.force-mobile #modal-backdrop.arborito-modal-root.arborito-modal--immersive.arborito-modal--mobile {
+    bottom: 0 !important;
+    min-height: 100dvh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    padding: 0 !important;
+}
+
+/* Header bars inside modals — subtle separation */
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-100,
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-200,
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-700,
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-800 {
+    border-bottom-color: rgb(148 163 184 / 0.2) !important;
+}
+
+html.dark #modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-100,
+html.dark #modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-200 {
+    border-bottom-color: rgb(51 65 85 / 0.85) !important;
+}
+
+/*
+ * slideInBottom (html.force-mobile #modal-backdrop .animate-in) sets transform on the sheet.
+ * Any non-none transform on an ancestor makes position:fixed descendants relative to that sheet — back buttons jump.
+ */
+@media (max-width: 767px) {
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile > div:first-child,
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile > #modal-panel {
+        animation: none !important;
+        transform: none !important;
+    }
+}
+html.force-mobile #modal-backdrop.arborito-modal-root.arborito-modal--mobile > div:first-child,
+html.force-mobile #modal-backdrop.arborito-modal-root.arborito-modal--mobile > #modal-panel {
+    animation: none !important;
+    transform: none !important;
+}
+
+/* Primary dismiss in modals — 44px target (use .arborito-mmenu-back on real back buttons; not plain .btn-close) */
+#modal-backdrop.arborito-modal-root button.arborito-mmenu-back {
+    min-width: 2.75rem !important;
+    min-height: 2.75rem !important;
+    border-radius: 9999px !important;
+}
+
+/* Explicit × close (popup) — same touch size as back */
+#modal-backdrop .arborito-modal-window-x,
+arborito-sage.arborito-sage--open .arborito-modal-window-x,
+#mobile-widget-overlay .arborito-modal-window-x {
+    box-sizing: border-box;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    min-width: 2.75rem !important;
+    min-height: 2.75rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 9999px !important;
+    border: 1px solid rgb(148 163 184 / 0.45) !important;
+    background: rgb(255 255 255 / 0.9) !important;
+    color: rgb(51 65 85) !important;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+html.dark #modal-backdrop .arborito-modal-window-x,
+html.dark arborito-sage.arborito-sage--open .arborito-modal-window-x {
+    border-color: rgb(71 85 105 / 0.65) !important;
+    background: rgb(30 41 59 / 0.92) !important;
+    color: rgb(226 232 240) !important;
+}
+
+#modal-backdrop .arborito-modal-window-x:hover,
+arborito-sage.arborito-sage--open .arborito-modal-window-x:hover {
+    border-color: rgb(100 116 139 / 0.65) !important;
+    background: rgb(241 245 249) !important;
+    color: rgb(30 41 59) !important;
+}
+
+html.dark #modal-backdrop .arborito-modal-window-x:hover,
+html.dark arborito-sage.arborito-sage--open .arborito-modal-window-x:hover {
+    border-color: rgb(100 116 139 / 0.75) !important;
+    background: rgb(51 65 85 / 0.95) !important;
+    color: rgb(248 250 252) !important;
+}
+
+/* Cabeceras oscuras / gradiente (Sage escritorio, game-player) */
+.arborito-modal-window-x.arborito-modal-window-x--inverse {
+    border-color: rgb(255 255 255 / 0.35) !important;
+    background: rgb(0 0 0 / 0.22) !important;
+    color: rgb(248 250 252) !important;
+}
+
+.arborito-modal-window-x.arborito-modal-window-x--inverse:hover {
+    border-color: rgb(255 255 255 / 0.5) !important;
+    background: rgb(0 0 0 / 0.35) !important;
+}
+
+/*
+ * × on mobile sheets: hide only on narrow viewport.
+ * Do not use html.force-mobile here: on wide landscape (e.g. ≥768px) HTML may omit ×
+ * unless showOnMobile; forcing display:none broke Welcome / sheets that render it.
+ */
+@media (max-width: 767px) {
+    .arborito-modal-window-x {
+        display: none !important;
+    }
+}
+
+/* About: single row (back + tabs) — avoids double-arrow look */
+#modal-backdrop.arborito-modal-root .arborito-about-inline-back.arborito-mmenu-back {
+    border-radius: 0.75rem !important;
+    min-width: 2.5rem !important;
+    min-height: 2.5rem !important;
+}
+
+/* Mobile modals: back stays in layout (avoids transform/fixed bugs); optional sticky chrome */
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile > div:first-child,
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile > #modal-panel {
+    position: relative !important;
+}
+
+/* Tree info modal: CC banner should be full width inside the narrow modal */
+arborito-modal-tree-info .arborito-tree-pres-cc-wrap,
+arborito-modal-tree-info.arborito-modal-tree-info .arborito-tree-pres-cc-wrap {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+

@@ -1,0 +1,6 @@
+{
+  "importBtn": "Import Tree",
+  "importCareDone": "{notes} lessons imported · {scheduled} with care schedule · {due} due today.",
+  "importError": "Invalid code or file.",
+  "importSuccess": "Progress loaded successfully!"
+}

@@ -1,0 +1,45 @@
+/**
+ * Obfuscated email rendering — paired with `utils/email-obfuscate.js`.
+ *
+ * The element's text content is the email REVERSED. CSS flips the visual
+ * order back so humans see the correct address. Naive bot scrapers reading
+ * the HTML source / `textContent` get garbage like `gro.sysert@selas`.
+ *
+ * Click / Enter copies the real address to the clipboard from the
+ * `data-eml-b64` attribute. We deliberately do NOT render a `mailto:` link
+ * at idle time so that crawlers never see the plain email even if they run
+ * full DOM rendering.
+ */
+
+.arb-obf-email {
+    /* Visual reversal: render right-to-left while overriding bidi rules. */
+    direction: rtl;
+    unicode-bidi: bidi-override;
+
+    /* Clickable affordance — shows up clearly inside the impressum block. */
+    display: inline;
+    cursor: pointer;
+    color: inherit;
+    text-decoration: underline dotted;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    border-radius: 2px;
+}
+
+.arb-obf-email:hover,
+.arb-obf-email:focus-visible {
+    text-decoration-style: solid;
+    outline: none;
+}
+
+.arb-obf-email:focus-visible {
+    box-shadow: 0 0 0 2px rgb(99 102 241 / 0.45);
+}
+
+/* While we briefly show "✓ Copied" we want LTR text again. */
+.arb-obf-email.is-copied {
+    direction: ltr;
+    unicode-bidi: normal;
+    text-decoration: none;
+    color: rgb(16 185 129); /* emerald-500 */
+}

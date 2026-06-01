@@ -1,0 +1,137 @@
+/* Primary submit CTA inside the session forms. Slightly taller (3rem) so
+ * it reads as the obvious "next step" and matches finger-friendly tap
+ * targets on touch devices. */
+.arborito-modal--onboarding .arborito-onb-cta {
+    width: 100%;
+    min-height: 3rem;
+    border-radius: 0.875rem;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    color: rgb(255 255 255);
+    background: linear-gradient(135deg, rgb(5 150 105), rgb(16 185 129));
+    cursor: pointer;
+    transition: filter 0.15s ease, transform 0.12s ease, box-shadow 0.18s ease;
+    box-shadow: 0 6px 14px rgb(16 185 129 / 0.25);
+}
+
+.arborito-modal--onboarding .arborito-onb-cta:hover:not([disabled]) {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgb(16 185 129 / 0.32);
+}
+
+.arborito-modal--onboarding .arborito-onb-cta[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.arborito-modal--onboarding .arborito-onb-cta--accent {
+    background: linear-gradient(135deg, rgb(124 58 237), rgb(168 85 247));
+    box-shadow: 0 6px 14px rgb(139 92 246 / 0.3);
+}
+
+.arborito-modal--onboarding .arborito-onb-cta--accent:hover:not([disabled]) {
+    box-shadow: 0 10px 22px rgb(139 92 246 / 0.4);
+}
+
+/* Alt sign-in block: label divider above a 2-column grid of real buttons.
+ * The previous tiny inline-link version was hard to tap on touch devices
+ * (≈ 30 px high). These are proper 56 px-tall secondary buttons but still
+ * visually subordinate to the primary CTA (no fill, dashed-feeling border,
+ * neutral colour, soft hover). */
+.arborito-modal--onboarding .arborito-onb-alt-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 0.2rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: rgb(100 116 139);
+    text-transform: none;
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-divider::before,
+.arborito-modal--onboarding .arborito-onb-alt-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgb(226 232 240);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-alt-divider {
+    color: rgb(148 163 184);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-alt-divider::before,
+html.dark .arborito-modal--onboarding .arborito-onb-alt-divider::after {
+    background: rgb(51 65 85);
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.85rem;
+    border: 1.5px solid rgb(226 232 240);
+    background: rgb(255 255 255);
+    color: rgb(15 23 42);
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease,
+        transform 0.12s ease,
+        box-shadow 0.18s ease;
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-btn:hover {
+    border-color: rgb(52 211 153);
+    background: rgb(236 253 245);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgb(16 185 129 / 0.15);
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-btn:active {
+    transform: translateY(0);
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-btn__ic {
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-btn__label {
+    line-height: 1.1;
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-alt-btn {
+    background: rgb(15 23 42 / 0.6);
+    border-color: rgb(51 65 85);
+    color: rgb(248 250 252);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-alt-btn:hover {
+    border-color: rgb(52 211 153);
+    background: rgb(6 95 70 / 0.35);
+    box-shadow: 0 6px 14px rgb(16 185 129 / 0.2);
+}

@@ -1,0 +1,85 @@
+/**
+ * Profile modal — single quiet sheet, minimal chrome.
+ */
+
+.profile-sheet {
+    border-radius: 1rem;
+    border: 1px solid rgb(226 232 240 / 0.9);
+    background: rgb(255 255 255 / 0.92);
+    padding: 1rem;
+    text-align: left;
+}
+
+@media (max-width: 639px) {
+    .profile-sheet:not(.profile-sheet--embedded):not(.profile-sheet--mobile) {
+        border: none;
+        border-radius: 0;
+        background: var(--arborito-modal-surface-gradient-light);
+        padding: 0 0 max(0.75rem, env(safe-area-inset-bottom, 0px));
+        min-height: auto;
+    }
+
+    html.dark .profile-sheet:not(.profile-sheet--embedded):not(.profile-sheet--mobile) {
+        background: var(--arborito-modal-surface-gradient-dark);
+    }
+}
+
+html.dark .profile-sheet:not(.profile-sheet--mobile):not(.profile-sheet--embedded):not(.profile-sheet--desktop) {
+    border-color: rgb(51 65 85 / 0.9);
+    background: rgb(15 23 42 / 0.55);
+}
+
+html.dark .profile-sheet--mobile,
+html.dark .profile-sheet--embedded,
+html.dark .profile-sheet--desktop {
+    background: transparent;
+    border-color: transparent;
+}
+
+.profile-sheet--embedded {
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+    background: transparent;
+    padding-inline: 0;
+}
+
+.profile-sheet__stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    .profile-sheet:not(.profile-sheet--embedded) {
+        border: none;
+        background: transparent;
+        padding: 0;
+    }
+}
+
+.profile-modal-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.profile-modal-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
+}
+
+.profile-sheet__divider {
+    height: 1px;
+    margin: 0.875rem 0;
+    background: rgb(226 232 240 / 0.85);
+}
+
+html.dark .profile-sheet__divider {
+    background: rgb(51 65 85 / 0.85);
+}
+

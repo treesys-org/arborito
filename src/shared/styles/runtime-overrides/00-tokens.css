@@ -1,0 +1,16 @@
+/**
+ * Runtime overrides loaded after `main.css`.
+ *
+ * Goal: avoid Firefox "font-visibility" console noise by not enumerating many named fonts.
+ * Use generic stacks only (system-ui + sans-serif).
+ */
+
+:root {
+  --font-family-base: system-ui, sans-serif;
+  --arborito-font-display: system-ui, sans-serif;
+}
+
+/* In some builds, typography/prose can introduce serif stacks via utility classes. */
+.font-serif {
+  font-family: var(--font-family-base);
+}

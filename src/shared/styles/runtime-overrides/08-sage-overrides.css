@@ -1,0 +1,211 @@
+/* =========================================================================
+ * Sage AI — consent / settings (desktop): the scrim covers the WHOLE viewport
+ * and the modal shadow hugs the content. Applies ONLY when the host carries
+ * `.arborito-sage-desk-scrim` (floating consent / settings), never to the chat
+ * that lives in the bottom-right corner (`md:bottom-6 md:right-6 md:w-auto`).
+ * ========================================================================= */
+arborito-sage.arborito-sage--open.arborito-sage-desk-scrim {
+  position: fixed !important;
+  inset: 0 !important;
+  /* Safety net: if the variable fails due to load order, keep a scrim
+   * solid and flush to the bottom edge. */
+  background:
+    var(--arborito-modal-overlay,
+      linear-gradient(165deg, rgb(15 23 42 / 0.32) 0%, rgb(2 6 23 / 0.55) 100%)
+    ) !important;
+}
+
+html.dark arborito-sage.arborito-sage--open.arborito-sage-desk-scrim {
+  background:
+    linear-gradient(165deg, rgb(0 0 0 / 0.62) 0%, rgb(2 6 23 / 0.95) 100%) !important;
+}
+
+/* Card for Sage's consent / settings on desktop: shadow closed on all
+ * sides so the modal looks like a complete piece, not a poster
+ * with a shadow clipped at the bottom. ONLY applies to consent/settings
+ * (which live inside a host with `.arborito-sage-desk-scrim`). */
+html.arborito-desktop arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-float-modal-card,
+html.arborito-desktop arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-float-modal-card.arborito-float-modal-card--auto-h {
+  box-shadow:
+    0 24px 64px -12px rgb(15 23 42 / 0.45),
+    0 8px 24px -6px rgb(15 23 42 / 0.32),
+    0 2px 6px rgb(15 23 42 / 0.18) !important;
+  border-radius: 1.25rem !important;
+  overflow: hidden !important;
+}
+
+html.arborito-desktop.dark arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-float-modal-card,
+html.arborito-desktop.dark arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-float-modal-card.arborito-float-modal-card--auto-h {
+  box-shadow:
+    0 24px 64px -12px rgb(0 0 0 / 0.65),
+    0 8px 24px -6px rgb(0 0 0 / 0.55),
+    0 2px 6px rgb(0 0 0 / 0.45) !important;
+}
+
+/* --- Sage guide breadcrumbs (replace old `.sage-guide-back-bar` pill) ---
+ * The back pill used to sit next to the global header arrow, which the user
+ * called confusing ("there's already [a back arrow]"). Breadcrumbs serve a different
+ * purpose: they let the user JUMP to any ancestor in the guide nav stack
+ * (Guide → Discover → Study) instead of tapping back N times. Wired in
+ * `utils/sage-guide-content.js::sageBreadcrumbs` and the `goto-nav` action
+ * branch in `components/modals/sage-ui-core.js`.
+ *
+ * Min tap target is 32px on the linkable crumbs (mobile a11y), with the
+ * current crumb rendered as inert text so it can't be tapped. */
+.sage-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.25rem;
+  margin: 0 0 0.85rem;
+  padding: 0;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  color: rgb(71 85 105);
+}
+html.dark .sage-crumbs {
+  color: rgb(148 163 184);
+}
+.sage-crumbs__crumb {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.25rem 0.55rem;
+  border: 0;
+  border-radius: 0.55rem;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+}
+.sage-crumbs__crumb--link {
+  color: rgb(67 56 202);
+  font-weight: 700;
+}
+html.dark .sage-crumbs__crumb--link {
+  color: rgb(165 180 252);
+}
+.sage-crumbs__crumb--link:hover,
+.sage-crumbs__crumb--link:focus-visible {
+  background: rgb(238 242 255);
+  outline: none;
+}
+html.dark .sage-crumbs__crumb--link:hover,
+html.dark .sage-crumbs__crumb--link:focus-visible {
+  background: rgb(49 46 129 / 0.5);
+}
+.sage-crumbs__crumb--current {
+  cursor: default;
+  font-weight: 800;
+  color: rgb(15 23 42);
+}
+html.dark .sage-crumbs__crumb--current {
+  color: rgb(241 245 249);
+}
+.sage-crumbs__sep {
+  color: rgb(148 163 184);
+  font-size: 0.85rem;
+  font-weight: 700;
+  user-select: none;
+}
+html.dark .sage-crumbs__sep {
+  color: rgb(100 116 139);
+}
+
+/* Topic lead paragraph: a single sentence that frames the steps below.
+ * Renders above `.sage-steps` / `.sage-bullets`. Kept compact to fit
+ * dock-style mobile sheets without forcing a scroll. */
+.sage-topic-lead {
+  margin: 0 0 0.85rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.85rem;
+  background: rgb(238 242 255 / 0.7);
+  border: 1px solid rgb(199 210 254 / 0.55);
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.45;
+  color: rgb(30 41 59);
+}
+html.dark .sage-topic-lead {
+  background: rgb(49 46 129 / 0.35);
+  border-color: rgb(67 56 202 / 0.45);
+  color: rgb(226 232 240);
+}
+.sage-topic-lead--selection {
+  background: rgb(220 252 231 / 0.6);
+  border-color: rgb(134 239 172 / 0.55);
+  color: rgb(20 83 45);
+  font-weight: 700;
+}
+html.dark .sage-topic-lead--selection {
+  background: rgb(20 83 45 / 0.35);
+  border-color: rgb(34 197 94 / 0.4);
+  color: rgb(187 247 208);
+}
+
+/* Sage tip body — the panel that opens when the user taps "Where am I?",
+ * "How do I continue?", "Author notes", etc. The previous renderer was a flat
+ * `<br>`-separated wall of text. Now `renderSageTipBody` emits real <p>/<ul>
+ * blocks so the copy can be structured (a short intro paragraph + a few
+ * concrete bullets) and feel like proper guidance instead of a paragraph
+ * dump. These styles stack on top of the existing `.sage-tip-body` block
+ * in `arborito-sage-guide.css` (which sets background + padding). */
+.sage-tip-body > p {
+  margin: 0 0 0.65rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: rgb(30 41 59);
+}
+html.dark .sage-tip-body > p { color: rgb(226 232 240); }
+.sage-tip-body > p:last-child { margin-bottom: 0; }
+.sage-tip-body strong {
+  font-weight: 800;
+  color: rgb(15 23 42);
+}
+html.dark .sage-tip-body strong { color: rgb(241 245 249); }
+.sage-tip-list {
+  list-style: none;
+  margin: 0 0 0.65rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.sage-tip-list:last-child { margin-bottom: 0; }
+.sage-tip-list li {
+  position: relative;
+  padding: 0.1rem 0 0.1rem 1.25rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: rgb(30 41 59);
+}
+html.dark .sage-tip-list li { color: rgb(226 232 240); }
+.sage-tip-list:not(.sage-tip-list--num) li::before {
+  content: '';
+  position: absolute;
+  left: 0.3rem;
+  top: 0.6rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 9999px;
+  background: rgb(34 197 94);
+}
+html.dark .sage-tip-list:not(.sage-tip-list--num) li::before {
+  background: rgb(74 222 128);
+}
+.sage-tip-list--num { counter-reset: sage-tip; }
+.sage-tip-list--num li { counter-increment: sage-tip; padding-left: 1.6rem; }
+.sage-tip-list--num li::before {
+  content: counter(sage-tip) '.';
+  position: absolute;
+  left: 0;
+  top: 0.1rem;
+  width: 1.3rem;
+  text-align: right;
+  font-weight: 800;
+  color: rgb(67 56 202);
+}
+html.dark .sage-tip-list--num li::before {
+  color: rgb(165 180 252);
+}

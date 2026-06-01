@@ -1,0 +1,6 @@
+{
+  "importBtn": "Importar Árbol",
+  "importCareDone": "{notes} lecciones importadas · {scheduled} con cuidados · {due} pendientes hoy.",
+  "importError": "Código o archivo inválido.",
+  "importSuccess": "¡Progreso cargado con éxito!"
+}

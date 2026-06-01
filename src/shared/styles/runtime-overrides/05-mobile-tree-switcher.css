@@ -1,0 +1,218 @@
+/* --- Mobile shell: tree switcher panel (safe areas, list layout, touch, chip) --- */
+/* Full-screen modal on phone: slide up from bottom (desktop keeps right drawer). */
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-panel,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-panel {
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100vw;
+  max-width: 100vw;
+  border-left: none;
+  box-shadow: none;
+  transform: translateY(110%);
+  transition: transform 200ms ease, opacity 200ms ease;
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-panel.is-open,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-panel.is-open {
+  transform: translateY(0);
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-head,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-head {
+  flex-shrink: 0;
+  background: var(--arborito-modal-surface-gradient-light);
+  padding-top: max(0.6rem, env(safe-area-inset-top, 0px));
+  padding-right: max(0.9rem, env(safe-area-inset-right, 0px));
+  padding-left: max(0.9rem, env(safe-area-inset-left, 0px));
+}
+html.dark.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-head,
+html.dark.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-head {
+  background: var(--arborito-modal-surface-gradient-dark);
+}
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-head:has(> .arborito-dock-modal-hero),
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-head:has(> .arborito-dock-modal-hero) {
+  padding: 0;
+  background: transparent;
+}
+html.dark.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-head:has(> .arborito-dock-modal-hero),
+html.dark.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-head:has(> .arborito-dock-modal-hero) {
+  background: transparent;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-scroll,
+html.force-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-scroll {
+  padding-right: max(0.9rem, env(safe-area-inset-right, 0px));
+  padding-left: max(0.9rem, env(safe-area-inset-left, 0px));
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-panel > .arborito-tree-switcher-list,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-panel > .arborito-tree-switcher-list {
+  padding-right: max(0.9rem, env(safe-area-inset-right, 0px));
+  padding-left: max(0.9rem, env(safe-area-inset-left, 0px));
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-scroll .arborito-tree-switcher-list,
+html.force-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-scroll .arborito-tree-switcher-list {
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0.5rem;
+  padding-bottom: 0.35rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-footer,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-footer {
+  padding-right: max(0.9rem, env(safe-area-inset-right, 0px));
+  padding-left: max(0.9rem, env(safe-area-inset-left, 0px));
+  flex-shrink: 0;
+}
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-more,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-more {
+  min-height: 3rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-carousel,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-carousel {
+  flex-direction: column;
+  overflow-x: visible;
+  gap: 0.55rem;
+  padding-bottom: 0;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-item,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-item {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  flex: 0 0 auto;
+  padding: 0.85rem 0.95rem;
+  border-radius: 1rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-close,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-close {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  flex-shrink: 0;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-tab,
+html.force-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-tab {
+  min-height: 2.75rem;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-search-row,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-search-row {
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-search-row .arborito-tree-switcher-search,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-search-row .arborito-tree-switcher-search {
+  flex: 1 1 12rem;
+  min-width: 0;
+  min-height: 2.75rem;
+  height: auto;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-search-row .arborito-tree-switcher-loading,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-search-row .arborito-tree-switcher-loading {
+  flex: 1 1 100%;
+  text-align: center;
+  padding-top: 0.2rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-switcher-chip-eyebrow,
+html.force-mobile:not(.arborito-desktop) .arborito-switcher-chip-eyebrow {
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip .arborito-switcher-chip-title,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip .arborito-switcher-chip-title,
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip .arborito-switcher-chip-title,
+html.force-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip .arborito-switcher-chip-title {
+  font-size: 0.8125rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip .arborito-switcher-chip-sub,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip .arborito-switcher-chip-sub,
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip .arborito-switcher-chip-sub,
+html.force-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip .arborito-switcher-chip-sub {
+  font-size: 0.8125rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-switcher-chip-chev,
+html.force-mobile:not(.arborito-desktop) .arborito-switcher-chip-chev {
+  font-size: 0.8125rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip,
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip,
+html.force-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip {
+  border-radius: 1rem;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+html:not(.dark).arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip,
+html:not(.dark).force-mobile:not(.arborito-desktop) .arborito-tree-switcher-chip,
+html:not(.dark).arborito-shell-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip,
+html:not(.dark).force-mobile:not(.arborito-desktop) .arborito-curriculum-switcher-chip {
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.85) inset;
+}
+
+/* Construction mobile: panel height clears tab dock (after shell fullscreen rules). */
+html.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-switcher-panel {
+  top: 0;
+  bottom: var(--arborito-construction-tab-dock-gap);
+  max-height: calc(100dvh - var(--arborito-construction-tab-dock-gap));
+  height: calc(100dvh - var(--arborito-construction-tab-dock-gap));
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-btn,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-btn {
+  max-width: min(20rem, 72vw);
+  min-height: 2.75rem;
+  padding: 0 0.85rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-btn__name,
+html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-btn__name {
+  font-size: 0.8rem;
+}
+
+@media (min-width: 768px) {
+  html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-carousel,
+  html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-carousel {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0.65rem;
+    padding-bottom: 0.25rem;
+  }
+  html.arborito-shell-mobile:not(.arborito-desktop) .arborito-tree-switcher-item,
+  html.force-mobile:not(.arborito-desktop) .arborito-tree-switcher-item {
+    width: auto;
+    min-width: 12.5rem;
+    max-width: 16rem;
+    flex: 0 0 auto;
+    padding: 0.8rem 0.85rem;
+    border-radius: 1.1rem;
+  }
+}

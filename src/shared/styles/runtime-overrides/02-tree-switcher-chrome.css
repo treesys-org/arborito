@@ -1,0 +1,220 @@
+.arborito-tree-switcher-host {
+  width: 100%;
+}
+.arborito-tree-switcher-host--chip {
+  /* Chip trigger is full-width; keep overlays above version timeline popover (z~135). */
+  position: relative;
+  z-index: 1;
+}
+.arborito-tree-switcher-btn {
+  max-width: min(18rem, 56vw);
+  height: 2.25rem;
+  border-radius: 0.9rem;
+  border: 1px solid var(--arborito-surface-tile-border-light);
+  background: var(--arborito-surface-tile-light);
+  color: rgba(15, 23, 42, 0.9);
+  font-weight: 800;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0 0.75rem;
+  flex: 0 0 auto;
+}
+html.dark .arborito-tree-switcher-btn {
+  background: var(--arborito-surface-tile-dark);
+  border-color: var(--arborito-surface-tile-border-dark);
+  color: rgba(226, 232, 240, 0.95);
+}
+.arborito-tree-switcher-btn__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: rgba(15, 23, 42, 0.92);
+}
+html.dark .arborito-tree-switcher-btn__name {
+  color: rgba(226, 232, 240, 0.95);
+}
+.arborito-tree-switcher-btn__chev {
+  opacity: 0.85;
+  font-weight: 1000;
+}
+
+.arborito-tree-switcher-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  background: rgba(2, 6, 23, 0.86);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+.arborito-tree-switcher-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.arborito-tree-switcher-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: min(420px, 92vw);
+  z-index: 145;
+  background: var(--arborito-modal-surface-gradient-light);
+  border-left: 1px solid var(--arborito-surface-panel-border-light);
+  box-shadow: -24px 0 80px rgba(0, 0, 0, 0.25);
+  transform: translateX(104%);
+  opacity: 0.98;
+  transition: transform 200ms ease, opacity 200ms ease;
+  display: flex;
+  flex-direction: column;
+}
+.arborito-tree-switcher-panel--portaled {
+  position: fixed;
+}
+html.dark .arborito-tree-switcher-panel {
+  background: var(--arborito-modal-surface-gradient-dark);
+  border-left-color: var(--arborito-surface-panel-border-dark);
+  box-shadow: -24px 0 90px rgba(0, 0, 0, 0.6);
+}
+
+/* Chip (current tree/version) contrast in dark mode */
+html.dark .arborito-curriculum-switcher-chip.arborito-timeline-chip--btn {
+  background: rgba(30, 41, 59, 0.92) !important;
+  border-color: rgba(148, 163, 184, 0.32) !important;
+  box-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+/* Differentiate tree name vs Local line */
+.arborito-curriculum-switcher-chip .arborito-chip-tree-line {
+  color: rgba(15, 23, 42, 0.95);
+}
+html.dark .arborito-curriculum-switcher-chip .arborito-chip-tree-line {
+  color: rgba(255, 255, 255, 0.96);
+}
+.arborito-curriculum-switcher-chip .arborito-chip-version-line--local {
+  color: rgb(88 28 135) !important;
+}
+html.dark .arborito-curriculum-switcher-chip .arborito-chip-version-line--local {
+  color: rgb(233 213 255) !important;
+}
+html.dark .arborito-curriculum-switcher-chip .arborito-chip-version-line:not(.arborito-chip-version-line--local) {
+  color: rgba(203, 213, 225, 0.92);
+}
+
+/* Tree / curriculum switcher chip typography (replaces tiny Tailwind text-* on trigger) */
+.arborito-switcher-chip-eyebrow,
+.arborito-switcher-chip-title,
+.arborito-switcher-chip-sub {
+  display: block;
+}
+.arborito-switcher-chip-eyebrow {
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  color: rgb(100 116 139);
+}
+html.dark .arborito-tree-switcher-chip .arborito-switcher-chip-eyebrow,
+html.dark .arborito-curriculum-switcher-chip .arborito-switcher-chip-eyebrow {
+  color: rgb(148 163 184);
+}
+.arborito-tree-switcher-chip .arborito-switcher-chip-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: rgba(15, 23, 42, 0.92);
+}
+html.dark .arborito-tree-switcher-chip .arborito-switcher-chip-title {
+  color: rgba(248, 250, 252, 0.94);
+}
+.arborito-tree-switcher-chip .arborito-switcher-chip-sub {
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: rgb(71 85 105);
+}
+html.dark .arborito-tree-switcher-chip .arborito-switcher-chip-sub {
+  color: rgb(203 213 225);
+}
+.arborito-curriculum-switcher-chip .arborito-switcher-chip-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.arborito-curriculum-switcher-chip .arborito-switcher-chip-sub {
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.arborito-switcher-chip-chev {
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+  color: rgb(148 163 184);
+}
+html.dark .arborito-switcher-chip-chev {
+  color: rgba(148, 163, 184, 0.92);
+}
+
+/* Hide the horizontal scroll indicator line under the chip row */
+#arborito-curriculum-chrome,
+.arborito-mobile-curriculum-chrome,
+#arborito-mobile-version-fixed {
+  overflow-x: hidden !important;
+  scrollbar-width: none;
+}
+#arborito-curriculum-chrome::-webkit-scrollbar,
+.arborito-mobile-curriculum-chrome::-webkit-scrollbar,
+#arborito-mobile-version-fixed::-webkit-scrollbar {
+  display: none;
+}
+
+/* Version filter spacing: avoid sticking to first row */
+#arborito-curriculum-switcher-version-block .arborito-tree-switcher-search-row {
+  margin-top: 0.65rem;
+  margin-bottom: 0.7rem;
+}
+#arborito-curriculum-switcher-snapshots-admin .arborito-tree-switcher-search-row {
+  margin-top: 0.65rem;
+  margin-bottom: 0.7rem;
+}
+.arborito-tree-switcher-panel.is-open {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.arborito-tree-switcher-head {
+  padding: 0.9rem 0.9rem 0.6rem 0.9rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+/* Standard dock hero (← title) — same row as Search / Arcade */
+.arborito-tree-switcher-head:has(> .arborito-dock-modal-hero) {
+  padding: 0;
+  border-bottom: 0;
+}
+.arborito-tree-switcher-head > .arborito-dock-modal-hero {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+html.dark .arborito-tree-switcher-head > .arborito-dock-modal-hero {
+  border-bottom-color: rgba(148, 163, 184, 0.18);
+}
+.arborito-tree-switcher-head:has(> .arborito-dock-modal-hero) .arborito-curriculum-switcher-tabs,
+.arborito-tree-switcher-head:has(> .arborito-dock-modal-hero) .arborito-tree-switcher-search-row {
+  margin-left: max(0.9rem, env(safe-area-inset-left, 0px));
+  margin-right: max(0.9rem, env(safe-area-inset-right, 0px));
+}
+.arborito-tree-switcher-head:has(> .arborito-dock-modal-hero) .arborito-curriculum-switcher-tabs {
+  margin-top: 0.65rem;
+}
+.arborito-tree-switcher-head:has(> .arborito-dock-modal-hero) .arborito-tree-switcher-search-row {
+  padding-bottom: 0.15rem;
+}

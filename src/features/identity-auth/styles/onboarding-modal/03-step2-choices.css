@@ -1,0 +1,286 @@
+/* =============================================================
+ * Wizard step indicator + step 2 (session) layout.
+ * Lives inside the onboarding shell, scoped via `.arborito-modal--onboarding`.
+ * ============================================================= */
+
+/* Step indicator (dots + label) lives inside the navbar's centre cell. */
+.arborito-modal--onboarding .arborito-onb-steps__dots {
+    display: inline-flex;
+    gap: 0.4rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: rgb(203 213 225);
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-dot {
+    background: rgb(51 65 85);
+}
+
+.arborito-modal--onboarding .arborito-onb-dot--done {
+    background: rgb(16 185 129);
+}
+
+.arborito-modal--onboarding .arborito-onb-dot--active {
+    background: rgb(16 185 129);
+    transform: scale(1.45);
+}
+
+.arborito-modal--onboarding .arborito-onb-steps__label {
+    margin: 0;
+    font-size: 0.625rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgb(100 116 139);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-steps__label {
+    color: rgb(148 163 184);
+}
+
+/* Step 2 hero (compact title + subtitle, no mascot). Tighter than step 1's
+ * hero so the bulk of the modal is the actionable panel below. */
+.arborito-modal--onboarding .arborito-onboarding-hero--step2 {
+    padding: 0.6rem 1.4rem 0.6rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-step-title {
+    margin: 0 0 0.3rem;
+    font-size: 1.35rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: rgb(15 23 42);
+    text-align: center;
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-step-title {
+    color: rgb(248 250 252);
+}
+
+.arborito-modal--onboarding .arborito-onb-step-subtitle {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: rgb(71 85 105);
+    text-align: center;
+    max-width: 22rem;
+    margin-inline: auto;
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-step-subtitle {
+    color: rgb(148 163 184);
+}
+
+.arborito-modal--onboarding .arborito-onb-session-panel {
+    padding: 0.4rem 1.4rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* Choose view: three large, scannable cards stacked vertically.
+ * Layout: [tinted icon tile] [title + subtitle (flex 1)] [chevron]
+ * Tinted icon tiles give each path a recognisable colour (sky / violet / slate)
+ * without dyeing the whole card, which kept hover states muted in the previous
+ * version. The right-aligned chevron makes it obvious these are navigations,
+ * not toggle / radio inputs. */
+.arborito-modal--onboarding .arborito-onb-choice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-choice {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.15rem 1.05rem;
+    border-radius: 1.1rem;
+    border: 1.5px solid rgb(226 232 240);
+    background: rgb(255 255 255);
+    text-align: left;
+    cursor: pointer;
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.2s ease,
+        border-color 0.18s ease,
+        background 0.18s ease;
+    min-width: 0;
+}
+
+.arborito-modal--onboarding .arborito-onb-choice:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgb(15 23 42 / 0.1);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice:active {
+    transform: translateY(0);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-choice {
+    background: rgb(15 23 42 / 0.55);
+    border-color: rgb(51 65 85);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-choice:hover {
+    background: rgb(15 23 42 / 0.7);
+}
+
+/* Sign-in: emerald accent (matches the primary CTA gradient). */
+.arborito-modal--onboarding .arborito-onb-choice--primary:hover {
+    border-color: rgb(52 211 153);
+    box-shadow:
+        0 0 0 3px rgb(52 211 153 / 0.18),
+        0 10px 26px rgb(16 185 129 / 0.18);
+}
+
+/* Register: violet accent (matches the secondary CTA gradient). */
+.arborito-modal--onboarding .arborito-onb-choice--accent:hover {
+    border-color: rgb(167 139 250);
+    box-shadow:
+        0 0 0 3px rgb(167 139 250 / 0.18),
+        0 10px 26px rgb(139 92 246 / 0.18);
+}
+
+/* Skip: neutral, subtle. */
+.arborito-modal--onboarding .arborito-onb-choice--ghost:hover {
+    border-color: rgb(148 163 184);
+}
+
+/* Icon tile (~2.6rem square, rounded) — coloured per path. */
+.arborito-modal--onboarding .arborito-onb-choice__ic-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.85rem;
+    flex-shrink: 0;
+}
+
+/* Solid flat fills (not gradients) so the three tiles feel calm rather
+ * than competing with each other for attention. The accent colour lives
+ * on hover (ring + shadow) instead of being shouted at rest. */
+.arborito-modal--onboarding .arborito-onb-choice__ic-wrap--primary {
+    background: rgb(209 250 229);
+    color: rgb(6 78 59);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__ic-wrap--accent {
+    background: rgb(237 233 254);
+    color: rgb(76 29 149);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__ic-wrap--ghost {
+    background: rgb(241 245 249);
+    color: rgb(51 65 85);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-choice__ic-wrap--primary {
+    background: rgb(6 78 59 / 0.55);
+    color: rgb(209 250 229);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-choice__ic-wrap--accent {
+    background: rgb(76 29 149 / 0.55);
+    color: rgb(237 233 254);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-choice__ic-wrap--ghost {
+    background: rgb(30 41 59 / 0.7);
+    color: rgb(203 213 225);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__ic {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+/* Globe-with-slash icon for the "no account / no sync" option.
+ * Renders a diagonal stroke over the 🌐 emoji to clearly convey
+ * "offline / no internet" without depending on an emoji that
+ * doesn't exist in unicode. The slash uses `currentColor` so it
+ * adopts the icon tile's tint in both light and dark themes. */
+.arborito-modal--onboarding .arborito-onb-choice__ic--globe-off {
+    position: relative;
+    display: inline-block;
+    line-height: 1;
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__ic--globe-off::after {
+    content: '';
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    top: 50%;
+    height: 2.5px;
+    border-radius: 2px;
+    background: currentColor;
+    box-shadow: 0 0 0 1.5px rgb(241 245 249);
+    transform: translateY(-50%) rotate(-45deg);
+    pointer-events: none;
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-choice__ic--globe-off::after {
+    box-shadow: 0 0 0 1.5px rgb(30 41 59);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__txt {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__title {
+    font-weight: 900;
+    font-size: 0.95rem;
+    color: rgb(15 23 42);
+    line-height: 1.2;
+    letter-spacing: -0.005em;
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-choice__title {
+    color: rgb(248 250 252);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__sub {
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: rgb(100 116 139);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-choice__sub {
+    color: rgb(148 163 184);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__chev {
+    font-size: 1.5rem;
+    line-height: 1;
+    font-weight: 700;
+    color: rgb(148 163 184);
+    flex-shrink: 0;
+    transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.arborito-modal--onboarding .arborito-onb-choice:hover .arborito-onb-choice__chev {
+    transform: translateX(2px);
+    color: rgb(51 65 85);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-choice__chev {
+    color: rgb(100 116 139);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-choice:hover .arborito-onb-choice__chev {
+    color: rgb(203 213 225);
+}

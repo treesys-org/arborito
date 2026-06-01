@@ -1,0 +1,43 @@
+# Verifica que Tailwind compile; mantiene coherente el CSS servido en GitHub Pages.
+# Este workflow es para el repo cuya raíz es `arborito/`.
+name: Arborito CSS
+
+on:
+  push:
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - "src/shared/styles/**"
+      - "src/features/**/styles/**"
+      - "tailwind.config.js"
+      - ".github/workflows/arborito-css.yml"
+  pull_request:
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - "src/shared/styles/**"
+      - "src/features/**/styles/**"
+      - "tailwind.config.js"
+
+jobs:
+  build-css:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Matches arborito-pages.yml — Node 22 is what the current deps require.
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      # See detailed rationale in arborito-pages.yml: "ci-or-install" strategy
+      # with `--omit=optional` so lock drift surfaces as a CI warning instead of
+      # a silent hard failure.
+      - name: Install (auto-recover from lock drift)
+        run: |
+          npm ci --omit=optional --no-audit --no-fund --prefer-offline \
+            || (echo "::warning::package-lock.json drift detected; falling back to 'npm install'. Run 'npm install' locally and commit the updated lock to restore reproducible builds." \
+                && npm install --omit=optional --no-audit --no-fund --prefer-offline)
+      - name: Build Tailwind
+        run: npm run build:css:min
+

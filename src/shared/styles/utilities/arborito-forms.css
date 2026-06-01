@@ -1,0 +1,93 @@
+/**
+ * Form primitives — inputs / textareas / selects / search icon slot.
+ *
+ * Replaces ~36 hand-rolled Tailwind soups for form fields. Unifies the focus
+ * ring to emerald (brand accent) instead of the ad-hoc mix of indigo / blue /
+ * slate that lived in different modals.
+ *
+ * Usage:
+ *   <input class="arborito-input" type="text" placeholder="…" />
+ *   <input class="arborito-input arborito-input--search" type="search" />
+ *   <select class="arborito-select"> … </select>
+ *   <textarea class="arborito-input arborito-textarea" rows="4"></textarea>
+ *
+ * Composable: `--compact` for toolbars, `--mono` for code/key fields.
+ * Layout (`w-full`, `flex-1`) and spacing stay at the call site.
+ */
+.arborito-input,
+.arborito-select,
+.arborito-textarea {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgb(226 232 240);             /* slate-200 */
+    background: rgb(255 255 255);
+    color: rgb(15 23 42);                            /* slate-900 */
+    font-size: 0.875rem;
+    line-height: 1.4;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.arborito-input::placeholder,
+.arborito-textarea::placeholder {
+    color: rgb(148 163 184);                         /* slate-400 */
+}
+.arborito-input:focus,
+.arborito-select:focus,
+.arborito-textarea:focus {
+    border-color: rgb(16 185 129);                   /* emerald-500 */
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.35);
+}
+.arborito-input:disabled,
+.arborito-select:disabled,
+.arborito-textarea:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+html.dark .arborito-input,
+html.dark .arborito-select,
+html.dark .arborito-textarea {
+    background: rgb(30 41 59);                       /* slate-800 */
+    border-color: rgb(51 65 85);                     /* slate-700 */
+    color: rgb(241 245 249);                          /* slate-100 */
+}
+html.dark .arborito-input::placeholder,
+html.dark .arborito-textarea::placeholder {
+    color: rgb(100 116 139);                          /* slate-500 */
+}
+html.dark .arborito-input:focus,
+html.dark .arborito-select:focus,
+html.dark .arborito-textarea:focus {
+    border-color: rgb(52 211 153);                    /* emerald-400 */
+    box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.30);
+}
+
+/* Compact variant for toolbars and dense rows. */
+.arborito-input--compact,
+.arborito-select--compact { padding: 0.375rem 0.75rem; font-size: 0.8125rem; }
+
+/* Search variant — extra left padding to make room for an absolute-positioned icon. */
+.arborito-input--search { padding-left: 2.5rem; }
+
+/* Monospaced (codes, sync secrets, public keys). */
+.arborito-input--mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.02em; }
+
+/* Textarea sizing override (height comes from rows= or call-site min-height). */
+.arborito-textarea { padding: 0.625rem 1rem; resize: vertical; }
+
+/* Search icon slot — to be placed inside a relative parent next to .arborito-input--search. */
+.arborito-search-icon {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgb(148 163 184);                          /* slate-400 */
+    pointer-events: none;
+    font-size: 0.875rem;
+    line-height: 1;
+}
+html.dark .arborito-search-icon { color: rgb(100 116 139); }
+
+/* Helper for the wrapper around input + icon. */
+.arborito-field-wrap { position: relative; }

@@ -1,0 +1,149 @@
+/* Inline forms (login / register / registered).
+ * Wider gap + larger inputs give the panel more breathing room and avoid
+ * the cramped/dizzy feel of the previous compact layout. */
+.arborito-modal--onboarding .arborito-onb-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-busy {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Visible "Creando cuenta… por favor espera" banner that paints WHILE
+ * `_doRegister()` is awaiting the Nostr publish. The grey-out below it
+ * (`.arborito-onb-busy`) is silent — without this banner the user just
+ * sees a disabled button and assumes the app froze.
+ *
+ * Shared layout/spinner/text/dark rules live in
+ * `utilities/arborito-busy-banner.css`. Only the sky-blue accent for the
+ * onboarding panel survives here. */
+.arborito-modal--onboarding .arborito-onb-busy-banner {
+    gap: 0.65rem;
+    border: 1px solid rgb(125 211 252);
+    background: rgb(240 249 255);
+}
+
+/* Username suggestion chips when the chosen name is taken.
+ * Shared label/chip styles live in `utilities/arborito-username-suggest.css`;
+ * only the onboarding-specific container padding/background and the slightly
+ * roomier chip padding survive here. */
+.arborito-modal--onboarding .arborito-onb-suggest {
+    padding: 0.55rem 0.7rem;
+    background: rgb(255 247 237 / 0.85);
+}
+
+.arborito-modal--onboarding .arborito-onb-suggest-chip {
+    padding: 0.35rem 0.7rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-field label {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(71 85 105);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-field label {
+    color: rgb(148 163 184);
+}
+
+/* Dedicated input style for the onboarding panel: bigger, calmer, with
+ * a clear focus ring. Replaces the previous `.arborito-input--compact`
+ * use, which felt too tight next to the choose cards. */
+.arborito-modal--onboarding .arborito-onb-input {
+    width: 100%;
+    min-height: 2.85rem;
+    padding: 0 0.85rem;
+    border-radius: 0.75rem;
+    border: 1.5px solid rgb(226 232 240);
+    background: rgb(255 255 255);
+    color: rgb(15 23 42);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.2;
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.18s ease,
+        background 0.15s ease;
+}
+
+.arborito-modal--onboarding .arborito-onb-input--mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    letter-spacing: 0.04em;
+}
+
+.arborito-modal--onboarding .arborito-onb-input::placeholder {
+    color: rgb(148 163 184);
+    font-weight: 500;
+}
+
+.arborito-modal--onboarding .arborito-onb-input:focus,
+.arborito-modal--onboarding .arborito-onb-input:focus-visible {
+    outline: none;
+    border-color: rgb(52 211 153);
+    box-shadow: 0 0 0 3px rgb(52 211 153 / 0.2);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-input {
+    background: rgb(15 23 42 / 0.6);
+    border-color: rgb(51 65 85);
+    color: rgb(248 250 252);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-input::placeholder {
+    color: rgb(100 116 139);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-input:focus {
+    border-color: rgb(52 211 153);
+    box-shadow: 0 0 0 3px rgb(16 185 129 / 0.25);
+}
+
+.arborito-modal--onboarding .arborito-onb-field-hint {
+    margin: 0;
+    font-size: 0.7rem;
+    line-height: 1.45;
+    color: rgb(100 116 139);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-field-hint {
+    color: rgb(148 163 184);
+}
+
+.arborito-modal--onboarding .arborito-onb-fineprint {
+    margin: 0.1rem 0 0;
+    font-size: 0.65rem;
+    line-height: 1.45;
+    color: rgb(100 116 139);
+    text-align: center;
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-fineprint {
+    color: rgb(148 163 184);
+}
+
+.arborito-modal--onboarding .arborito-onb-error {
+    margin: 0;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.65rem;
+    background: rgb(254 226 226);
+    color: rgb(127 29 29);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-error {
+    background: rgb(127 29 29 / 0.35);
+    color: rgb(254 202 202);
+}

@@ -1,0 +1,138 @@
+/* Keep the chip class around for the registered view's copy / download
+ * actions — those still benefit from being clear secondary buttons. */
+.arborito-modal--onboarding .arborito-onb-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 0.625rem;
+    border: 1px solid rgb(226 232 240);
+    background: rgb(248 250 252);
+    color: rgb(30 41 59);
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.arborito-modal--onboarding .arborito-onb-chip:hover {
+    border-color: rgb(148 163 184);
+    background: rgb(241 245 249);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-chip {
+    background: rgb(15 23 42 / 0.55);
+    border-color: rgb(51 65 85);
+    color: rgb(241 245 249);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-chip:hover {
+    border-color: rgb(100 116 139);
+    background: rgb(30 41 59 / 0.7);
+}
+
+/* Registered view */
+.arborito-modal--onboarding .arborito-onb-registered-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: rgb(6 78 59);
+    text-align: center;
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-registered-title {
+    color: rgb(167 243 208);
+}
+
+.arborito-modal--onboarding .arborito-onb-registered-sub {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: rgb(71 85 105);
+    text-align: center;
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-registered-sub {
+    color: rgb(148 163 184);
+}
+
+.arborito-modal--onboarding .arborito-onb-cred {
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.65rem;
+    border: 1px solid rgb(226 232 240);
+    background: rgb(248 250 252);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-cred {
+    border-color: rgb(51 65 85);
+    background: rgb(15 23 42 / 0.55);
+}
+
+.arborito-modal--onboarding .arborito-onb-cred__label {
+    margin: 0 0 0.15rem;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(100 116 139);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-cred__label {
+    color: rgb(148 163 184);
+}
+
+.arborito-modal--onboarding .arborito-onb-cred__value {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: rgb(15 23 42);
+    word-break: break-all;
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-cred__value {
+    color: rgb(241 245 249);
+}
+
+.arborito-modal--onboarding .arborito-onb-cred__value--mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    letter-spacing: 0.04em;
+}
+
+.arborito-modal--onboarding .arborito-onb-cred-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-qr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    background: rgb(255 255 255);
+    border: 1px solid rgb(226 232 240);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-qr {
+    background: rgb(15 23 42 / 0.55);
+    border-color: rgb(51 65 85);
+}
+
+.arborito-modal--onboarding .arborito-onb-qr__img {
+    width: 9rem;
+    height: 9rem;
+    image-rendering: pixelated;
+}
+
+.arborito-modal--onboarding .arborito-onb-qr__hint {
+    margin: 0;
+    font-size: 0.65rem;
+    text-align: center;
+    color: rgb(100 116 139);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-qr__hint {
+    color: rgb(148 163 184);
+}

@@ -1,0 +1,70 @@
+/**
+ * Busy banner — shared "loading / pending state" pill (spinner + message).
+ *
+ * Extracted from two near-identical copies that lived inside the onboarding
+ * and profile modal partials. Each modal still keeps a tiny override block
+ * for its accent (gap / border / background) so the visual rendering is
+ * unchanged; the cascade-heavy bits (spinner geometry, dark mode, text
+ * weight, keyframe) all live here.
+ *
+ * Used by:
+ *   - `.arborito-modal--onboarding .arborito-onb-busy-banner` (onboarding register flow)
+ *   - `.profile-busy-banner`                                  (profile register flow)
+ *
+ * HTML shape (both modals):
+ *   <p class="<root>" role="status" aria-live="polite">
+ *       <span class="<root>__spinner" aria-hidden="true"></span>
+ *       <span class="<root>__text">Creando cuenta…</span>
+ *   </p>
+ *
+ * Import this file BEFORE the per-modal partials in `main.entry.css` so the
+ * modal-side override blocks for `gap` / `border` / `background` win the
+ * cascade for those three properties only.
+ */
+
+.arborito-modal--onboarding .arborito-onb-busy-banner,
+.profile-busy-banner {
+    display: flex;
+    align-items: flex-start;
+    margin: 0 0 0.5rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: 0.75rem;
+    color: rgb(7 89 133);
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-busy-banner,
+html.dark .profile-busy-banner {
+    border-color: rgb(14 116 144 / 0.6);
+    background: rgb(8 47 73 / 0.55);
+    color: rgb(186 230 253);
+}
+
+.arborito-modal--onboarding .arborito-onb-busy-banner__spinner,
+.profile-busy-banner__spinner {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.15rem;
+    border-radius: 9999px;
+    border: 2px solid rgba(14, 116, 144, 0.25);
+    border-top-color: rgb(14 116 144);
+    animation: arborito-busy-spin 0.85s linear infinite;
+}
+
+html.dark .arborito-modal--onboarding .arborito-onb-busy-banner__spinner,
+html.dark .profile-busy-banner__spinner {
+    border-color: rgba(186, 230, 253, 0.25);
+    border-top-color: rgb(125 211 252);
+}
+
+.arborito-modal--onboarding .arborito-onb-busy-banner__text,
+.profile-busy-banner__text {
+    flex: 1;
+    font-weight: 600;
+}
+
+@keyframes arborito-busy-spin {
+    to { transform: rotate(360deg); }
+}

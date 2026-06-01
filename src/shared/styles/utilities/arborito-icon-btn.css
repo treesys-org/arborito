@@ -1,0 +1,84 @@
+/**
+ * Icon-only square button — the ~20 sites that share
+ * `w-9 h-9` / `w-10 h-10` / `w-11 h-11` + `rounded-xl` + center alignment +
+ * a subtle bg with hover.
+ *
+ * Modelled after .arborito-mmenu-back (already in
+ * src/features/learning/styles/lesson-and-more-menu.css) so the tactile behaviour stays
+ * consistent. Sizes are tokens, tones are tokens.
+ *
+ * Usage:
+ *   <button class="arborito-icon-btn arborito-icon-btn--md" aria-label="More">⋯</button>
+ *   <button class="arborito-icon-btn arborito-icon-btn--md arborito-icon-btn--danger" aria-label="Remove">🗑️</button>
+ *
+ * Size affects width/height/font-size of the glyph slot; tone sets bg + text +
+ * hover + dark variants. Spacing (`mt-1`, `ml-auto`) stays at the call site.
+ */
+.arborito-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
+    flex-shrink: 0;
+    line-height: 1;
+}
+.arborito-icon-btn:active { transform: scale(0.94); }
+.arborito-icon-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+/* Sizes */
+.arborito-icon-btn--sm { width: 2.25rem; height: 2.25rem; font-size: 1rem;     border-radius: 0.625rem; }
+.arborito-icon-btn--md { width: 2.5rem;  height: 2.5rem;  font-size: 1.125rem; }
+
+/* Default tone = slate (the most common). */
+.arborito-icon-btn {
+    background: rgb(241 245 249 / 0.95);   /* slate-100 */
+    color: rgb(71 85 105);                  /* slate-600 */
+}
+.arborito-icon-btn:hover:not(:disabled) {
+    background: rgb(226 232 240);           /* slate-200 */
+}
+html.dark .arborito-icon-btn {
+    background: rgb(30 41 59 / 0.95);       /* slate-800 */
+    color: rgb(226 232 240);                 /* slate-200 */
+}
+html.dark .arborito-icon-btn:hover:not(:disabled) {
+    background: rgb(51 65 85 / 0.95);       /* slate-700 */
+}
+
+/* On a dark/photo background (e.g. game player overlay). */
+.arborito-icon-btn--on-dark {
+    background: rgb(255 255 255 / 0.10);
+    color: rgb(255 255 255);
+}
+.arborito-icon-btn--on-dark:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.20);
+}
+
+/* Danger — destructive icon (remove, delete). */
+.arborito-icon-btn--danger {
+    background: rgb(254 226 226);           /* red-100 */
+    color: rgb(185 28 28);                   /* red-700 */
+}
+.arborito-icon-btn--danger:hover:not(:disabled) {
+    background: rgb(254 202 202);           /* red-200 */
+}
+html.dark .arborito-icon-btn--danger {
+    background: rgba(127, 29, 29, 0.40);    /* red-900/40 */
+    color: rgb(252 165 165);                 /* red-300 */
+}
+html.dark .arborito-icon-btn--danger:hover:not(:disabled) {
+    background: rgba(127, 29, 29, 0.60);
+}
+
+/* On-dark danger (for overlays on a dark canvas). */
+.arborito-icon-btn--on-dark-danger {
+    background: rgb(220 38 38 / 0.85);
+    color: rgb(255 255 255);
+}
+.arborito-icon-btn--on-dark-danger:hover:not(:disabled) {
+    background: rgb(220 38 38);
+}

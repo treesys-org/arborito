@@ -1,0 +1,160 @@
+/* Welcome: mobile = opaque; desktop = semi-transparent scrim (landscape visible, no blur) */
+@media (max-width: 767px) {
+    #modal-backdrop.arborito-modal-root.arborito-modal--onboarding:not(.arborito-modal--immersive) {
+        background: var(--color-surface-elevated, rgb(240 253 250)) !important;
+    }
+
+    html.dark #modal-backdrop.arborito-modal-root.arborito-modal--onboarding:not(.arborito-modal--immersive) {
+        background: var(--color-surface-dark, rgb(6 38 30)) !important;
+    }
+}
+
+@media (min-width: 768px) {
+    #modal-backdrop.arborito-modal-root.arborito-modal--onboarding:not(.arborito-modal--immersive) {
+        background: rgb(15 23 42 / 0.38) !important;
+    }
+
+    html.dark #modal-backdrop.arborito-modal-root.arborito-modal--onboarding:not(.arborito-modal--immersive) {
+        background: rgb(2 6 23 / 0.52) !important;
+    }
+}
+
+@media (max-width: 767px) {
+#modal-backdrop:not(.arborito-modal--immersive):not(.arborito-modal--onboarding) {  
+        padding: 0 !important;
+        padding-top: 0 !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: var(--arborito-mob-dock-clearance, 4.25rem) !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        background: var(--color-surface-elevated, rgb(240 253 250)) !important;
+      }
+.dark #modal-backdrop:not(.arborito-modal--immersive):not(.arborito-modal--onboarding) {  
+        background: var(--color-surface-dark, rgb(10 30 22)) !important;
+      }
+    /* Games / immersive screen: full screen (no dock strip) */
+    #modal-backdrop.arborito-modal--immersive {
+        bottom: 0 !important;
+        min-height: 100dvh !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        background: rgb(0 0 0) !important;
+    }
+    .dark #modal-backdrop.arborito-modal--immersive {
+        background: rgb(0 0 0) !important;
+    }
+#modal-backdrop > div:first-child,
+    #modal-backdrop > [id*="modal-panel"],
+    #modal-backdrop > section:first-child,
+    #modal-backdrop > aside:first-child {  
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        flex: 1 1 auto !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      /* Legacy: prefer instant dock modals; short fade only when animate-in is still used. */
+    #modal-backdrop .animate-in:not(.arborito-dock-modal-enter) {  
+        animation-name: fadeIn !important;
+        animation-duration: 0.12s !important;
+      }
+    #modal-backdrop.arborito-modal--mobile-fullbleed .arborito-sources-modal-shell,
+    #modal-backdrop.arborito-modal--mobile-fullbleed .arborito-sources-modal-shell > .arborito-sheet__hero {
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        max-width: none !important;
+        width: 100% !important;
+    }
+    #modal-backdrop.arborito-modal--mobile-fullbleed .forum-head .arborito-sheet__hero,
+    #modal-backdrop.arborito-modal--mobile-fullbleed .forum-head .arborito-float-modal-head {
+        border-radius: 0 !important;
+        width: 100% !important;
+    }
+    #mobile-widget-overlay.arborito-modal--mobile-fullbleed > div:first-child,
+    #mobile-widget-overlay.arborito-modal--mobile-fullbleed > [id*="modal-panel"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 100% !important;
+        height: 100% !important;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+}
+html.force-mobile #modal-backdrop:not(.arborito-modal--immersive):not(.arborito-modal--onboarding) {  
+    padding: 0 !important;
+    padding-top: 0 !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-mob-dock-clearance, 4.25rem) !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    background: var(--color-surface-elevated, rgb(240 253 250)) !important;
+  }
+html.force-mobile.dark #modal-backdrop:not(.arborito-modal--immersive):not(.arborito-modal--onboarding) {  
+    background: var(--color-surface-dark, rgb(10 30 22)) !important;
+  }
+html.force-mobile #modal-backdrop.arborito-modal--immersive {
+    bottom: 0 !important;
+    min-height: 100dvh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    background: rgb(0 0 0) !important;
+}
+html.force-mobile.dark #modal-backdrop.arborito-modal--immersive {
+    background: rgb(0 0 0) !important;
+}
+html.force-mobile #modal-backdrop > div:first-child,
+html.force-mobile #modal-backdrop > [id*="modal-panel"],
+html.force-mobile #modal-backdrop > section:first-child,
+html.force-mobile #modal-backdrop > aside:first-child {  
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    flex: 1 1 auto !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+html.force-mobile #modal-backdrop .animate-in:not(.arborito-dock-modal-enter) {  
+    animation-name: fadeIn !important;
+    animation-duration: 0.12s !important;
+  }
+
+/* From construction "More": no scrim fade-in (avoids flicker opening Trees / Versions). */
+.arborito-modal-root.arborito-modal-backdrop--instant {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* First tree / onboarding: modals and Sage full screen (no dock strip). */
+html.arborito-mob-first-run-gate #modal-backdrop:not(.arborito-modal--immersive),
+html.force-mobile.arborito-mob-first-run-gate #modal-backdrop:not(.arborito-modal--immersive) {
+    bottom: 0 !important;
+    min-height: 100dvh !important;
+}
+
+html.arborito-mob-first-run-gate #modal-backdrop.arborito-modal--mobile-fullbleed,
+html.force-mobile.arborito-mob-first-run-gate #modal-backdrop.arborito-modal--mobile-fullbleed {
+    bottom: 0 !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+}

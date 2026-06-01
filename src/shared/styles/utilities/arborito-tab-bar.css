@@ -1,0 +1,59 @@
+/**
+ * Tab bar (sticky horizontal switcher) — 3 in-tree sites that already share
+ * a model with `.arborito-curriculum-switcher-tabs` from runtime-overrides.
+ *
+ * Usage:
+ *   <div class="arborito-tab-bar" role="tablist">
+ *     <button class="arborito-tab arborito-tab--active">All</button>
+ *     <button class="arborito-tab">Mine</button>
+ *   </div>
+ *
+ * Active state is the underline + saturated text; inactive is a softer tone
+ * with hover.
+ */
+.arborito-tab-bar {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid rgb(226 232 240);  /* slate-200 */
+    background: transparent;
+}
+html.dark .arborito-tab-bar {
+    border-bottom-color: rgb(51 65 85);          /* slate-700 */
+}
+
+.arborito-tab {
+    flex: 1 1 0%;
+    min-width: 4.5rem;
+    padding: 0.625rem 0.75rem 0.75rem;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgb(148 163 184);                     /* slate-400 */
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+    white-space: nowrap;
+}
+@media (min-width: 640px) {
+    .arborito-tab { font-size: 12px; padding: 0.75rem 1rem; }
+}
+.arborito-tab:hover:not(:disabled) {
+    color: rgb(71 85 105);                       /* slate-600 */
+}
+html.dark .arborito-tab:hover:not(:disabled) {
+    color: rgb(203 213 225);                     /* slate-300 */
+}
+
+.arborito-tab--active,
+.arborito-tab[aria-selected="true"] {
+    color: rgb(30 41 59);                        /* slate-800 */
+    border-bottom-color: rgb(30 41 59);
+}
+html.dark .arborito-tab--active,
+html.dark .arborito-tab[aria-selected="true"] {
+    color: rgb(255 255 255);
+    border-bottom-color: rgb(255 255 255);
+}

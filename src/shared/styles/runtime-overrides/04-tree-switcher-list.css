@@ -1,0 +1,167 @@
+.arborito-tree-switcher-list {
+  padding: 0.9rem;
+  overflow: auto;
+  flex: 1 1 auto;
+}
+.arborito-tree-switcher-footer {
+  padding: 0.75rem 0.9rem calc(0.9rem + env(safe-area-inset-bottom)) 0.9rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  flex-shrink: 0;
+}
+.arborito-tree-switcher-more {
+  width: 100%;
+  min-height: 2.75rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.12);
+  color: rgba(6, 95, 70, 1);
+  font-weight: 950;
+  letter-spacing: -0.01em;
+}
+html.dark .arborito-tree-switcher-more {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: rgba(167, 243, 208, 0.95);
+}
+.arborito-tree-switcher-more:active {
+  transform: translateY(1px);
+}
+.arborito-tree-switcher-carousel {
+  display: flex;
+  gap: 0.65rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+.arborito-tree-switcher-item {
+  flex: 0 0 auto;
+  min-width: 12.5rem;
+  max-width: 16rem;
+  padding: 0.8rem 0.85rem;
+  border-radius: 1.1rem;
+  border: 1px solid var(--arborito-surface-tile-border-light);
+  background: var(--arborito-surface-tile-light);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.7rem;
+  text-align: left;
+}
+html.dark .arborito-tree-switcher-item {
+  background: var(--arborito-surface-tile-dark);
+  border-color: var(--arborito-surface-tile-border-dark);
+}
+.arborito-tree-switcher-item {
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.04);
+}
+html.dark .arborito-tree-switcher-item {
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
+}
+.arborito-tree-switcher-item.is-active {
+  border-color: rgba(16, 185, 129, 0.65);
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35);
+}
+.arborito-tree-switcher-avatar {
+  flex-shrink: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  line-height: 1;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+.arborito-tree-switcher-avatar--local {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.arborito-tree-switcher-avatar--installed {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+html.dark .arborito-tree-switcher-avatar {
+  border-color: rgba(148, 163, 184, 0.22);
+}
+html.dark .arborito-tree-switcher-avatar--local {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.28);
+}
+html.dark .arborito-tree-switcher-avatar--installed {
+  background: rgba(59, 130, 246, 0.16);
+  border-color: rgba(59, 130, 246, 0.28);
+}
+.arborito-tree-switcher-item-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.arborito-tree-switcher-item-check {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  font-weight: 900;
+  line-height: 1;
+  color: rgb(5 150 105);
+}
+html.dark .arborito-tree-switcher-item-check {
+  color: rgb(52 211 153);
+}
+.arborito-tree-switcher-item-name {
+  font-size: 0.9rem;
+  font-weight: 900;
+  color: rgba(15, 23, 42, 0.92);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+html.dark .arborito-tree-switcher-item-name {
+  color: rgba(226, 232, 240, 0.95);
+}
+.arborito-tree-switcher-pill {
+  align-self: flex-start;
+  font-size: 0.7rem;
+  font-weight: 900;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  color: rgba(51, 65, 85, 1);
+  background: rgba(241, 245, 249, 0.9);
+}
+html.dark .arborito-tree-switcher-pill {
+  color: rgba(226, 232, 240, 0.9);
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+.arborito-tree-switcher-pill--local {
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.arborito-tree-switcher-pill--installed {
+  border-color: rgba(59, 130, 246, 0.35);
+}
+.arborito-tree-switcher-empty {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: rgba(100, 116, 139, 1);
+  padding: 0.75rem;
+  border-radius: 1rem;
+  border: 1px dashed rgba(148, 163, 184, 0.35);
+}
+html.dark .arborito-tree-switcher-empty {
+  color: rgba(148, 163, 184, 0.95);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arborito-tree-switcher-backdrop,
+  .arborito-tree-switcher-panel {
+    transition: none;
+  }
+}
+
+/* Mobile construction: "Version and tree" panel must stay above action bar and not clip at bottom */
+html.arborito-construction-mobile:not(.arborito-desktop) .arborito-tree-switcher-backdrop.is-open {
+  bottom: var(--arborito-construction-tab-dock-gap);
+}

@@ -1,0 +1,41 @@
+/**
+ * Modal footer (sticky action bar) — replaces three idioms of
+ * `safe-area-inset-bottom` + sticky border + button row.
+ *
+ * Usage:
+ *   <div class="arborito-modal-footer">
+ *     <div class="arborito-action-row">
+ *       <button class="arborito-cta-slate">Cancel</button>
+ *       <button class="arborito-cta-emerald">Save</button>
+ *     </div>
+ *   </div>
+ *
+ * Modifiers:
+ *   --bg-flat     no translucent backdrop (just solid)
+ *   --compact     tighter padding
+ */
+.arborito-modal-footer {
+    flex-shrink: 0;
+    padding: 0.875rem 1rem;
+    padding-bottom: max(0.875rem, env(safe-area-inset-bottom));
+    background: rgb(255 255 255 / 0.95);
+    border-top: 1px solid rgb(226 232 240);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+html.dark .arborito-modal-footer {
+    background: rgb(15 23 42 / 0.92);
+    border-top-color: rgb(51 65 85);
+}
+
+.arborito-modal-footer--bg-flat {
+    background: rgb(255 255 255);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+html.dark .arborito-modal-footer--bg-flat { background: rgb(15 23 42); }
+
+.arborito-modal-footer--compact {
+    padding: 0.625rem 0.875rem;
+    padding-bottom: max(0.625rem, env(safe-area-inset-bottom));
+}

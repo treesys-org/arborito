@@ -1,0 +1,37 @@
+/**
+ * Action row — the balanced 1-of-2 / 2-of-2 button rows used for
+ * Back/Forward, Cancel/Save, Cancel/Delete pairs at the bottom of modals.
+ *
+ * Pairs with `arborito-cta-*` for color contracts. This file owns the layout
+ * (flex, gap, full-width children) only.
+ *
+ * Usage:
+ *   <div class="arborito-action-row">
+ *     <button class="arborito-cta-slate">Cancel</button>
+ *     <button class="arborito-cta-emerald">Save</button>
+ *   </div>
+ *
+ *   <div class="arborito-action-row arborito-action-row--stack-mobile">…</div>
+ */
+.arborito-action-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.arborito-action-row > .arborito-cta-emerald,
+.arborito-action-row > .arborito-cta-slate,
+.arborito-action-row > .arborito-cta-amber,
+.arborito-action-row > .arborito-cta-rose,
+.arborito-action-row > button,
+.arborito-action-row > a {
+    flex: 1 1 0%;
+    min-height: 2.75rem;
+}
+
+/* Stack vertically on narrow screens. */
+@media (max-width: 480px) {
+    .arborito-action-row--stack-mobile { flex-direction: column-reverse; }
+    .arborito-action-row--stack-mobile > * { width: 100%; }
+}

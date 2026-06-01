@@ -1,0 +1,209 @@
+.arborito-modal--onboarding .arborito-onboarding-lang {
+    padding: 0 1.25rem 1rem;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-lang-label {
+    margin: 0 0 0.5rem;
+    font-size: 0.625rem;
+    font-weight: 900;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgb(100 116 139);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onboarding-lang-label {
+    color: rgb(148 163 184);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-lang-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+}
+
+.arborito-modal--onboarding .btn-onb-lang {
+    min-height: 3.25rem;
+    padding: 0.65rem 0.75rem !important;
+    border-radius: 1rem !important;
+    font-weight: 800 !important;
+    justify-content: center !important;
+    background: var(--arborito-surface-tile-light);
+    border: 1px solid var(--arborito-surface-tile-border-light) !important;
+    color: rgb(6 78 59);
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        border-color 0.15s ease,
+        background-color 0.15s ease;
+}
+
+html.dark .arborito-modal--onboarding .btn-onb-lang {
+    background: var(--arborito-surface-tile-dark);
+    border-color: var(--arborito-surface-tile-border-dark) !important;
+    color: rgb(209 250 229);
+}
+
+.arborito-modal--onboarding .btn-onb-lang:not(.arborito-onboarding-lang--active):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgb(15 23 42 / 0.08);
+}
+
+.arborito-modal--onboarding .btn-onb-lang.arborito-onboarding-lang--active {
+    border-color: rgb(52 211 153) !important;
+    background: rgb(236 253 245) !important;
+    box-shadow:
+        0 0 0 2px rgb(52 211 153 / 0.25),
+        0 12px 28px rgb(16 185 129 / 0.18);
+    color: rgb(6 78 59) !important;
+}
+
+html.dark .arborito-modal--onboarding .btn-onb-lang.arborito-onboarding-lang--active {
+    background: rgb(6 78 59 / 0.45) !important;
+    border-color: rgb(52 211 153 / 0.65) !important;
+    color: rgb(209 250 229) !important;
+    box-shadow:
+        0 0 0 2px rgb(52 211 153 / 0.2),
+        0 14px 34px rgb(0 0 0 / 0.35);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-actions {
+    padding: 0 1.25rem 1.35rem;
+}
+
+/* Privacy / data protection notice: shares the side padding of the language and CTA blocks
+ * so the long paragraph never collides with the modal border (was visually touching the shell). */
+.arborito-modal--onboarding .arborito-onboarding-privacy {
+    margin: 0;
+    padding: 0.75rem 1.25rem 0.85rem;
+    border-top: 1px solid rgb(226 232 240);
+    background: rgb(248 250 252 / 0.6);
+    color: rgb(71 85 105);
+    font-size: 0.75rem;
+    line-height: 1.55;
+    text-align: left;
+}
+
+html.dark .arborito-modal--onboarding .arborito-onboarding-privacy {
+    border-top-color: rgb(51 65 85);
+    background: rgb(15 23 42 / 0.55);
+    color: rgb(148 163 184);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-privacy__head {
+    margin: 0 0 0.35rem;
+    font-size: 0.6875rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgb(15 23 42);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onboarding-privacy__head {
+    color: rgb(226 232 240);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-privacy__text {
+    margin: 0;
+}
+
+/* "Leer política" link: a low-contrast text-button that nudges curious users to the full
+ * privacy modal (in readonly mode) without competing with the primary Continue CTA. */
+.arborito-modal--onboarding .arborito-onboarding-privacy__link {
+    margin: 0.35rem 0 0;
+    padding: 0.15rem 0;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: rgb(30 64 175);
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+    min-height: 1.75rem;
+    align-self: flex-start;
+}
+.arborito-modal--onboarding .arborito-onboarding-privacy__link:hover {
+    color: rgb(15 23 42);
+}
+html.dark .arborito-modal--onboarding .arborito-onboarding-privacy__link {
+    color: rgb(147 197 253);
+}
+html.dark .arborito-modal--onboarding .arborito-onboarding-privacy__link:hover {
+    color: rgb(226 232 240);
+}
+
+.arborito-modal--onboarding .btn-onb-start {
+    width: 100%;
+    min-height: 3rem;
+    border-radius: 1rem !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.02em;
+    background: linear-gradient(135deg, rgb(5 150 105), rgb(16 185 129)) !important;
+    border: none !important;
+    box-shadow:
+        0 14px 34px rgb(16 185 129 / 0.35),
+        0 1px 0 rgb(255 255 255 / 0.2) inset;
+    transition:
+        transform 0.15s ease,
+        filter 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.arborito-modal--onboarding .btn-onb-start:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+    box-shadow:
+        0 18px 40px rgb(16 185 129 / 0.42),
+        0 1px 0 rgb(255 255 255 / 0.25) inset;
+}
+
+.arborito-modal--onboarding .btn-onb-start:active {
+    transform: translateY(0);
+}
+
+/* Prominent welcome line (below mascot, above "Learn for free" tagline). */
+.arborito-modal--onboarding .arborito-onboarding-welcome {
+    margin: 0.75rem 0 0.2rem;
+    font-size: 1.75rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    text-align: center;
+    color: rgb(15 23 42);
+}
+
+html.dark .arborito-modal--onboarding .arborito-onboarding-welcome {
+    color: rgb(248 250 252);
+}
+
+/* Mobile first-run: edge-to-edge + scroll (paired with arborito-modal--mobile-fullbleed from modals host). */
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile-fullbleed.arborito-modal--onboarding {
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile-fullbleed.arborito-modal--onboarding > .arborito-onboarding-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-width: 100% !important;
+    width: 100% !important;
+    /* Take the full screen on mobile: override the 46rem/90vh desktop cap. */
+    max-height: 100dvh !important;
+    height: 100dvh !important;
+    border-radius: 0 !important;
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile-fullbleed.arborito-modal--onboarding .arborito-onboarding-inner {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile-fullbleed.arborito-modal--onboarding .arborito-onboarding-hero {
+    padding-top: max(1.25rem, env(safe-area-inset-top, 0px));
+}

@@ -1,0 +1,304 @@
+@media (prefers-reduced-motion: reduce) {
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile:not(.arborito-modal--search):not(.arborito-modal--immersive):not(.arborito-modal--arcade):not(.arborito-modal--mobile-fullbleed) > div:first-child {
+        animation: none !important;
+    }
+}
+
+/* Mobile + arborito-modal-root: true fullscreen sheets (same as #modal-backdrop max-width rules) */
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile {
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    padding: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-mob-dock-clearance, 4.25rem) !important;
+    height: auto !important;
+    min-height: 0 !important;
+}
+
+/* Profile / forum / achievements: true fullbleed (no bottom dock gap) */
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--mobile-fullbleed {
+    bottom: 0 !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+}
+
+html.arborito-construction-mobile:not(.arborito-desktop)
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile:not(.arborito-modal--immersive) {
+    bottom: var(--arborito-construction-tab-dock-gap) !important;
+}
+
+html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile:not(.arborito-modal--immersive) {
+    bottom: var(--arborito-construction-tab-dock-gap) !important;
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile:not(.arborito-modal--search):not(.arborito-modal--immersive):not(.arborito-modal--arcade):not(.arborito-modal--mobile-fullbleed) > div:first-child {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+    height: 100% !important;
+    flex: 1 1 auto !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    animation: none !important;
+    /* Safe insets; back button stays in document flow (no fixed overlap) */
+    padding-top: max(0.75rem, env(safe-area-inset-top, 0px)) !important;
+    padding-left: max(0.75rem, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(0.75rem, env(safe-area-inset-right, 0px)) !important;
+    box-sizing: border-box !important;
+}
+
+/* Achievements and full-screen sheets: no side frame (same family as search / dock) */
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--mobile-fullbleed > div:first-child {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+    height: 100% !important;
+    flex: 1 1 auto !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    animation: none !important;
+    padding-top: 0 !important;
+    padding-left: env(safe-area-inset-left, 0px) !important;
+    padding-right: env(safe-area-inset-right, 0px) !important;
+    padding-bottom: 0 !important;
+    box-sizing: border-box !important;
+}
+/* Arcade dock sheet: same fit as search (gradient panel, no white card) */
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--arcade {
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    padding: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-mob-dock-clearance, 4.25rem) !important;
+    height: auto !important;
+    min-height: 0 !important;
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--arcade > #modal-panel.arborito-modal-dock-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+    height: 100% !important;
+    flex: 1 1 auto !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    animation: none !important;
+    box-sizing: border-box !important;
+}
+
+html.dark
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile:not(.arborito-modal--search):not(
+        .arborito-modal--immersive
+    ):not(.arborito-modal--arcade):not(.arborito-modal--mobile-fullbleed)
+    > div:first-child {
+    border: none !important;
+}
+
+/* Modo oscuro: reforzar full-bleed (perfil, logros…) por si otra regla reintroduce padding lateral. */
+html.dark
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--mobile-fullbleed
+    > div:first-child {
+    padding-top: 0 !important;
+    padding-left: env(safe-area-inset-left, 0px) !important;
+    padding-right: env(safe-area-inset-right, 0px) !important;
+    padding-bottom: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--search {
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    padding: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-mob-dock-clearance, 4.25rem) !important;
+    height: auto !important;
+}
+
+/* Mobile dock panels (search, arcade, Sage…): same base as "More" */
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile .arborito-modal-dock-panel,
+arborito-sage.arborito-sage--open .arborito-modal-dock-panel,
+#mobile-widget-overlay .arborito-modal-dock-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+    height: 100% !important;
+    flex: 1 1 auto !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    background: var(--arborito-modal-surface-gradient-light) !important;
+    border: none !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+html.dark #modal-backdrop.arborito-modal-root.arborito-modal--mobile .arborito-modal-dock-panel,
+html.dark arborito-sage.arborito-sage--open .arborito-modal-dock-panel,
+html.dark #mobile-widget-overlay .arborito-modal-dock-panel {
+    background: var(--arborito-modal-surface-gradient-dark) !important;
+}
+
+/* Header shared with "More" (search modal mounts .arborito-sheet__hero on the panel) */
+.arborito-dock-modal-hero.arborito-sheet__hero--mmenu-sub {
+    padding-top: max(0.65rem, env(safe-area-inset-top, 0px));
+}
+
+/* Full sheet (mobile construction): dialog body scrolls when content is long (e.g. publish). */
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile-fullbleed .arborito-float-modal-card.flex.flex-col > .p-6.pt-2 {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile construction: no outer backdrop padding (Tailwind p-3/p-4 leaves a frame). */
+html.arborito-construction-mobile:not(.arborito-desktop)
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile-fullbleed {
+    padding: 0 !important;
+}
+
+html.arborito-construction-mobile:not(.arborito-desktop)
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile-fullbleed.items-center,
+html.arborito-construction-mobile:not(.arborito-desktop)
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile-fullbleed.justify-center {
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+}
+
+html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile-fullbleed {
+    padding: 0 !important;
+}
+
+/* Perfil / Mi Progreso: pantalla completa — ocultar chips superiores y dock */
+html.arborito-shell-mobile.arborito-profile-modal-open arborito-sidebar .arborito-mob-top-actions,
+html.force-mobile.arborito-profile-modal-open arborito-sidebar .arborito-mob-top-actions,
+html.arborito-shell-mobile.arborito-progress-modal-open arborito-sidebar .arborito-mob-top-actions,
+html.force-mobile.arborito-progress-modal-open arborito-sidebar .arborito-mob-top-actions {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+html.dark.arborito-shell-mobile.arborito-profile-modal-open arborito-sidebar .arborito-mob-top-actions,
+html.dark.force-mobile.arborito-profile-modal-open arborito-sidebar .arborito-mob-top-actions,
+html.dark.arborito-shell-mobile.arborito-progress-modal-open arborito-sidebar .arborito-mob-top-actions,
+html.dark.force-mobile.arborito-progress-modal-open arborito-sidebar .arborito-mob-top-actions {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+html.arborito-shell-mobile.arborito-profile-modal-open arborito-sidebar .arborito-mob-dock-wrap,
+html.force-mobile.arborito-profile-modal-open arborito-sidebar .arborito-mob-dock-wrap,
+html.arborito-shell-mobile.arborito-progress-modal-open arborito-sidebar .arborito-mob-dock-wrap,
+html.force-mobile.arborito-progress-modal-open arborito-sidebar .arborito-mob-dock-wrap {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+html.force-mobile.arborito-profile-modal-open #modal-backdrop.arborito-modal-root,
+html.arborito-shell-mobile.arborito-profile-modal-open #modal-backdrop.arborito-modal-root {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    min-height: 100dvh !important;
+}
+
+html.force-mobile.arborito-profile-modal-open #modal-backdrop.arborito-modal-root .arborito-modal-dock-panel,
+html.force-mobile.arborito-profile-modal-open #modal-backdrop.arborito-modal-root .arborito-float-modal-card,
+html.force-mobile.arborito-profile-modal-open #modal-backdrop.arborito-modal-root > #modal-panel,
+html.arborito-shell-mobile.arborito-profile-modal-open #modal-backdrop.arborito-modal-root .arborito-modal-dock-panel,
+html.arborito-shell-mobile.arborito-profile-modal-open #modal-backdrop.arborito-modal-root .arborito-float-modal-card,
+html.arborito-shell-mobile.arborito-profile-modal-open #modal-backdrop.arborito-modal-root > #modal-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+html.force-mobile.arborito-profile-modal-open #modal-backdrop.arborito-modal-root .arborito-dock-modal-hero,
+html.arborito-shell-mobile.arborito-profile-modal-open #modal-backdrop.arborito-modal-root .arborito-dock-modal-hero {
+    flex-shrink: 0;
+    background: transparent;
+}
+
+html.force-mobile.arborito-profile-modal-open #modal-backdrop.arborito-modal-root .profile-modal-body,
+html.arborito-shell-mobile.arborito-profile-modal-open #modal-backdrop.arborito-modal-root .profile-modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+html.force-mobile.arborito-profile-modal-open #modal-backdrop.arborito-modal-root .profile-modal-scroll,
+html.arborito-shell-mobile.arborito-profile-modal-open #modal-backdrop.arborito-modal-root .profile-modal-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+}
+
+/* Colaboradores (contributor): mismo criterio que Perfil — ocultar luna + chip mientras el modal cubre la UI. */
+html.arborito-contributor-modal-open arborito-sidebar .arborito-mob-top-actions {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+html.dark.arborito-contributor-modal-open arborito-sidebar .arborito-mob-top-actions {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Edit node (node-properties): ocultar luna + Perfil mientras el modal cubre la UI. */
+html.arborito-node-properties-modal-open arborito-sidebar .arborito-mob-top-actions {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+html.dark.arborito-node-properties-modal-open arborito-sidebar .arborito-mob-top-actions {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Add curriculum language (pick-curriculum-lang, construction-curriculum-lang): ocultar luna + Perfil. */
+html.arborito-language-modal-open arborito-sidebar .arborito-mob-top-actions {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+html.dark.arborito-language-modal-open arborito-sidebar .arborito-mob-top-actions {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}

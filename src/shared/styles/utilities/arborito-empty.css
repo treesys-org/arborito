@@ -1,0 +1,72 @@
+/**
+ * Empty state — the recurring "nothing here" UI.
+ *
+ * Sub-forms:
+ *   - default            ─ centered text-only one-liner (most common)
+ *   - .arborito-empty--dashed    ─ dashed-border card
+ *   - .arborito-empty--card      ─ icon + title + body + (optional CTA)
+ *
+ * Usage:
+ *   <p class="arborito-empty">No results yet.</p>
+ *   <div class="arborito-empty arborito-empty--card">
+ *     <div class="arborito-empty__icon">📚</div>
+ *     <p class="arborito-empty__title">No certificates yet</p>
+ *     <p class="arborito-empty__body">Finish a tree to earn one.</p>
+ *   </div>
+ */
+.arborito-empty {
+    color: rgb(100 116 139);                         /* slate-500 */
+    font-size: 0.875rem;
+    line-height: 1.5;
+    text-align: center;
+}
+html.dark .arborito-empty {
+    color: rgb(148 163 184);                          /* slate-400 */
+}
+
+.arborito-empty--dashed {
+    border: 1.5px dashed rgb(203 213 225);            /* slate-300 */
+    border-radius: 1rem;
+    padding: 1.25rem 1rem;
+    background: transparent;
+}
+html.dark .arborito-empty--dashed {
+    border-color: rgb(71 85 105);                     /* slate-600 */
+}
+
+.arborito-empty--card {
+    border: 1px solid rgb(226 232 240);
+    border-radius: 1rem;
+    padding: 1.5rem 1.25rem;
+    background: rgb(248 250 252);                     /* slate-50 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+html.dark .arborito-empty--card {
+    border-color: rgb(51 65 85);
+    background: rgb(15 23 42 / 0.5);
+}
+
+.arborito-empty__icon {
+    font-size: 2.5rem;
+    line-height: 1;
+    opacity: 0.85;
+}
+
+.arborito-empty__title {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 800;
+    color: rgb(51 65 85);
+}
+html.dark .arborito-empty__title { color: rgb(226 232 240); }
+
+.arborito-empty__body {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: rgb(100 116 139);
+}
+html.dark .arborito-empty__body { color: rgb(148 163 184); }

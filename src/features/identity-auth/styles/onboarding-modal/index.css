@@ -1,0 +1,13 @@
+/**
+ * First-run onboarding modal: split into ordered partials.
+ * Keep these `@import`s in this exact order — the original onboarding-modal.css
+ * relied on source order for cascade resolution.
+ */
+
+@import url("./00-shell.css");
+@import url("./01-header.css");
+@import url("./02-language-step.css");
+@import url("./03-step2-choices.css");
+@import url("./04-username-step.css");
+@import url("./05-buttons.css");
+@import url("./06-misc.css");

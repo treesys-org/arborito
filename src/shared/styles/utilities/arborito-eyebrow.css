@@ -1,0 +1,39 @@
+/**
+ * Semantic "eyebrow" labels — the tiny uppercase headings used above sections,
+ * fields, and inside callouts.
+ *
+ * Replaces ~85 hand-rolled Tailwind soups across the codebase like
+ * `text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400`
+ * which were inconsistently spelled (font-bold vs font-black, tracking-wider vs
+ * tracking-widest, with or without dark variant).
+ *
+ * Usage:
+ *   <p class="arborito-eyebrow">SECTION TITLE</p>
+ *   <label class="arborito-eyebrow arborito-eyebrow--sky">DETAIL</label>
+ *   <h3 class="arborito-eyebrow arborito-eyebrow--md">SAVED GAMES</h3>
+ *
+ * Size = font-size scale. Tone = color (light + dark variants).
+ * Spacing (`mb-2`, `m-0`, `mt-1`) stays at the call site as a Tailwind utility
+ * so rhythm/positioning is still owned locally.
+ */
+.arborito-eyebrow {
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    line-height: 1.1;
+    color: rgb(100 116 139);  /* slate-500 */
+}
+html.dark .arborito-eyebrow {
+    color: rgb(148 163 184);  /* slate-400 */
+}
+
+.arborito-eyebrow--sm  { font-size: 9px;  letter-spacing: 0.08em; }
+.arborito-eyebrow--md  { font-size: 12px; }
+
+/* Tonal variants — for colored callouts where slate has insufficient contrast. */
+.arborito-eyebrow--sky     { color: rgb(12 74 110); }    /* sky-900 */
+html.dark .arborito-eyebrow--sky     { color: rgb(224 242 254); }   /* sky-100 */
+
+.arborito-eyebrow--strong  { color: rgb(51 65 85); }     /* slate-700 */
+html.dark .arborito-eyebrow--strong  { color: rgb(226 232 240); }   /* slate-200 */

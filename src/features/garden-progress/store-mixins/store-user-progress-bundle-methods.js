@@ -1,0 +1,195 @@
+import { DataProcessor } from '../../tree-graph/data-processor.js';
+import { buildArboritoBundle, sanitizeCurriculumForArboritoArchive } from '../../publishing/arborito-bundle.js';
+import { syncReadmeFromUniversePresentation } from '../../learning/course-intro-markdown.js';
+import { updateCareOnLessonCompleteFallback } from '../care-schedule.js';
+import { celebrate } from '../celebration.js';
+
+/** Gamification, node/module completion, and building the Arborito bundle. */
+export const userProgressBundleMethods = {
+    checkStreak() { 
+        const gBefore = this.userStore.state.gamification.streakShields;
+        const msg = this.userStore.settings.checkStreak(); 
+        const gAfter = this.userStore.state.gamification;
+        if (msg) {
+            const usedShield = gAfter.streakShields < gBefore;
+            celebrate(usedShield ? 'streak-shield' : 'streak');
+            this.notify(msg);
+        }
+        this.update({});
+        if (msg) this._scheduleRankingPublish?.();
+    },
+
+    addXP(amount, silent = false) {
+        const result = this.userStore.settings.addXP(amount);
+        if (!result) return;
+        const msg = typeof result === 'string' ? result : result.msg;
+        if (!silent && msg) this.notify(msg);
+        if (!silent) {
+            celebrate(result.hitGoal ? 'daily-goal' : 'leaf-done');
+        }
+        this.update({});
+        this._scheduleRankingPublish?.();
+    },
+
+    harvestSeed(moduleId) {
+        const msg = this.userStore.settings.harvestSeed(moduleId);
+        if (msg) {
+            celebrate('seed-collected');
+            this.notify(msg);
+        }
+        this.update({});
+        this.dispatchEvent(new CustomEvent('graph-update'));
+    },
+
+    updateGamification(updates) {
+        this.userStore.settings.updateGamification(updates);
+        this.update({});
+    },
+
+    updateUserProfile(username, avatar) {
+        this.userStore.settings.updateGamification({ username, avatar });
+        this.notify(this.ui.profileUpdated);
+        this.update({});
+        void this._scheduleRankingPublish?.();
+    },
+
+    markComplete(nodeId, forceState = null, options = {}) {
+        const xpResult = this.userStore.markComplete(nodeId, forceState, options);
+        if (xpResult) {
+            const msg = xpResult.msg || xpResult;
+            if (msg) this.notify(typeof msg === 'string' ? msg : xpResult.msg);
+            celebrate(xpResult.hitGoal ? 'daily-goal' : 'leaf-done');
+            this._scheduleRankingPublish?.();
+        }
+        if (this.userStore.isCompleted(nodeId)) {
+            updateCareOnLessonCompleteFallback(this, nodeId);
+        }
+        this.update({});
+        this.dispatchEvent(new CustomEvent('graph-update'));
+        this.checkForModuleCompletion(nodeId);
+    },
+
+    /**
+     * On exam approval: mark every leaf (lesson) under sibling branches of the
+     * exam (same parent) as completed, without awarding XP per leaf — only
+     * persistence + a soft SRS update.
+     */
+    markExamExemptSiblingLeaves(examNodeId) {
+        const exam = this.findNode(examNodeId);
+        if (!exam || exam.type !== 'exam' || !exam.parentId) return;
+        const parent = this.findNode(exam.parentId);
+        if (!(parent && parent.children && parent.children.length)) return;
+
+        const leafIds = [];
+        const collectLeaves = (n) => {
+            if (!n) return;
+            if (n.type === 'leaf') {
+                leafIds.push(n.id);
+                return;
+            }
+            if (n.type === 'exam') return;
+            if (n.children) n.children.forEach(collectLeaves);
+        };
+
+        let changed = false;
+        const markDone = (id) => {
+            if (id == null) return;
+            if (!this.userStore.state.completedNodes.has(id)) {
+                this.userStore.state.completedNodes.add(id);
+                changed = true;
+            }
+        };
+
+        markDone(parent.id);
+        for (const sibling of parent.children) {
+            if (String(sibling.id) === String(examNodeId)) continue;
+            markDone(sibling.id);
+            collectLeaves(sibling);
+        }
+
+        for (const id of leafIds) {
+            if (!this.userStore.state.completedNodes.has(id)) {
+                this.userStore.state.completedNodes.add(id);
+                changed = true;
+                updateCareOnLessonCompleteFallback(this, id);
+            }
+        }
+        if (changed) {
+            this.userStore.persist();
+            this.update({});
+            this.dispatchEvent(new CustomEvent('graph-update'));
+        }
+        this.checkForModuleCompletion(examNodeId);
+    },
+
+    markBranchComplete(branchId) {
+        if (!branchId) return;
+        const branchNode = this.findNode(branchId);
+        
+        if (branchNode) {
+            this.userStore.state.completedNodes.add(branchNode.id);
+            
+            if (branchNode.children) {
+                branchNode.children.forEach(child => {
+                    this.userStore.state.completedNodes.add(child.id);
+                });
+            }
+            
+            if (branchNode.leafIds && Array.isArray(branchNode.leafIds)) {
+                branchNode.leafIds.forEach(id => this.userStore.state.completedNodes.add(id));
+            }
+            
+            DataProcessor.hydrateCompletionState(this, branchNode);
+        }
+        
+        this.userStore.persist();
+        this.update({});
+        this.dispatchEvent(new CustomEvent('graph-update'));
+    },
+
+    checkForModuleCompletion(relatedNodeId) {
+        const modules = this.getModulesStatus();
+        modules.forEach(m => {
+            if (m.isComplete) {
+                if (!this.userStore.state.completedNodes.has(m.id)) {
+                     this.markBranchComplete(m.id);
+                }
+                this.harvestSeed(m.id);
+            }
+        });
+    },
+
+    getExportJson() { return this.userStore.getExportJson(); },
+
+    buildArboritoBundleObject() {
+        const raw = this.state.rawGraphData;
+        const src = this.state.activeSource;
+        if (!raw || !src) return null;
+        const rawCopy = JSON.parse(JSON.stringify(raw));
+        syncReadmeFromUniversePresentation(rawCopy, this.ui);
+        return buildArboritoBundle({
+            rawGraphData: rawCopy,
+            activeSource: src,
+            persistenceData: this.userStore.getPersistenceData(),
+            forumSnapshot: this.forumStore.getSnapshot(src.id),
+            instanceId: src.id
+        });
+    },
+
+    /**
+     * Export .arborito: curriculum (map + lessons), no forum or search index.
+     * Returns a Promise that resolves to a Uint8Array (ZIP bytes).
+     * @param {{ releaseSnapshotIds?: string[] | null }} [opts] — `null`/omit keeps every saved release; `[]` drops them all; an explicit list keeps only those keys.
+     */
+    async exportLocalTreeArchive(treeId, { releaseSnapshotIds = null } = {}) {
+        const entry = this.userStore.state.localTrees.find((t) => t.id === treeId);
+        if (!entry) return null;
+        const treeCopy = JSON.parse(JSON.stringify(entry.data));
+        syncReadmeFromUniversePresentation(treeCopy, this.ui);
+        const sanitizeOpts =
+            releaseSnapshotIds == null ? {} : { releaseSnapshotIds };
+        const curriculumOnly = sanitizeCurriculumForArboritoArchive(treeCopy, sanitizeOpts);
+        return this.userStore.serializeArboritoArchive(entry.id, entry.name, curriculumOnly);
+    }
+
+};

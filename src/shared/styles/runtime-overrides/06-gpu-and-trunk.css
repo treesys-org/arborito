@@ -1,0 +1,57 @@
+/* =========================================================================
+ * GPU safety + welcome fix (live without `npm run build:css`).
+ * Tailwind `.backdrop-blur-*` utilities are emitted AFTER the in-bundle kill
+ * switch, so this file — loaded after main.css — must win the cascade.
+ * ========================================================================= */
+html,
+body,
+body.arborito-app,
+body.arborito-app *,
+body.arborito-app *::before,
+body.arborito-app *::after,
+[class*="backdrop-blur"],
+.backdrop-blur,
+.backdrop-blur-sm,
+.backdrop-blur-md,
+.backdrop-blur-xl,
+.backdrop-filter {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Trunk panel slot — forest theme, subtle. No white halo on the left in light mode.
+ * Hidden in construction mode: visual noise without semantic value. */
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-trunk-fade,
+.mobile-trunk-fade {
+  background: linear-gradient(to right, rgb(167 243 208 / 0.32) 0%, transparent 100%) !important;
+  width: 3.25rem !important;
+  opacity: 0.55 !important;
+}
+
+html.dark .arborito-mobile-path.mobile-tree-ui .mobile-trunk-fade,
+html.dark .mobile-trunk-fade {
+  background: linear-gradient(to right, rgb(15 24 20 / 0.55) 0%, transparent 100%) !important;
+  opacity: 0.7 !important;
+}
+
+html.arborito-construction-mobile .mobile-trunk-fade,
+html.arborito-construction-mobile .mobile-tree-ui--construction .mobile-trunk-fade,
+html.arborito-desktop.arborito-construction-mobile .mobile-trunk-fade {
+  display: none !important;
+}
+
+html:not(.dark) .arborito-mobile-path .mobile-children-panel {
+  background: var(--arborito-path-panel) !important;
+  border-color: var(--arborito-path-panel-border) !important;
+}
+
+html.dark .arborito-mobile-path .mobile-children-panel {
+  background: var(--arborito-path-panel) !important;
+  border-color: var(--arborito-path-panel-border) !important;
+}
+
+html.arborito-desktop:not(.dark) .arborito-mobile-path.mobile-tree-ui .mobile-children-panel .mobile-panel-header {
+  color: var(--arborito-bark-ink) !important;
+  background: var(--arborito-path-panel-header) !important;
+  border-color: var(--arborito-moss-border) !important;
+}

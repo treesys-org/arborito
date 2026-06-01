@@ -1,0 +1,52 @@
+/* =============================================================================
+   Arborito executive — mobile shell & reader (friendly, soft surfaces)
+   Background: gradient in `foundation/tokens.css` (--bg-app + --bg-app-gradient).
+   ============================================================================= */
+:root {
+    --arborito-brand: #14b8a6;
+    --arborito-brand-deep: #0d9488;
+    --arborito-brand-bright: #5eead4;
+    --arborito-brand-soft: rgba(20, 184, 166, 0.14);
+    --arborito-brand-glow: rgba(45, 212, 191, 0.38);
+    --arborito-ink: #1e293b;
+    --arborito-sheet-elevate: 0 18px 44px -8px rgb(15 23 42 / 0.1);
+    --arborito-font-display: system-ui, sans-serif;
+    --arborito-radius-sheet: 1.75rem;
+    /* Space reserved when tab dock is visible under overlays */
+    --arborito-mob-dock-clearance: calc(3.85rem + env(safe-area-inset-bottom, 12px));
+}
+
+html.dark {
+    --arborito-sheet-elevate: 0 18px 44px -8px rgb(0 0 0 / 0.35);
+}
+
+.arborito-app #app {
+    font-family: var(--arborito-font-display);
+    letter-spacing: 0.01em;
+}
+
+.arborito-app {
+    text-rendering: optimizeLegibility;
+}
+
+/* Mobile: inherits the gradient from `foundation/tokens.css` on body.arborito-app.
+ * Do not re-declare `background-*` here; fewer crossed `!important` = less magic
+ * for the junior dev who has to debug the background. */
+
+/* Wide viewport + mobile UI: centered phone column (aligned with the dock).
+ * Same gradient as standard mobile — no width-based differentiation. */
+@media (min-width: 900px) {
+    html.arborito-shell-mobile body.arborito-app #app.arborito-shell {
+        max-width: 28rem;
+        margin: 0 auto;
+        min-height: 100dvh;
+        box-shadow:
+            0 0 0 1px rgb(45 212 191 / 0.12),
+            0 20px 50px -18px rgb(15 23 42 / 0.14);
+    }
+    html.dark.arborito-shell-mobile body.arborito-app #app.arborito-shell {
+        box-shadow:
+            0 0 0 1px rgb(255 255 255 / 0.05),
+            0 20px 50px -18px rgb(0 0 0 / 0.4);
+    }
+}

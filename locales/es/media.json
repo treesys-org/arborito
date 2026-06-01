@@ -1,0 +1,15 @@
+{
+  "mediaBlockedHint": "Para proteger tu privacidad, este recurso no se ha cargado todavía.",
+  "mediaBlockedRetry": "Cargar multimedia…",
+  "mediaBlockedTitle": "Multimedia no cargado",
+  "mediaConsentAccept": "Cargar multimedia",
+  "mediaConsentBody": "Solo se cargarán recursos de los orígenes que apruebes abajo. Tu navegador se conectará a esos dominios para descargar la imagen, el audio o el video.",
+  "mediaConsentDecline": "No cargar",
+  "mediaConsentDomainLabel": "Dominio",
+  "mediaConsentListLabel": "Orígenes en esta lección",
+  "mediaConsentRememberHint": "Si eliges Cargar multimedia, guardamos solo esos dominios en este navegador (no las URLs completas) para no volver a preguntar por ellos. No cargar mantiene bloqueado el multimedia externo aquí.",
+  "mediaConsentTitle": "Contenido multimedia externo",
+  "mediaPlaceholderAudio": "Audio externo",
+  "mediaPlaceholderImage": "Imagen externa",
+  "mediaPlaceholderVideo": "Video externo"
+}
