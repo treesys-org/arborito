@@ -1,0 +1,401 @@
+/* --- quiz-edit --- */
+/* Construct editor: flex column so embedded blocks honor align-self:center */
+.arborito-lesson-prose-frame--construct #lesson-visual-editor {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+    -webkit-user-select: text;
+    user-select: text;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-prose-frame--construct #lesson-visual-editor {
+    min-height: 14rem;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area {
+    touch-action: pan-y;
+}
+
+.arborito-lesson-prose-frame--construct #lesson-visual-editor > .arborito-quiz-edit,
+.arborito-lesson-prose-frame--construct #lesson-visual-editor > .edit-block-wrapper {
+    align-self: center;
+    margin-inline: auto;
+    max-width: 100%;
+}
+
+#lesson-visual-editor > .arborito-quiz-edit {
+    width: min(100%, 36rem);
+}
+
+/* Quiz wizard: centered card, compact layout */
+.arborito-quiz-edit {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: min(100%, 36rem);
+    max-width: 36rem;
+    margin: 0.35rem auto;
+    border-radius: 0.75rem;
+    border: 1px solid var(--arborito-theme-quiz-edit-border-color);
+    background: var(--arborito-theme-quiz-edit-background);
+    color: var(--arborito-theme-quiz-edit-color);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.06);
+    overflow: hidden;
+}
+
+html.arborito-desktop .arborito-lesson-aside--construct-edit .arborito-quiz-edit {
+    width: min(100%, 40rem);
+    max-width: 40rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.arborito-quiz-edit .arborito-input,
+.arborito-quiz-edit .arborito-textarea {
+    min-height: 0;
+    font-size: 0.8125rem;
+    padding: 0.4rem 0.55rem;
+}.arborito-quiz-edit .quiz-correct-input {
+    width: 100%;
+    padding: 0.45rem 0.65rem;
+    border-radius: 0.5rem;
+    border: var(--arborito-theme-learning-quiz-correct-input-border);
+    background: var(--arborito-theme-learning-quiz-correct-input-background);
+    color: var(--arborito-theme-learning-quiz-correct-input-color);
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.arborito-quiz-edit .quiz-correct-input:focus {
+    border-color: rgb(52 211 153);
+    box-shadow: var(--arborito-theme-quiz-correct-input-focus-box-shadow);
+}
+
+.arborito-quiz-edit .quiz-wiz-next,
+.arborito-quiz-edit .quiz-wiz-done.arborito-cta-emerald {
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+}
+
+.arborito-quiz-edit .quiz-wiz-done-basic {
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.arborito-quiz-edit .quiz-wiz-done-basic:hover {
+    background: var(--arborito-theme-quiz-done-hover-bg);
+    border-color: var(--arborito-theme-quiz-done-hover-border);
+}
+
+.arborito-lesson-aside--construct-edit .js-toc-name-slot {
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.35;
+}
+
+.arborito-quiz-edit .quiz-wiz-steps {
+    user-select: none;
+}
+
+.arborito-quiz-edit .quiz-wiz-step-connector {
+    flex: 1 1 2rem;
+    max-width: none;
+}
+
+.arborito-quiz-edit .quiz-wiz-step-dot {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.arborito-quiz-edit .quiz-coverage {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.5rem;
+}
+
+.arborito-quiz-edit .quiz-coverage__label {
+    line-height: 1;
+    font-size: 9px;
+}
+
+.arborito-quiz-edit .quiz-coverage-strip {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.arborito-quiz-edit .quiz-mode-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.25rem;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.15;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+.arborito-quiz-edit .quiz-mode-pill--on {
+    background: var(--arborito-theme-pill-on-bg);
+    color: var(--arborito-theme-pill-on-fg);
+    border-color: var(--arborito-theme-pill-on-border);
+}
+
+.arborito-quiz-edit .quiz-mode-pill--off {
+    background: var(--arborito-theme-pill-off-bg);
+    color: var(--arborito-theme-pill-off-fg);
+    border-color: var(--arborito-theme-pill-off-border);
+}
+
+.arborito-quiz-edit .quiz-mode-pill__icon {
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.arborito-quiz-edit .quiz-mode-pill--off .quiz-mode-pill__icon {
+    opacity: 0.5;
+    filter: grayscale(0.4);
+}
+
+.arborito-quiz-edit .quiz-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+
+.arborito-quiz-edit .quiz-form-grid__span {
+    grid-column: 1 / -1;
+}
+
+.arborito-quiz-edit .quiz-mode-pill__label {
+    display: inline;
+}
+
+.arborito-quiz-edit--collapsed {
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.06);
+}
+
+.arborito-quiz-edit .arborito-quiz-drag-handle {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+    padding: 0.4rem 0.45rem 0.4rem 0.65rem;
+    border-bottom: 1px solid var(--arborito-theme-quiz-edit-drag-handle-border, rgb(199 210 254 / 0.85));
+    background: var(--arborito-theme-quiz-edit-drag-handle-bg, rgb(238 242 255 / 0.95));
+    cursor: grab;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.dark .arborito-quiz-edit .arborito-quiz-drag-handle {
+    border-bottom-color: rgb(67 56 202 / 0.45);
+    background: rgb(30 27 75 / 0.55);
+}
+
+.arborito-quiz-edit .quiz-drag-handle__lead {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.arborito-quiz-edit .quiz-drag-handle__grip {
+    flex-shrink: 0;
+    font-size: 0.8125rem;
+    line-height: 1;
+    color: rgb(129 140 248);
+}
+
+.arborito-quiz-edit .quiz-drag-handle__title {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: rgb(67 56 202);
+}
+
+.dark .arborito-quiz-edit .quiz-drag-handle__title {
+    color: rgb(199 210 254);
+}
+
+.arborito-quiz-edit .quiz-wiz-remove-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0.2rem 0.45rem;
+    border: 1px solid rgb(254 205 211 / 0.9);
+    border-radius: 0.4rem;
+    background: rgb(255 241 242 / 0.85);
+    color: rgb(190 18 60);
+    font-size: 0.625rem;
+    font-weight: 700;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background-color 0.12s ease, border-color 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.dark .arborito-quiz-edit .quiz-wiz-remove-btn {
+    border-color: rgb(190 18 60 / 0.45);
+    background: rgb(76 5 25 / 0.35);
+    color: rgb(251 113 133);
+}
+
+.arborito-quiz-edit .quiz-wiz-remove-btn:hover {
+    background: rgb(255 228 230);
+    border-color: rgb(251 113 133);
+}
+
+.dark .arborito-quiz-edit .quiz-wiz-remove-btn:hover {
+    background: rgb(136 19 55 / 0.55);
+    border-color: rgb(244 63 94 / 0.55);
+}
+
+.arborito-quiz-edit .quiz-wiz-remove-btn__label {
+    max-width: 4.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.arborito-quiz-edit .quiz-drag-handle__meta {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.arborito-quiz-edit .quiz-drag-handle__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-left: auto;
+    padding-left: 0.55rem;
+    border-left: 1px solid rgb(199 210 254 / 0.85);
+}
+
+.dark .arborito-quiz-edit .quiz-drag-handle__close {
+    border-left-color: rgb(99 102 241 / 0.45);
+}
+
+.arborito-quiz-edit .quiz-status-badge {
+    display: inline-flex;
+    align-items: center;
+    max-width: 7.5rem;
+    padding: 0.2rem 0.45rem;
+    border-radius: 0.375rem;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.arborito-quiz-edit .quiz-wiz-icon-btn {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.625rem;
+    height: 1.625rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0.4rem;
+    background: transparent;
+    color: rgb(79 70 229);
+    cursor: pointer;
+    line-height: 0;
+    transition: background-color 0.12s ease, color 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.dark .arborito-quiz-edit .quiz-wiz-icon-btn {
+    color: rgb(165 180 252);
+}
+
+.arborito-quiz-edit .quiz-wiz-icon-btn:hover {
+    background: rgb(224 231 255 / 0.9);
+    color: rgb(55 48 163);
+}
+
+.dark .arborito-quiz-edit .quiz-wiz-icon-btn:hover {
+    background: rgb(49 46 129 / 0.65);
+    color: rgb(224 231 255);
+}
+
+.arborito-quiz-edit .quiz-drag-handle__close .quiz-wiz-icon-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+}
+
+.arborito-quiz-edit .quiz-wiz-expand-btn {
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.arborito-quiz-edit .quiz-wiz-close-btn svg {
+    display: block;
+    width: 0.9rem;
+    height: 0.9rem;
+}
+
+.arborito-quiz-edit--collapsed .arborito-quiz-drag-handle {
+    border-bottom: none;
+}
+
+.arborito-quiz-edit .arborito-quiz-drag-handle [data-arbor-tip]::after {
+    z-index: 90;
+}
+
+.arborito-quiz-edit .quiz-mode-toggle {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.2rem;
+    border-radius: 0.6rem;
+    background: var(--arborito-theme-learning-quiz-mode-toggle-background);
+    margin-bottom: 0.75rem;
+}
+
+.arborito-quiz-edit .quiz-mode-opt {
+    flex: 1;
+    border: 0;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgb(100 116 139);
+    background: transparent;
+    cursor: pointer;
+}.arborito-quiz-edit .quiz-mode-opt[data-selected="1"] {
+    background: var(--arborito-theme-learning-quiz-mode-opt-background);
+    color: var(--arborito-theme-learning-quiz-mode-opt-color);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.08);
+}
+
+@media (max-width: 639px) {
+    .arborito-quiz-edit .quiz-coverage {
+        display: flex;
+    }
+}

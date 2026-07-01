@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Arborito background - Night scene.
+
+ Mirror of scene-day.svg with night palette: deep indigo sky, crescent moon
+ with subtle indigo halo, ~40 scattered stars (varied opacity/size for depth),
+ three dark hill silhouettes, sparse indigo-tinted clouds, dark grass tufts.
+ Same anchoring (xMidYMax slice) so hills stay grounded as the tree climbs.
+
+ ~7 KB raw heavier than day mostly due to the star field.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+ <defs>
+ <linearGradient id="nightSky" x1="0" y1="0" x2="0" y2="1">
+ <stop offset="0%" stop-color="#070b18"/>
+ <stop offset="38%" stop-color="#0e1a35"/>
+ <stop offset="72%" stop-color="#142640"/>
+ <stop offset="100%" stop-color="#0d1c2e"/>
+ </linearGradient>
+ <radialGradient id="moonGlow" cx="86%" cy="16%" r="38%">
+ <stop offset="0%" stop-color="#c7d2fe" stop-opacity="0.45"/>
+ <stop offset="32%" stop-color="#a5b4fc" stop-opacity="0.20"/>
+ <stop offset="100%" stop-color="#818cf8" stop-opacity="0"/>
+ </radialGradient>
+ <radialGradient id="moonBody" cx="42%" cy="38%" r="55%">
+ <stop offset="0%" stop-color="#f8fafc"/>
+ <stop offset="65%" stop-color="#cbd5e1"/>
+ <stop offset="100%" stop-color="#94a3b8"/>
+ </radialGradient>
+ <linearGradient id="nHillFar" x1="0" y1="0" x2="0" y2="1">
+ <stop offset="0%" stop-color="#1a2a48"/>
+ <stop offset="100%" stop-color="#0e1c34"/>
+ </linearGradient>
+ <linearGradient id="nHillMid" x1="0" y1="0" x2="0" y2="1">
+ <stop offset="0%" stop-color="#10243f"/>
+ <stop offset="100%" stop-color="#081628"/>
+ </linearGradient>
+ <linearGradient id="nHillNear" x1="0" y1="0" x2="0" y2="1">
+ <stop offset="0%" stop-color="#0a1a30"/>
+ <stop offset="100%" stop-color="#040c1a"/>
+ </linearGradient>
+ </defs>
+
+ <rect width="1920" height="1080" fill="url(#nightSky)"/>
+ <rect width="1920" height="1080" fill="url(#moonGlow)"/>
+
+ <!-- Star field (varied size+opacity for parallax illusion) -->
+ <g fill="#f8fafc">
+ <circle cx="80" cy="100" r="1.2" opacity="0.85"/>
+ <circle cx="222" cy="58" r="1.5" opacity="0.7"/>
+ <circle cx="354" cy="178" r="1.0" opacity="0.9"/>
+ <circle cx="500" cy="92" r="1.3" opacity="0.78"/>
+ <circle cx="682" cy="148" r="1.1" opacity="0.85"/>
+ <circle cx="824" cy="48" r="1.6" opacity="0.82"/>
+ <circle cx="970" cy="122" r="1.0" opacity="0.7"/>
+ <circle cx="1102" cy="202" r="1.4" opacity="0.85"/>
+ <circle cx="1262" cy="78" r="1.1" opacity="0.78"/>
+ <circle cx="1418" cy="338" r="1.3" opacity="0.65"/>
+ <circle cx="1500" cy="40" r="1.0" opacity="0.9"/>
+ <circle cx="1800" cy="298" r="1.5" opacity="0.7"/>
+ <circle cx="1898" cy="120" r="1.2" opacity="0.82"/>
+ <circle cx="142" cy="302" r="1.0" opacity="0.7"/>
+ <circle cx="282" cy="430" r="1.3" opacity="0.6"/>
+ <circle cx="452" cy="380" r="1.0" opacity="0.74"/>
+ <circle cx="602" cy="500" r="1.4" opacity="0.65"/>
+ <circle cx="782" cy="378" r="1.0" opacity="0.7"/>
+ <circle cx="1182" cy="472" r="1.2" opacity="0.62"/>
+ <circle cx="1342" cy="540" r="1.1" opacity="0.55"/>
+ <circle cx="1652" cy="600" r="1.0" opacity="0.55"/>
+ <circle cx="42" cy="498" r="0.9" opacity="0.6"/>
+ <circle cx="182" cy="650" r="1.1" opacity="0.52"/>
+ <circle cx="402" cy="240" r="0.9" opacity="0.7"/>
+ <circle cx="568" cy="320" r="1.0" opacity="0.65"/>
+ <circle cx="744" cy="280" r="1.2" opacity="0.7"/>
+ <circle cx="888" cy="240" r="0.9" opacity="0.6"/>
+ <circle cx="1050" cy="380" r="1.1" opacity="0.7"/>
+ <circle cx="1208" cy="340" r="1.0" opacity="0.65"/>
+ <circle cx="1372" cy="190" r="1.3" opacity="0.75"/>
+ <circle cx="1538" cy="280" r="0.9" opacity="0.6"/>
+
+ <!-- Brighter stars (a few standouts) -->
+ <circle cx="300" cy="112" r="2.0" opacity="0.95"/>
+ <circle cx="732" cy="220" r="1.8" opacity="0.9"/>
+ <circle cx="1200" cy="248" r="2.1" opacity="0.85"/>
+ <circle cx="486" cy="552" r="1.6" opacity="0.7"/>
+ <circle cx="1492" cy="448" r="1.9" opacity="0.78"/>
+ </g>
+
+ <!-- Moon (crescent: silver disc with shadow circle) -->
+ <circle cx="1640" cy="172" r="56" fill="url(#moonBody)" opacity="0.95"/>
+ <circle cx="1672" cy="160" r="48" fill="#142640" opacity="0.62"/>
+
+ <!-- Hills (far to near, dark silhouettes) -->
+ <path d="M-50,742 C300,672 600,712 920,702 C1200,694 1500,720 1980,688 L1980,1080 L-50,1080 Z"
+ fill="url(#nHillFar)" opacity="0.85"/>
+ <path d="M-50,830 C260,772 580,800 880,810 C1180,820 1500,792 1980,810 L1980,1080 L-50,1080 Z"
+ fill="url(#nHillMid)" opacity="0.9"/>
+ <path d="M-50,915 C220,870 500,880 800,905 C1100,930 1450,900 1980,920 L1980,1080 L-50,1080 Z"
+ fill="url(#nHillNear)" opacity="0.95"/>
+
+ <!-- Sparse indigo clouds -->
+ <g opacity="0.5">
+ <g fill="#6366f1">
+ <ellipse cx="280" cy="284" rx="88" ry="18"/>
+ <ellipse cx="220" cy="278" rx="48" ry="14"/>
+ </g>
+ <g fill="#4f46e5" opacity="0.6">
+ <ellipse cx="1282" cy="424" rx="78" ry="18"/>
+ <ellipse cx="1342" cy="416" rx="48" ry="14"/>
+ </g>
+ </g>
+
+ <!-- Grass strip + tufts -->
+ <rect x="0" y="1042" width="1920" height="38" fill="#0a1f15" opacity="0.7"/>
+
+ <g fill="#13422a" opacity="0.95">
+ <path d="M40,1080 L42,1048 L37,1048 Z"/>
+ <path d="M48,1080 L51,1054 L44,1054 Z"/>
+ <path d="M152,1080 L154,1044 L148,1044 Z"/>
+ <path d="M160,1080 L163,1052 L156,1052 Z"/>
+ <path d="M276,1080 L278,1050 L272,1050 Z"/>
+ <path d="M308,1080 L310,1046 L304,1046 Z"/>
+ <path d="M422,1080 L424,1043 L418,1043 Z"/>
+ <path d="M448,1080 L452,1052 L444,1052 Z"/>
+ <path d="M572,1080 L574,1048 L568,1048 Z"/>
+ <path d="M608,1080 L611,1054 L604,1054 Z"/>
+ <path d="M734,1080 L736,1046 L730,1046 Z"/>
+ <path d="M778,1080 L780,1050 L774,1050 Z"/>
+ <path d="M892,1080 L894,1044 L888,1044 Z"/>
+ <path d="M922,1080 L925,1054 L918,1054 Z"/>
+ <path d="M1044,1080 L1046,1048 L1040,1048 Z"/>
+ <path d="M1082,1080 L1084,1046 L1078,1046 Z"/>
+ <path d="M1198,1080 L1200,1050 L1194,1050 Z"/>
+ <path d="M1238,1080 L1241,1052 L1234,1052 Z"/>
+ <path d="M1358,1080 L1360,1044 L1354,1044 Z"/>
+ <path d="M1392,1080 L1394,1050 L1388,1050 Z"/>
+ <path d="M1512,1080 L1514,1046 L1508,1046 Z"/>
+ <path d="M1548,1080 L1551,1054 L1544,1054 Z"/>
+ <path d="M1672,1080 L1674,1048 L1668,1048 Z"/>
+ <path d="M1712,1080 L1714,1052 L1708,1052 Z"/>
+ <path d="M1828,1080 L1830,1044 L1824,1044 Z"/>
+ <path d="M1872,1080 L1874,1050 L1868,1050 Z"/>
+ </g>
+</svg>

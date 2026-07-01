@@ -1,0 +1,519 @@
+/* Lesson reader chrome */
+.arborito-lesson-aside {
+    box-shadow: var(--arborito-theme-aside-shadow) !important;
+}
+
+/* --- Mobile lesson sheet (full-bleed reader, node content) --- */
+/* No ghost top inset line competing with the touch topbar */
+.arborito-lesson-sheet.arborito-lesson-aside {
+    box-shadow: -32px 0 96px -24px rgb(15 23 42 / 0.2) !important;
+    border-left: 1px solid rgb(226 232 240 / 0.85) !important;
+    border-radius: 0 !important;
+}
+
+.arborito-lesson-mobile-head {
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    /* El aside fijo va a z 120 para quedar bajo el host de modales (125). */
+    z-index: 130;
+    padding: calc(0.35rem + env(safe-area-inset-top, 0px)) 1rem 0.65rem;
+    background: var(--arborito-theme-sheet-hero-bg);
+    border-bottom: 1px solid var(--arborito-theme-sheet-hero-border);
+}
+
+html:not(.arborito-desktop) .arborito-lesson-mobile-head {
+    padding: calc(0.2rem + env(safe-area-inset-top, 0px)) 0.65rem 0.35rem;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-head-main {
+    gap: 0.3rem;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-head-stack {
+    gap: 0;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-mobile-toolbar--unified {
+    display: flex;
+    align-items: center;
+    gap: 0.28rem;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-mobile-titleblock .arborito-lesson-header-desc-input {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-mobile-titleblock .arborito-lesson-meta-hit {
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-mobile-toolbar--unified .arborito-lesson-mobile-titleblock {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-mobile-toolbar--read .arborito-lesson-mobile-titleblock,
+html:not(.arborito-desktop) .arborito-lesson-mobile-toolbar--construct .arborito-lesson-mobile-titleblock {
+    align-items: flex-start;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-mobile-toolbar--unified .arborito-lesson-emoji,
+html:not(.arborito-desktop) .arborito-lesson-mobile-toolbar--unified .arborito-emoji-glyph {
+    font-size: 1rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-mobile-title {
+    font-size: 0.875rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin: 0;
+    color: var(--arborito-theme-learning-arborito-lesson-mobile-titleblock-color);
+}
+
+html:not(.arborito-desktop) .arborito-lesson-tools-inline {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.28rem;
+    flex: 0 0 auto;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-tools-inline .arborito-lesson-mtool--compact,
+html:not(.arborito-desktop) .arborito-lesson-tools-inline .arborito-lesson-toc-pill {
+    width: 2.5rem;
+    height: 2.5rem;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-tools-inline .arborito-lesson-toc-pill {
+    margin-left: 0.1rem;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-tools-inline .arborito-lesson-toc-pill svg,
+html:not(.arborito-desktop) .arborito-lesson-tools-inline .arborito-lesson-mtool--compact svg,
+html:not(.arborito-desktop) .arborito-lesson-tools-inline .arborito-lesson-mtool--compact .w-5,
+html:not(.arborito-desktop) .arborito-lesson-tools-inline .arborito-lesson-read-btn .arborito-read-btn__icon-slot,
+html:not(.arborito-desktop) .arborito-lesson-tools-inline .arborito-lesson-read-btn .arborito-read-btn__icon {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-tools-inline .arborito-lesson-mtool--sage .arborito-emoji-img,
+html:not(.arborito-desktop) .arborito-lesson-tools-inline .arborito-lesson-mtool--sage .arborito-emoji-glyph {
+    width: 1rem !important;
+    height: 1rem !important;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-mobile-toolbar--unified .arborito-mmenu-back {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.15rem;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-progress-slim {
+    margin: 0.15rem 0.5rem 0.2rem;
+    height: 0.14rem;
+}
+.arborito-lesson-mobile-grab {
+    width: 2.5rem;
+    height: 0.28rem;
+    border-radius: 9999px;
+    background: var(--arborito-theme-learning-arborito-lesson-mobile-grab-background);
+    margin: 0 auto 0.65rem;
+}
+
+.arborito-lesson-mobile-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.arborito-lesson-mobile-titleblock {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.arborito-lesson-mobile-titleblock .arborito-lesson-emoji {
+    font-size: 1.35rem;
+    line-height: 1.2;
+    flex-shrink: 0;
+}
+.arborito-lesson-mobile-titleblock h1 {
+    font-size: 1.0625rem;
+    font-weight: 850;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+    color: var(--arborito-theme-learning-arborito-lesson-mobile-titleblock-color);
+    margin: 0;
+}
+.arborito-lesson-mobile-titleblock .arborito-lesson-meta-hit .arborito-lesson-meta-title {
+    font-size: 1.0625rem;
+    font-weight: 850;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+    color: var(--arborito-theme-learning-arborito-lesson-meta-title-color);
+    margin: 0;
+}
+
+/* Construction mode: name and @description editable in header */
+.arborito-lesson-mobile-titleblock .arborito-lesson-header-title-input,
+.arborito-lesson-mobile-titleblock .arborito-lesson-header-desc-input {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0.25rem;
+    outline: none;
+    box-shadow: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.arborito-lesson-mobile-titleblock .arborito-lesson-header-title-input:focus,
+.arborito-lesson-mobile-titleblock .arborito-lesson-header-desc-input:focus {
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35);
+}
+.arborito-lesson-mobile-titleblock .arborito-lesson-header-title-input {
+    font-size: 1.0625rem;
+    font-weight: 850;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+    color: var(--arborito-theme-learning-arborito-lesson-header-title-input-color);
+}
+.arborito-lesson-mobile-titleblock .arborito-lesson-header-desc-input {
+    font-size: 0.8125rem;
+    font-weight: 650;
+    color: var(--arborito-theme-learning-arborito-lesson-header-desc-input-color);
+}
+
+.arborito-lesson-mobile-titleblock .arborito-lesson-header-desc-input::placeholder {
+    color: var(--slate-400);
+    opacity: 0.75;
+}
+
+.arborito-lesson-emoji-wrap {
+    position: relative;
+}
+.arborito-lesson-emoji-picker {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 60;
+    width: 17rem;
+    max-width: min(17rem, 85vw);
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    border: var(--arborito-theme-learning-arborito-lesson-emoji-picker-border);
+    background: var(--arborito-theme-learning-arborito-lesson-emoji-picker-background);
+    box-shadow: var(--arborito-theme-learning-arborito-lesson-emoji-picker-box-shadow);
+}
+
+.arborito-lesson-emoji-picker__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.btn-lesson-header-emoji {
+    width: 2rem;
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    font-size: 1.125rem;
+    line-height: 1;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    -webkit-tap-highlight-color: transparent;
+}
+.btn-lesson-header-emoji:hover {
+    background: var(--arborito-theme-learning-btn-lesson-header-emoji-background);
+}
+.arborito-lesson-mobile-breadcrumb {
+    font-size: 0.625rem;
+    font-weight: 650;
+    letter-spacing: 0.02em;
+    color: var(--arborito-theme-learning-arborito-lesson-mobile-breadcrumb-color);
+    margin-top: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.arborito-lesson-toc-pill {
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.75rem;
+    border: var(--arborito-theme-learning-arborito-lesson-toc-pill-border);
+    background: var(--arborito-theme-learning-arborito-lesson-toc-pill-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--arborito-theme-learning-arborito-lesson-toc-pill-color);
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.arborito-lesson-toc-pill.is-active {
+    color: var(--arborito-theme-mob-tab-active-fg);
+    background: var(--arborito-theme-mob-tab-active-bg);
+    border-color: transparent;
+}
+
+.arborito-lesson-toc-pill:active {
+    transform: scale(0.94);
+}
+
+.arborito-lesson-head-main {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    width: 100%;
+    min-width: 0;
+}
+
+.arborito-lesson-head-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.arborito-lesson-head-primary {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.arborito-lesson-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    width: 100%;
+    max-width: 100%;
+    padding-bottom: 0.15rem;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Ensure TOC collapse is handled keeping it in DOM for JS interactions */
+.arborito-lesson-toc-sheet.is-collapsed {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    height: 0;
+    overflow: hidden;
+}
+
+/* Mobile / non-desktop view: TOC (hamburger) on the far right */
+html:not(.arborito-desktop) .arborito-lesson-actions:not(.arborito-lesson-actions--construct) {
+    justify-content: flex-end;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-actions:not(.arborito-lesson-actions--construct) .arborito-lesson-toc-pill {
+    margin-left: 0.15rem;
+    flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+    .arborito-lesson-head-main {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.75rem 1rem;
+    }
+
+    .arborito-lesson-actions {
+        width: auto;
+        max-width: min(32rem, 52vw);
+        flex: 0 0 auto;
+        align-content: flex-start;
+    }
+
+    .arborito-lesson-actions.arborito-lesson-actions--construct-compact {
+        max-width: 100%;
+        flex-wrap: nowrap;
+    }
+}
+
+html.arborito-desktop .arborito-lesson-head-main {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.85rem 1.25rem;
+}
+
+html.arborito-desktop .arborito-lesson-mobile-toolbar {
+    display: none;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-desktop-head {
+    display: none;
+}
+
+html.arborito-desktop .arborito-lesson-desktop-head {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    padding-right: 0.15rem;
+}
+
+html.arborito-desktop .arborito-lesson-head-main.arborito-lesson-head-main--with-close {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    column-gap: 0.85rem;
+    row-gap: 0.65rem;
+}
+
+/* Action bar and close: same header row, left of the × button */
+.arborito-lesson-head-trail {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    min-width: 0;
+    max-width: min(100vw - 2rem, 56rem);
+}
+
+html.arborito-desktop .arborito-lesson-head-trail {
+    align-self: start;
+    padding-top: 0.1rem;
+}
+
+html.arborito-desktop .arborito-lesson-head-main--with-close .arborito-lesson-head-stack {
+    min-width: 0;
+}
+
+/* Editor ribbon (construction): width follows content; right column groups toolbar + × */
+html.arborito-desktop .arborito-lesson-head-main--with-close .arborito-lesson-toolbar-inner {
+    min-width: 0;
+    width: max-content;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Construction toolbar: do not span the full header width */
+html.arborito-desktop .arborito-lesson-actions--construct,
+html.arborito-desktop .arborito-lesson-actions.arborito-lesson-actions--construct-compact {
+    max-width: 100%;
+    width: fit-content;
+    flex-wrap: nowrap;
+    align-self: flex-start;
+}
+
+/* Barra de lectura (PDF, marcador…): agrupada, sin estirar la cabecera */
+html.arborito-desktop .arborito-lesson-actions:not(.arborito-lesson-actions--construct) {
+    max-width: 100%;
+    width: fit-content;
+    align-self: flex-start;
+}
+
+/* × button like Arcade modals (semi-transparent dark circle, independent of #modal-backdrop) */
+.arborito-lesson-aside .arborito-lesson-head-close.arborito-modal-window-x {
+    box-sizing: border-box;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    min-width: 2.75rem !important;
+    min-height: 2.75rem !important;
+    padding: 0 !important;
+    border-radius: 9999px !important;
+    border: 1px solid rgb(255 255 255 / 0.35) !important;
+    background: rgb(0 0 0 / 0.22) !important;
+    color: rgb(248 250 252) !important;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.arborito-lesson-aside .arborito-lesson-head-close.arborito-modal-window-x:hover {
+    border-color: rgb(255 255 255 / 0.5) !important;
+    background: rgb(0 0 0 / 0.35) !important;
+}
+
+/* Sage guide body: let hub fill panels expand; no artificial min-height gap on mobile. */
+:is(html.arborito-shell-mobile .arborito-sage-body--guide, html.force-mobile .arborito-sage-body--guide) {
+    min-height: 0;
+}
+
+:is(html.arborito-shell-mobile .sage-guide-drill-mount, html.force-mobile .sage-guide-drill-mount) {
+    min-height: 0;
+}
+
+:is(html.arborito-shell-mobile .sage-guide-stage, html.force-mobile .sage-guide-stage) {
+    min-height: 0;
+}
+
+@keyframes quiz-recall-pulse {
+    0% { opacity: 0; transform: scale(0.92); }
+    40% { opacity: 1; transform: scale(1.02); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.quiz-recall-result__pulse {
+    animation: quiz-recall-pulse 0.45s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+    .quiz-recall-result__pulse { animation: none; }
+}
+
+.arborito-quiz-edit--dragging {
+    opacity: 0.88;
+    outline: 2px dashed rgb(99 102 241 / 0.75);
+    outline-offset: 2px;
+}
+
+.arborito-lesson-arcade-hint-btn--idle .arborito-lesson-arcade-hint-btn__glyph {
+    filter: grayscale(1);
+    opacity: 0.55;
+}
+
+.arborito-lesson-arcade-hint-btn--ready .arborito-lesson-arcade-hint-btn__glyph {
+    filter: none;
+    opacity: 1;
+    text-shadow: 0 0 0.35rem rgb(52 211 153 / 0.5);
+}
+
+.arborito-lesson-arcade-hint-btn--ready {
+    border-color: rgb(16 185 129 / 0.45) !important;
+    background: rgb(16 185 129 / 0.12) !important;
+}
+
+@media (max-width: 767px) {
+    .arborito-lesson-aside .arborito-lesson-head-close.arborito-modal-window-x {
+        display: inline-flex !important;
+    }
+}
+
+

@@ -1,0 +1,63 @@
+# Static checks — file size cap, dead-code scan, locale keys.
+name: Arborito Quality
+
+on:
+  push:
+    paths:
+      - "src/**"
+      - "scripts/**"
+      - "electron-*.js"
+      - "electron-*.cjs"
+      - "preload.js"
+      - "package.json"
+      - "vite.config.mjs"
+      - "index.html"
+      - "package-lock.json"
+      - "knip.config.js"
+      - "locales/**"
+      - ".github/workflows/arborito-quality.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "scripts/**"
+      - "electron-*.js"
+      - "electron-*.cjs"
+      - "preload.js"
+      - "package.json"
+      - "vite.config.mjs"
+      - "index.html"
+      - "package-lock.json"
+      - "knip.config.js"
+      - "locales/**"
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install
+        run: |
+          npm ci --no-audit --no-fund --prefer-offline \
+            || (echo "::warning::package-lock.json drift; falling back to npm install" \
+                && npm install --no-audit --no-fund --prefer-offline)
+      - name: React architecture checks
+        run: npm run check:migration
+      - name: Production build
+        run: npm run build
+      - name: Max file line count
+        run: npm run check:max-lines
+      - name: CSS selector debt
+        run: npm run check:css-debt
+      - name: Modal standards compliance
+        run: npm run check:modal-compliance
+      - name: Knip
+        run: npm run knip
+      - name: Locale keys
+        run: npm run locales:validate
+      - name: Directory trigram regression
+        run: npm run test:directory-trigram

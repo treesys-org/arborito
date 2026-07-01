@@ -1,0 +1,75 @@
+/*
+ * Biblioteca / connected-service filter chips — React in Sources panel
+ */
+
+.arborito-filter-chip {
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.025em;
+    border-width: 1px;
+    border-style: solid;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.arborito-filter-chip--idle {
+    background: var(--arborito-theme-filter-chip-idle-bg);
+    color: var(--arborito-theme-filter-chip-idle-fg);
+    border-color: var(--arborito-theme-filter-chip-idle-border);
+}
+
+.arborito-filter-chip--idle:hover {
+    background: var(--arborito-theme-filter-chip-idle-hover-bg);
+}
+
+.arborito-filter-chip--active.arborito-filter-chip--neutral {
+    background: var(--arborito-theme-filter-chip-neutral-active-bg);
+    color: var(--arborito-theme-filter-chip-neutral-active-fg);
+    border-color: var(--arborito-theme-filter-chip-neutral-active-border);
+}
+
+.arborito-filter-chip--active.arborito-filter-chip--online {
+    background: var(--arborito-theme-online-accent);
+    color: rgb(255 255 255);
+    border-color: var(--arborito-theme-online-accent);
+}
+
+html.dark .arborito-filter-chip--active.arborito-filter-chip--online {
+    color: rgb(15 23 42);
+}
+
+.arborito-filter-chip--active.arborito-filter-chip--trees {
+    background: var(--arborito-theme-trees-accent);
+    color: rgb(255 255 255);
+    border-color: var(--arborito-theme-trees-accent);
+}
+
+html.dark .arborito-filter-chip--active.arborito-filter-chip--trees {
+    color: rgb(15 23 42);
+}
+
+.arborito-filter-chip--active.arborito-filter-chip--lang {
+    background: var(--arborito-theme-cloud-accent);
+    color: rgb(255 255 255);
+    border-color: var(--arborito-theme-cloud-accent);
+}
+
+html.dark .arborito-filter-chip--active.arborito-filter-chip--lang {
+    color: rgb(15 23 42);
+}
+
+.arborito-connected-banner {
+    padding: 0.75rem;
+    border-radius: 1rem;
+    border: 1px solid var(--arborito-theme-trees-surface-border);
+    background: var(--arborito-theme-trees-surface);
+    font-size: 0.6875rem;
+}
+
+.arborito-connected-banner__title {
+    margin: 0;
+    font-weight: 700;
+    color: var(--arborito-theme-trees-fg);
+}

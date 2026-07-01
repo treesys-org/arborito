@@ -1,0 +1,8 @@
+{
+  "welcomeAccountEnabledToast": "Account connected. Sync enabled.",
+  "welcomeCloudSyncBodyShort": "When on, progress can follow you to another computer or phone on the same browser profile; data is encrypted in transit. When off, everything stays only on this device.",
+  "welcomeCloudSyncOffRisk": "With sync off, if you clear browser data or change devices without exporting a backup from Profile, you may lose local progress.",
+  "welcomeCloudSyncOnLabel": "On",
+  "welcomeCloudSyncTitle": "Optional sync",
+  "welcomeEnterGardenLicenseReminder": "All shared trees are free to reuse (CC BY-SA 4.0)."
+}

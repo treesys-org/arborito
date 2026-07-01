@@ -1,0 +1,8 @@
+{
+  "welcomeAccountEnabledToast": "Cuenta conectada. Sincronización activada.",
+  "welcomeCloudSyncBodyShort": "Si lo activas, tu progreso puede seguirte en otra computadora o celular con la misma cuenta de navegador; los datos viajan cifrados. Si lo dejas apagado, todo queda solo en este dispositivo.",
+  "welcomeCloudSyncOffRisk": "Con la sincronización apagada, si borras datos del navegador o cambias de equipo sin exportar una copia desde Perfil, puedes perder el progreso local.",
+  "welcomeCloudSyncOnLabel": "Activada",
+  "welcomeCloudSyncTitle": "Sync opcional",
+  "welcomeEnterGardenLicenseReminder": "Todos los árboles son libres (CC BY-SA 4.0)."
+}

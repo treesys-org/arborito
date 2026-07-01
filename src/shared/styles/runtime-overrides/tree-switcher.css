@@ -1,0 +1,833 @@
+/* --- tree-switcher --- */
+/* --- Tree switcher overlay (graph chrome) --- */
+.arborito-version-control-stack {
+  width: 100%;
+}
+
+.arborito-curriculum-switcher-host {
+  width: 100%;
+  position: relative;
+}
+
+.arborito-curriculum-switcher-scroll {
+  padding: 0.9rem;
+  overflow: auto;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.arborito-curriculum-switcher-divider {
+    height: 1px;
+    background: var(--arborito-theme-curriculum-arborito-curriculum-switcher-divider-background);
+}
+
+.arborito-curriculum-switcher-block__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.arborito-curriculum-switcher-block__title {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 950;
+    color: var(--arborito-theme-curriculum-arborito-curriculum-switcher-block__titl-color);
+}
+.arborito-curriculum-switcher-block__sub {
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: var(--arborito-theme-curriculum-arborito-curriculum-switcher-block__sub-color);
+}
+
+.arborito-curriculum-switcher-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.arborito-curriculum-switcher-row {
+    width: 100%;
+    min-height: 2.5rem;
+    border-radius: 1rem;
+    border: var(--arborito-theme-curriculum-arborito-curriculum-switcher-row-border);
+    background: var(--arborito-theme-curriculum-arborito-curriculum-switcher-row-background);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.55rem 0.75rem;
+    font-weight: 900;
+    color: var(--arborito-theme-curriculum-arborito-curriculum-switcher-row-color);
+    text-align: left;
+}
+.arborito-curriculum-switcher-row.is-active {
+  border-color: rgba(59, 130, 246, 0.55);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.25);
+}
+.arborito-curriculum-switcher-row__left {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+.arborito-curriculum-switcher-row__left span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.arborito-curriculum-switcher-row__right {
+  flex: 0 0 auto;
+  opacity: 0.9;
+}
+.arborito-curriculum-switcher-hint {
+    margin-top: 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--arborito-theme-curriculum-arborito-curriculum-switcher-hint-color);
+}
+.arborito-curriculum-switcher-empty {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--arborito-theme-curriculum-arborito-curriculum-switcher-empty-color);
+    padding: 0.65rem 0.75rem;
+    border-radius: 1rem;
+    border: var(--arborito-theme-curriculum-arborito-curriculum-switcher-empty-border);
+}
+.arborito-curriculum-switcher-action {
+    width: 100%;
+    min-height: 2.75rem;
+    border-radius: 1rem;
+    border: var(--arborito-theme-curriculum-arborito-curriculum-switcher-action-border);
+    background: var(--arborito-theme-curriculum-arborito-curriculum-switcher-action-background);
+    color: var(--arborito-theme-curriculum-arborito-curriculum-switcher-action-color);
+    font-weight: 950;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+}
+
+.arborito-curriculum-switcher-snap-create {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+}
+.arborito-curriculum-switcher-snap-label {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: var(--arborito-theme-curriculum-arborito-curriculum-switcher-snap-label-color);
+}
+.arborito-curriculum-switcher-snap-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.arborito-curriculum-switcher-snap-row input {
+    flex: 1 1 auto;
+    height: 2.5rem;
+    padding: 0 0.85rem;
+    border-radius: 0.9rem;
+    border: var(--arborito-theme-curriculum-arborito-curriculum-switcher-snap-row-border);
+    background: var(--arborito-theme-curriculum-arborito-curriculum-switcher-snap-row-background);
+    color: var(--arborito-theme-curriculum-arborito-curriculum-switcher-snap-row-color);
+    outline: none;
+    font-weight: 800;
+    font-family: var(--font-family-mono);
+}
+.arborito-curriculum-switcher-snap-row button {
+    flex: 0 0 auto;
+    height: 2.5rem;
+    padding: 0 1rem;
+    border-radius: 0.9rem;
+    border: var(--arborito-theme-curriculum-arborito-curriculum-switcher-snap-row-border-2);
+    background: var(--arborito-theme-curriculum-arborito-curriculum-switcher-snap-row-background-2);
+    color: var(--arborito-theme-curriculum-arborito-curriculum-switcher-snap-row-color-2);
+    font-weight: 950;
+}
+.arborito-curriculum-switcher-snap-row button:disabled,
+.arborito-curriculum-switcher-snap-row input:disabled {
+  opacity: 0.65;
+}
+.arborito-curriculum-switcher-snap-del {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.9rem;
+    border: var(--arborito-theme-curriculum-arborito-curriculum-switcher-snap-del-border);
+    background: transparent;
+    color: var(--arborito-theme-curriculum-arborito-curriculum-switcher-snap-del-color);
+    font-weight: 900;
+}
+.arborito-curriculum-switcher-snap-del:hover {
+    color: rgba(220, 38, 38, 1);
+    background: var(--arborito-theme-curriculum-arborito-curriculum-switcher-action-background);
+    border-color: rgba(220, 38, 38, 0.25);
+}
+
+.arborito-tree-switcher-host {
+  width: 100%;
+}
+.arborito-tree-switcher-host--chip {
+  /* Chip trigger is full-width; keep overlays above version timeline popover (z~135). */
+  position: relative;
+  z-index: 1;
+}
+.arborito-tree-switcher-btn {
+    max-width: min(18rem, 56vw);
+    height: 2.25rem;
+    border-radius: 0.9rem;
+    border: var(--arborito-theme-switcher-arborito-tree-switcher-btn-border);
+    background: var(--arborito-theme-switcher-arborito-tree-switcher-btn-background);
+    color: var(--arborito-theme-switcher-arborito-tree-switcher-btn-color);
+    font-weight: 800;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0 0.75rem;
+    flex: 0 0 auto;
+}
+.arborito-tree-switcher-btn__name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: var(--arborito-theme-switcher-arborito-tree-switcher-btn__name-color);
+}
+.arborito-tree-switcher-btn__chev {
+  opacity: 0.85;
+  font-weight: 1000;
+}
+
+.arborito-tree-switcher-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 180;
+  background: rgba(2, 6, 23, 0.86);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+.arborito-tree-switcher-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.arborito-tree-switcher-panel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: min(420px, 92vw);
+    z-index: 185;
+    background: var(--arborito-theme-switcher-arborito-tree-switcher-panel-background);
+    border-left: var(--arborito-theme-switcher-arborito-tree-switcher-panel-border-left);
+    box-shadow: var(--arborito-theme-switcher-arborito-tree-switcher-panel-box-shadow);
+    transform: translateX(104%);
+    opacity: 0.98;
+    transition: transform 200ms ease, opacity 200ms ease;
+    display: flex;
+    flex-direction: column;
+}
+/* Differentiate tree name vs Local line */
+.arborito-curriculum-switcher-chip .arborito-chip-tree-line {
+  color: var(--arborito-theme-chip-tree-line);
+}
+.arborito-curriculum-switcher-chip .arborito-chip-version-line--local {
+    color: var(--arborito-theme-switcher-arborito-chip-version-line--local-color);
+}
+
+/* Tree / curriculum switcher chip typography (replaces tiny Tailwind text-* on trigger) */
+.arborito-switcher-chip-eyebrow,
+.arborito-switcher-chip-title,
+.arborito-switcher-chip-sub {
+  display: block;
+}
+.arborito-switcher-chip-eyebrow {
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  color: rgb(100 116 139);
+}
+.arborito-tree-switcher-chip .arborito-switcher-chip-title {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--arborito-theme-switcher-arborito-switcher-chip-title-color);
+}
+.arborito-tree-switcher-chip .arborito-switcher-chip-sub {
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--arborito-theme-switcher-arborito-switcher-chip-sub-color);
+}
+.arborito-curriculum-switcher-chip .arborito-switcher-chip-title {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.arborito-curriculum-switcher-chip .arborito-switcher-chip-sub {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.arborito-switcher-chip-chev {
+    font-size: 0.75rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--arborito-theme-switcher-arborito-switcher-chip-chev-color);
+}
+
+/* Tappable “Switch tree or version” affordance on the curriculum chip */
+.arborito-curriculum-switcher-chip {
+    border-color: var(--arborito-theme-switcher-arborito-curriculum-switcher-chip-border-color);
+    background: var(--arborito-theme-switcher-arborito-curriculum-switcher-chip-background);
+    font-family: var(--font-family-base, ui-sans-serif, system-ui, sans-serif);
+}
+button.arborito-curriculum-switcher-chip {
+  appearance: none;
+  cursor: pointer;
+  margin: 0;
+  color: inherit;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+button.arborito-curriculum-switcher-chip:hover:not(:disabled) {
+  border-color: rgba(16, 185, 129, 0.45) !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+button.arborito-curriculum-switcher-chip:active:not(:disabled) {
+  transform: scale(0.98);
+}
+button.arborito-curriculum-switcher-chip:disabled {
+  cursor: wait;
+}
+.arborito-curriculum-switcher-chip .arborito-switcher-chip-title {
+  font-weight: 700;
+}
+.arborito-switcher-chip-author {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--arborito-theme-switcher-arborito-switcher-chip-author-color);
+}
+.arborito-curriculum-switcher-host--loading .arborito-curriculum-switcher-chip {
+  opacity: 0.88;
+}
+.arborito-curriculum-switcher-host__loading {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 1rem;
+    background: var(--arborito-theme-switcher-arborito-curriculum-switcher-host__loadi-background);
+    color: var(--arborito-theme-switcher-arborito-curriculum-switcher-host__loadi-color);
+    font-size: 0.75rem;
+    font-weight: 800;
+    pointer-events: none;
+}
+button.arborito-switcher-chip-action {
+    appearance: none;
+    cursor: pointer;
+    border: var(--arborito-theme-switcher-arborito-switcher-chip-action-border);
+    background: var(--arborito-theme-switcher-arborito-switcher-chip-action-background);
+    color: var(--arborito-theme-switcher-arborito-switcher-chip-action-color);
+}
+button.arborito-switcher-chip-action:disabled {
+  cursor: wait;
+  opacity: 0.85;
+}
+button.arborito-switcher-chip-action,
+.arborito-switcher-chip-action {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 5.75rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.arborito-switcher-chip-action-label {
+  font-size: inherit;
+  font-weight: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+  line-height: inherit;
+  text-align: center;
+}
+
+/* Hide the horizontal scroll indicator line under the chip row */
+#arborito-curriculum-chrome,
+.arborito-mobile-curriculum-chrome,
+#arborito-mobile-version-fixed {
+  overflow-x: hidden !important;
+  scrollbar-width: none;
+}
+#arborito-curriculum-chrome::-webkit-scrollbar,
+.arborito-mobile-curriculum-chrome::-webkit-scrollbar,
+#arborito-mobile-version-fixed::-webkit-scrollbar {
+  display: none;
+}
+
+/* Version filter spacing: avoid sticking to first row */
+#arborito-curriculum-switcher-version-block .arborito-tree-switcher-search-row {
+  margin-top: 0.65rem;
+  margin-bottom: 0.7rem;
+}
+#arborito-curriculum-switcher-snapshots-admin .arborito-tree-switcher-search-row {
+  margin-top: 0.65rem;
+  margin-bottom: 0.7rem;
+}
+.arborito-tree-switcher-panel.is-open {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.arborito-tree-switcher-head {
+  padding: 0.9rem 0.9rem 0.6rem 0.9rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+/* Standard dock hero (← title) — same row as Search / Arcade */
+.arborito-tree-switcher-head:has(> .arborito-dock-modal-hero) {
+  padding: 0;
+  border-bottom: 0;
+}
+.arborito-tree-switcher-head > .arborito-dock-modal-hero {
+    border-bottom: var(--arborito-theme-switcher-arborito-dock-modal-hero-border-bottom);
+}
+.arborito-tree-switcher-head:has(> .arborito-dock-modal-hero) .arborito-curriculum-switcher-tabs,
+.arborito-tree-switcher-head:has(> .arborito-dock-modal-hero) .arborito-tree-switcher-search-row {
+  margin-left: max(0.9rem, env(safe-area-inset-left, 0px));
+  margin-right: max(0.9rem, env(safe-area-inset-right, 0px));
+}
+.arborito-tree-switcher-head:has(> .arborito-dock-modal-hero) .arborito-curriculum-switcher-tabs {
+  margin-top: 0.65rem;
+}
+.arborito-tree-switcher-head:has(> .arborito-dock-modal-hero) .arborito-tree-switcher-search-row {
+  padding-bottom: 0.15rem;
+}
+
+.arborito-tree-switcher-kind-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.5rem;
+  padding: 0 max(0.9rem, env(safe-area-inset-right, 0px)) 0 max(0.9rem, env(safe-area-inset-left, 0px));
+}
+.arborito-tree-switcher-kind-filter button {
+    min-height: 2rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 0.65rem;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    border: var(--arborito-theme-switcher-arborito-tree-switcher-kind-filter-border);
+    background: var(--arborito-theme-switcher-arborito-tree-switcher-kind-filter-background);
+    color: var(--arborito-theme-switcher-arborito-tree-switcher-kind-filter-color);
+}
+.arborito-tree-switcher-kind-filter button.is-active {
+    border-color: var(--arborito-theme-switcher-is-active-border-color);
+    background: var(--arborito-theme-switcher-is-active-background);
+    color: var(--arborito-theme-switcher-is-active-color);
+}
+.arborito-tree-switcher-section {
+    margin: 0.35rem 0 0.25rem;
+    padding: 0 0.15rem;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--arborito-theme-switcher-arborito-tree-switcher-section-color);
+}
+.arborito-tree-switcher-item-branches {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--arborito-theme-switcher-arborito-tree-switcher-item-branches-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.arborito-curriculum-switcher-tabs {
+    margin-top: 0.65rem;
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.25rem;
+    border-radius: 0.95rem;
+    border: var(--arborito-theme-switcher-arborito-curriculum-switcher-tabs-border);
+    background: var(--arborito-theme-switcher-arborito-curriculum-switcher-tabs-background);
+}
+.arborito-curriculum-switcher-tab {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--arborito-theme-switcher-arborito-curriculum-switcher-tab-color);
+    font-weight: 900;
+    font-size: 0.78rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 0.75rem;
+    flex: 1 1 0;
+    min-width: 0;
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease, box-shadow 140ms ease;
+}
+.arborito-curriculum-switcher-tab.is-active {
+    background: var(--arborito-theme-switcher-is-active-background-2);
+    color: var(--arborito-theme-switcher-is-active-color-2);
+    box-shadow: var(--arborito-theme-switcher-is-active-box-shadow);
+}
+
+/* Tab panes: toggle via panel[data-tab] without re-rendering (prevents handler accumulation). */
+.arborito-tree-switcher-panel[data-tab="version"] .arborito-switcher-pane--tree {
+  display: none;
+}
+.arborito-tree-switcher-panel[data-tab="tree"] .arborito-switcher-pane--version {
+  display: none;
+}
+.arborito-tree-switcher-panel[data-tab="version"] .arborito-tree-switcher-footer {
+  display: none;
+}
+.arborito-tree-switcher-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.arborito-tree-switcher-title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: var(--arborito-theme-switcher-arborito-tree-switcher-title-color);
+}
+.arborito-tree-switcher-close {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.9rem;
+    border: var(--arborito-theme-switcher-arborito-tree-switcher-close-border);
+    background: transparent;
+    color: var(--arborito-theme-switcher-arborito-tree-switcher-close-color);
+    font-weight: 900;
+}
+
+.arborito-tree-switcher-search-row {
+  margin-top: 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.arborito-tree-switcher-search {
+    flex: 1 1 auto;
+    height: 2.5rem;
+    padding: 0 0.85rem;
+    border-radius: 0.9rem;
+    border: var(--arborito-theme-switcher-arborito-tree-switcher-search-border);
+    background: var(--arborito-theme-switcher-arborito-tree-switcher-search-background);
+    color: var(--arborito-theme-switcher-arborito-tree-switcher-search-color);
+    outline: none;
+    font-weight: 700;
+}
+.arborito-tree-switcher-loading {
+    font-size: 0.75rem;
+    font-weight: 900;
+    color: var(--arborito-theme-switcher-arborito-tree-switcher-loading-color);
+    white-space: nowrap;
+}
+
+.arborito-tree-switcher-list {
+  padding: 0.9rem;
+  overflow: auto;
+  flex: 1 1 auto;
+}
+.arborito-tree-switcher-footer {
+  padding: 0.75rem 0.9rem calc(0.9rem + env(safe-area-inset-bottom)) 0.9rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  flex-shrink: 0;
+}
+.arborito-tree-switcher-more {
+    width: 100%;
+    min-height: 2.75rem;
+    border-radius: 1rem;
+    border: var(--arborito-theme-switcher-arborito-tree-switcher-more-border);
+    background: var(--arborito-theme-switcher-arborito-tree-switcher-more-background);
+    color: var(--arborito-theme-switcher-arborito-tree-switcher-more-color);
+    font-weight: 950;
+    letter-spacing: -0.01em;
+}
+.arborito-tree-switcher-more:active {
+  transform: translateY(1px);
+}
+.arborito-tree-switcher-list-stack,
+.arborito-tree-switcher-carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  overflow: visible;
+}
+.arborito-tree-switcher-item {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    flex: 0 0 auto;
+    padding: 0.85rem 0.95rem;
+    border-radius: 1rem;
+    border: var(--arborito-theme-switcher-arborito-tree-switcher-item-border);
+    background: var(--arborito-theme-switcher-arborito-tree-switcher-item-background);
+    box-shadow: var(--arborito-theme-switcher-arborito-tree-switcher-item-box-shadow);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.7rem;
+    text-align: left;
+}
+.arborito-tree-switcher-item.is-active {
+  border-color: rgba(16, 185, 129, 0.65);
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35);
+}
+.arborito-tree-switcher-avatar {
+    flex-shrink: 0;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    line-height: 1;
+    border: var(--arborito-theme-switcher-arborito-tree-switcher-avatar-border);
+}
+.arborito-tree-switcher-avatar--local {
+    background: var(--arborito-theme-switcher-arborito-tree-switcher-avatar--local-background);
+    border-color: var(--arborito-theme-switcher-arborito-tree-switcher-avatar--local-border-color);
+}
+.arborito-tree-switcher-avatar--installed {
+    background: var(--arborito-theme-switcher-arborito-tree-switcher-avatar--installed-background);
+    border-color: var(--arborito-theme-switcher-arborito-tree-switcher-avatar--installed-border-color);
+}
+.arborito-tree-switcher-item-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.arborito-tree-switcher-item-check {
+    flex-shrink: 0;
+    font-size: 1.1rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--arborito-theme-switcher-arborito-tree-switcher-item-check-color);
+}
+.arborito-tree-switcher-item-name {
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: var(--arborito-theme-switcher-arborito-tree-switcher-item-name-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+.arborito-tree-switcher-pill {
+    align-self: flex-start;
+    font-size: 0.7rem;
+    font-weight: 900;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    border: var(--arborito-theme-switcher-arborito-tree-switcher-pill-border);
+    color: var(--arborito-theme-switcher-arborito-tree-switcher-pill-color);
+    background: var(--arborito-theme-switcher-arborito-tree-switcher-pill-background);
+}
+.arborito-tree-switcher-pill--local {
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.arborito-tree-switcher-pill--installed {
+  border-color: rgba(59, 130, 246, 0.35);
+}
+.arborito-tree-switcher-pill--frozen {
+    border-color: var(--arborito-theme-switcher-arborito-tree-switcher-pill--frozen-border-color);
+    color: var(--arborito-theme-switcher-arborito-tree-switcher-pill--frozen-color);
+    background: var(--arborito-theme-switcher-arborito-tree-switcher-pill--frozen-background);
+}
+.arborito-tree-switcher-empty {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--arborito-theme-switcher-arborito-tree-switcher-empty-color);
+    padding: 0.75rem;
+    border-radius: 1rem;
+    border: 1px dashed rgba(148, 163, 184, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arborito-tree-switcher-backdrop,
+  .arborito-tree-switcher-panel {
+    transition: none;
+  }
+}
+
+/* Mobile construction: "Version and tree" panel must stay above action bar and not clip at bottom */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .arborito-tree-switcher-backdrop.is-open {
+  bottom: var(--arborito-chrome-dock-gap);
+}
+
+/* --- Mobile shell: tree switcher panel (safe areas, list layout, touch, chip) --- */
+/* Full-screen modal on phone: slide up from bottom (desktop keeps right drawer). */
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-tree-switcher-panel {
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100vw;
+  max-width: 100vw;
+  border-left: none;
+  box-shadow: none;
+  transform: translateY(110%);
+  transition: transform 200ms ease, opacity 200ms ease;
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-tree-switcher-panel.is-open {
+  transform: translateY(0);
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-tree-switcher-head {
+  flex-shrink: 0;
+  background: var(--arborito-modal-surface-gradient-light);
+  padding-top: max(0.6rem, env(safe-area-inset-top, 0px));
+  padding-right: max(0.9rem, env(safe-area-inset-right, 0px));
+  padding-left: max(0.9rem, env(safe-area-inset-left, 0px));
+}
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-tree-switcher-head:has(> .arborito-dock-modal-hero) {
+  background: transparent;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-curriculum-switcher-scroll {
+  padding-right: max(0.9rem, env(safe-area-inset-right, 0px));
+  padding-left: max(0.9rem, env(safe-area-inset-left, 0px));
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-tree-switcher-panel > .arborito-tree-switcher-list {
+  padding-right: max(0.9rem, env(safe-area-inset-right, 0px));
+  padding-left: max(0.9rem, env(safe-area-inset-left, 0px));
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-curriculum-switcher-scroll .arborito-tree-switcher-list {
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0.5rem;
+  padding-bottom: 0.35rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-tree-switcher-footer {
+  padding-right: max(0.9rem, env(safe-area-inset-right, 0px));
+  padding-left: max(0.9rem, env(safe-area-inset-left, 0px));
+  flex-shrink: 0;
+}
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-tree-switcher-more {
+  min-height: 3rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-tree-switcher-close {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  flex-shrink: 0;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-curriculum-switcher-tab {
+  min-height: 2.75rem;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-tree-switcher-search-row {
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-tree-switcher-search-row .arborito-tree-switcher-search {
+  flex: 1 1 12rem;
+  min-width: 0;
+  min-height: 2.75rem;
+  height: auto;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-tree-switcher-search-row .arborito-tree-switcher-loading {
+  flex: 1 1 100%;
+  text-align: center;
+  padding-top: 0.2rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-switcher-chip-eyebrow {
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) :is(
+  .arborito-tree-switcher-chip .arborito-switcher-chip-title,
+  .arborito-curriculum-switcher-chip .arborito-switcher-chip-title
+) {
+  font-size: 0.8125rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) :is(
+  .arborito-tree-switcher-chip .arborito-switcher-chip-sub,
+  .arborito-curriculum-switcher-chip .arborito-switcher-chip-sub
+) {
+  font-size: 0.8125rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-switcher-chip-chev {
+  font-size: 0.8125rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) :is(.arborito-tree-switcher-chip, .arborito-curriculum-switcher-chip) {
+  border-radius: 1rem;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+:is(html:not(.dark).arborito-shell-mobile, html:not(.dark).force-mobile):not(.arborito-desktop) :is(.arborito-tree-switcher-chip, .arborito-curriculum-switcher-chip) {
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.85) inset;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-tree-switcher-btn {
+  max-width: min(20rem, 72vw);
+  min-height: 2.75rem;
+  padding: 0 0.85rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-desktop) .arborito-tree-switcher-btn__name {
+  font-size: 0.8rem;
+}
+

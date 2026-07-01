@@ -1,0 +1,868 @@
+/** editor.css — construction dock + graph construction flow */
+/* --- construction --- */
+/*
+ * Desktop forest + versions: shell-chrome/styles/shell-chrome.css.
+ *
+ * Nav is not a direct child of the wrap (there is .arborito-app-nav-inner); the > nav selector hid nothing.
+ * Hiding the whole wrap reads as the dock being replaced by the construction panel.
+ */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .arborito-mob-dock-wrap {
+    display: none !important;
+}
+/*
+ * Dock pinned to the bottom; on compact mobile (--mob-dock) full-width bar + bottom breathing room
+ * (see --arborito-construction-dock-float-gap).
+ */
+.construction-panel-host {  
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    margin: 0;
+    width: 100%;
+    max-width: 100vw;
+    height: auto;
+    max-height: none;
+    /*
+     * No transform here: translateZ(0) made position:fixed on #cp-construct-more-pop
+     * anchor to this host (too low) instead of the viewport; top/bottom/100dvh were wrong and
+     * the tab bar or sheet looked clipped.
+     */
+    /* Above modal backdrops (e.g. search) so the dock stays usable while constructing */
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    pointer-events: none;
+    padding: 0 max(0.5rem, env(safe-area-inset-left, 0px)) 0 max(0.5rem, env(safe-area-inset-right, 0px));
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--arborito-mob-dock-float-gap, 0.5rem));
+    box-sizing: border-box;
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+.construction-panel-host:not(.construction-panel-host--mob-dock) .cp-dock-stack {
+    background: var(--arborito-theme-construction-dock-stack-background);
+    border: 1px solid var(--arborito-moss-border);
+    box-shadow: var(--arborito-theme-construction-dock-stack-box-shadow);
+    margin-top: 0;
+    padding: var(--arborito-mob-dock-pad-y) var(--arborito-mob-dock-pad-x);
+    box-sizing: border-box;
+    width: auto;
+    max-width: var(--arborito-mob-dock-float-max);
+    align-self: center;
+    border-radius: var(--arborito-mob-dock-float-radius);
+    overflow: hidden;
+}
+
+/* Host sits in a flex with width:0; center the fixed construction panel on mobile */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .construction-panel-host {
+    width: 100vw;
+    max-width: 100vw;
+    align-items: center;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+    .construction-panel-host.construction-panel-host--mob-dock {
+    width: auto;
+    max-width: 100%;
+    left: 0;
+    right: 0;
+}
+
+/* Flex host is width:0 — display:contents on arborito-construction-panel (see app-flex-and-pointer-hosts.css). */
+.construction-panel-host .cp-dock-stack,
+.construction-panel-host .cp-dock-row,
+.construction-panel-host .cp-dock-scroll-wrap,
+.construction-panel-host .cp-dock-scroll,
+.construction-panel-host .cp-construct-wrap {
+    pointer-events: none;
+}
+
+/* Only real controls — never the full-width scroll gutter. */
+.construction-panel-host .cp-dock-tab,
+.construction-panel-host .arborito-mob-dock--floating .arborito-mob-tab,
+.construction-panel-host .arborito-mob-dock--floating button,
+.construction-panel-host .cp-curriculum-drawer:not([hidden]),
+.construction-panel-host .cp-curriculum-drawer:not([hidden]) *,
+.construction-panel-host #cp-construct-more-backdrop:not([hidden]),
+.construction-panel-host #cp-construct-more-pop:not([hidden]),
+.construction-panel-host .cp-dock-readonly-banner,
+.construction-panel-host .cp-dock-readonly-banner__action,
+.construction-panel-host .cp-session-bar,
+.construction-panel-host .cp-session-bar__action {
+    pointer-events: auto;
+}
+
+/*
+ * Expanded dock (≥900px or desktop forest): centered tab row — no stretch (labels broke mid-word).
+ */
+@media (min-width: 900px) {
+    html.arborito-construction-mobile
+        .construction-panel-host:not(.construction-panel-host--mob-dock)
+        .cp-dock-row {
+        width: auto;
+        max-width: var(--arborito-mob-dock-float-max);
+        justify-content: center;
+    }
+
+    html.arborito-construction-mobile
+        .construction-panel-host:not(.construction-panel-host--mob-dock)
+        .cp-dock-scroll-wrap {
+        flex: 0 0 auto;
+        display: flex;
+        justify-content: center;
+        width: auto;
+        max-width: var(--arborito-mob-dock-float-max);
+    }
+
+    html.arborito-construction-mobile
+        .construction-panel-host:not(.construction-panel-host--mob-dock)
+        .cp-dock-scroll {
+        overflow-x: visible;
+        mask-image: none;
+        justify-content: center;
+        gap: 0.35rem;
+        flex-wrap: nowrap;
+        flex: 0 0 auto;
+        width: auto;
+        max-width: 100%;
+    }
+
+    html.arborito-construction-mobile
+        .construction-panel-host:not(.construction-panel-host--mob-dock)
+        .cp-dock-scroll
+        .cp-dock-tab {
+        flex: 0 0 auto;
+        min-width: var(--arborito-mob-tab-min);
+        max-width: var(--arborito-mob-tab-max);
+    }
+}
+
+/* Language / intro / versions: dropdown panel above the dock (one tab toggles open/closed) */
+.cp-curriculum-drawer:not([hidden]) {
+    border-bottom: var(--arborito-theme-construction-curriculum-drawer-border-bottom);
+    margin: 0 0 0.28rem;
+    padding: 0 0.15rem 0.4rem;
+}
+
+.cp-curriculum-drawer[hidden] {
+    display: none !important;
+}
+
+.cp-curriculum-slot .cp-curriculum-bar {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.cp-curriculum-slot .cp-curriculum-bar__inner {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    padding: 0.2rem 0 0;
+    gap: 0.45rem 0.5rem;
+}
+
+.cp-curriculum-bar {
+    width: 100%;
+    max-width: min(42rem, 100%);
+    margin: 0 auto;
+    padding: 0 0.15rem;
+    box-sizing: border-box;
+}
+
+.cp-curriculum-bar__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.5rem 0.75rem;
+    padding: 0.55rem 0.7rem 0.6rem;
+    border-radius: 1rem;
+    border: 1px solid var(--arborito-moss-border);
+    background: var(--arborito-chrome-gradient);
+    box-shadow: var(--arborito-theme-construction-cp-curriculum-bar-inner-box-shadow);
+    border-color: var(--arborito-theme-construction-cp-curriculum-bar-inner-border-color);
+}
+
+.cp-curriculum-bar--lang-only .cp-curriculum-bar__inner {
+    justify-content: flex-start;
+}
+
+.cp-curriculum-bar--lang-only .cp-curriculum-bar__lang {
+    flex: 1 1 auto;
+}
+
+.cp-curriculum-bar__lang {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.5rem;
+    min-width: 0;
+    flex: 1 1 12rem;
+}
+.cp-curriculum-bar__lang-lb {
+    font-size: 0.625rem;
+    font-weight: 850;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--arborito-theme-construction-curriculum-bar__lang-lb-color);
+    white-space: nowrap;
+}
+.cp-curriculum-bar__select {
+    font-size: 0.75rem;
+    font-family: var(--font-family-mono);
+    min-width: 5.5rem;
+    max-width: 100%;
+    padding: 0.38rem 0.5rem;
+    border-radius: 0.5rem;
+    border: var(--arborito-theme-construction-curriculum-bar__select-border);
+    background: var(--arborito-theme-construction-curriculum-bar__select-background);
+    color: var(--arborito-theme-construction-curriculum-bar__select-color);
+    font-weight: 600;
+}
+
+.cp-curriculum-bar__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    justify-content: flex-end;
+    flex: 1 1 10rem;
+}
+.cp-curriculum-bar__btn {
+    flex: 0 0 auto;
+    font-size: 0.625rem;
+    font-weight: 850;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.4rem 0.55rem;
+    border-radius: 0.65rem;
+    border: var(--arborito-theme-construction-curriculum-bar__btn-border);
+    background: var(--arborito-theme-construction-curriculum-bar__btn-background);
+    color: var(--arborito-theme-construction-curriculum-bar__btn-color);
+    cursor: pointer;
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.cp-curriculum-bar__btn:hover {
+    background: var(--arborito-theme-construction-curriculum-bar__btn-background-2);
+    border-color: var(--arborito-theme-construction-curriculum-bar__btn-border-color);
+}
+.cp-curriculum-bar__btn--accent {
+    border-color: var(--arborito-theme-construction-curriculum-bar__btn--accent-border-color);
+    background: var(--arborito-theme-construction-curriculum-bar__btn--accent-background);
+    color: var(--arborito-theme-construction-curriculum-bar__btn--accent-color);
+}
+.cp-curriculum-bar__btn--accent:hover {
+    border-color: var(--arborito-theme-construction-curriculum-bar__btn--accent-border-color-2);
+    background: var(--arborito-theme-construction-curriculum-bar__btn--accent-background-2);
+}
+
+html.arborito-desktop.arborito-construction-mobile .cp-curriculum-bar {
+    max-width: min(56rem, calc(100vw - 1.5rem));
+}
+
+html.arborito-desktop.arborito-construction-mobile .construction-panel-host {
+    align-items: center;
+}
+
+html.arborito-desktop.arborito-construction-mobile .cp-dock-row {
+    width: auto;
+    max-width: var(--arborito-mob-dock-float-max);
+    justify-content: center;
+}
+
+html.arborito-desktop.arborito-construction-mobile .cp-dock-scroll-wrap {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: center;
+    width: auto;
+    max-width: var(--arborito-mob-dock-float-max);
+}
+
+html.arborito-desktop.arborito-construction-mobile .cp-dock-scroll {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 100%;
+    justify-content: center;
+    mask-image: none;
+    overflow-x: visible;
+}
+
+html.arborito-construction-mobile .cp-dock-scroll #btn-public-tree {
+    flex-shrink: 0;
+}
+
+/* Compact mobile: centered floating pill (tabs sized to icons, not edge-to-edge). */
+.construction-panel-host--mob-dock {
+    flex: 0 0 auto;
+    min-height: min-content;
+    overflow: visible;
+    width: auto;
+    max-width: 100%;
+    margin: 0;
+    align-items: center;
+    justify-content: center;
+    padding-left: max(0.5rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.5rem, env(safe-area-inset-right, 0px));
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--arborito-construction-dock-float-gap, 0.5rem));
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .construction-panel-host--mob-dock {
+    top: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .construction-panel-host--mob-dock .arborito-mob-dock--floating {
+    position: relative;
+    z-index: 141;
+    background: var(--arborito-theme-mob-dock-background);
+    box-shadow: var(--arborito-theme-mob-dock-box-shadow);
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .construction-panel-host--mob-dock .cp-construct-wrap {
+    pointer-events: none;
+    background: transparent;
+    width: auto;
+    max-width: 100%;
+    align-items: center;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .construction-panel-host--mob-dock .arborito-mob-dock--floating,
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .construction-panel-host--mob-dock .cp-dock-readonly-banner,
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .construction-panel-host--mob-dock #cp-construct-more-backdrop:not([hidden]),
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .construction-panel-host--mob-dock #cp-construct-more-pop:not([hidden]),
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .construction-panel-host--mob-dock .cp-curriculum-drawer:not([hidden]) {
+    pointer-events: auto;
+}
+
+.construction-panel-host--mob-dock .cp-curriculum-drawer:not([hidden]) {
+    margin: 0;
+    padding: 0.45rem 0.65rem 0.5rem;
+    border-bottom: var(--arborito-theme-construction-curriculum-drawer-border-bottom);
+}
+
+.cp-construct-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    overflow: visible;
+}
+
+.construction-panel-host--mob-dock .cp-construct-wrap {
+    width: auto;
+    max-width: 100%;
+    align-items: center;
+}
+
+/* Construction “More”: same visual pattern as #mobile-menu (scrim + .arborito-sheet--mobile-more).
+ * Note: .arborito-sheet--mobile-more forces display:flex with higher specificity than [hidden],
+ * so the sheet stayed visible; win with #id or explicit !important. */
+#cp-construct-more-backdrop[hidden],
+#cp-construct-more-pop[hidden] {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+/* Reopen after modal (fromConstructionMore): full opacity, no fade-in from 0 */
+#cp-construct-more-backdrop.cp-construct-more-backdrop--instant:not([hidden]),
+#cp-construct-more-pop.cp-construct-more-sheet--instant:not([hidden]) {
+    animation: none !important;
+    opacity: 1 !important;
+}
+
+/*
+ * While constructing, --arborito-mob-dock-clearance is the tree’s huge clamp. Sheets anchor to
+ * --arborito-chrome-dock-gap (same token as browse Sage / modals).
+ */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+    #cp-construct-more-backdrop:not([hidden]) {
+    bottom: var(--arborito-sheet-dock-gap) !important;
+    /* Above theme+profile (z~135 in graph-construction-flow); compact dock stays above the scrim */
+    z-index: 139 !important;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+    #cp-construct-more-pop.arborito-sheet--mobile-more:not([hidden]) {
+    top: 0 !important;
+    bottom: var(--arborito-sheet-dock-gap) !important;
+    height: calc(100dvh - var(--arborito-sheet-dock-gap)) !important;
+    max-height: calc(100dvh - var(--arborito-sheet-dock-gap)) !important;
+    min-height: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    z-index: 140 !important;
+    background: var(--arborito-theme-surface-bg) !important;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+    #cp-construct-more-pop:not([hidden])
+    .cp-construct-more-mmenu-scroll,
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+    #cp-construct-more-pop:not([hidden])
+    .arborito-mmenu-scroll {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+/*
+ * Modals opened from construction: same bottom as browse (--arborito-chrome-dock-gap),
+ * not --arborito-mob-dock-clearance (tree clamp).
+ */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+    :is(
+        #modal-backdrop.arborito-modal-root.arborito-modal--mobile:not(.arborito-modal--immersive),
+        #modal-backdrop:not(.arborito-modal--immersive)
+    ) {
+    bottom: var(--arborito-sheet-dock-gap) !important;
+}
+.arborito-mmenu-drill-row--danger {
+    border-color: var(--arborito-theme-construction-arborito-mmenu-drill-row--danger-border-color);
+    color: var(--arborito-theme-construction-arborito-mmenu-drill-row--danger-color);
+    background: var(--arborito-theme-construction-arborito-mmenu-drill-row--danger-background);
+}
+
+.arborito-mmenu-drill-row:disabled {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+.cp-dock-tab__curriculum-glyph {
+    font-size: 1.05rem;
+    line-height: 1;
+}
+.cp-dock-tab__curriculum-glyph--svg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0;
+}
+.cp-dock-tab__curriculum-glyph--svg .cp-dock-tab__lang-svg {
+    display: block;
+    color: inherit;
+}
+.cp-dock-readonly-hint {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0.35rem 0.45rem;
+    font-size: 0.72rem;
+    font-weight: 650;
+    color: var(--arborito-theme-construction-dock-readonly-hint-color);
+    align-self: center;
+}
+.cp-dock-readonly-block {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+}
+.cp-dock-readonly-block .cp-dock-tab {
+    flex: 0 0 auto;
+}
+.cp-dock-scroll-wrap {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto;
+    min-width: 0;
+}
+.cp-dock-stack {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto;
+    min-width: 0;
+    width: auto;
+    max-width: 100%;
+    gap: 0;
+}
+.cp-dock-readonly-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem;
+    min-width: 0;
+    width: 100%;
+    padding: 0.42rem 0.55rem;
+    border-bottom: var(--arborito-theme-construction-dock-readonly-banner-border-bottom);
+    background: var(--arborito-theme-construction-dock-readonly-banner-background);
+    box-sizing: border-box;
+}
+.cp-construct-wrap > .cp-dock-readonly-banner {
+    padding-left: max(0.55rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.55rem, env(safe-area-inset-right, 0px));
+}
+.cp-dock-readonly-banner__msg {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.72rem;
+    font-weight: 650;
+    color: var(--arborito-theme-construction-dock-readonly-banner__msg-color);
+}
+.cp-dock-readonly-banner__action {
+    flex: 0 0 auto;
+    max-width: 46%;
+    padding: 0.34rem 0.72rem;
+    border-radius: 999px;
+    border: var(--arborito-theme-construction-dock-readonly-banner__action-border);
+    background: var(--arborito-theme-construction-dock-readonly-banner__action-background);
+    color: var(--arborito-theme-construction-dock-readonly-banner__action-color);
+    font-size: 0.68rem;
+    font-weight: 800;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.cp-session-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem;
+    min-width: 0;
+    width: 100%;
+    padding: 0.42rem 0.55rem;
+    border-bottom: var(--arborito-theme-construction-session-bar-border-bottom);
+    background: var(--arborito-theme-construction-session-bar-background);
+    box-sizing: border-box;
+}
+.cp-construct-wrap > .cp-session-bar {
+    padding-left: max(0.55rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.55rem, env(safe-area-inset-right, 0px));
+}
+.cp-session-bar__place {
+    display: flex;
+    flex-direction: column;
+    gap: 0.08rem;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+.cp-session-bar__title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    color: var(--arborito-theme-construction-session-bar__title-color);
+}
+.cp-session-bar__sub {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.64rem;
+    font-weight: 600;
+    color: var(--arborito-theme-construction-session-bar__sub-color);
+}
+.cp-session-bar__action {
+    flex: 0 0 auto;
+    max-width: 46%;
+    padding: 0.34rem 0.72rem;
+    border-radius: 999px;
+    border: var(--arborito-theme-construction-session-bar__action-border);
+    background: var(--arborito-theme-construction-session-bar__action-background);
+    color: var(--arborito-theme-construction-session-bar__action-color);
+    font-size: 0.68rem;
+    font-weight: 800;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: background 0.12s ease, transform 0.12s ease;
+}
+.cp-session-bar__action:active {
+    transform: scale(0.98);
+}
+.cp-session-bar__action--cta {
+    border-color: var(--arborito-theme-construction-session-bar__action--cta-border-color);
+    background: var(--arborito-theme-construction-session-bar__action--cta-background);
+    color: var(--arborito-theme-construction-session-bar__action--cta-color);
+}
+.cp-session-bar__action--team {
+    border-color: var(--arborito-theme-construction-session-bar__action--team-border-color);
+    background: var(--arborito-theme-construction-session-bar__action--team-background);
+    color: var(--arborito-theme-construction-session-bar__action--team-color);
+}
+.cp-session-bar--view {
+    background: var(--arborito-theme-construction-session-bar--view-background);
+    border-bottom-color: var(--arborito-theme-construction-session-bar--view-border-bottom-color);
+}
+.cp-session-bar--view .cp-session-bar__title {
+    color: var(--arborito-theme-construction-session-bar__title-color-2);
+}
+.cp-session-bar--propose .cp-session-bar__sub {
+    color: var(--arborito-theme-construction-session-bar__sub-color);
+}
+:is(arborito-graph, [data-arborito-panel="graph"]) .mobile-panel-head.cp-session-focus-pulse,
+.arborito-tree-pres-anchor.cp-session-focus-pulse {
+    animation: cp-session-head-pulse 1.2s ease-out;
+}
+@keyframes cp-session-head-pulse {
+    0%,
+    100% {
+        box-shadow: none;
+    }
+    35% {
+        box-shadow: 0 0 0 3px rgb(99 102 241 / 0.45);
+    }
+}
+.cp-dock-row {  
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0.2rem;
+    min-width: 0;
+    width: max-content;
+    max-width: 100%;
+  }
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .cp-dock-row {
+    width: auto;
+    max-width: var(--arborito-mob-dock-float-max);
+    justify-content: center;
+}
+
+.cp-dock-scroll {  
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 0.125rem;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    padding: 0 0.1rem;
+    mask-image: linear-gradient(to right, transparent, black 6px, black calc(100% - 6px), transparent);
+  }
+
+.cp-dock-tab {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.12rem;
+    min-width: 3.25rem;
+    max-width: 8.5rem;
+    min-height: auto;
+    height: auto;
+    padding: 0.3rem 0.45rem;
+    border: none;
+    border-radius: 0.875rem;
+    background: transparent;
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    color: var(--arborito-theme-construction-dock-tab-color);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.2s ease, transform 0.15s ease, background 0.2s ease;
+}
+.cp-dock-tab:active {  
+    transform: scale(0.94);
+  }
+.cp-dock-tab--edge {  
+    min-width: 2.6rem;
+    max-width: 3.1rem;
+    padding-left: 0.15rem;
+    padding-right: 0.15rem;
+  }
+.cp-dock-tab--accent {
+    color: var(--arborito-theme-construction-dock-tab--accent-color);
+}
+.cp-dock-tab--blue {
+    color: var(--arborito-theme-construction-dock-tab--blue-color);
+}
+.cp-dock-tab--cta {
+    border: var(--arborito-theme-construction-dock-tab--cta-border);
+    background: var(--arborito-theme-construction-dock-tab--cta-background);
+}
+.cp-dock-tab--cta-amber {
+    color: var(--arborito-theme-construction-dock-tab--cta-amber-color);
+    border-color: var(--arborito-theme-construction-dock-tab--cta-amber-border-color);
+    background: var(--arborito-theme-construction-dock-tab--cta-amber-background);
+}
+.cp-dock-tab--cta-amber:hover {
+    background: var(--arborito-theme-construction-dock-tab--cta-amber-background-2);
+}
+.cp-dock-tab--cta-danger {
+    color: var(--arborito-theme-construction-dock-tab--cta-danger-color);
+    border-color: var(--arborito-theme-construction-dock-tab--cta-danger-border-color);
+    background: var(--arborito-theme-construction-dock-tab--cta-danger-background);
+}
+.cp-dock-tab--cta-danger:hover {
+    background: var(--arborito-theme-construction-dock-tab--cta-danger-background-2);
+}
+.cp-dock-scroll .cp-dock-tab__label {  
+    max-width: 9.5rem;
+    font-size: 0.725rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    text-align: center;
+    line-height: 1.15;
+    word-break: normal;
+  }
+
+.mobile-node-toolbar {
+    width: 100%;
+    margin: 0 0 0.5rem 0;
+    padding: 0.35rem 0.4rem;
+    border-radius: 0.85rem;
+    background: rgb(15 23 42 / 0.45);
+    border: 1px solid rgb(51 65 85 / 0.55);
+    box-sizing: border-box;
+  }
+html:not(.dark) .mobile-node-toolbar {  
+    background: rgb(255 255 255 / 0.94);
+    border-color: rgb(226 232 240 / 0.95);
+  }
+.mobile-node-toolbar-inner {  
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.35rem;
+  }
+
+
+/* Little extra scroll padding: the tree “bottom” already leaves room for the fixed panel */
+html.arborito-construction-mobile .mobile-tree-ui.mobile-tree-ui--construction .mobile-trunk-container {
+    scroll-padding-bottom: calc(0.25rem + var(--arborito-mobile-tree-scroll-extra, 0px));
+}
+
+/* Toolbar/panel menus: open upward so they do not sit under the dock (graph z < panel) */
+html.arborito-construction-mobile .mobile-tree-ui.mobile-tree-ui--construction .mobile-node-toolbar-structure-dropdown,
+html.arborito-construction-mobile .mobile-tree-ui.mobile-tree-ui--construction .mobile-structure-dropdown {
+    top: auto;
+    bottom: calc(100% + 0.2rem);
+}
+
+/* Top row of child panel: same pattern if the “structure” menu opens downward */
+html.arborito-construction-mobile .mobile-tree-ui.mobile-tree-ui--construction .mobile-inline-tools-host .mobile-structure-dropdown {
+    top: auto;
+    bottom: calc(100% + 0.2rem);
+}
+.cp-dock-tab__icon {
+    font-size: 1.25rem;
+    line-height: 1;
+    height: auto;
+    min-height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cp-dock-tab__label {
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+    max-width: 100%;
+}
+
+/* Mobile: quieter palette (less rainbow); publish / retract CTAs stay emphasized */
+@media (max-width: 767px) {
+    :is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .cp-dock-scroll .cp-dock-tab--accent:not(.cp-dock-tab--cta),
+    :is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .cp-dock-scroll .cp-dock-tab--blue {
+        color: var(--arborito-theme-construction-dock-scroll-tab-muted-color);
+    }
+}
+
+.arborito-construction-pick-card {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border-radius: 1rem;
+    border: var(--arborito-theme-construction-arborito-construction-pick-card-border);
+    background: var(--arborito-theme-construction-arborito-construction-pick-card-background);
+    color: var(--arborito-theme-construction-arborito-construction-pick-card-color);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.arborito-construction-pick-card:active {
+    transform: scale(0.98);
+}
+.arborito-construction-pick-card__main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+.arborito-construction-pick-card__title {
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+.arborito-construction-pick-card__hint {
+    font-size: 0.75rem;
+    opacity: 0.78;
+}
+.arborito-construction-pick-card__chev,
+.arborito-construction-pick-row__chev {
+    font-size: 1.25rem;
+    opacity: 0.55;
+    flex-shrink: 0;
+}.arborito-construction-pick-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 2.85rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.9rem;
+    border: var(--arborito-theme-construction-arborito-construction-pick-row-border);
+    background: var(--arborito-theme-construction-arborito-construction-pick-row-background);
+    color: var(--arborito-theme-construction-arborito-construction-pick-row-color);
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+.arborito-construction-pick-row:hover {
+    background: var(--arborito-theme-hover-surface);
+}
+.arborito-construction-pick-row:active {
+    transform: scale(0.99);
+}
+.arborito-construction-pick-row__label {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+

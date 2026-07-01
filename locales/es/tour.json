@@ -1,0 +1,222 @@
+{
+  "tourAriaLabel": "Recorrido por la interfaz",
+  "tourDone": "Listo",
+  "tourNext": "Siguiente",
+  "tourPrev": "Atrás",
+  "tourSkip": "Saltar recorrido",
+  "tourSourcesPickerBody": "Elige una rama de la lista (local o en la red). Cuando cargue, el recorrido continúa en el mapa señalando la raíz.",
+  "tourSourcesPickerTitle": "Elige tu primera rama",
+  "tourStepIndicator": "Paso {n} de {total}",
+  "uiTourSteps": [
+    {
+      "target": "graph-root",
+      "title": "La raíz del árbol",
+      "body": "Este es el inicio del currículo 🌳. Desde la raíz abres módulos 🗂️, lecciones 📄 y exámenes ⚔️. Toca un nodo para entrar; debajo verás sus temas hijos."
+    },
+    {
+      "target": "home",
+      "title": "Volver al mapa",
+      "body": "El logo te lleva al inicio del árbol cuando te pierdas o quieras una vista amplia."
+    },
+    {
+      "target": "sources",
+      "title": "Cambiar de árbol",
+      "body": "Vuelve aquí para cargar otro currículo o biblioteca cuando quieras estudiar otro tema."
+    },
+    {
+      "target": "arcade",
+      "title": "Arcade",
+      "body": "Practica con juegos que pueden adaptarse a lo que estás estudiando."
+    },
+    {
+      "target": "construct",
+      "title": "Modo Construcción",
+      "body": "Actívalo para crear carpetas y lecciones, o reorganizar el árbol en árboles editables."
+    },
+    {
+      "target": "search",
+      "title": "Buscar temas",
+      "body": "Abre la búsqueda para saltar a un tema por nombre sin recorrer todo el mapa."
+    },
+    {
+      "target": "profile",
+      "title": "Perfil y mochila",
+      "body": "Tu avatar abre el menú: perfil, exportar progreso, logros y sincronización opcional entre dispositivos."
+    },
+    {
+      "target": "sage-fab",
+      "title": "Guía en Sage",
+      "body": "Toca el búho 🦉 y elige «¿Qué es Arborito?» para la guía por temas: navegación, jardín, arcade y más."
+    }
+  ],
+  "uiTourStepsConstruction": [
+    {
+      "target": "construct",
+      "title": "Estás en modo construcción",
+      "body": "El casco ⛑️ está activo: ahora puedes editar el árbol. Toca cualquier nodo del mapa para abrir su panel de edición a la derecha. Pulsa otra vez este botón para volver al modo estudio."
+    },
+    {
+      "target": "con-undo",
+      "title": "Historial de cambios",
+      "body": "El reloj 🕒 abre la línea de tiempo de tus ediciones: puedes ir atrás y adelante entre versiones sin perder el hilo, y comparar antes/después."
+    },
+    {
+      "target": "con-lang",
+      "title": "Idioma del contenido",
+      "body": "🌐 Cambia o agrega el idioma del contenido del árbol que estás editando. Cada idioma tiene sus títulos y textos; puedes mantener varias versiones en paralelo."
+    },
+    {
+      "target": "con-info",
+      "title": "Sobre este árbol — completa antes de publicar",
+      "body": "ℹ️ Necesitas completar esta ficha antes de publicar: descripción (mín. 5 caracteres) y, opcional, enlace de apoyo. Guarda con el botón. Para aparecer como creador, entra con tu cuenta online."
+    },
+    {
+      "target": "con-gov",
+      "title": "Colaboradores y permisos",
+      "body": "Decide quién puede editar este árbol: invita colaboradores, ajusta roles (editores, proponentes) y revisa el historial de cambios de permisos."
+    },
+    {
+      "target": "con-publish",
+      "title": "Publicar el árbol",
+      "body": "Cuando el borrador esté listo, publica en línea o actualiza la copia pública que ya compartiste. El borrador local se sigue editando aparte sin afectar la versión publicada."
+    },
+    {
+      "target": "cloud-sync",
+      "title": "Copia de seguridad opcional",
+      "body": "Tus cambios viven primero en este dispositivo. Si quieres, activa la sincronización con tu cuenta para tener una copia entre tus equipos."
+    },
+    {
+      "target": "profile",
+      "title": "Tu perfil",
+      "body": "Tu avatar abre tu perfil: nombre, foto y la cuenta opcional. Si tienes cuenta y publicas, el árbol queda asociado a ese perfil; si no, también puedes crear y todo se queda en este dispositivo."
+    },
+    {
+      "target": "sage-fab",
+      "title": "Si te pierdes, el búho 🦉",
+      "body": "Si dudas en algo, vuelve aquí: Sage te guía paso a paso por el modo construcción con consejos contextuales según lo que estés haciendo."
+    }
+  ],
+  "uiTourStepsConstructionMobile": [
+    {
+      "target": "con-exit",
+      "title": "Estás en modo construcción",
+      "body": "La flecha ← del dock vuelve al modo estudio cuando termines de editar. Mientras tanto, toca cualquier nodo del mapa para abrir su panel de edición."
+    },
+    {
+      "target": "con-undo",
+      "title": "Historial de cambios",
+      "body": "Historial 🕒: revisa pasos anteriores y deshaz o rehaz cambios en la estructura del mapa, sin perder el hilo."
+    },
+    {
+      "target": "con-info",
+      "title": "Sobre este árbol — completa antes de publicar",
+      "body": "ℹ️ Necesitas completar esta ficha antes de publicar: descripción (mín. 5 caracteres) y, opcional, enlace de apoyo. Guarda con el botón. Para aparecer como creador, entra con tu cuenta online."
+    },
+    {
+      "target": "con-more",
+      "title": "Idioma y más herramientas",
+      "body": "🌐 Aquí cambias o agregas idiomas del contenido, abres permisos y colaboradores, comparas borrador vs publicado y otras acciones del curso."
+    },
+    {
+      "target": "con-publish",
+      "title": "Publicar el árbol",
+      "body": "Publica el árbol o envía actualizaciones a la copia pública en línea desde aquí. El borrador local sigue separado."
+    },
+    {
+      "target": "mob-profile",
+      "title": "Tu perfil",
+      "body": "Tu avatar abre tu perfil: nombre, foto y la cuenta opcional. Si tienes cuenta y publicas, el árbol queda asociado a ese perfil; si no, también puedes crear y todo se queda en este dispositivo."
+    },
+    {
+      "target": "con-ai",
+      "title": "Si te pierdes, el búho 🦉",
+      "body": "Si dudas en algo, vuelve aquí: Sage te guía paso a paso por el modo construcción con consejos contextuales según lo que estés haciendo."
+    }
+  ],
+  "uiTourStepsMobile": [
+    {
+      "target": "graph-root",
+      "title": "La raíz del árbol",
+      "body": "Este círculo con el logo es la raíz 🌳 del currículo. Toca los nodos de abajo para entrar en módulos y lecciones."
+    },
+    {
+      "target": "mob-home",
+      "title": "Inicio",
+      "body": "Vuelve al mapa principal del árbol desde cualquier sitio."
+    },
+    {
+      "target": "mob-search",
+      "title": "Buscar",
+      "body": "Encuentra lecciones por nombre sin recorrer todo el bosque."
+    },
+    {
+      "target": "mob-sage",
+      "title": "Sage — tu guía",
+      "body": "El búho abre atajos y la guía «¿Qué es Arborito?». Sin IA obligatoria: solo lo escrito en tu curso."
+    },
+    {
+      "target": "mob-arcade",
+      "title": "Arcade",
+      "body": "Juegos de práctica relacionados con lo que estudias."
+    },
+    {
+      "target": "mob-more",
+      "title": "Más",
+      "body": "Guía, árboles, logros, idioma y herramientas. Perfil y tema van arriba a la derecha."
+    }
+  ],
+  "uiTourStepsLessonEdit": [
+    {
+      "target": "lesson-edit-meta",
+      "title": "Ficha de la lección — completa antes de publicar",
+      "body": "Pon el título, la descripción y el emoji de la lección. Aparecen en el mapa, en la búsqueda y en los juegos del Arcade. Sin esto la lección no se publica."
+    },
+    {
+      "target": "lesson-edit-toolbar",
+      "title": "Barra de edición",
+      "body": "Da formato al texto, deshace y, sobre todo, inserta bloques: avisos, imágenes, videos, mini-juegos y el cuestionario integral. Al final, recuerda Guardar — los cambios viven en tu borrador local hasta publicar."
+    },
+    {
+      "target": "lesson-edit-quiz",
+      "title": "Cuestionario de la lección",
+      "body": "Inserta un cuestionario desde la barra de edición. Con tema, definición y respuesta correcta ya activas Recuerdo. Si añades huecos, respuestas incorrectas o pasos en orden, desbloqueas más modos en el Arcade."
+    },
+    {
+      "target": "lesson-edit-toc",
+      "title": "Temario y estado Arcade",
+      "body": "Abre el temario con el botón de lista. Cada parte muestra 🎮 si tiene cuestionario: gris = incompleto, verde = listo para juegos del Arcade sin IA."
+    },
+    {
+      "target": "lesson-edit-save",
+      "title": "Guardar el trabajo",
+      "body": "Guarda la lección en tu borrador local del árbol. Para enviar cambios al árbol publicado en línea, usa el botón global de Publicar más tarde."
+    }
+  ],
+  "uiTourStepsSourcesPicker": [
+    {
+      "target": "sources-main-tabs",
+      "title": "Pestañas: Ramas y Árboles",
+      "body": "Dos pestañas separadas: Ramas son cursos completos (.arborito). Árboles son playlists que combinas con ramas — remix, publica y comparte un solo enlace."
+    },
+    {
+      "target": "sources-tab-branches",
+      "title": "Pestaña Ramas",
+      "body": "Aquí viven tus cursos: plantar, importar o instalar de la red. Abre uno para estudiar o editar."
+    },
+    {
+      "target": "sources-pick-tree",
+      "title": "Elige tu primera rama",
+      "body": "Busca o toca una tarjeta de rama. Cuando cargue, el recorrido continúa en el mapa señalando la raíz."
+    },
+    {
+      "target": "sources-tab-trees",
+      "title": "Pestaña Árboles",
+      "body": "Aquí combinas ramas en playlists: remix, publica en la red y comparte un solo enlace."
+    },
+    {
+      "target": "sources-pick-tree-trees",
+      "title": "Tus árboles",
+      "body": "Busca tus playlists, ábrelas o pulsa Crear árbol. Tras publicar, usa Compartir para copiar un enlace que cualquiera puede abrir."
+    }
+  ]
+}

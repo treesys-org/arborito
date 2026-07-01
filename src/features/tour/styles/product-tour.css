@@ -1,0 +1,218 @@
+/**
+ * In-app product tour (spotlight + tooltip). Paired with ProductTour.jsx
+ */
+.arborito-product-tour,
+[data-arborito-panel="product-tour"] {
+    position: fixed;
+    inset: 0;
+    /* Shell tour (map/dock): above graph chrome, below modals host (220). */
+    z-index: 140;
+    pointer-events: none;
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+}
+
+/* “Pick your first tree” runs with the Sources modal open — must sit above [data-arborito-panel="modals"] (220). */
+html.arborito-product-tour-sources-picker .arborito-product-tour,
+html.arborito-product-tour-sources-picker [data-arborito-panel="product-tour"] {
+    z-index: 230;
+}
+
+.arborito-product-tour[hidden],
+[data-arborito-panel="product-tour"][hidden] {
+    display: none !important;
+}
+
+.arborito-tour-shade {
+    position: fixed;
+    background: var(--arborito-theme-tour-shade-background);
+    pointer-events: auto;
+    transition:
+        top 280ms cubic-bezier(0.25, 0.8, 0.25, 1),
+        left 280ms cubic-bezier(0.25, 0.8, 0.25, 1),
+        width 280ms cubic-bezier(0.25, 0.8, 0.25, 1),
+        height 280ms cubic-bezier(0.25, 0.8, 0.25, 1),
+        opacity 160ms ease;
+}
+
+.arborito-tour-ring {
+    position: fixed;
+    border-radius: 12px;
+    box-shadow:
+        0 0 0 4px rgb(56 189 248 / 0.8),
+        0 0 0 9999px transparent;
+    pointer-events: none;
+    z-index: 1;
+    transition:
+        top 280ms cubic-bezier(0.25, 0.8, 0.25, 1),
+        left 280ms cubic-bezier(0.25, 0.8, 0.25, 1),
+        width 280ms cubic-bezier(0.25, 0.8, 0.25, 1),
+        height 280ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.arborito-product-tour.arborito-tour--stepping .arborito-tour-ring,
+.arborito-product-tour.arborito-tour--stepping .arborito-tour-tooltip,
+[data-arborito-panel="product-tour"].arborito-tour--stepping .arborito-tour-ring,
+[data-arborito-panel="product-tour"].arborito-tour--stepping .arborito-tour-tooltip {
+    transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .arborito-tour-ring {
+        transition: none;
+        animation: none;
+    }
+    .arborito-tour-tooltip {
+        transition: none;
+    }
+    .arborito-tour-shade {
+        transition: none;
+    }
+}
+
+.arborito-tour-ring {
+    animation: arborito-spotlight-pulse 2s infinite ease-in-out;
+}
+
+@keyframes arborito-spotlight-pulse {
+    0%, 100% { box-shadow: 0 0 0 4px rgb(56 189 248 / 0.8), 0 0 0 9999px transparent; opacity: 1; }
+    50% { box-shadow: 0 0 0 10px rgb(56 189 248 / 0.45), 0 0 0 9999px transparent; opacity: 0.9; }
+}.arborito-tour-tooltip {
+    position: fixed;
+    z-index: 2;
+    max-width: min(24rem, calc(100vw - 2rem));
+    padding: 1.25rem 1.35rem 1rem;
+    border-radius: 1.25rem;
+    background: var(--arborito-theme-tour-arborito-tour-tooltip-background);
+    border: var(--arborito-theme-tour-arborito-tour-tooltip-border);
+    box-shadow: var(--arborito-theme-tour-arborito-tour-tooltip-box-shadow);
+    pointer-events: auto;
+    transition: top 280ms cubic-bezier(0.25, 0.8, 0.25, 1),
+        left 280ms cubic-bezier(0.25, 0.8, 0.25, 1);
+    filter: blur(0);
+}
+
+.arborito-tour-tooltip__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    margin-bottom: 0.5rem;
+}
+
+.arborito-tour-tooltip__mascot {
+    font-size: 2rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.arborito-tour-tooltip__titles {
+    min-width: 0;
+    flex: 1;
+}.arborito-tour-tooltip__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--arborito-theme-tour-arborito-tour-tooltip__title-color);
+    font-family: var(--font-family-base);
+}.arborito-tour-tooltip__body {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: var(--arborito-theme-tour-arborito-tour-tooltip__body-color);
+    font-family: var(--font-family-base);
+}
+
+.arborito-tour-tooltip__title .arborito-emoji-inline,
+.arborito-tour-tooltip__body .arborito-emoji-inline {
+    display: inline;
+    width: 1.05em;
+    height: 1.05em;
+    vertical-align: -0.12em;
+    margin: 0 0.04em;
+}
+
+.arborito-tour-tooltip__mascot .arborito-emoji-img {
+    display: inline;
+    width: 1.75rem;
+    height: 1.75rem;
+    vertical-align: middle;
+}
+
+.arborito-tour-tooltip__mascot .arborito-emoji-img + .arborito-emoji-img {
+    margin-left: 0.12rem;
+}
+
+.arborito-tour-tooltip__progress {
+    margin: 0.65rem 0 0.5rem;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgb(148 163 184);
+}.arborito-tour-tooltip__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.65rem;
+    border-top: var(--arborito-theme-tour-arborito-tour-tooltip__actions-border-top);
+}
+
+.arborito-tour-tooltip__nav {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+}
+
+.arborito-tour-tooltip__nav--solo {
+    width: 100%;
+}
+
+.arborito-tour-btn--solo {
+    flex: 1;
+    width: 100%;
+}
+
+.arborito-tour-btn {
+    border: none;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 0.8rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 0.65rem;
+    transition:
+        background 120ms ease,
+        color 120ms ease,
+        transform 80ms ease;
+}
+
+.arborito-tour-btn:active {
+    transform: scale(0.97);
+}.arborito-tour-btn--ghost {
+    background: transparent;
+    color: var(--arborito-theme-tour-arborito-tour-btn--ghost-color);
+}.arborito-tour-btn--ghost:hover {
+    background: var(--arborito-theme-tour-arborito-tour-btn--ghost-background);
+    color: var(--arborito-theme-tour-arborito-tour-btn--ghost-color-2);
+}
+
+.arborito-tour-btn--primary {
+    background: rgb(2 132 199);
+    color: white;
+}
+
+.arborito-tour-btn--primary:hover {
+    background: rgb(14 165 233);
+}
+
+.arborito-tour-btn--done {
+    background: rgb(5 150 105);
+    color: white;
+}
+
+.arborito-tour-btn--done:hover {
+    background: rgb(16 185 129);
+}
+

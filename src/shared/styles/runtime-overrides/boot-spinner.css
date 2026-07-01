@@ -1,0 +1,257 @@
+/* --- boot-spinner --- */
+/* Boot splash + lazy-modal placeholder — Arborito mark (not root knot). */
+.arborito-boot-brand-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    /* Explicit size + aspect-ratio so the ring stays a perfect circle when the
+     * host is a flex column that would otherwise let the box collapse (oval on mobile). */
+    width: 3.25rem;
+    height: 3.25rem;
+    aspect-ratio: 1 / 1;
+    margin-bottom: 0.85rem;
+}
+
+.arborito-boot-brand-wrap--modal {
+    margin-bottom: 0;
+}
+
+.arborito-boot-brand-wrap--inline,
+.arborito-boot-brand-wrap--custom-size {
+    margin-bottom: 0;
+    width: auto;
+    height: auto;
+}
+
+.arborito-boot-brand-wrap--xs .arborito-boot-spinner-ring {
+    border-width: 2px;
+}
+
+.arborito-boot-brand-wrap--sm .arborito-boot-spinner-ring {
+    border-width: 2.5px;
+}
+
+.arborito-boot-brand-wrap--md .arborito-boot-spinner-ring {
+    border-width: 3px;
+}
+
+.arborito-loading-brand-ring {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    vertical-align: middle;
+}
+
+.arborito-loading-brand-ring .arborito-boot-brand-wrap {
+    display: flex;
+}
+
+.arborito-loading-brand--compact .arborito-boot-brand-wrap,
+.arborito-loading-brand--panel .arborito-boot-brand-wrap {
+    margin-bottom: 0;
+}
+
+.arborito-loading-brand--panel {
+    align-items: center;
+    width: 100%;
+}
+
+.arborito-loading-brand--panel .arborito-loading-brand__label {
+    margin-top: 0.65rem;
+    text-align: center;
+}.arborito-boot-spinner-ring {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    border: var(--arborito-theme-boot-arborito-boot-spinner-ring-border);
+    border-top-color: var(--arborito-theme-boot-arborito-boot-spinner-ring-border-top-color);
+    border-radius: 50%;
+    animation: arborito-boot-spin 0.8s linear infinite;
+}.arborito-boot-logo-slot {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--arborito-theme-boot-arborito-boot-logo-slot-color);
+}
+
+.arborito-boot-logo-svg {
+    display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .arborito-boot-spinner-ring {
+        animation: none;
+        opacity: 0.85;
+    }
+}
+
+@keyframes arborito-boot-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Lazy modal chunk — small ring, no logo, no dimmed backdrop.
+ * Keep this placeholder transparent + centered even on mobile, where
+ * `[data-arborito-panel="modals"].css` would otherwise paint a full-screen opaque
+ * mint background and pin children to the top-left corner (made the spinner
+ * appear during normal modal opens and look misplaced). The double-class +
+ * `#modal-backdrop` selector outranks the mobile `!important` rules. */
+.arborito-modal-root--chunk-pending,
+#modal-backdrop.arborito-modal-root.arborito-modal-root--chunk-pending {
+    pointer-events: none;
+    background: transparent !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+}
+
+.arborito-modal-chunk-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    flex-shrink: 0;
+}
+
+.arborito-modal-chunk-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    background: transparent;
+}
+
+/* Inline loading ring — single source of truth for `loadingHtml()` spinners.
+ * A bordered circle (never an emoji) so it cannot render as tofu when the
+ * color-emoji font is missing, and `aspect-ratio` + `flex: none` keep it round
+ * inside any flex/stretch parent. */
+.arborito-inline-spinner {
+    display: inline-block;
+    box-sizing: border-box;
+    flex: none;
+    width: 1.15rem;
+    height: 1.15rem;
+    aspect-ratio: 1 / 1;
+    border: 2px solid var(--arborito-theme-inline-spinner-border-color);
+    border-top-color: var(--arborito-theme-inline-spinner-border-top-color);
+    border-radius: 50%;
+    animation: arborito-boot-spin 0.7s linear infinite;
+}
+
+.arborito-inline-spinner--sm {
+    width: 0.9rem;
+    height: 0.9rem;
+}
+
+.arborito-inline-spinner--lg {
+    width: 1.6rem;
+    height: 1.6rem;
+    border-width: 3px;
+}.arborito-inline-spinner--sky {
+    border-top-color: var(--arborito-theme-boot-arborito-inline-spinner--sky-border-top-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .arborito-inline-spinner {
+        animation: none;
+        opacity: 0.85;
+    }
+}
+
+/* --- loading.js panel / brand / inline row --- */
+
+.arborito-loading-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 2.5rem 1rem;
+    border-radius: 1rem;
+    border: 1px dashed var(--arborito-theme-loading-panel-border);
+    background: var(--arborito-theme-loading-panel-bg);
+    color: var(--arborito-theme-loading-panel-fg);
+}
+
+.arborito-loading-panel--sage {
+    --arborito-theme-loading-panel-border: rgb(110 231 183 / 0.8);
+    --arborito-theme-loading-panel-bg: var(--arborito-theme-sources-loading-slot-bg, rgb(236 253 245 / 0.65));
+    --arborito-theme-loading-panel-fg: rgb(6 78 59);
+}
+
+html.dark .arborito-loading-panel--sage {
+    --arborito-theme-loading-panel-border: rgb(6 78 59 / 0.6);
+    --arborito-theme-loading-panel-fg: rgb(209 250 229);
+}
+
+.arborito-loading-panel--sky {
+    --arborito-theme-loading-panel-border: var(--arborito-theme-loading-slot-border);
+    --arborito-theme-loading-panel-bg: var(--arborito-theme-loading-slot-bg);
+    --arborito-theme-loading-panel-fg: var(--arborito-theme-loading-slot-fg);
+}
+
+.arborito-loading-panel--slate {
+    --arborito-theme-loading-panel-border: rgb(148 163 184 / 0.55);
+    --arborito-theme-loading-panel-bg: rgb(248 250 252 / 0.85);
+    --arborito-theme-loading-panel-fg: rgb(71 85 105);
+}
+
+html.dark .arborito-loading-panel--slate {
+    --arborito-theme-loading-panel-border: rgb(51 65 85 / 0.65);
+    --arborito-theme-loading-panel-bg: rgb(15 23 42 / 0.45);
+    --arborito-theme-loading-panel-fg: rgb(203 213 225);
+}
+
+.arborito-loading-panel__label {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.35;
+}
+
+.arborito-loading-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    text-align: center;
+}
+
+.arborito-boot-brand-wrap--loading {
+    margin-bottom: 0;
+}
+
+.arborito-loading-brand__label {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.35;
+    padding: 0 0.5rem;
+}
+
+.arborito-loading-inline-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.arborito-loading-inline-row > span:last-child {
+    min-width: 0;
+}

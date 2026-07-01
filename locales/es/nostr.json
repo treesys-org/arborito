@@ -1,0 +1,16 @@
+{
+  "nostrAccountRemovedByAdminBody": "Puedes seguir usando el curso aquí con tu progreso local en este navegador. Tus mensajes del foro y el progreso sincronizado para este árbol se eliminaron de la red pública. Si no lo esperabas, contacta al administrador del curso para saber el motivo.",
+  "nostrAccountRemovedByAdminTitle": "Tu cuenta en línea fue retirada de este árbol",
+  "nostrBundleFormatUnsupported": "Este curso público está en un formato antiguo o no compatible. Pide a quien lo publicó que lo vuelva a publicar con la versión actual de Arborito. Mientras tanto, puedes pedir un archivo .arborito u otro enlace si lo tienen.",
+  "nostrIdentityUnavailable": "Para usar foro, publicar o códigos de enlace con cifrado completo, abre esta misma página con <strong>https://</strong> o desde <strong>http://localhost</strong>. En una dirección local tipo <code>http://192.168…</code> el navegador limita el cifrado: algunas funciones online pueden no estar disponibles o estar acotadas.",
+  "nostrLessonLoadEmpty": "(Esta lección no tenía texto en la red.)",
+  "nostrLessonLoadError": "No se pudo cargar la lección desde la red. Prueba de nuevo o revisa la conexión.",
+  "nostrLoadFailedError": "No se pudo cargar este curso desde la red. Comprueba la conexión e inténtalo de nuevo.",
+  "nostrNotLoadedHint": "No se pudo activar la conexión para cursos públicos en línea. Prueba recargar la página, otra red, o abrir Arborito con https://. Sin eso, códigos de compartir, publicar y el foro en línea pueden no estar disponibles.",
+  "nostrPublicWarningBody": "Este enlace abre un curso alojado en una <strong>red pública compartida entre quienes tienen el enlace</strong>. Lo que escribas en el foro lo puede leer quien tenga el enlace. La sincronización de progreso en la nube es <strong>opcional</strong>: solo si la activas, y va cifrada con tu clave; puedes apagarla en Perfil. No publiques secretos ni datos personales.",
+  "nostrPublicWarningCheck": "Puedes borrar mensajes, quitar tu identidad en línea de este curso desde el foro, o hablar con quien administra el curso si algo desapareció.",
+  "nostrPublicWarningConfirm": "Entiendo",
+  "nostrPublicWarningTitle": "Curso compartido en la red",
+  "nostrStructureEditHint": "Los cambios de estructura quedan en la memoria de esta pestaña hasta que publiques el curso en la red pública.",
+  "nostrUniverseRevokedError": "Este árbol público fue retirado por quien lo publicó."
+}

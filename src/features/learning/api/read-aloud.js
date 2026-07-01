@@ -1,0 +1,33 @@
+/**
+ * App-wide read-aloud — uses Sage voice stack (Piper on desktop, speechSynthesis fallback).
+ */
+import { sageVoice, plainTextForSpeech, resolveSageVoiceLocale } from './sage-voice.js';
+import { resolveReadAloudLessons } from './a11y-prefs.js';
+
+export async function speakText(text, locale = resolveSageVoiceLocale()) {
+    const plain = plainTextForSpeech(text);
+    if (!plain) return;
+    await sageVoice.speak(plain, locale);
+}
+
+export function stopSpeaking() {
+    sageVoice.stopSpeaking();
+}
+
+export function isReadAloudActive() {
+    const s = sageVoice.state;
+    return s === 'speaking' || (s === 'processing' && sageVoice.progressPhase === 'tts');
+}
+
+export async function readLessonSectionIfEnabled(sectionText) {
+    if (!resolveReadAloudLessons()) return;
+    await speakText(sectionText);
+}
+
+/** Extract visible text from a lesson section container. */
+export function textFromLessonSectionEl(el) {
+    if (!el) return '';
+    const clone = el.cloneNode(true);
+    clone.querySelectorAll('script, style, [aria-hidden="true"]').forEach((n) => n.remove());
+    return clone.textContent || '';
+}

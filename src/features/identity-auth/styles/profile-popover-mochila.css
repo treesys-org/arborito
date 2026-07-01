@@ -1,0 +1,367 @@
+/* --- profile-popover-mochila --- */
+/* Avatar: hover/focus opens the menu that "⋯" (More) used to open */
+html.arborito-desktop .arborito-desktop-profile-wrap {
+    position: relative;
+    z-index: 12;
+    display: inline-flex;
+    align-items: center;
+}
+
+html.arborito-desktop-profile-menu-open #app > arborito-progress-widget {
+    z-index: 90 !important;
+}
+
+html.arborito-desktop-profile-menu-open .arborito-desktop-app-header {
+    z-index: 120;
+}
+
+html.arborito-desktop .arborito-desktop-profile-wrap:hover,
+html.arborito-desktop .arborito-desktop-profile-wrap:focus-within,
+html.arborito-desktop .arborito-desktop-profile-wrap.arborito-tour-popover-open {
+    z-index: 250;
+}
+
+html.arborito-desktop .arborito-desktop-profile-popover {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    right: 0;
+    z-index: 250;
+    width: min(17.5rem, calc(100vw - 2rem));
+    border-radius: 1.25rem;
+    border: 1px solid var(--arborito-theme-surface-border);
+    background: var(--arborito-theme-surface-bg);
+    box-shadow: var(--arborito-theme-float-card-shadow);
+    padding: 0.5rem;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-6px);
+    transition:
+        opacity 140ms ease,
+        transform 140ms ease,
+        visibility 0s linear 140ms;
+}
+html.arborito-desktop .arborito-desktop-profile-popover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    height: 0.45rem;
+}
+
+html.arborito-desktop .arborito-desktop-profile-wrap:hover .arborito-desktop-profile-popover,
+html.arborito-desktop .arborito-desktop-profile-wrap:focus-within .arborito-desktop-profile-popover,
+html.arborito-desktop .arborito-desktop-profile-wrap.arborito-tour-popover-open .arborito-desktop-profile-popover {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    transition-delay: 0s;
+}
+
+/* Backpack (desktop): fixed panel with progress, seeds, and trophies — no prior click */
+html.arborito-desktop .arborito-desktop-mochila-host {
+    position: fixed;
+    z-index: 108;
+    top: calc(var(--arborito-desktop-header-height) + max(0.65rem, env(safe-area-inset-top, 0px)));
+    right: var(--arborito-desktop-mochila-edge);
+    width: var(--arborito-desktop-mochila-width);
+    max-height: min(calc(100vh - var(--arborito-desktop-header-height) - 1.5rem), 36rem);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    pointer-events: none;
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+}
+
+html.arborito-desktop .arborito-mochila-card:not(.arborito-mochila-card--v2) {
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-height: inherit;
+    border-radius: 1.2rem;
+    border: 1px solid var(--arborito-theme-surface-border);
+    background: var(--arborito-theme-surface-bg);
+    box-shadow: var(--arborito-theme-float-card-shadow);
+    overflow: hidden;
+}
+
+html.arborito-desktop .arborito-mochila-card {
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-height: inherit;
+    border-radius: 1.2rem;
+    overflow: hidden;
+}
+
+html.arborito-desktop .arborito-mochila-card--v2.arborito-mochila-card {
+    border: var(--arborito-theme-garden-mochila-v2-desktop-card-border);
+    background: var(--arborito-theme-garden-mochila-v2-desktop-card-background);
+    box-shadow: var(--arborito-theme-garden-mochila-v2-desktop-card-shadow);
+}
+
+html.arborito-desktop .arborito-mochila-card__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    padding: 0.85rem 1rem 0.65rem;
+    border-bottom: 1px solid var(--arborito-theme-garden-arborito-mochila-card__head-border-color);
+    flex-shrink: 0;
+}
+
+html.arborito-desktop .arborito-mochila-card__mark {
+    font-size: 1.6rem;
+    line-height: 1;
+}
+
+html.arborito-desktop .arborito-mochila-card__titles {
+    min-width: 0;
+    flex: 1;
+}
+
+html.arborito-desktop .arborito-mochila-card__title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    color: var(--arborito-theme-garden-arborito-mochila-card__title-color);
+}
+
+html.arborito-desktop .arborito-mochila-card__sub {
+    margin: 0.15rem 0 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--arborito-theme-garden-arborito-mochila-card__sub-color);
+}
+
+html.arborito-desktop .arborito-mochila-card__body {
+    padding: 0.75rem 1rem 0.9rem;
+    overflow-y: auto;
+    min-height: 0;
+    flex: 1 1 auto;
+}
+
+html.arborito-desktop .arborito-mochila-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+html.arborito-desktop .arborito-mochila-stat {
+    position: relative;
+    border-radius: 0.85rem;
+    padding: 0.5rem 0.45rem;
+    text-align: center;
+    overflow: hidden;
+    border: 1px solid transparent;
+}
+
+html.arborito-desktop .arborito-mochila-stat--blue {
+    background: var(--arborito-theme-garden-arborito-mochila-stat--blue-background);
+    border-color: var(--arborito-theme-garden-arborito-mochila-stat--blue-border-color);
+}
+
+html.arborito-desktop .arborito-mochila-stat--amber {
+    background: var(--arborito-theme-garden-arborito-mochila-stat--amber-background);
+    border-color: var(--arborito-theme-garden-arborito-mochila-stat--amber-border-color);
+}
+
+html.arborito-desktop .arborito-mochila-stat__ic {
+    display: block;
+    font-size: 1.1rem;
+    line-height: 1;
+    margin-bottom: 0.15rem;
+}
+
+html.arborito-desktop .arborito-mochila-stat__val {
+    font-size: 1.05rem;
+    font-weight: 950;
+    color: var(--arborito-theme-garden-arborito-mochila-stat__val-color);
+    line-height: 1.1;
+}
+
+html.arborito-desktop .arborito-mochila-stat__lb {
+    display: block;
+    font-size: 0.58rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--arborito-theme-garden-arborito-mochila-stat__lb-color);
+    margin-top: 0.1rem;
+}
+
+html.arborito-desktop .arborito-mochila-stat__fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--arborito-theme-garden-arborito-mochila-stat__fill-background);
+    pointer-events: none;
+    z-index: 0;
+}
+
+html.arborito-desktop .arborito-mochila-stat--amber > :not(.arborito-mochila-stat__fill) {
+    position: relative;
+    z-index: 1;
+}
+
+html.arborito-desktop .arborito-mochila-course {
+    margin-bottom: 0.75rem;
+}
+
+html.arborito-desktop .arborito-mochila-course__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+
+html.arborito-desktop .arborito-mochila-course__title {
+    font-size: 0.62rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--arborito-theme-garden-arborito-mochila-course__title-color);
+}
+
+html.arborito-desktop .arborito-mochila-course__pct {
+    font-size: 0.85rem;
+    font-weight: 950;
+    color: var(--arborito-theme-garden-arborito-mochila-course__pct-color);
+}
+
+html.arborito-desktop .arborito-mochila-course__bar {
+    height: 0.35rem;
+    min-height: 6px;
+    border-radius: 999px;
+    background: var(--arborito-theme-garden-arborito-mochila-course__bar-background);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+html.arborito-desktop .arborito-mochila-course__bar > span {
+    display: block;
+    height: 100%;
+    min-width: 0;
+    border-radius: 999px;
+    background: var(--arborito-theme-garden-arborito-mochila-course__bar-fill-background);
+    transition: width 280ms ease-out;
+}
+
+html.arborito-desktop .arborito-mochila-course__meta {
+    margin: 0.35rem 0 0;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--arborito-theme-garden-arborito-mochila-course__meta-color);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+}
+
+html.arborito-desktop .arborito-mochila-dot {
+    opacity: 0.45;
+}
+
+html.arborito-desktop .arborito-mochila-block {
+    margin-bottom: 0.65rem;
+}
+
+html.arborito-desktop .arborito-mochila-block__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem;
+    margin-bottom: 0.35rem;
+}
+
+html.arborito-desktop .arborito-mochila-block__title {
+    font-size: 0.62rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--arborito-theme-garden-arborito-mochila-course__title-color);
+}
+
+html.arborito-desktop .arborito-mochila-block__badge {
+    font-size: 0.58rem;
+    font-weight: 900;
+    padding: 0.12rem 0.45rem;
+    border-radius: 999px;
+    background: var(--arborito-theme-garden-arborito-mochila-block__badge-background);
+    color: var(--arborito-theme-garden-arborito-mochila-block__badge-color);
+}
+
+html.arborito-desktop .arborito-mochila-block__badge--gold {
+    background: var(--arborito-theme-auth-arborito-mochila-block-badge-gold-background);
+    color: var(--arborito-theme-auth-arborito-mochila-block-badge-gold-color);
+}
+
+html.arborito-desktop .arborito-mochila-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+    min-height: 2.35rem;
+    padding: 0.35rem 0.4rem;
+    border-radius: 0.75rem;
+    background: var(--arborito-theme-garden-arborito-mochila-strip-background);
+    border: var(--arborito-theme-garden-arborito-mochila-strip-border);
+}
+
+html.arborito-desktop .arborito-mochila-strip--trophies {
+    background: var(--arborito-theme-garden-arborito-mochila-strip--trophies-background);
+    border-color: var(--arborito-theme-garden-arborito-mochila-strip--trophies-border-color);
+}
+
+html.arborito-desktop .arborito-mochila-ico {
+    font-size: 1.15rem;
+    line-height: 1;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.45rem;
+    background: var(--arborito-theme-garden-arborito-mochila-ico-background);
+    border: var(--arborito-theme-garden-arborito-mochila-ico-border);
+}
+
+html.arborito-desktop .arborito-mochila-trophy {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: none;
+    border-radius: 0.55rem;
+    cursor: pointer;
+    background: var(--arborito-theme-garden-arborito-mochila-trophy-background);
+    border: var(--arborito-theme-garden-arborito-mochila-trophy-border);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 120ms ease, box-shadow 160ms ease;
+}
+
+html.arborito-desktop .arborito-mochila-trophy:hover {
+    transform: scale(1.06);
+    box-shadow: var(--arborito-theme-garden-arborito-mochila-trophy-hover-shadow);
+}
+
+html.arborito-desktop .arborito-mochila-trophy__ic {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+html.arborito-desktop .arborito-mochila-empty {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--arborito-theme-garden-arborito-mochila-empty-color);
+    font-style: italic;
+    padding: 0.15rem 0.25rem;
+}

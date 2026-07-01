@@ -1,0 +1,68 @@
+/** identity-auth.css — username suggest, onboarding, profile modal, popover/mochila */
+/* --- arborito-username-suggest --- */
+/**
+ * Username suggest dropdown — shared "name already taken" suggestion strip.
+ * Used by onboarding and profile modals (modal-specific padding overrides remain local).
+ *
+ * Used by:
+ *   - `.arborito-modal--onboarding .arborito-onb-suggest{,-chip,__label,__chips}` (onboarding register flow)
+ *   - `.profile-username-suggest{,-chip,__label,__chips}`                         (profile register flow)
+ *
+ * HTML shape (both modals):
+ *   <div class="<root>" role="group">
+ *       <p class="<root>__label">Probá con:</p>
+ *       <div class="<root>__chips">
+ *           <button class="<root>-chip">…</button>
+ *       </div>
+ *   </div>
+ *
+ * Import this file BEFORE the per-modal partials in `main.entry.css` so the
+ * modal-side override blocks for `padding` / `background` win the cascade
+ * for those properties only.
+ */
+
+.arborito-modal--onboarding .arborito-onb-suggest,
+.profile-username-suggest {
+    margin: 0 0 0.5rem;
+    border-radius: 0.625rem;
+    border: 1px solid var(--arborito-theme-auth-onb-suggest-border-color);
+    background: var(--arborito-theme-auth-onb-suggest-background);
+}
+
+.arborito-modal--onboarding .arborito-onb-suggest__label,
+.profile-username-suggest__label {
+    margin: 0 0 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--arborito-theme-auth-arborito-onb-suggest__label-color);
+}
+
+.arborito-modal--onboarding .arborito-onb-suggest__chips,
+.profile-username-suggest__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}.arborito-modal--onboarding .arborito-onb-suggest-chip,
+.profile-username-suggest-chip {
+    appearance: none;
+    border: var(--arborito-theme-auth-arborito-onb-suggest-chip-border);
+    background: var(--arborito-theme-auth-arborito-onb-suggest-chip-background);
+    color: var(--arborito-theme-auth-arborito-onb-suggest-chip-color);
+    font-family: var(--font-family-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+}.arborito-modal--onboarding .arborito-onb-suggest-chip:hover,
+.profile-username-suggest-chip:hover {
+    background: var(--arborito-theme-auth-arborito-onb-suggest-chip-background-2);
+}
+
+.arborito-modal--onboarding .arborito-onb-suggest-chip:active,
+.profile-username-suggest-chip:active {
+    transform: scale(0.97);
+}
+

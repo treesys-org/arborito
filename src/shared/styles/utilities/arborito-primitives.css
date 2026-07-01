@@ -1,0 +1,711 @@
+/**
+ * Semantic eyebrow labels — small uppercase section headings.
+ *
+ * Usage:
+ *   <p class="arborito-eyebrow">SECTION TITLE</p>
+ *   <label class="arborito-eyebrow arborito-eyebrow--sky">DETAIL</label>
+ *   <h3 class="arborito-eyebrow arborito-eyebrow--md">SAVED GAMES</h3>
+ *
+ * Size = font-size scale. Tone = color (light + dark variants).
+ * Spacing (`mb-2`, `m-0`, `mt-1`) stays at the call site as a Tailwind utility
+ * so rhythm/positioning is still owned locally.
+ */
+.arborito-eyebrow {
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    line-height: 1.1;
+    color: var(--arborito-theme-eyebrow-fg);
+}
+
+.arborito-eyebrow--sm  { font-size: 9px;  letter-spacing: 0.08em; }
+.arborito-eyebrow--md  { font-size: 12px; }
+
+/* Tonal variants — for colored callouts where slate has insufficient contrast. */
+.arborito-eyebrow--sky     { color: var(--arborito-theme-eyebrow-sky-fg); }
+.arborito-eyebrow--strong  { color: var(--arborito-theme-eyebrow-strong-fg); }
+
+/**
+ * Semantic pill / badge tokens.
+ *
+ * Usage:
+ *   <span class="arborito-pill arborito-pill--sm arborito-pill--blue">LESSON</span>
+ *   <span class="arborito-pill arborito-pill--chip arborito-pill--purple arborito-pill--bordered">#ABCD</span>
+ *
+ * Size + Shape come from the same modifier. Tone = color contract (light + dark).
+ * Spacing (`ml-2`, `mt-1`) and layout flags stay at the call site.
+ */
+.arborito-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+/* Size + shape modifiers. Default = "xs". */
+.arborito-pill--xs   { font-size: 9px;  padding: 0 0.375rem;             border-radius: 0.25rem; }
+.arborito-pill--sm   { font-size: 10px; padding: 0.125rem 0.5rem;        border-radius: 0.375rem; }
+.arborito-pill--chip { font-size: 10px; padding: 0.25rem 0.625rem;       border-radius: 9999px; }
+.arborito-pill--lg   { font-size: 12px; padding: 0.375rem 0.75rem;       border-radius: 0.5rem; }
+
+.arborito-pill--bordered { border: 1px solid currentColor; opacity: 0.95; }
+
+/* Tone tokens — bg + fg from arborito-theme-surfaces.css */
+.arborito-pill--slate   { background: var(--arborito-pill-slate-bg);   color: var(--arborito-pill-slate-fg); }
+.arborito-pill--blue    { background: var(--arborito-pill-blue-bg);    color: var(--arborito-pill-blue-fg); }
+.arborito-pill--sky     { background: var(--arborito-pill-sky-bg);     color: var(--arborito-pill-sky-fg); }
+.arborito-pill--green   { background: var(--arborito-pill-green-bg);   color: var(--arborito-pill-green-fg); }
+.arborito-pill--emerald { background: var(--arborito-pill-emerald-bg); color: var(--arborito-pill-emerald-fg); }
+.arborito-pill--amber   { background: var(--arborito-pill-amber-bg);   color: var(--arborito-pill-amber-fg); }
+.arborito-pill--yellow  { background: var(--arborito-pill-yellow-bg);  color: var(--arborito-pill-yellow-fg); }
+.arborito-pill--red     { background: var(--arborito-pill-red-bg);     color: var(--arborito-pill-red-fg); }
+.arborito-pill--purple  { background: var(--arborito-pill-purple-bg);  color: var(--arborito-pill-purple-fg); }
+.arborito-pill--violet  { background: var(--arborito-pill-violet-bg);  color: var(--arborito-pill-violet-fg); }
+
+/* Solid variants (white text on a saturated bg). */
+.arborito-pill--solid-purple  { background: rgb(147 51 234); color: rgb(255 255 255); }
+.arborito-pill--solid-orange  { background: rgb(234 88 12);  color: rgb(255 255 255); }
+.arborito-pill--solid-emerald { background: var(--arborito-cta-emerald-bg); color: var(--arborito-cta-emerald-fg); }
+.arborito-pill--solid-rose    { background: var(--arborito-cta-rose-bg);    color: var(--arborito-cta-rose-fg); }
+
+/**
+ * Icon-only square button — the ~20 sites that share
+ * `w-9 h-9` / `w-10 h-10` / `w-11 h-11` + `rounded-xl` + center alignment +
+ * a subtle bg with hover.
+ *
+ * Modelled after `.arborito-mmenu-back` (canonical chip in
+ * `src/shared/styles/modals/[data-arborito-panel="modals"].css`) so the tactile behaviour stays
+ * consistent. Sizes are tokens, tones are tokens.
+ *
+ * Usage:
+ *   <button class="arborito-icon-btn arborito-icon-btn--md" aria-label="More">⋯</button>
+ *   <button class="arborito-icon-btn arborito-icon-btn--md arborito-icon-btn--danger" aria-label="Remove">🗑️</button>
+ *
+ * Size affects width/height/font-size of the glyph slot; tone sets bg + text +
+ * hover + dark variants. Spacing (`mt-1`, `ml-auto`) stays at the call site.
+ */
+.arborito-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
+    flex-shrink: 0;
+    line-height: 1;
+    background: var(--arborito-theme-icon-btn-bg);
+    color: var(--arborito-theme-icon-btn-fg);
+}
+.arborito-icon-btn:active { transform: scale(0.94); }
+.arborito-icon-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+/* Sizes */
+.arborito-icon-btn--sm { width: 2.25rem; height: 2.25rem; font-size: 1rem;     border-radius: 0.625rem; }
+.arborito-icon-btn--md { width: 2.5rem;  height: 2.5rem;  font-size: 1.125rem; }
+
+.arborito-icon-btn:hover:not(:disabled) {
+    background: var(--arborito-theme-icon-btn-hover-bg);
+}
+
+/* On a dark/photo background (e.g. game player overlay). */
+.arborito-icon-btn--on-dark {
+    background: rgb(255 255 255 / 0.10);
+    color: rgb(255 255 255);
+}
+.arborito-icon-btn--on-dark:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.20);
+}
+
+/* Danger — destructive icon (remove, delete). */
+.arborito-icon-btn--danger {
+    background: var(--arborito-theme-icon-btn-danger-bg);
+    color: var(--arborito-theme-icon-btn-danger-fg);
+}
+.arborito-icon-btn--danger:hover:not(:disabled) {
+    background: var(--arborito-theme-icon-btn-danger-hover-bg);
+}
+
+/* On-dark danger (for overlays on a dark canvas). */
+.arborito-icon-btn--on-dark-danger {
+    background: rgb(220 38 38 / 0.85);
+    color: rgb(255 255 255);
+}
+.arborito-icon-btn--on-dark-danger:hover:not(:disabled) {
+    background: rgb(220 38 38);
+}
+
+/** Hide mobile chrome (top actions, dock) while a full-screen modal is open. */
+.arborito-mob-chrome--suppressed {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/**
+ * Neutral / ghost action buttons — shared color contracts for dialog confirm,
+ * arcade play CTA, sources row actions, etc.
+ *
+ * Usage:
+ *   <button class="arborito-btn-neutral px-4 py-2 rounded-xl text-xs font-bold">OK</button>
+ *   <button class="arborito-btn-ghost px-4 py-2 rounded-xl font-bold text-sm">+</button>
+ */
+.arborito-btn-neutral {
+    background-color: var(--arborito-cta-neutral-bg);
+    color: var(--arborito-cta-neutral-fg);
+    transition: opacity 150ms, background-color 150ms, transform 120ms;
+}
+.arborito-btn-neutral:hover:not(:disabled) {
+    background-color: var(--arborito-cta-neutral-bg-hover);
+}
+.arborito-btn-neutral:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.arborito-btn-ghost {
+    background-color: var(--arborito-theme-btn-ghost-bg);
+    color: var(--arborito-theme-btn-ghost-fg);
+    transition: background-color 150ms, color 150ms;
+}
+.arborito-btn-ghost:hover:not(:disabled) {
+    background-color: var(--arborito-theme-btn-ghost-hover-bg);
+}
+.arborito-btn-ghost:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/**
+ * Segmented control — pill track + toggle buttons (Sage Guide / Experimental).
+ *
+ * Usage:
+ *   <div class="arborito-seg-track" role="group">
+ *     <button class="arborito-seg-btn arborito-seg-btn--active">Guide</button>
+ *     <button class="arborito-seg-btn arborito-seg-btn--active-accent">AI</button>
+ *   </div>
+ */
+.arborito-seg-track {
+    display: inline-flex;
+    gap: 0.125rem;
+    padding: 0.125rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--arborito-theme-seg-track-border);
+    background: var(--arborito-theme-seg-track-bg);
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+}
+.arborito-seg-btn {
+    padding: 0.25rem 0.625rem;
+    border-radius: 0.5rem;
+    border: none;
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--arborito-theme-seg-btn-fg);
+    background: transparent;
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.arborito-seg-btn:hover:not(:disabled):not(.arborito-seg-btn--active):not(.arborito-seg-btn--active-accent) {
+    color: var(--arborito-theme-seg-btn-hover-fg);
+}
+.arborito-seg-btn--active {
+    background: var(--arborito-theme-seg-btn-active-bg);
+    color: var(--arborito-theme-seg-btn-active-fg);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.06);
+    outline: 1px solid var(--arborito-theme-seg-btn-active-ring);
+}
+.arborito-seg-btn--active-accent {
+    background: var(--arborito-theme-seg-btn-active-accent-bg);
+    color: var(--arborito-theme-seg-btn-active-accent-fg);
+    box-shadow: var(--shadow-sm);
+    outline: 1px solid var(--arborito-theme-seg-btn-active-accent-ring);
+}
+.arborito-seg-btn--active-warn {
+    background: var(--arborito-theme-seg-btn-active-warn-bg);
+    color: var(--arborito-theme-seg-btn-active-warn-fg);
+    box-shadow: var(--shadow-sm);
+    outline: 1px solid var(--arborito-theme-seg-btn-active-warn-ring);
+}
+
+.arborito-seg-track--wide {
+    display: flex;
+    width: 100%;
+}
+.arborito-seg-track--wide .arborito-seg-btn {
+    flex: 1 1 0;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: normal;
+    border-radius: 0.5rem;
+}
+
+.arborito-meter {
+    width: 100%;
+    height: 0.5rem;
+    border-radius: 9999px;
+    overflow: hidden;
+    background: var(--arborito-theme-meter-track-bg);
+}
+.arborito-meter__fill {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.5s ease;
+}
+.arborito-meter__fill--purple { background: rgb(147 51 234); }
+.arborito-meter__fill--orange { background: rgb(249 115 22); }
+.arborito-meter__fill--red { background: rgb(239 68 68); }
+
+.arborito-picker-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--arborito-theme-picker-panel-border);
+    background: var(--arborito-theme-picker-panel-bg);
+}
+.arborito-picker-row {
+    width: 100%;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    background: transparent;
+    color: var(--arborito-theme-text-muted);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.arborito-picker-row:hover:not(:disabled) {
+    background: var(--arborito-theme-picker-row-hover-bg);
+}
+.arborito-picker-row.is-selected {
+    background: var(--arborito-theme-picker-row-selected-bg);
+    color: var(--arborito-theme-picker-row-selected-fg);
+    box-shadow: 0 0 0 1px var(--arborito-theme-picker-row-selected-ring);
+}
+.arborito-picker-row:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
+
+/* Arcade game setup — sticky start CTA + collapsible module tree */
+.arborito-arcade-setup {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+.arborito-arcade-setup__controls {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.arborito-arcade-setup__picker {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+}
+.arborito-arcade-setup__footer {
+    flex-shrink: 0;
+    padding: 0.75rem 0 0;
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--arborito-theme-picker-panel-border);
+    background: var(--arborito-theme-surface-bg, transparent);
+}
+.arborito-arcade-setup__scope {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.45rem;
+    width: 100%;
+    padding: 0.7rem 0.75rem;
+    border-radius: 0.85rem;
+    border: 2px dashed var(--arborito-theme-picker-row-selected-ring);
+    background: var(--arborito-theme-picker-row-selected-bg);
+    color: var(--arborito-theme-picker-row-selected-fg);
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.arborito-arcade-setup__scope:hover {
+    border-color: rgb(249 115 22);
+    background: var(--arborito-theme-picker-row-hover-bg, var(--arborito-theme-picker-row-selected-bg));
+}
+.arborito-arcade-setup__scope:active {
+    transform: scale(0.99);
+}
+.arborito-arcade-setup__scope-lead {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    opacity: 0.88;
+    line-height: 1.3;
+}
+.arborito-arcade-setup__scope-main {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+.arborito-arcade-setup__scope-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 1rem;
+    font-weight: 900;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.arborito-arcade-setup__scope-chev {
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    opacity: 0.65;
+    line-height: 1;
+}
+.arborito-arcade-setup__scope-tap {
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--arborito-theme-text-muted);
+}
+.arborito-arcade-setup__start-scope {
+    max-width: 100%;
+    padding: 0 0.35rem;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1.25;
+    opacity: 0.92;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.arborito-arcade-setup__row {
+    display: flex;
+    align-items: stretch;
+    gap: 0.15rem;
+    min-width: 0;
+}
+.arborito-arcade-setup__row .arborito-picker-row {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.arborito-arcade-setup__fold {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    padding: 0;
+    border: none;
+    border-radius: 0.35rem;
+    background: transparent;
+    color: var(--arborito-theme-text-muted);
+    font-size: 0.7rem;
+    line-height: 1;
+    cursor: pointer;
+}
+.arborito-arcade-setup__fold--spacer {
+    pointer-events: none;
+    visibility: hidden;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-dock-hub-shell > #modal-content {
+    padding: 0 1rem 0.5rem;
+    box-sizing: border-box;
+}
+
+/**
+ * Tab bar (sticky horizontal switcher) — 3 in-tree sites that already share
+ * a model with `.arborito-curriculum-switcher-tabs` from runtime-overrides.
+ *
+ * Usage:
+ *   <div class="arborito-tab-bar" role="tablist">
+ *     <button class="arborito-tab arborito-tab--active">All</button>
+ *     <button class="arborito-tab">Mine</button>
+ *   </div>
+ *
+ * Active state is the underline + saturated text; inactive is a softer tone
+ * with hover.
+ */
+.arborito-tab-bar {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid var(--arborito-theme-tab-bar-border);
+    background: transparent;
+}
+
+.arborito-tab {
+    flex: 1 1 0%;
+    min-width: 4.5rem;
+    padding: 0.625rem 0.75rem 0.75rem;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--arborito-theme-tab-fg);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+    white-space: nowrap;
+}
+@media (min-width: 640px) {
+    .arborito-tab { font-size: 12px; padding: 0.75rem 1rem; }
+}
+.arborito-tab:hover:not(:disabled) {
+    color: var(--arborito-theme-tab-hover-fg);
+}
+
+.arborito-tab--active,
+.arborito-tab[aria-selected="true"] {
+    color: var(--arborito-theme-tab-active-fg);
+    border-bottom-color: var(--arborito-theme-tab-active-indicator);
+}
+
+/**
+ * Empty state — the recurring "nothing here" UI.
+ *
+ * Sub-forms:
+ *   - default            ─ centered text-only one-liner (most common)
+ *   - .arborito-empty--dashed    ─ dashed-border card
+ *   - .arborito-empty--card      ─ icon + title + body + (optional CTA)
+ *
+ * Usage:
+ *   <p class="arborito-empty">No results yet.</p>
+ *   <div class="arborito-empty arborito-empty--card">
+ *     <div class="arborito-empty__icon">📚</div>
+ *     <p class="arborito-empty__title">No certificates yet</p>
+ *     <p class="arborito-empty__body">Finish a tree to earn one.</p>
+ *   </div>
+ */
+.arborito-empty {
+    color: var(--arborito-theme-empty-fg);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.arborito-empty--dashed {
+    border: 1.5px dashed var(--arborito-theme-empty-dashed-border);
+    border-radius: 1rem;
+    padding: 1.25rem 1rem;
+    background: transparent;
+}
+
+.arborito-empty--card {
+    border: 1px solid var(--arborito-theme-empty-card-border);
+    border-radius: 1rem;
+    padding: 1.5rem 1.25rem;
+    background: var(--arborito-theme-empty-card-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.arborito-empty__icon {
+    font-size: 2.5rem;
+    line-height: 1;
+    opacity: 0.85;
+}
+
+.arborito-empty__title {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 800;
+    color: var(--arborito-theme-empty-title-fg);
+}
+
+.arborito-empty__body {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--arborito-theme-empty-body-fg);
+}
+
+/**
+ * Action row — the balanced 1-of-2 / 2-of-2 button rows used for
+ * Back/Forward, Cancel/Save, Cancel/Delete pairs at the bottom of modals.
+ *
+ * Pairs with `arborito-cta-*` for color contracts. This file owns the layout
+ * (flex, gap, full-width children) only.
+ *
+ * Usage:
+ *   <div class="arborito-action-row">
+ *     <button class="arborito-cta-slate">Cancel</button>
+ *     <button class="arborito-cta-emerald">Save</button>
+ *   </div>
+ *
+ *   <div class="arborito-action-row arborito-action-row--stack-mobile">…</div>
+ */
+.arborito-action-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.arborito-action-row > .arborito-cta-emerald,
+.arborito-action-row > .arborito-cta-slate,
+.arborito-action-row > .arborito-cta-amber,
+.arborito-action-row > .arborito-cta-rose,
+.arborito-action-row > button,
+.arborito-action-row > a {
+    flex: 1 1 0%;
+    min-height: 2.75rem;
+}
+
+/* Stack vertically on narrow screens. */
+@media (max-width: 480px) {
+    .arborito-action-row--stack-mobile { flex-direction: column-reverse; }
+    .arborito-action-row--stack-mobile > * { width: 100%; }
+}
+
+/**
+ * Obfuscated email rendering — paired with `utils/email-obfuscate.js`.
+ *
+ * The element's text content is the email REVERSED. CSS flips the visual
+ * order back so humans see the correct address. Naive bot scrapers reading
+ * the HTML source / `textContent` get garbage like `gro.sysert@selas`.
+ *
+ * Click / Enter copies the real address to the clipboard from the
+ * `data-eml-b64` attribute. We deliberately do NOT render a `mailto:` link
+ * at idle time so that crawlers never see the plain email even if they run
+ * full DOM rendering.
+ */
+
+.arb-obf-email {
+    /* Visual reversal: render right-to-left while overriding bidi rules. */
+    direction: rtl;
+    unicode-bidi: bidi-override;
+
+    /* Clickable affordance — shows up clearly inside the impressum block. */
+    display: inline;
+    cursor: pointer;
+    color: inherit;
+    text-decoration: underline dotted;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    border-radius: 2px;
+}
+
+.arb-obf-email:hover,
+.arb-obf-email:focus-visible {
+    text-decoration-style: solid;
+    outline: none;
+}
+
+.arb-obf-email:focus-visible {
+    box-shadow: 0 0 0 2px rgb(99 102 241 / 0.45);
+}
+
+/* While we briefly show "✓ Copied" we want LTR text again. */
+.arb-obf-email.is-copied {
+    direction: ltr;
+    unicode-bidi: normal;
+    text-decoration: none;
+    color: rgb(16 185 129); /* emerald-500 */
+}
+
+/**
+ * Semantic surface + text — theme-aware cards/rows (mochila pattern).
+ * Use instead of `bg-white dark:bg-slate-800` soup in modals and panels.
+ */
+.arborito-surface-card {
+    background: var(--arborito-theme-card-bg);
+    border: 1px solid var(--arborito-theme-card-border);
+    color: var(--arborito-theme-card-fg);
+    border-radius: 1rem;
+}
+.arborito-surface-card--emphasis {
+    border-color: var(--arborito-theme-card-border-emphasis);
+}
+.arborito-surface-card:hover {
+    box-shadow: var(--arborito-theme-float-card-lift-soft);
+}
+
+.arborito-text-muted {
+    color: var(--arborito-theme-text-muted);
+}
+.arborito-text-strong {
+    color: var(--arborito-theme-text-strong);
+}
+
+.arborito-tab-strip {
+    display: flex;
+    flex-shrink: 0;
+    border-top: 1px solid var(--arborito-theme-tab-bar-border);
+    border-bottom: 1px solid var(--arborito-theme-tab-bar-border);
+    background: var(--arborito-theme-arcade-tabs-background, var(--arborito-theme-strip-bg));
+}
+.arborito-tab-strip__btn {
+    flex: 1 1 0;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.25;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--arborito-theme-tab-fg);
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+.arborito-tab-strip__btn:hover {
+    color: var(--arborito-theme-tab-hover-fg);
+}
+.arborito-tab-strip__btn.is-active {
+    color: var(--arborito-theme-tab-active-fg);
+    border-bottom-color: var(--arborito-theme-tab-active-indicator);
+}
+.arborito-tab-strip__divider {
+    width: 1px;
+    flex-shrink: 0;
+    align-self: stretch;
+    margin-block: 0.5rem;
+    background: var(--arborito-theme-tab-bar-border);
+    opacity: 0.7;
+}
+
+.arborito-icon-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 0.75rem;
+    background: var(--arborito-theme-icon-tile-bg);
+    border: 1px solid var(--arborito-theme-icon-tile-border);
+    color: var(--arborito-theme-icon-tile-fg);
+}
+
+.arborito-section-divider {
+    border-top: 1px solid var(--arborito-theme-divider-border);
+}
+
+.arborito-modal-head-rule {
+    border-bottom: 1px solid var(--arborito-theme-modal-head-border);
+}
+

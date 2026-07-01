@@ -1,0 +1,130 @@
+{
+  "name": "arborito",
+  "version": "0.1.0-alpha",
+  "description": "Visual Knowledge Explorer — Vite + React + Tailwind CSS v3.",
+  "main": "electron-main.js",
+  "scripts": {
+    "dev": "vite",
+    "dev:electron": "ARBORITO_VITE_DEV=1 electron .",
+    "build": "vite build",
+    "postbuild": "node ./scripts/verify-vite-www.mjs",
+    "prebuild": "npm run vendor:emoji",
+    "preview": "vite preview",
+    "vendor:emoji": "node ./scripts/vendor-emoji.mjs && node ./scripts/vendor-emoji-images.mjs",
+    "vendor:games": "node ./scripts/vendor-games.mjs",
+    "test:emoji": "node ./scripts/test-emoji-offline.mjs && node ./scripts/test-emoji-glyphs.mjs && node ./scripts/test-electron-emoji-paths.mjs",
+    "test:sage-settings": "node ./scripts/test-sage-settings-logic.mjs",
+    "test:publish-diff": "node ./scripts/test-publish-diff-state.mjs",
+    "test:sage-voice": "node ./scripts/test-sage-voice-assets.mjs",
+    "test:electron-llamacpp": "node ./scripts/test-electron-llamacpp-static.mjs && node ./scripts/test-electron-llamacpp-bridge.cjs",
+    "bench:sage-hola": "node ./scripts/bench-sage-hola.mjs",
+    "directory-index:build": "node ./scripts/directory-index-aggregator.mjs",
+    "test:directory-trigram": "node ./scripts/test-directory-trigram-tags.mjs",
+    "bench:nostr-relays": "node ./scripts/bench-nostr-relays.mjs",
+    "test:search-index": "node ./scripts/search-regression.mjs",
+    "build:css": "node ./scripts/build-css.mjs",
+    "build:css:min": "node ./scripts/build-css.mjs --minify",
+    "watch:css": "tailwindcss -i ./src/shared/styles/main.entry.css -o ./src/shared/styles/main.css --watch",
+    "prestart": "npm run build && npm run vendor:emoji",
+    "start": "electron .",
+    "predist": "npm run build && npm run vendor:emoji && npm run ensure:icon",
+    "dist": "electron-builder --linux flatpak",
+    "dist:win": "electron-builder --win nsis",
+    "release:build": "node ./scripts/release-build.mjs",
+    "release:build:flatpak": "node ./scripts/release-build.mjs --flatpak",
+    "release:build:win": "node ./scripts/release-build.mjs --win",
+    "release:build:android": "node ./scripts/build-android-apk.mjs",
+    "dist:android": "node ./scripts/build-android-apk.mjs",
+    "ensure:icon": "node ./scripts/ensure-build-icon.mjs",
+    "setup:flatpak": "node ./scripts/preflight-flatpak.mjs --install",
+    "knip": "knip",
+    "check:max-lines": "node ./scripts/check-max-file-lines.mjs",
+    "check:react-migration": "node ./scripts/check-react-migration.mjs",
+    "check:react-ui-scope": "node ./scripts/check-react-ui-scope.mjs",
+    "test:graph-smoke": "node ./scripts/test-graph-smoke.mjs",
+    "test:care-reminders": "node ./scripts/test-care-reminders-access.mjs",
+    "test:lesson-draft": "node ./scripts/test-lesson-draft-persist.mjs",
+    "check:migration-metrics": "node ./scripts/check-migration-metrics.mjs",
+    "check:migration": "npm run check:react-migration && npm run check:react-ui-scope && npm run check:migration-metrics -- --fail && node ./scripts/test-store-bundle-bindings.mjs && npm run check:modal-compliance",
+    "check:css-debt": "node ./scripts/check-css-debt.mjs",
+    "check:modal-compliance": "node ./scripts/check-modal-compliance.mjs",
+    "locales:validate": "python3 scripts/validate-locales.py",
+    "serve:http": "npm run preview"
+  },
+  "author": {
+    "name": "Treesys",
+    "email": "support@treesys.org"
+  },
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@capacitor/android": "^7.2.0",
+    "@capacitor/cli": "^7.2.0",
+    "@capacitor/core": "^7.2.0",
+    "autoprefixer": "^10.4.20",
+    "electron": "^42.2.0",
+    "electron-builder": "^26.8.1",
+    "knip": "^5.45.0",
+    "postcss": "^8.4.49",
+    "postcss-import": "^16.1.0",
+    "tailwindcss": "^3.4.17",
+    "@fontsource/noto-color-emoji": "^5.2.5",
+    "twemoji": "^14.0.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zustand": "^5.0.5",
+    "@vitejs/plugin-react": "^4.5.2",
+    "vite": "^6.3.5",
+    "vite-plugin-static-copy": "^3.0.2"
+  },
+  "build": {
+    "appId": "org.treesys.arborito",
+    "productName": "Arborito",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "**/*",
+      "!dist/",
+      "!release/",
+      "!package/",
+      "!scripts/",
+      "!**/*.md",
+      "!.cursor/"
+    ],
+    "asarUnpack": [
+      "electron-sage-voice.js",
+      "electron-llama-bin.cjs",
+      "electron-llama-chat.cjs",
+      "vendor/fonts/**/*",
+      "vendor/emoji/**/*"
+    ],
+    "linux": {
+      "target": [
+        "flatpak"
+      ],
+      "category": "Education",
+      "maintainer": "Treesys <support@treesys.org>",
+      "icon": "build/icon.png"
+    },
+    "flatpak": {
+      "runtime": "org.freedesktop.Platform",
+      "runtimeVersion": "24.08",
+      "sdk": "org.freedesktop.Sdk",
+      "base": "org.electronjs.Electron2.BaseApp",
+      "baseVersion": "24.08",
+      "finishArgs": [
+        "--share=network",
+        "--socket=fallback-x11",
+        "--socket=wayland",
+        "--socket=pulseaudio",
+        "--device=dri",
+        "--filesystem=home"
+      ]
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.png"
+    }
+  }
+}

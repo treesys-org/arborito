@@ -1,0 +1,38 @@
+/**
+ * Eager modal route keys — no React imports.
+ * Used by modal-chunk-loaders (Node CI) and eager-modals.jsx (shell bundle).
+ */
+export const EAGER_MODAL_TYPE_KEYS = [
+    'dialog',
+    'sources',
+    'security-warning',
+    'load-warning',
+    'search',
+    'profile',
+    'certificates',
+    'preview',
+    'about',
+    'language',
+    'export-pdf',
+    'certificate',
+    'emptyModule',
+    'privacy',
+    'celebration-prefs',
+    'download-app',
+    'accessibility-prefs',
+    'backup',
+    'arcade',
+    'game-player',
+    'node-properties',
+    'move-node',
+    'tree-info',
+    'pick-curriculum-lang',
+    'construction-curriculum-lang',
+    'forum',
+    'publish-diff',
+    'construction-history',
+    'construction-edit-pick',
+    'construction-about',
+    'sync-login-qr-scanner',
+    'contributor',
+];

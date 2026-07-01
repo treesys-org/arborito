@@ -1,0 +1,178 @@
+# Build Flatpak (Linux), NSIS (Windows), and APK (Android).
+#
+# Triggers:
+#   • Push tag v*  → builds all three + publishes GitHub Release with binaries.
+#   • Manual run   → pick targets; download artifacts from the Actions run (no Release).
+name: Arborito Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_flatpak:
+        description: Linux Flatpak
+        type: boolean
+        default: true
+      build_windows:
+        description: Windows .exe (NSIS)
+        type: boolean
+        default: true
+      build_android:
+        description: Android APK
+        type: boolean
+        default: true
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-flatpak:
+    if: github.event_name == 'push' || inputs.build_flatpak
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Flatpak deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder elfutils
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y flathub org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.electronjs.Electron2.BaseApp//24.08
+      - name: Install (auto-recover from lock drift)
+        run: |
+          npm ci --no-audit --no-fund --prefer-offline \
+            || (echo "::warning::package-lock.json drift; falling back to npm install" \
+                && npm install --no-audit --no-fund --prefer-offline)
+      - run: npm run release:build -- --flatpak
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flatpak
+          path: dist/*.flatpak
+          if-no-files-found: error
+          retention-days: 30
+
+  build-windows:
+    if: github.event_name == 'push' || inputs.build_windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install (auto-recover from lock drift)
+        run: |
+          npm ci --no-audit --no-fund --prefer-offline
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::warning::package-lock.json drift; falling back to npm install"
+            npm install --no-audit --no-fund --prefer-offline
+          }
+        shell: pwsh
+      - run: npm run release:build -- --win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe
+          path: dist/*.exe
+          if-no-files-found: error
+          retention-days: 30
+
+  build-android:
+    if: github.event_name == 'push' || inputs.build_android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install (auto-recover from lock drift)
+        run: |
+          npm ci --no-audit --no-fund --prefer-offline \
+            || (echo "::warning::package-lock.json drift; falling back to npm install" \
+                && npm install --no-audit --no-fund --prefer-offline)
+      - run: npm run release:build -- --android
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: dist/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+  publish-release:
+    needs: [build-flatpak, build-windows, build-android]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify tag matches package.json version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG=$(node -p "require('./package.json').version")
+          if [ "$TAG" != "$PKG" ]; then
+            echo "::error::Tag v$TAG does not match package.json version ($PKG)."
+            exit 1
+          fi
+          echo "version=$TAG" >> "$GITHUB_ENV"
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: '*'
+          merge-multiple: true
+          path: dist
+
+      - name: Verify release artifacts
+        run: |
+          ls -la dist/
+          test -n "$(ls dist/*.flatpak 2>/dev/null)" || (echo "Missing .flatpak" && exit 1)
+          test -n "$(ls dist/*.exe 2>/dev/null)" || (echo "Missing .exe" && exit 1)
+          test -n "$(ls dist/*.apk 2>/dev/null)" || (echo "Missing .apk" && exit 1)
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Arborito ${{ env.version }}
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: |
+            dist/*.flatpak
+            dist/*.exe
+            dist/*.apk
+
+  build-summary:
+    needs: [build-flatpak, build-windows, build-android]
+    if: always() && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          echo "## Arborito installers" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Plataforma | Estado |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Flatpak | ${{ needs.build-flatpak.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Windows | ${{ needs.build-windows.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Android | ${{ needs.build-android.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Descargá los binarios en **Artifacts** de esta ejecución." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Para publicar en Releases, pusheá un tag \`v*\` que coincida con \`package.json\` → \`version\`." >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,5 @@
+/* Garden progress — partials (≤1000 lines each). */
+@import url("./progress-scope.css");
+@import url("./mochila-v2.css");
+@import url("./mochila-inline-search.css");
+@import url("./garden-gamification.css");

@@ -1,0 +1,28 @@
+/* --- graph-knowledge-cards --- */
+/* Mobile knowledge path (graph) — solid cards, forest theme (no glass) */
+.arborito-mobile-path {
+    --path-bg-top: var(--arborito-theme-path-bg-top);
+    --path-bg-bottom: var(--arborito-theme-path-bg-bottom);
+    --path-glass: var(--arborito-path-panel, rgb(236 253 245));
+    --path-glass-border: var(--arborito-path-panel-border, rgb(134 239 172));
+}
+
+.arborito-mobile-path .mobile-children-panel {
+    background: var(--path-glass) !important;
+    border: 2px solid var(--path-glass-border) !important;
+    border-radius: 1.125rem !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: var(--arborito-theme-path-children-panel-box-shadow);
+    scroll-margin-top: max(0.75rem, env(safe-area-inset-top, 0px));
+    scroll-margin-bottom: calc(var(--arborito-mob-dock-clearance, 4.25rem) + 0.35rem);
+}
+
+.arborito-mobile-path .mobile-child-row {
+    border-radius: 0.875rem !important;
+}
+
+.arborito-mobile-path .mobile-child-row:active {
+    background: rgba(16, 185, 129, 0.1) !important;
+}
+

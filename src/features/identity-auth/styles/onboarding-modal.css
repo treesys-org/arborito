@@ -1,0 +1,896 @@
+/* --- onboarding-modal --- */
+/**
+ * First-run onboarding modal.
+ * Surface/border/shadow: system-root + .arborito-surface-panel.
+ * Nav chrome: [data-arborito-panel="modals"].css (.arborito-modal-nav__*).
+ * Mobile fullbleed scroll: [data-arborito-panel="modals"].css.
+ */
+
+.arborito-modal--onboarding .arborito-onboarding-shell {
+    position: relative;
+    width: 100%;
+    max-width: 40rem;
+    max-height: calc(100dvh - 2rem);
+    border-radius: 1.75rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+@media (min-width: 48rem) {
+    .arborito-modal--onboarding .arborito-onboarding-lang-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+.arborito-modal--onboarding .arborito-modal-nav__btn--back {
+    font-size: 1.5rem;
+    font-weight: 800;
+    padding-bottom: 0.15rem;
+}
+
+.arborito-modal--onboarding .arborito-modal-nav__btn--theme {
+    padding: 0;
+}
+
+.arborito-modal--onboarding .arborito-modal-nav__theme-ic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.15rem;
+    height: 1.15rem;
+    line-height: 1;
+}
+
+.arborito-modal--onboarding .arborito-modal-nav__theme-ic .arborito-emoji-img,
+.arborito-modal--onboarding .arborito-modal-nav__theme-ic .arborito-emoji-native {
+    width: 1.15rem;
+    height: 1.15rem;
+    font-size: 1.15rem;
+}
+
+.arborito-modal--onboarding .btn-onb-lang .arborito-emoji-img,
+.arborito-modal--onboarding .btn-onb-lang .arborito-emoji-native {
+    width: 1.25rem;
+    height: 1.25rem;
+    font-size: 1.25rem;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overscroll-behavior: contain;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-hero {
+    padding: 0.75rem 1.5rem 1rem;
+    text-align: center;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-mascot {
+    width: 5rem;
+    height: 5rem;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--arborito-theme-onboarding-mascot-bg);
+    border: 2px solid var(--arborito-theme-onboarding-mascot-border);
+    box-shadow: var(--arborito-theme-onboarding-mascot-shadow);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-mascot svg {
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-tagline {
+    margin: 0.85rem 0 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: none;
+    color: var(--arborito-theme-onboarding-tagline-fg);
+    background: var(--arborito-theme-onboarding-tagline-bg);
+    border: 1px solid var(--arborito-theme-onboarding-tagline-border);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-title,
+.arborito-modal--onboarding .arborito-onboarding-welcome {
+    margin: 0.75rem 0 0;
+    font-size: 1.625rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    color: var(--arborito-theme-sheet-text);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-welcome {
+    margin: 0.75rem 0 0.2rem;
+    font-size: 1.75rem;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-body {
+    margin: 0.65rem auto 0;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--arborito-theme-auth-body-fg);
+    max-width: 22rem;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-download-hint {
+    margin: 0.75rem auto 0;
+    max-width: 22rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.75rem;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    font-weight: 600;
+    color: var(--arborito-callout-blue-fg);
+    background: var(--arborito-callout-blue-bg);
+    border: 1px solid var(--arborito-callout-blue-border);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-warning {
+    margin: 0.85rem 0 0;
+    padding: 0.75rem 0.9rem;
+    border-radius: 0.85rem;
+    background: var(--arborito-theme-danger-bg);
+    border: 2px solid var(--arborito-theme-danger-border);
+    box-shadow: 0 0 0 1px rgb(185 28 28 / 0.12), 0 8px 20px rgb(185 28 28 / 0.12);
+    color: var(--arborito-theme-danger-fg);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    font-weight: 700;
+    text-align: left;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-warning__head {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    color: var(--arborito-theme-danger-fg);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-warning__detail {
+    margin: 0.45rem 0 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--arborito-theme-danger-fg);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-lang {
+    padding: 0 1.25rem 1rem;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-lang-label {
+    margin: 0 0 0.5rem;
+    font-size: 0.625rem;
+    font-weight: 900;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--arborito-theme-eyebrow-fg);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-lang-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+}
+
+.arborito-modal--onboarding .btn-onb-lang {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 3.25rem;
+    padding: 0.65rem 0.75rem !important;
+    border-radius: 1rem !important;
+    font-weight: 800 !important;
+    justify-content: center !important;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    background: var(--arborito-theme-tile-bg);
+    border: 1px solid var(--arborito-theme-tile-border) !important;
+    color: var(--arborito-theme-auth-lang-fg);
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        border-color 0.15s ease,
+        background-color 0.15s ease;
+}
+
+.arborito-modal--onboarding .btn-onb-lang:not(.arborito-onboarding-lang--active):hover {
+    transform: translateY(-1px);
+    box-shadow: var(--arborito-theme-auth-lang-hover-shadow);
+}
+
+.arborito-modal--onboarding .btn-onb-lang.arborito-onboarding-lang--active {
+    border-color: var(--arborito-theme-onboarding-lang-active-border) !important;
+    background: var(--arborito-theme-onboarding-lang-active-bg) !important;
+    box-shadow: var(--arborito-theme-onboarding-lang-active-shadow);
+    color: var(--arborito-theme-onboarding-lang-active-fg) !important;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+    padding: 0 1.25rem 1.35rem;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-inner--step1 {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin-top: auto;
+    padding-top: 0.65rem;
+    background: var(--arborito-theme-onboarding-sticky-fade);
+}
+
+@media (min-width: 48rem) and (min-height: 640px) {
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 {
+        overflow-y: visible;
+    }
+
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-hero {
+        padding: 0.5rem 1.25rem 0.5rem;
+    }
+
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-mascot {
+        width: 4.25rem;
+        height: 4.25rem;
+    }
+
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-welcome {
+        font-size: 1.5rem;
+        margin-top: 0.45rem;
+    }
+
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-body {
+        font-size: 0.875rem;
+        margin-top: 0.4rem;
+        line-height: 1.45;
+    }
+
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-warning {
+        margin-top: 0.55rem;
+        padding: 0.55rem 0.75rem;
+    }
+
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-lang {
+        padding-bottom: 0.65rem;
+    }
+
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-privacy {
+        padding-top: 0.55rem;
+        padding-bottom: 0.55rem;
+    }
+
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .btn-onb-lang {
+        min-height: 2.85rem;
+    }
+}
+
+.arborito-modal--onboarding .arborito-onboarding-privacy {
+    margin: 0;
+    padding: 0.75rem 1.25rem 0.85rem;
+    border-top: 1px solid var(--arborito-theme-onboarding-privacy-border);
+    background: var(--arborito-theme-onboarding-privacy-bg);
+    color: var(--arborito-theme-eyebrow-fg);
+    font-size: 0.75rem;
+    line-height: 1.55;
+    text-align: left;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-privacy__head {
+    margin: 0 0 0.35rem;
+    font-size: 0.6875rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--arborito-theme-sheet-text);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-privacy__text {
+    margin: 0;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-privacy__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem 1rem;
+    margin-top: 0.45rem;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-privacy__link {
+    margin: 0;
+    padding: 0.15rem 0;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--arborito-callout-blue-fg);
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+    min-height: 1.75rem;
+    align-self: flex-start;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-privacy__link:hover {
+    color: var(--arborito-theme-sheet-text);
+}
+
+.arborito-modal--onboarding .btn-onb-start {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    width: 100%;
+    min-height: 3rem;
+    border-radius: 1rem !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.02em;
+    background: linear-gradient(135deg, rgb(5 150 105), rgb(16 185 129)) !important;
+    border: none !important;
+    box-shadow:
+        0 14px 34px rgb(16 185 129 / 0.35),
+        0 1px 0 rgb(255 255 255 / 0.2) inset;
+    transition:
+        transform 0.15s ease,
+        filter 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.arborito-modal--onboarding .btn-onb-start:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+    box-shadow:
+        0 18px 40px rgb(16 185 129 / 0.42),
+        0 1px 0 rgb(255 255 255 / 0.25) inset;
+}
+
+.arborito-modal--onboarding .btn-onb-start:active {
+    transform: translateY(0);
+}
+
+.arborito-modal--onboarding .btn-onb-start--busy,
+.arborito-modal--onboarding .btn-onb-start:disabled {
+    opacity: 0.72;
+    filter: none;
+    transform: none;
+    pointer-events: none;
+    cursor: wait;
+}
+
+.arborito-modal--onboarding .btn-onb-start--busy {
+    box-shadow: 0 8px 20px rgb(16 185 129 / 0.22);
+}
+
+.arborito-modal--onboarding .arborito-onb-steps__dots {
+    display: inline-flex;
+    gap: 0.4rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: var(--arborito-theme-auth-dot-idle);
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.arborito-modal--onboarding .arborito-onb-dot--done,
+.arborito-modal--onboarding .arborito-onb-dot--active {
+    background: rgb(16 185 129);
+}
+
+.arborito-modal--onboarding .arborito-onb-dot--active {
+    transform: scale(1.45);
+}
+
+.arborito-modal--onboarding .arborito-onb-steps__label {
+    margin: 0;
+    font-size: 0.625rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--arborito-theme-eyebrow-fg);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-hero--step2 {
+    padding: 0.6rem 1.4rem 0.6rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-step-title {
+    margin: 0 0 0.3rem;
+    font-size: 1.35rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--arborito-theme-sheet-text);
+    text-align: center;
+}
+
+.arborito-modal--onboarding .arborito-onb-step-subtitle {
+    margin: 0 auto;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--arborito-theme-auth-body-fg);
+    text-align: center;
+    max-width: 22rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-session-panel {
+    padding: 0.4rem 1.4rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.arborito-modal--onboarding .arborito-onb-choice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-choice {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.15rem 1.05rem;
+    border-radius: 1.1rem;
+    border: 1.5px solid var(--arborito-theme-auth-card-border);
+    background: var(--arborito-theme-auth-card-bg);
+    text-align: left;
+    cursor: pointer;
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.2s ease,
+        border-color 0.18s ease,
+        background 0.18s ease;
+    min-width: 0;
+}
+
+.arborito-modal--onboarding .arborito-onb-choice:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--arborito-theme-auth-choice-hover-shadow);
+    background: var(--arborito-theme-auth-card-hover-bg);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice:active {
+    transform: translateY(0);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice--primary:hover {
+    border-color: rgb(52 211 153);
+    box-shadow:
+        0 0 0 3px rgb(52 211 153 / 0.18),
+        0 10px 26px rgb(16 185 129 / 0.18);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice--accent:hover {
+    border-color: rgb(167 139 250);
+    box-shadow:
+        0 0 0 3px rgb(167 139 250 / 0.18),
+        0 10px 26px rgb(139 92 246 / 0.18);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice--ghost:hover {
+    border-color: rgb(148 163 184);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__ic-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.85rem;
+    flex-shrink: 0;
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__ic-wrap--primary {
+    background: var(--arborito-theme-onb-choice-primary-bg);
+    color: var(--arborito-theme-onb-choice-primary-fg);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__ic-wrap--accent {
+    background: var(--arborito-theme-onb-choice-accent-bg);
+    color: var(--arborito-theme-onb-choice-accent-fg);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__ic-wrap--ghost {
+    background: var(--arborito-theme-onb-choice-ghost-bg);
+    color: var(--arborito-theme-onb-choice-ghost-fg);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__ic {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__ic--globe-off {
+    position: relative;
+    display: inline-block;
+    line-height: 1;
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__ic--globe-off::after {
+    content: '';
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    top: 50%;
+    height: 2.5px;
+    border-radius: 2px;
+    background: currentColor;
+    box-shadow: 0 0 0 1.5px var(--arborito-theme-onb-globe-slash-ring);
+    transform: translateY(-50%) rotate(-45deg);
+    pointer-events: none;
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__txt {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__title {
+    font-weight: 900;
+    font-size: 0.95rem;
+    color: var(--arborito-theme-sheet-text);
+    line-height: 1.2;
+    letter-spacing: -0.005em;
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__sub {
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: var(--arborito-theme-eyebrow-fg);
+}
+
+.arborito-modal--onboarding .arborito-onb-choice__chev {
+    font-size: 1.5rem;
+    line-height: 1;
+    font-weight: 700;
+    color: var(--arborito-theme-auth-chevron-fg);
+    flex-shrink: 0;
+    transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.arborito-modal--onboarding .arborito-onb-choice:hover .arborito-onb-choice__chev {
+    transform: translateX(2px);
+    color: var(--arborito-theme-auth-chevron-hover-fg);
+}
+
+.arborito-modal--onboarding .arborito-onb-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-busy {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.arborito-modal--onboarding .arborito-onb-busy-banner {
+    gap: 0.65rem;
+    border: 1px solid rgb(125 211 252);
+    background: rgb(240 249 255);
+}
+
+.arborito-modal--onboarding .arborito-onb-suggest {
+    padding: 0.55rem 0.7rem;
+    background: rgb(255 247 237 / 0.85);
+}
+
+.arborito-modal--onboarding .arborito-onb-suggest-chip {
+    padding: 0.35rem 0.7rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-field label {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--arborito-theme-eyebrow-fg);
+}
+
+.arborito-modal--onboarding .arborito-onb-input {
+    width: 100%;
+    min-height: 2.85rem;
+    padding: 0 0.85rem;
+    border-radius: 0.75rem;
+    border: 1.5px solid var(--arborito-theme-auth-input-border);
+    background: var(--arborito-theme-auth-input-bg);
+    color: var(--arborito-theme-sheet-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.2;
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.18s ease,
+        background 0.15s ease;
+}
+
+.arborito-modal--onboarding .arborito-onb-input--mono {
+    font-family: var(--font-family-mono);
+    letter-spacing: 0.04em;
+}
+
+.arborito-modal--onboarding .arborito-onb-input::placeholder {
+    color: var(--arborito-theme-border-muted);
+    font-weight: 500;
+}
+
+.arborito-modal--onboarding .arborito-onb-input:focus,
+.arborito-modal--onboarding .arborito-onb-input:focus-visible {
+    outline: none;
+    border-color: rgb(52 211 153);
+    box-shadow: 0 0 0 3px rgb(52 211 153 / 0.2);
+}
+
+.arborito-modal--onboarding .arborito-onb-field-hint,
+.arborito-modal--onboarding .arborito-onb-fineprint {
+    margin: 0;
+    font-size: 0.7rem;
+    line-height: 1.45;
+    color: var(--arborito-theme-eyebrow-fg);
+}
+
+.arborito-modal--onboarding .arborito-onb-fineprint {
+    margin: 0.1rem 0 0;
+    font-size: 0.65rem;
+    text-align: center;
+}
+
+.arborito-modal--onboarding .arborito-onb-error {
+    margin: 0;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.65rem;
+    background: var(--arborito-theme-danger-bg);
+    color: var(--arborito-theme-danger-fg);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.arborito-modal--onboarding .arborito-onb-cta {
+    width: 100%;
+    min-height: 3rem;
+    border-radius: 0.875rem;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    color: rgb(255 255 255);
+    background: linear-gradient(135deg, rgb(5 150 105), rgb(16 185 129));
+    cursor: pointer;
+    transition: filter 0.15s ease, transform 0.12s ease, box-shadow 0.18s ease;
+    box-shadow: 0 6px 14px rgb(16 185 129 / 0.25);
+}
+
+.arborito-modal--onboarding .arborito-onb-cta:hover:not([disabled]) {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgb(16 185 129 / 0.32);
+}
+
+.arborito-modal--onboarding .arborito-onb-cta[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.arborito-modal--onboarding .arborito-onb-cta--accent {
+    background: linear-gradient(135deg, rgb(124 58 237), rgb(168 85 247));
+    box-shadow: 0 6px 14px rgb(139 92 246 / 0.3);
+}
+
+.arborito-modal--onboarding .arborito-onb-cta--accent:hover:not([disabled]) {
+    box-shadow: 0 10px 22px rgb(139 92 246 / 0.4);
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 0.2rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--arborito-theme-eyebrow-fg);
+    text-transform: none;
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-divider::before,
+.arborito-modal--onboarding .arborito-onb-alt-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--arborito-theme-auth-alt-divider);
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.85rem;
+    border: 1.5px solid var(--arborito-theme-auth-card-border);
+    background: var(--arborito-theme-auth-card-bg);
+    color: var(--arborito-theme-sheet-text);
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease,
+        transform 0.12s ease,
+        box-shadow 0.18s ease;
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-btn:hover {
+    border-color: var(--arborito-theme-auth-alt-hover-border);
+    background: var(--arborito-theme-auth-alt-hover-bg);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgb(16 185 129 / 0.15);
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-btn:active {
+    transform: translateY(0);
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-btn__ic {
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+.arborito-modal--onboarding .arborito-onb-alt-btn__label {
+    line-height: 1.1;
+}
+
+.arborito-modal--onboarding .arborito-onb-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 0.625rem;
+    border: 1px solid var(--arborito-theme-auth-chip-border);
+    background: var(--arborito-theme-auth-chip-bg);
+    color: var(--arborito-theme-modal-text);
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.arborito-modal--onboarding .arborito-onb-chip:hover {
+    border-color: var(--arborito-theme-border-muted);
+    background: var(--arborito-theme-auth-chip-hover-bg);
+}
+
+.arborito-modal--onboarding .arborito-onb-registered-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: var(--arborito-theme-auth-registered-title-fg);
+    text-align: center;
+}
+
+.arborito-modal--onboarding .arborito-onb-registered-sub {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--arborito-theme-auth-body-fg);
+    text-align: center;
+}
+
+.arborito-modal--onboarding .arborito-onb-cred {
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.65rem;
+    border: 1px solid var(--arborito-theme-auth-cred-border);
+    background: var(--arborito-theme-auth-cred-bg);
+}
+
+.arborito-modal--onboarding .arborito-onb-cred__label {
+    margin: 0 0 0.15rem;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--arborito-theme-eyebrow-fg);
+}
+
+.arborito-modal--onboarding .arborito-onb-cred__value {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--arborito-theme-sheet-text);
+    word-break: break-all;
+}
+
+.arborito-modal--onboarding .arborito-onb-cred__value--mono {
+    font-family: var(--font-family-mono);
+    letter-spacing: 0.04em;
+}
+
+.arborito-modal--onboarding .arborito-onb-cred-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-qr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    background: var(--arborito-theme-auth-qr-bg);
+    border: 1px solid var(--arborito-theme-auth-qr-border);
+}
+
+.arborito-modal--onboarding .arborito-onb-qr__img {
+    width: 9rem;
+    height: 9rem;
+    image-rendering: pixelated;
+}
+
+.arborito-modal--onboarding .arborito-onb-qr__hint {
+    margin: 0;
+    font-size: 0.65rem;
+    text-align: center;
+    color: var(--arborito-theme-eyebrow-fg);
+}
+

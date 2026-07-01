@@ -1,0 +1,482 @@
+/* --- download-app-panel --- */
+.arborito-download-app-modal-shell.arborito-float-modal-card {
+    max-width: min(26rem, calc(100vw - 1.5rem));
+    overflow: hidden;
+}
+
+.arborito-download-app-modal-shell .arborito-dock-modal-hero {
+    background: var(--arborito-theme-download-hero-bg);
+    border-bottom: 1px solid var(--arborito-theme-download-hero-border);
+}
+
+.arborito-download-modal__hero-icon {
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    background: var(--arborito-theme-download-hero-icon-bg);
+    border: 1px solid var(--arborito-theme-download-hero-icon-border);
+    box-shadow: var(--arborito-theme-download-hero-icon-shadow);
+}
+
+
+.arborito-download-modal__body {
+    padding: 0.85rem 1rem 1.35rem;
+}
+
+@media (min-width: 640px) {
+    .arborito-download-modal__body {
+        padding: 0.9rem 1.25rem 1.5rem;
+    }
+}
+
+.arborito-download-app-lead {
+    margin: 0 0 1rem;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    font-weight: 500;
+    color: var(--arborito-theme-auth-body-fg);
+    text-align: left;
+}
+
+.arborito-download-compare {
+    margin: 0 0 1.1rem;
+    padding: 0.75rem 0.8rem;
+    border-radius: 1rem;
+    background: var(--arborito-theme-download-compare-bg);
+    border: 1px solid var(--arborito-theme-download-compare-border);
+}
+
+.arborito-download-compare__head {
+    display: none;
+}
+
+.arborito-download-compare__table thead th {
+    padding: 0 0 0.35rem;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--arborito-theme-eyebrow-fg);
+    text-align: center;
+    border: none;
+}
+
+.arborito-download-compare__table thead th:first-child {
+    width: auto;
+    text-align: left;
+}
+
+.arborito-download-compare__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.72rem;
+}
+
+.arborito-download-compare__feature {
+    padding: 0.42rem 0.35rem 0.42rem 0;
+    font-weight: 600;
+    text-align: left;
+    color: var(--arborito-theme-eyebrow-strong-fg);
+    line-height: 1.4;
+    border-top: 1px solid var(--arborito-theme-download-compare-feature-border);
+}
+
+.arborito-download-compare__table tbody tr:first-child .arborito-download-compare__feature {
+    border-top: none;
+}
+
+.arborito-download-compare__cell {
+    padding: 0.42rem 0;
+    text-align: center;
+    font-weight: 800;
+    color: var(--arborito-theme-eyebrow-fg);
+    border-top: 1px solid var(--arborito-theme-download-compare-feature-border);
+    width: 2.75rem;
+}
+
+.arborito-download-compare__table tbody tr:first-child .arborito-download-compare__cell {
+    border-top: none;
+}
+
+.arborito-download-compare__cell--app {
+    color: var(--arborito-theme-accent-emerald-fg);
+}
+
+.arborito-download-modal__platforms-label {
+    margin: 0 0 0.55rem;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--arborito-theme-eyebrow-fg);
+}
+
+.arborito-download-app-panel {
+    padding: 0.65rem 0.7rem 0.75rem;
+    border-radius: 1rem;
+    border: 1px solid var(--arborito-theme-download-panel-border);
+    background: var(--arborito-theme-download-panel-bg);
+    box-shadow: var(--arborito-theme-download-panel-inset);
+}
+
+.arborito-download-app-panel--modal {
+    border: 1px solid var(--arborito-theme-download-panel-border);
+    padding: 0.75rem;
+    background: var(--arborito-theme-download-panel-modal-bg);
+}
+
+.arborito-download-app-panel__hint {
+    margin: 0 0 0.65rem;
+    font-size: 0.68rem;
+    line-height: 1.45;
+    color: var(--arborito-theme-auth-body-fg);
+}
+
+.arborito-download-app-panel__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+}
+
+@media (min-width: 420px) {
+    .arborito-download-app-panel__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.arborito-download-app-panel__platform {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 5.25rem;
+    padding: 0.65rem 0.5rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--arborito-theme-download-platform-border);
+    background: var(--arborito-theme-download-platform-bg);
+    text-decoration: none;
+    color: inherit;
+    text-align: center;
+    transition: background 0.14s ease, border-color 0.14s ease, transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.arborito-download-app-panel__platform:hover {
+    transform: translateY(-2px);
+    border-color: rgb(52 211 153 / 0.55);
+    background: var(--arborito-theme-download-platform-hover-bg);
+    box-shadow: var(--arborito-theme-download-platform-hover-shadow);
+}
+
+.arborito-download-app-panel__platform-ic {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.65rem;
+    background: var(--arborito-theme-download-platform-ic-bg);
+}
+
+.arborito-download-app-panel__platform-txt {
+    min-width: 0;
+}
+
+.arborito-download-app-panel__platform-label {
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: var(--arborito-theme-modal-text-strong);
+}
+
+.arborito-download-app-panel__platform-sub {
+    display: block;
+    margin-top: 0.08rem;
+    font-size: 0.58rem;
+    font-weight: 600;
+    color: var(--arborito-theme-eyebrow-fg);
+}
+
+.arborito-download-app-panel__all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    margin-top: 0.7rem;
+    padding: 0.45rem 0.55rem;
+    border-radius: 0.65rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--arborito-theme-download-all-fg);
+    text-decoration: none;
+    background: var(--arborito-theme-download-all-bg);
+    border: 1px solid var(--arborito-theme-download-all-border);
+}
+
+.arborito-download-app-panel__all:hover {
+    background: var(--arborito-theme-emerald-hover-bg);
+}
+
+.arborito-onboarding-privacy__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.75rem;
+    justify-content: center;
+}
+
+/* --- forum-modal --- */
+/* Forum modal — layout, contrast, classic forum panels */
+/* Host shell: modals/[data-arborito-panel="modals"].css (`[data-arborito-panel="modal-forum"]`) */
+
+/* Master/detail fills the hub card edge-to-edge (default dock scroll padding leaves green gutters). */
+#modal-backdrop.arborito-modal--forum .arborito-dock-hub-body__scroll,
+[data-arborito-panel="modal-forum"] .arborito-dock-hub-body__scroll {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#modal-backdrop.arborito-modal--forum #forum-root,
+[data-arborito-panel="modal-forum"] #forum-root {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Mobile course-zone drill-down: full width under the single hub headbar (no side drawer). */
+[data-arborito-panel="modal-forum"] .forum-mob-nav-panel,
+#modal-backdrop.arborito-modal--forum .forum-mob-nav-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) [data-arborito-panel="modal-forum"] .forum-mob-nav-filter,
+:is(html.arborito-shell-mobile, html.force-mobile) #modal-backdrop.arborito-modal--forum .forum-mob-nav-filter {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Mobile column heads — full width, no side gutter vs modal chrome. */
+[data-arborito-panel="modal-forum"] .forum-mob-zone-root,
+[data-arborito-panel="modal-forum"] .forum-threads-head {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) [data-arborito-panel="modal-forum"] .forum-mob-zone-root,
+:is(html.arborito-shell-mobile, html.force-mobile) [data-arborito-panel="modal-forum"] .forum-threads-head {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) [data-arborito-panel="modal-forum"] .forum-mob-zone-bar,
+:is(html.arborito-shell-mobile, html.force-mobile) [data-arborito-panel="modal-forum"] .forum-threads-head {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+/* Forum mobile sheet: flex chain fills space between hero and dock. */
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--forum
+    > #modal-panel {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--forum
+    .arborito-dock-hub-shell {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--forum
+    .arborito-dock-hub-shell
+    > #forum-root {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--forum
+    .forum-aside--threads {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+#modal-backdrop.arborito-modal--forum .forum-master-detail-root,
+[data-arborito-panel="modal-forum"] .forum-master-detail-root {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* Mobile embed + sheet: stretch forum column to the bottom of the More menu / modal. */
+:is(html.arborito-shell-mobile, html.force-mobile) [data-arborito-panel="modal-forum"][data-embed="1"],
+:is(html.arborito-shell-mobile, html.force-mobile) [data-arborito-panel="modal-forum"][data-embed="1"] .arborito-forum-embed-root,
+:is(html.arborito-shell-mobile, html.force-mobile) [data-arborito-panel="modal-forum"][data-embed="1"] #forum-root,
+:is(html.arborito-shell-mobile, html.force-mobile) [data-arborito-panel="modal-forum"][data-embed="1"] .forum-main-stack,
+:is(html.arborito-shell-mobile, html.force-mobile) [data-arborito-panel="modal-forum"][data-embed="1"] .forum-master-detail-root,
+:is(html.arborito-shell-mobile, html.force-mobile) [data-arborito-panel="modal-forum"][data-embed="1"] .forum-aside--threads,
+:is(html.arborito-shell-mobile, html.force-mobile) [data-arborito-panel="modal-forum"][data-embed="1"] #forum-threads-scroll,
+:is(html.arborito-shell-mobile, html.force-mobile) [data-arborito-panel="modal-forum"][data-embed="1"] .forum-threads-empty-host {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) [data-arborito-panel="modal-forum"][data-embed="1"] .forum-mob-nav-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* Hero: colors come from Tailwind in forum.js; no gradient override */
+
+/* New topic overlay */
+.forum-nt-scrim {
+    background: var(--arborito-theme-forum-nt-scrim);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.forum-nt-card {
+    animation: forum-nt-pop 0.28s cubic-bezier(0.34, 1.2, 0.64, 1);
+    box-shadow: var(--arborito-theme-float-card-shadow);
+}
+
+@keyframes forum-nt-pop {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .forum-nt-card {
+        animation: none;
+    }
+}
+
+/* Form controls: explicit contrast (avoids missing CSS vars / theme clashes) */
+[data-arborito-panel="modal-forum"] textarea,
+[data-arborito-panel="modal-forum"] select,
+[data-arborito-panel="modal-forum"] .forum-nt-input,
+[data-arborito-panel="modal-forum"] .forum-nt-body {
+    color: var(--arborito-theme-form-fg);
+    background-color: var(--arborito-theme-form-bg);
+    border-color: var(--arborito-theme-form-border);
+    color-scheme: var(--arborito-theme-form-color-scheme);
+}
+
+[data-arborito-panel="modal-forum"] textarea::placeholder,
+[data-arborito-panel="modal-forum"] .forum-nt-input::placeholder,
+[data-arborito-panel="modal-forum"] .forum-nt-body::placeholder {
+    color: var(--arborito-theme-form-placeholder);
+}
+
+[data-arborito-panel="modal-forum"] select option {
+    color: var(--arborito-theme-forum-option-fg);
+    background-color: var(--arborito-theme-forum-option-bg);
+}
+
+/* First post in thread: slight emphasis for opening message */
+[data-arborito-panel="modal-forum"] .forum-msg-card--op {
+    border-left: 4px solid var(--arborito-theme-forum-op-border);
+    background-color: var(--arborito-theme-forum-op-bg);
+}
+
+[data-arborito-panel="modal-forum"] .forum-msg-card--op .forum-msg-body {
+    color: var(--arborito-theme-forum-op-text);
+}
+
+/* Mobile: collapsible zone block and compact Nostr notice */
+[data-arborito-panel="modal-forum"] .forum-mob-limit-details > summary {
+    list-style: none;
+}
+
+[data-arborito-panel="modal-forum"] .forum-mob-limit-details > summary::-webkit-details-marker {
+    display: none;
+}
+
+[data-arborito-panel="modal-forum"] .forum-mob-limit-details[open] > summary .forum-mob-limit-chev {
+    transform: rotate(180deg);
+}
+
+[data-arborito-panel="modal-forum"] .forum-mob-structure-details > summary {
+    list-style: none;
+}
+
+[data-arborito-panel="modal-forum"] .forum-mob-structure-details > summary::-webkit-details-marker {
+    display: none;
+}
+
+[data-arborito-panel="modal-forum"] .forum-mob-places-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+/* Tree: connector lines + progressive indent (mobile + desktop) */
+[data-arborito-panel="modal-forum"] .forum-place-row {
+    position: relative;
+}
+
+[data-arborito-panel="modal-forum"] .forum-place-row[data-depth]::before {
+    content: '';
+    position: absolute;
+    left: calc(18px + (var(--forum-depth, 0) * 16px));
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--arborito-theme-forum-tree-line);
+    pointer-events: none;
+}
+
+[data-arborito-panel="modal-forum"] .forum-place-row[data-depth]::after {
+    content: '';
+    position: absolute;
+    left: calc(18px + (var(--forum-depth, 0) * 16px));
+    top: 50%;
+    width: 12px;
+    height: 1px;
+    background: var(--arborito-theme-forum-tree-line);
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+/* Drill-down: make the "enter" button look clearly separate */
+[data-arborito-panel="modal-forum"] .forum-desk-nav-drill,
+[data-arborito-panel="modal-forum"] .forum-mob-nav-drill-btn {
+    letter-spacing: 0.02em;
+}
+
+[data-arborito-panel="modal-forum"] .forum-desk-nav-drill {
+    box-shadow: var(--arborito-theme-forum-nav-divider);
+}
+
+/* Place rows — explicit contrast (embed + mobile sheet; avoids Tailwind/dark clashes) */
+[data-arborito-panel="modal-forum"] .forum-place-level__title {
+    color: var(--arborito-theme-modal-text-strong);
+}
+
+[data-arborito-panel="modal-forum"] .forum-place-level__meta {
+    color: var(--arborito-theme-eyebrow-fg);
+}
