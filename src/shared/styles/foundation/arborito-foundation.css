@@ -1,0 +1,479 @@
+/*
+   Arborito semantic tokens and shadows.
+   Palette --slate-*, --red-*, etc. is injected by tailwind.config.js from the Tailwind theme
+   (do not duplicate hex here). Use var(--slate-900) in custom CSS.
+*/
+
+/* Emoji — bundled Noto (all unicode-range subsets) + system local fonts.
+ * Must stay at the top: CSS @import is only valid before other statements. */
+@import url("../../../../vendor/fonts/noto-color-emoji-faces.css");
+
+:root {
+    /* --- SHADOWS (soft, low drama — readable for all ages) --- */
+    --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.04);
+    --shadow-lg: 0 10px 28px rgb(15 23 42 / 0.07);
+
+    /* --- SEMANTIC DESIGN TOKENS --- */
+    --color-surface: rgb(236 253 245);
+    --color-surface-elevated: rgb(240 253 250);
+    --color-surface-dark: rgb(10 30 22);
+    --color-text-primary: #3d4f5c;
+    --color-text-secondary: var(--slate-500);
+    --color-text-muted: var(--slate-400);
+    --color-accent: var(--green-500);
+    --color-node-root: #8D6E63;
+    --color-node-branch: var(--amber-500);
+    --color-node-leaf: var(--purple-500);
+    --color-node-exam: var(--red-500);
+    --color-node-completed: var(--green-500);
+    --color-node-empty: var(--slate-300);
+    --color-node-harvested: #D97706;
+    --color-mobile-bg: var(--slate-950);
+
+    /* Mobile chrome scale — tabs, top chips, square actions share one ruler (browse bar + construction pill). */
+    --arborito-mob-touch: 2.75rem;
+    --arborito-mob-chrome-btn: 2.4rem;
+    --arborito-mob-tab-min: 2.85rem;
+    --arborito-mob-tab-max: 5.25rem;
+    --arborito-mob-tab-icon: 1.35rem;
+    --arborito-mob-tab-icon-h: 1.6rem;
+    --arborito-mob-tab-label: 0.6875rem;
+    --arborito-mob-tab-gap: 0.125rem;
+    --arborito-mob-tab-pad-x: 0.125rem;
+    --arborito-mob-tab-pad-y: 0.25rem;
+    --arborito-mob-dock-pad-y: 0.4rem;
+    --arborito-mob-dock-pad-x: 0.35rem;
+    --arborito-mob-dock-gap: 0.15rem;
+    --arborito-mob-dock-float-max: min(42rem, calc(100vw - 1rem));
+    --arborito-mob-dock-float-radius: 1rem;
+    --arborito-mob-sq-radius: 0.75rem;
+    --arborito-mob-dock-float-gap: 0.5rem;
+    /* Matches .arborito-mob-dock min-height in dock-versions-curriculum.css */
+    --arborito-mob-dock-bar-height: 3.35rem;
+    --arborito-mob-scroll-pad: 1.25rem;
+    --arborito-mob-scroll-pad-lg: 1.5rem;
+
+    /* UI chrome anchor (Sage, sheets, modals) — dock bar + home-indicator inset on .arborito-mob-dock-wrap */
+    --arborito-chrome-dock-gap: calc(
+        var(--arborito-mob-dock-bar-height) + env(safe-area-inset-bottom, 0px)
+    );
+    /* Tree / graph scroll reserve in browse — keep in sync with chrome anchor */
+    --arborito-mob-dock-clearance: var(--arborito-chrome-dock-gap);
+    --arborito-sheet-dock-gap: var(--arborito-chrome-dock-gap);
+
+    /* Dock hub modals (Arcade, Biblioteca, Logros, Progreso…) — one shared desktop footprint */
+    --arborito-dock-hub-width: min(96vw, 74rem);
+    --arborito-dock-hub-height: min(92vh, 900px);
+
+    /* Modal width tiers — compact | standard | content | dock-hub | … */
+    --arborito-modal-width-compact: min(92vw, 28rem);
+    --arborito-modal-width-standard: min(92vw, 36rem);
+    --arborito-modal-width-content: min(92vw, 42rem);
+    --arborito-modal-width-xl: min(92vw, 48rem);
+    --arborito-modal-width-xs: min(92vw, 24rem);
+    --arborito-modal-width-readme: min(92vw, 56rem);
+    --arborito-modal-width-certs: min(92vw, 64rem);
+    --arborito-modal-width-forum: min(95vw, 80rem);
+    --arborito-modal-max-height-auto: min(86vh, 720px);
+    --arborito-modal-max-height-profile: min(92vh, 900px);
+
+    /* Forest chrome — header, panel slots, path cards (trees/nature theme) */
+    --arborito-canopy-light: rgb(240 253 250);
+    --arborito-canopy-mid: rgb(236 253 245);
+    --arborito-canopy-deep: rgb(220 252 231);
+    --arborito-moss-border: rgb(167 243 208 / 0.65);
+    --arborito-moss-border-strong: rgb(134 239 172);
+    --arborito-bark-ink: rgb(6 78 59);
+    --arborito-chrome-gradient: linear-gradient(
+        180deg,
+        rgb(240 253 250) 0%,
+        rgb(236 253 245) 55%,
+        rgb(220 252 231) 100%
+    );
+    --arborito-chrome-tile: rgb(236 253 245);
+    --arborito-chrome-tile-hover: rgb(209 250 229);
+    /* Top-right chip bar (perfil / mochila / sol) — opaque plate behind buttons */
+    --arborito-mob-top-actions-shield-bg: var(--arborito-chrome-gradient);
+    --arborito-mob-top-actions-shield-bg-solid: var(--arborito-canopy-mid);
+    --arborito-mob-top-actions-shield-border: var(--arborito-moss-border);
+    --arborito-mob-top-actions-shield-shadow: 0 4px 18px rgb(6 78 59 / 0.12);
+    --arborito-vignette-trunk: linear-gradient(to right, rgb(6 78 59 / 0.38) 0%, transparent 100%);
+    --arborito-vignette-trunk-light: linear-gradient(to right, rgb(240 253 250 / 0.78) 0%, transparent 100%);
+    --arborito-path-panel: rgb(236 253 245);
+    --arborito-path-panel-border: rgb(134 239 172);
+    --arborito-path-panel-header: linear-gradient(180deg, rgb(236 253 245), rgb(209 250 229));
+    /* Bark (tree root — brown accent in dark mode) */
+    --arborito-bark: rgb(93 64 55);
+    --arborito-bark-tile: rgb(55 48 44);
+    --arborito-bark-tile-hover: rgb(68 58 52);
+    --arborito-bark-border: rgb(141 110 99 / 0.42);
+    --arborito-lichen: rgb(110 231 183 / 0.55);
+
+    --color-mobile-surface: var(--slate-900);
+    --color-mobile-border: var(--slate-700);
+    --color-mobile-text: var(--slate-200);
+    --color-mobile-text-muted: var(--slate-400);
+    --color-mobile-trunk: var(--slate-700);
+    --color-mobile-trunk-active: #9a3412;
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --radius-md: 0.875rem;
+    /* Privacy-first font stacks: generic families only (Firefox font-visibility / RFP). */
+    --font-family-base: system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", emoji, "Arborito Emoji";
+    --font-family-emoji: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", emoji, "Arborito Emoji", sans-serif;
+    --font-family-mono: ui-monospace, monospace;
+    --arborito-font-display: system-ui, sans-serif;
+
+    --bg-app: #d8e8f2;
+    /* App background — illustrated SVG (sun/moon, clouds, mountains, grass).
+     *   • Archivos: `src/features/garden-progress/assets/scene-day.svg` y `scene-night.svg`.
+     *   • Path en url() = `backgrounds/scene-day.svg` SIN `../` — PostCSS-import
+     *     resuelve url() relativo al ENTRY (`src/shared/styles/main.entry.css`), no al
+     *     source file that imports it. With `../` the browser requested
+     *     `src/backgrounds/scene-day.svg` (404). Sin `../` resuelve correcto.
+     *   • Anclado al borde inferior (preserveAspectRatio + background-position:
+     *     center bottom) → colinas/pasto quedan abajo y el cielo se expande
+     *     upward as the viewport grows, giving a "climbing" feel
+     *     as the tree grows and the user scrolls. */
+    --bg-app-gradient: url('data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%20%3C%21--%20Arborito%20background%20-%20Day%20scene.%20Stylized%20but%20illustrative%3A%20sky%20gradient%2C%20sun%20with%20halo%2C%20three%20soft%20cloud%20layers%2C%20three%20layered%20hill%20silhouettes%20%28depth%29%2C%20a%20hint%20of%20grass%20at%20the%20bottom%20%2B%20scattered%20grass%20tufts.%20Designed%20to%20anchor%20the%20LANDSCAPE%20at%20the%20bottom%20of%20the%20viewport%20%28preserveAspectRatio%3D%22xMidYMax%20slice%22%29%20so%20as%20the%20tree%20grows%20/%20the%20user%20scrolls%20down%2C%20the%20hills%20stay%20grounded%20and%20the%20sky%20expands%20above%20to%20give%20that%20%22climbing%22%20sensation.%20ViewBox%201920x1080%20keeps%20the%20source%20resolution%20honest%20at%201080p%20reference%3B%20every%20layer%20scales%20proportionally%20to%20any%20device.%20SVG%20is%20~6%20KB%20raw.%20--%3E%20%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%201920%201080%22%20preserveAspectRatio%3D%22xMidYMax%20slice%22%20aria-hidden%3D%22true%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22sky%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23a4cee8%22/%3E%20%3Cstop%20offset%3D%2238%25%22%20stop-color%3D%22%23cee4f1%22/%3E%20%3Cstop%20offset%3D%2272%25%22%20stop-color%3D%22%23e6f0f5%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23eef7ec%22/%3E%20%3C/linearGradient%3E%20%3CradialGradient%20id%3D%22sunGlow%22%20cx%3D%2286%25%22%20cy%3D%2216%25%22%20r%3D%2242%25%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fff7b3%22%20stop-opacity%3D%220.85%22/%3E%20%3Cstop%20offset%3D%2222%25%22%20stop-color%3D%22%23fde68a%22%20stop-opacity%3D%220.45%22/%3E%20%3Cstop%20offset%3D%2255%25%22%20stop-color%3D%22%23fcd34d%22%20stop-opacity%3D%220.16%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23fcd34d%22%20stop-opacity%3D%220%22/%3E%20%3C/radialGradient%3E%20%3CradialGradient%20id%3D%22sunBody%22%20cx%3D%2245%25%22%20cy%3D%2240%25%22%20r%3D%2255%25%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fff9c4%22/%3E%20%3Cstop%20offset%3D%2255%25%22%20stop-color%3D%22%23fde047%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23f59e0b%22/%3E%20%3C/radialGradient%3E%20%3ClinearGradient%20id%3D%22hillFar%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23b8e0c7%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23a3d4b5%22/%3E%20%3C/linearGradient%3E%20%3ClinearGradient%20id%3D%22hillMid%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2388c79e%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%236fb585%22/%3E%20%3C/linearGradient%3E%20%3ClinearGradient%20id%3D%22hillNear%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%235fa676%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%233f8a5a%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%221920%22%20height%3D%221080%22%20fill%3D%22url%28%23sky%29%22/%3E%20%3Crect%20width%3D%221920%22%20height%3D%221080%22%20fill%3D%22url%28%23sunGlow%29%22/%3E%20%3C%21--%20Sun%20--%3E%20%3Ccircle%20cx%3D%221640%22%20cy%3D%22172%22%20r%3D%2264%22%20fill%3D%22url%28%23sunBody%29%22%20opacity%3D%220.95%22/%3E%20%3C%21--%20Clouds%20%283%20layered%20groups%2C%20soft%20fluffy%20silhouettes%29%20--%3E%20%3Cg%20opacity%3D%220.95%22%3E%20%3Cg%20fill%3D%22%23ffffff%22%3E%20%3Cellipse%20cx%3D%22250%22%20cy%3D%22218%22%20rx%3D%2278%22%20ry%3D%2220%22/%3E%20%3Cellipse%20cx%3D%22198%22%20cy%3D%22212%22%20rx%3D%2248%22%20ry%3D%2217%22/%3E%20%3Cellipse%20cx%3D%22308%22%20cy%3D%22208%22%20rx%3D%2256%22%20ry%3D%2219%22/%3E%20%3Cellipse%20cx%3D%22263%22%20cy%3D%22200%22%20rx%3D%2242%22%20ry%3D%2215%22/%3E%20%3C/g%3E%20%3Cg%20fill%3D%22%23ffffff%22%20opacity%3D%220.82%22%3E%20%3Cellipse%20cx%3D%22980%22%20cy%3D%22378%22%20rx%3D%2298%22%20ry%3D%2222%22/%3E%20%3Cellipse%20cx%3D%22918%22%20cy%3D%22370%22%20rx%3D%2255%22%20ry%3D%2218%22/%3E%20%3Cellipse%20cx%3D%221042%22%20cy%3D%22370%22%20rx%3D%2258%22%20ry%3D%2218%22/%3E%20%3Cellipse%20cx%3D%22988%22%20cy%3D%22358%22%20rx%3D%2248%22%20ry%3D%2214%22/%3E%20%3C/g%3E%20%3Cg%20fill%3D%22%23ffffff%22%20opacity%3D%220.74%22%3E%20%3Cellipse%20cx%3D%221440%22%20cy%3D%22492%22%20rx%3D%2272%22%20ry%3D%2218%22/%3E%20%3Cellipse%20cx%3D%221398%22%20cy%3D%22484%22%20rx%3D%2244%22%20ry%3D%2214%22/%3E%20%3Cellipse%20cx%3D%221486%22%20cy%3D%22484%22%20rx%3D%2248%22%20ry%3D%2215%22/%3E%20%3C/g%3E%20%3C/g%3E%20%3C%21--%20Hills%20%28far%20near%29.%20Cubic%20curves%20so%20they%20undulate%20naturally.%20--%3E%20%3Cpath%20d%3D%22M-50%2C742%20C300%2C672%20600%2C712%20920%2C702%20C1200%2C694%201500%2C720%201980%2C688%20L1980%2C1080%20L-50%2C1080%20Z%22%20fill%3D%22url%28%23hillFar%29%22%20opacity%3D%220.55%22/%3E%20%3Cpath%20d%3D%22M-50%2C830%20C260%2C772%20580%2C800%20880%2C810%20C1180%2C820%201500%2C792%201980%2C810%20L1980%2C1080%20L-50%2C1080%20Z%22%20fill%3D%22url%28%23hillMid%29%22%20opacity%3D%220.7%22/%3E%20%3Cpath%20d%3D%22M-50%2C915%20C220%2C870%20500%2C880%20800%2C905%20C1100%2C930%201450%2C900%201980%2C920%20L1980%2C1080%20L-50%2C1080%20Z%22%20fill%3D%22url%28%23hillNear%29%22%20opacity%3D%220.85%22/%3E%20%3C%21--%20Grass%20strip%20%2B%20tufts%20at%20the%20absolute%20bottom%20%28subtle%20%22ground%20line%22%29%20--%3E%20%3Crect%20x%3D%220%22%20y%3D%221042%22%20width%3D%221920%22%20height%3D%2238%22%20fill%3D%22%232f7d4d%22%20opacity%3D%220.55%22/%3E%20%3Cg%20fill%3D%22%231f6b3c%22%20opacity%3D%220.85%22%3E%20%3Cpath%20d%3D%22M40%2C1080%20L42%2C1048%20L37%2C1048%20Z%22/%3E%20%3Cpath%20d%3D%22M48%2C1080%20L51%2C1054%20L44%2C1054%20Z%22/%3E%20%3Cpath%20d%3D%22M152%2C1080%20L154%2C1044%20L148%2C1044%20Z%22/%3E%20%3Cpath%20d%3D%22M160%2C1080%20L163%2C1052%20L156%2C1052%20Z%22/%3E%20%3Cpath%20d%3D%22M276%2C1080%20L278%2C1050%20L272%2C1050%20Z%22/%3E%20%3Cpath%20d%3D%22M308%2C1080%20L310%2C1046%20L304%2C1046%20Z%22/%3E%20%3Cpath%20d%3D%22M422%2C1080%20L424%2C1043%20L418%2C1043%20Z%22/%3E%20%3Cpath%20d%3D%22M448%2C1080%20L452%2C1052%20L444%2C1052%20Z%22/%3E%20%3Cpath%20d%3D%22M572%2C1080%20L574%2C1048%20L568%2C1048%20Z%22/%3E%20%3Cpath%20d%3D%22M608%2C1080%20L611%2C1054%20L604%2C1054%20Z%22/%3E%20%3Cpath%20d%3D%22M734%2C1080%20L736%2C1046%20L730%2C1046%20Z%22/%3E%20%3Cpath%20d%3D%22M778%2C1080%20L780%2C1050%20L774%2C1050%20Z%22/%3E%20%3Cpath%20d%3D%22M892%2C1080%20L894%2C1044%20L888%2C1044%20Z%22/%3E%20%3Cpath%20d%3D%22M922%2C1080%20L925%2C1054%20L918%2C1054%20Z%22/%3E%20%3Cpath%20d%3D%22M1044%2C1080%20L1046%2C1048%20L1040%2C1048%20Z%22/%3E%20%3Cpath%20d%3D%22M1082%2C1080%20L1084%2C1046%20L1078%2C1046%20Z%22/%3E%20%3Cpath%20d%3D%22M1198%2C1080%20L1200%2C1050%20L1194%2C1050%20Z%22/%3E%20%3Cpath%20d%3D%22M1238%2C1080%20L1241%2C1052%20L1234%2C1052%20Z%22/%3E%20%3Cpath%20d%3D%22M1358%2C1080%20L1360%2C1044%20L1354%2C1044%20Z%22/%3E%20%3Cpath%20d%3D%22M1392%2C1080%20L1394%2C1050%20L1388%2C1050%20Z%22/%3E%20%3Cpath%20d%3D%22M1512%2C1080%20L1514%2C1046%20L1508%2C1046%20Z%22/%3E%20%3Cpath%20d%3D%22M1548%2C1080%20L1551%2C1054%20L1544%2C1054%20Z%22/%3E%20%3Cpath%20d%3D%22M1672%2C1080%20L1674%2C1048%20L1668%2C1048%20Z%22/%3E%20%3Cpath%20d%3D%22M1712%2C1080%20L1714%2C1052%20L1708%2C1052%20Z%22/%3E%20%3Cpath%20d%3D%22M1828%2C1080%20L1830%2C1044%20L1824%2C1044%20Z%22/%3E%20%3Cpath%20d%3D%22M1872%2C1080%20L1874%2C1050%20L1868%2C1050%20Z%22/%3E%20%3C/g%3E%20%3C/svg%3E');
+    --text-main: var(--color-text-primary);
+}
+
+.dark {
+    --bg-app: #070b18;
+    /* Night mirror — moon with halo, ~40 stars, dark hills, shaded grass.
+     * Mismo SVG layout, paleta night. */
+    --bg-app-gradient: url('data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%20%3C%21--%20Arborito%20background%20-%20Night%20scene.%20Mirror%20of%20scene-day.svg%20with%20night%20palette%3A%20deep%20indigo%20sky%2C%20crescent%20moon%20with%20subtle%20indigo%20halo%2C%20~40%20scattered%20stars%20%28varied%20opacity/size%20for%20depth%29%2C%20three%20dark%20hill%20silhouettes%2C%20sparse%20indigo-tinted%20clouds%2C%20dark%20grass%20tufts.%20Same%20anchoring%20%28xMidYMax%20slice%29%20so%20hills%20stay%20grounded%20as%20the%20tree%20climbs.%20~7%20KB%20raw%20heavier%20than%20day%20mostly%20due%20to%20the%20star%20field.%20--%3E%20%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%201920%201080%22%20preserveAspectRatio%3D%22xMidYMax%20slice%22%20aria-hidden%3D%22true%22%3E%20%3Cdefs%3E%20%3ClinearGradient%20id%3D%22nightSky%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23070b18%22/%3E%20%3Cstop%20offset%3D%2238%25%22%20stop-color%3D%22%230e1a35%22/%3E%20%3Cstop%20offset%3D%2272%25%22%20stop-color%3D%22%23142640%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230d1c2e%22/%3E%20%3C/linearGradient%3E%20%3CradialGradient%20id%3D%22moonGlow%22%20cx%3D%2286%25%22%20cy%3D%2216%25%22%20r%3D%2238%25%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23c7d2fe%22%20stop-opacity%3D%220.45%22/%3E%20%3Cstop%20offset%3D%2232%25%22%20stop-color%3D%22%23a5b4fc%22%20stop-opacity%3D%220.20%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23818cf8%22%20stop-opacity%3D%220%22/%3E%20%3C/radialGradient%3E%20%3CradialGradient%20id%3D%22moonBody%22%20cx%3D%2242%25%22%20cy%3D%2238%25%22%20r%3D%2255%25%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23f8fafc%22/%3E%20%3Cstop%20offset%3D%2265%25%22%20stop-color%3D%22%23cbd5e1%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2394a3b8%22/%3E%20%3C/radialGradient%3E%20%3ClinearGradient%20id%3D%22nHillFar%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%231a2a48%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%230e1c34%22/%3E%20%3C/linearGradient%3E%20%3ClinearGradient%20id%3D%22nHillMid%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2310243f%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23081628%22/%3E%20%3C/linearGradient%3E%20%3ClinearGradient%20id%3D%22nHillNear%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230a1a30%22/%3E%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23040c1a%22/%3E%20%3C/linearGradient%3E%20%3C/defs%3E%20%3Crect%20width%3D%221920%22%20height%3D%221080%22%20fill%3D%22url%28%23nightSky%29%22/%3E%20%3Crect%20width%3D%221920%22%20height%3D%221080%22%20fill%3D%22url%28%23moonGlow%29%22/%3E%20%3C%21--%20Star%20field%20%28varied%20size%2Bopacity%20for%20parallax%20illusion%29%20--%3E%20%3Cg%20fill%3D%22%23f8fafc%22%3E%20%3Ccircle%20cx%3D%2280%22%20cy%3D%22100%22%20r%3D%221.2%22%20opacity%3D%220.85%22/%3E%20%3Ccircle%20cx%3D%22222%22%20cy%3D%2258%22%20r%3D%221.5%22%20opacity%3D%220.7%22/%3E%20%3Ccircle%20cx%3D%22354%22%20cy%3D%22178%22%20r%3D%221.0%22%20opacity%3D%220.9%22/%3E%20%3Ccircle%20cx%3D%22500%22%20cy%3D%2292%22%20r%3D%221.3%22%20opacity%3D%220.78%22/%3E%20%3Ccircle%20cx%3D%22682%22%20cy%3D%22148%22%20r%3D%221.1%22%20opacity%3D%220.85%22/%3E%20%3Ccircle%20cx%3D%22824%22%20cy%3D%2248%22%20r%3D%221.6%22%20opacity%3D%220.82%22/%3E%20%3Ccircle%20cx%3D%22970%22%20cy%3D%22122%22%20r%3D%221.0%22%20opacity%3D%220.7%22/%3E%20%3Ccircle%20cx%3D%221102%22%20cy%3D%22202%22%20r%3D%221.4%22%20opacity%3D%220.85%22/%3E%20%3Ccircle%20cx%3D%221262%22%20cy%3D%2278%22%20r%3D%221.1%22%20opacity%3D%220.78%22/%3E%20%3Ccircle%20cx%3D%221418%22%20cy%3D%22338%22%20r%3D%221.3%22%20opacity%3D%220.65%22/%3E%20%3Ccircle%20cx%3D%221500%22%20cy%3D%2240%22%20r%3D%221.0%22%20opacity%3D%220.9%22/%3E%20%3Ccircle%20cx%3D%221800%22%20cy%3D%22298%22%20r%3D%221.5%22%20opacity%3D%220.7%22/%3E%20%3Ccircle%20cx%3D%221898%22%20cy%3D%22120%22%20r%3D%221.2%22%20opacity%3D%220.82%22/%3E%20%3Ccircle%20cx%3D%22142%22%20cy%3D%22302%22%20r%3D%221.0%22%20opacity%3D%220.7%22/%3E%20%3Ccircle%20cx%3D%22282%22%20cy%3D%22430%22%20r%3D%221.3%22%20opacity%3D%220.6%22/%3E%20%3Ccircle%20cx%3D%22452%22%20cy%3D%22380%22%20r%3D%221.0%22%20opacity%3D%220.74%22/%3E%20%3Ccircle%20cx%3D%22602%22%20cy%3D%22500%22%20r%3D%221.4%22%20opacity%3D%220.65%22/%3E%20%3Ccircle%20cx%3D%22782%22%20cy%3D%22378%22%20r%3D%221.0%22%20opacity%3D%220.7%22/%3E%20%3Ccircle%20cx%3D%221182%22%20cy%3D%22472%22%20r%3D%221.2%22%20opacity%3D%220.62%22/%3E%20%3Ccircle%20cx%3D%221342%22%20cy%3D%22540%22%20r%3D%221.1%22%20opacity%3D%220.55%22/%3E%20%3Ccircle%20cx%3D%221652%22%20cy%3D%22600%22%20r%3D%221.0%22%20opacity%3D%220.55%22/%3E%20%3Ccircle%20cx%3D%2242%22%20cy%3D%22498%22%20r%3D%220.9%22%20opacity%3D%220.6%22/%3E%20%3Ccircle%20cx%3D%22182%22%20cy%3D%22650%22%20r%3D%221.1%22%20opacity%3D%220.52%22/%3E%20%3Ccircle%20cx%3D%22402%22%20cy%3D%22240%22%20r%3D%220.9%22%20opacity%3D%220.7%22/%3E%20%3Ccircle%20cx%3D%22568%22%20cy%3D%22320%22%20r%3D%221.0%22%20opacity%3D%220.65%22/%3E%20%3Ccircle%20cx%3D%22744%22%20cy%3D%22280%22%20r%3D%221.2%22%20opacity%3D%220.7%22/%3E%20%3Ccircle%20cx%3D%22888%22%20cy%3D%22240%22%20r%3D%220.9%22%20opacity%3D%220.6%22/%3E%20%3Ccircle%20cx%3D%221050%22%20cy%3D%22380%22%20r%3D%221.1%22%20opacity%3D%220.7%22/%3E%20%3Ccircle%20cx%3D%221208%22%20cy%3D%22340%22%20r%3D%221.0%22%20opacity%3D%220.65%22/%3E%20%3Ccircle%20cx%3D%221372%22%20cy%3D%22190%22%20r%3D%221.3%22%20opacity%3D%220.75%22/%3E%20%3Ccircle%20cx%3D%221538%22%20cy%3D%22280%22%20r%3D%220.9%22%20opacity%3D%220.6%22/%3E%20%3C%21--%20Brighter%20stars%20%28a%20few%20standouts%29%20--%3E%20%3Ccircle%20cx%3D%22300%22%20cy%3D%22112%22%20r%3D%222.0%22%20opacity%3D%220.95%22/%3E%20%3Ccircle%20cx%3D%22732%22%20cy%3D%22220%22%20r%3D%221.8%22%20opacity%3D%220.9%22/%3E%20%3Ccircle%20cx%3D%221200%22%20cy%3D%22248%22%20r%3D%222.1%22%20opacity%3D%220.85%22/%3E%20%3Ccircle%20cx%3D%22486%22%20cy%3D%22552%22%20r%3D%221.6%22%20opacity%3D%220.7%22/%3E%20%3Ccircle%20cx%3D%221492%22%20cy%3D%22448%22%20r%3D%221.9%22%20opacity%3D%220.78%22/%3E%20%3C/g%3E%20%3C%21--%20Moon%20%28crescent%3A%20silver%20disc%20with%20shadow%20circle%29%20--%3E%20%3Ccircle%20cx%3D%221640%22%20cy%3D%22172%22%20r%3D%2256%22%20fill%3D%22url%28%23moonBody%29%22%20opacity%3D%220.95%22/%3E%20%3Ccircle%20cx%3D%221672%22%20cy%3D%22160%22%20r%3D%2248%22%20fill%3D%22%23142640%22%20opacity%3D%220.62%22/%3E%20%3C%21--%20Hills%20%28far%20to%20near%2C%20dark%20silhouettes%29%20--%3E%20%3Cpath%20d%3D%22M-50%2C742%20C300%2C672%20600%2C712%20920%2C702%20C1200%2C694%201500%2C720%201980%2C688%20L1980%2C1080%20L-50%2C1080%20Z%22%20fill%3D%22url%28%23nHillFar%29%22%20opacity%3D%220.85%22/%3E%20%3Cpath%20d%3D%22M-50%2C830%20C260%2C772%20580%2C800%20880%2C810%20C1180%2C820%201500%2C792%201980%2C810%20L1980%2C1080%20L-50%2C1080%20Z%22%20fill%3D%22url%28%23nHillMid%29%22%20opacity%3D%220.9%22/%3E%20%3Cpath%20d%3D%22M-50%2C915%20C220%2C870%20500%2C880%20800%2C905%20C1100%2C930%201450%2C900%201980%2C920%20L1980%2C1080%20L-50%2C1080%20Z%22%20fill%3D%22url%28%23nHillNear%29%22%20opacity%3D%220.95%22/%3E%20%3C%21--%20Sparse%20indigo%20clouds%20--%3E%20%3Cg%20opacity%3D%220.5%22%3E%20%3Cg%20fill%3D%22%236366f1%22%3E%20%3Cellipse%20cx%3D%22280%22%20cy%3D%22284%22%20rx%3D%2288%22%20ry%3D%2218%22/%3E%20%3Cellipse%20cx%3D%22220%22%20cy%3D%22278%22%20rx%3D%2248%22%20ry%3D%2214%22/%3E%20%3C/g%3E%20%3Cg%20fill%3D%22%234f46e5%22%20opacity%3D%220.6%22%3E%20%3Cellipse%20cx%3D%221282%22%20cy%3D%22424%22%20rx%3D%2278%22%20ry%3D%2218%22/%3E%20%3Cellipse%20cx%3D%221342%22%20cy%3D%22416%22%20rx%3D%2248%22%20ry%3D%2214%22/%3E%20%3C/g%3E%20%3C/g%3E%20%3C%21--%20Grass%20strip%20%2B%20tufts%20--%3E%20%3Crect%20x%3D%220%22%20y%3D%221042%22%20width%3D%221920%22%20height%3D%2238%22%20fill%3D%22%230a1f15%22%20opacity%3D%220.7%22/%3E%20%3Cg%20fill%3D%22%2313422a%22%20opacity%3D%220.95%22%3E%20%3Cpath%20d%3D%22M40%2C1080%20L42%2C1048%20L37%2C1048%20Z%22/%3E%20%3Cpath%20d%3D%22M48%2C1080%20L51%2C1054%20L44%2C1054%20Z%22/%3E%20%3Cpath%20d%3D%22M152%2C1080%20L154%2C1044%20L148%2C1044%20Z%22/%3E%20%3Cpath%20d%3D%22M160%2C1080%20L163%2C1052%20L156%2C1052%20Z%22/%3E%20%3Cpath%20d%3D%22M276%2C1080%20L278%2C1050%20L272%2C1050%20Z%22/%3E%20%3Cpath%20d%3D%22M308%2C1080%20L310%2C1046%20L304%2C1046%20Z%22/%3E%20%3Cpath%20d%3D%22M422%2C1080%20L424%2C1043%20L418%2C1043%20Z%22/%3E%20%3Cpath%20d%3D%22M448%2C1080%20L452%2C1052%20L444%2C1052%20Z%22/%3E%20%3Cpath%20d%3D%22M572%2C1080%20L574%2C1048%20L568%2C1048%20Z%22/%3E%20%3Cpath%20d%3D%22M608%2C1080%20L611%2C1054%20L604%2C1054%20Z%22/%3E%20%3Cpath%20d%3D%22M734%2C1080%20L736%2C1046%20L730%2C1046%20Z%22/%3E%20%3Cpath%20d%3D%22M778%2C1080%20L780%2C1050%20L774%2C1050%20Z%22/%3E%20%3Cpath%20d%3D%22M892%2C1080%20L894%2C1044%20L888%2C1044%20Z%22/%3E%20%3Cpath%20d%3D%22M922%2C1080%20L925%2C1054%20L918%2C1054%20Z%22/%3E%20%3Cpath%20d%3D%22M1044%2C1080%20L1046%2C1048%20L1040%2C1048%20Z%22/%3E%20%3Cpath%20d%3D%22M1082%2C1080%20L1084%2C1046%20L1078%2C1046%20Z%22/%3E%20%3Cpath%20d%3D%22M1198%2C1080%20L1200%2C1050%20L1194%2C1050%20Z%22/%3E%20%3Cpath%20d%3D%22M1238%2C1080%20L1241%2C1052%20L1234%2C1052%20Z%22/%3E%20%3Cpath%20d%3D%22M1358%2C1080%20L1360%2C1044%20L1354%2C1044%20Z%22/%3E%20%3Cpath%20d%3D%22M1392%2C1080%20L1394%2C1050%20L1388%2C1050%20Z%22/%3E%20%3Cpath%20d%3D%22M1512%2C1080%20L1514%2C1046%20L1508%2C1046%20Z%22/%3E%20%3Cpath%20d%3D%22M1548%2C1080%20L1551%2C1054%20L1544%2C1054%20Z%22/%3E%20%3Cpath%20d%3D%22M1672%2C1080%20L1674%2C1048%20L1668%2C1048%20Z%22/%3E%20%3Cpath%20d%3D%22M1712%2C1080%20L1714%2C1052%20L1708%2C1052%20Z%22/%3E%20%3Cpath%20d%3D%22M1828%2C1080%20L1830%2C1044%20L1824%2C1044%20Z%22/%3E%20%3Cpath%20d%3D%22M1872%2C1080%20L1874%2C1050%20L1868%2C1050%20Z%22/%3E%20%3C/g%3E%20%3C/svg%3E');
+    --text-main: var(--slate-200);
+    --color-surface: rgb(10 30 22);
+    --color-surface-elevated: rgb(15 35 28);
+    --color-surface-dark: rgb(6 20 14);
+    /* Oscuro: corteza + bosque profundo — verde manzana solo como acento (lichen), no fondo */
+    --arborito-chrome-gradient: linear-gradient(
+        180deg,
+        rgb(38 46 42) 0%,
+        rgb(28 36 32) 50%,
+        rgb(22 30 26) 100%
+    );
+    --arborito-chrome-tile: rgb(48 40 36);
+    --arborito-chrome-tile-hover: rgb(58 48 42);
+    --arborito-mob-top-actions-shield-bg-solid: rgb(32 40 36);
+    --arborito-mob-top-actions-shield-shadow: 0 4px 20px rgb(0 0 0 / 0.35);
+    --arborito-bark-tile: rgb(48 40 36);
+    --arborito-bark-tile-hover: rgb(58 48 42);
+    --arborito-bark-border: rgb(141 110 99 / 0.38);
+    --arborito-vignette-trunk: linear-gradient(to right, rgb(15 24 20 / 0.72) 0%, transparent 100%);
+    --arborito-vignette-trunk-light: var(--arborito-vignette-trunk);
+    --arborito-path-panel: rgb(36 44 40);
+    --arborito-path-panel-border: rgb(141 110 99 / 0.32);
+    --arborito-path-panel-header: linear-gradient(180deg, rgb(42 50 46), rgb(32 40 36));
+    --arborito-lichen: rgb(94 234 212 / 0.42);
+    --arborito-bark-ink: rgb(214 211 209);
+    --arborito-moss-border: rgb(141 110 99 / 0.38);
+    --arborito-moss-border-strong: rgb(168 162 158 / 0.52);
+    --color-text-primary: rgb(214 211 209);
+    --color-text-secondary: var(--slate-400);
+    --color-text-muted: var(--slate-500);
+    --color-mobile-bg: var(--slate-950);
+    --color-mobile-surface: var(--slate-800);
+    --color-mobile-border: var(--slate-700);
+    --color-mobile-text: var(--slate-200);
+    --color-mobile-text-muted: var(--slate-500);
+    --color-mobile-trunk-active: #c2410c;
+}
+
+/* Shell background: fixed DOM layer (#arborito-scene-bg in index.html).
+ * Avoid body::before + will-change — Electron/Linux leaves torn tiles on resize. */
+body.arborito-app {
+    background-color: var(--bg-app) !important;
+    background-image: none !important;
+    color: var(--text-main);
+}
+
+#arborito-scene-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: var(--bg-app);
+    background-image: var(--bg-app-gradient);
+    background-size: cover;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+}
+
+
+/* --- RESET & BASE --- */
+*, *::before, *::after { box-sizing: border-box; border-width: 0; border-style: solid; border-color: var(--slate-200); }
+html { line-height: 1.5; -webkit-text-size-adjust: 100%; font-family: var(--font-family-base); }
+body { margin: 0; line-height: inherit; background-color: var(--bg-app); color: var(--text-main); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+button, input, optgroup, select, textarea { font-family: inherit; font-size: 100%; line-height: inherit; color: inherit; margin: 0; padding: 0; }
+/*
+ * Tap-target hint for every button-like element: tells WebKit/Blink "this is a tap
+ * target" so the synthetic `click` fires eagerly even when the finger drifts a few
+ * px during touchend OR the button lives inside a scrollable container (e.g. the
+ * onboarding inner scroller, the lesson reader, the Trees `#tab-content` list).
+ * Without this hint, taps on those buttons sporadically register as scroll-starts
+ * and the click is dropped, forcing the user to tap several times. Per-element
+ * stylesheets can still override (e.g. graph nodes use `pan-y`).
+ */
+button, [role="button"], summary { touch-action: manipulation; }
+button { background-color: transparent; background-image: none; cursor: pointer; }
+h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; margin: 0; }
+p { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+img, svg, video, canvas, audio, iframe, embed, object { display: block; vertical-align: middle; }
+img, video { max-width: 100%; height: auto; }
+
+/* --- PREMIUM SCROLLBAR --- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgb(167 213 198 / 0.85); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgb(134 196 176 / 0.95); }
+.dark ::-webkit-scrollbar-thumb { background: rgb(51 65 85 / 0.85); }
+.dark ::-webkit-scrollbar-thumb:hover { background: rgb(71 85 105 / 0.95); }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* --- Native app shell (was inline in index.html) --- */
+html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+body.arborito-app {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    overflow: hidden;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#root {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+:focus:not(:focus-visible) {
+    outline: none !important;
+    box-shadow: none !important;
+}
+:focus-visible {
+    outline: 2px solid #2dd4bf;
+    outline-offset: 2px;
+}
+:not(:defined) { display: none; }
+
+/* Tree drag feedback */
+.tree-item.drag-over {
+    background-color: #ccfbf1;
+    border: 2px dashed #3b82f6;
+    transform: scale(1.02);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+    z-index: 10;
+}
+.dark .tree-item.drag-over {
+    background-color: #134e4a;
+    border: 2px dashed #5eead4;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -1px rgb(0 0 0 / 0.3);
+}
+.tree-item.dragging {
+    opacity: 0.4;
+    transform: scale(0.95);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+
+/* Emoji font-family order matters for performance: the bundled "Arborito Emoji"
+ * (Noto woff2 subsets, ~11 MB total) is listed LAST so it is only downloaded as a
+ * genuine last resort on systems with no emoji font at all. Almost all emoji in
+ * the app are rendered as Twemoji <img> (see emoji-display.js), so this font only
+ * backs raw text inside editable areas; preferring the OS emoji font there means
+ * zero font download for the common case. */
+body,
+.arborito-app {
+    font-family: var(--font-family-base);
+}
+
+.arborito-emoji-glyph,
+.mobile-child-icon,
+.arborito-lesson-emoji,
+.mochila-v2__ring-emoji,
+.mochila-v2__chip,
+.mochila-v2__badge-ic,
+.garden-plot__emoji,
+.mobile-panel-head-emoji__ic,
+.mobile-empty-branch-icon,
+.mobile-child-icon-btn,
+.emoji-btn,
+.btn-lesson-header-emoji,
+.lesson-editor-toolbar-quiz .arborito-emoji-glyph,
+.lesson-editor-insert-panel__opt .arborito-emoji-glyph,
+.arborito-lesson-toc-arcade .arborito-emoji-glyph,
+.arborito-quiz-edit .arborito-emoji-glyph,
+.quiz-mode-pill .arborito-emoji-glyph,
+.arborito-sage-chat-shell .sage-msg-bubble,
+.arborito-tour-tooltip__title,
+.arborito-tour-tooltip__body,
+.mobile-panel-cta,
+.mobile-child-rename-btn,
+.arborito-garden-bg__particle,
+.arborito-icon-btn,
+.arborito-mob-tab__icon {
+    font-family: var(--font-family-emoji);
+}
+
+/* Custom hover tips (desktop only; native title tooltips cannot render color emoji on Linux). */
+[data-arbor-tip],
+.arborito-chrome-tip {
+    position: relative;
+}
+
+.arborito-chrome-tip > [aria-hidden="true"],
+.arborito-chrome-tip .arborito-emoji-glyph,
+.arborito-chrome-tip .arborito-emoji-img {
+    pointer-events: none;
+}
+
+/* Chrome icon buttons use JS tooltips (arbor-tip.js) — no CSS ::after duplicate. */
+.arborito-chrome-tip[data-arbor-tip]::after {
+    content: none !important;
+    display: none !important;
+}
+
+[data-arbor-tip]::after,
+.arborito-chrome-tip[data-arbor-tip]::after {
+    content: attr(data-arbor-tip);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 0.45rem);
+    transform: translateX(-50%) translateY(4px);
+    z-index: 80;
+    max-width: 14rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 0.65rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.35;
+    text-align: center;
+    color: var(--arborito-theme-tip-after-color);
+    background: var(--arborito-theme-tip-after-background);
+    border: 1px solid var(--arborito-theme-tip-after-border-color);
+    box-shadow: 0 10px 24px -12px rgb(15 23 42 / 0.28);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    font-family: var(--font-family-base);
+}
+
+[data-arbor-tip]:hover::after,
+[data-arbor-tip]:focus-visible::after,
+.arborito-chrome-tip[data-arbor-tip]:hover::after,
+.arborito-chrome-tip[data-arbor-tip]:focus-visible::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+html.arborito-shell-mobile [data-arbor-tip]::after,
+html.force-mobile [data-arbor-tip]::after,
+html.arborito-shell-mobile .arborito-chrome-tip[data-arbor-tip]::after,
+html.force-mobile .arborito-chrome-tip[data-arbor-tip]::after {
+    content: none !important;
+    display: none !important;
+}
+
+html.arborito-shell-mobile .arborito-tip-float,
+html.force-mobile .arborito-tip-float {
+    display: none !important;
+}
+
+.arborito-emoji-glyph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: -0.05em;
+}
+
+.arborito-emoji-native {
+    font-family: var(--font-family-emoji);
+}
+
+.arborito-emoji-img,
+.arborito-emoji-inline {
+    display: inline-block;
+    vertical-align: -0.15em;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+html.arborito-emoji-images .arborito-emoji-glyph:not(.arborito-emoji-img):not(.arborito-emoji-native) {
+    font-family: emoji, sans-serif;
+}
+
+html.arborito-emoji-images .arborito-emoji-native {
+    font-family: var(--font-family-emoji);
+}
+
+/* Chrome / nav emoji PNGs (Linux Twemoji fallback). */
+.arborito-desktop-sage-fab__ic .arborito-emoji-img,
+.arborito-mob-tab__icon .arborito-emoji-img,
+.arborito-mob-top-actions .arborito-emoji-img,
+.arborito-desktop-menu-item__ic .arborito-emoji-img,
+.arborito-desktop-nav__ic .arborito-emoji-img,
+.mochila-v2__ring-emoji .arborito-emoji-img,
+.mochila-v2__badge-ic .arborito-emoji-img,
+.arborito-lesson-mtool .arborito-emoji-img,
+.sage-guide-sage-intro__owl .arborito-emoji-img,
+.arborito-mob-tab__icon .arborito-emoji-img {
+    width: 1.65rem;
+    height: 1.65rem;
+}
+
+.arborito-desktop-sage-fab__ic .arborito-emoji-img {
+    width: 1.75rem;
+    height: 1.75rem;
+}
+
+.mochila-v2__ring-emoji .arborito-emoji-img {
+    width: 1.15rem;
+    height: 1.15rem;
+}
+
+/*
+ * Tailwind no incluye estilos de scrollbar (Firefox + WebKit) ni el ajuste fino de readme.
+ * Keeping ~25 lines here avoids extra dependencies and huge scrollbar plugins.
+ */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--arborito-theme-scrollbar-color);
+}
+.custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--arborito-theme-scroll-custom-scrollbar-background-color);
+    border-radius: 9999px;
+}
+
+.readme-markdown.prose p,
+.readme-markdown.prose li {
+    font-size: 1.0625rem;
+    line-height: 1.65;
+}

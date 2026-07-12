@@ -1,0 +1,11 @@
+{
+  "searchBookmarksEmpty": "Bookmark a section with the star in the lesson toolbar to see it here.",
+  "searchCert": "Search certificate...",
+  "searchIndexBuilding": "Preparing search on this device… (a few seconds; you can keep reading the map)",
+  "searchIndexFailed": "Search could not finish preparing on this device. You can keep using the course—try closing search and opening it again later. If it keeps happening, try another browser or reload the page.",
+  "searchKeepTyping": "Keep typing to filter...",
+  "searchManualBookmarksHeader": "Your bookmarks",
+  "searchPlaceholder": "Search topics...",
+  "searchRecentLessonsHeader": "Recently viewed",
+  "searchRecentBookmarksHeader": "Recent lessons (in progress)"
+}

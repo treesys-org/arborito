@@ -1,0 +1,18 @@
+{
+  "nostrAccountRemovedByAdminBody": "Puedes seguir usando el curso aquí con tu progreso local en este navegador. Tus mensajes del foro y el progreso sincronizado para este árbol se eliminaron de la red pública. Si no lo esperabas, contacta al administrador del curso para saber el motivo.",
+  "nostrAccountRemovedByAdminTitle": "Tu cuenta en línea fue retirada de este árbol",
+  "nostrBundleFormatUnsupported": "Este curso público está en un formato antiguo o no compatible. Pide a quien lo publicó que lo vuelva a publicar con la versión actual de Arborito. Mientras tanto, puedes pedir un archivo .arborito u otro enlace si lo tienen.",
+  "nostrIdentityUnavailable": "Para usar foro, publicar o códigos de enlace con cifrado completo, abre esta misma página con <strong>https://</strong> o desde <strong>http://localhost</strong>. En una dirección local tipo <code>http://192.168…</code> el navegador limita el cifrado: algunas funciones online pueden no estar disponibles o estar acotadas.",
+  "nostrLessonLoadEmpty": "(Esta lección no tenía texto en la red.)",
+  "nostrLessonLoadError": "No se pudo cargar la lección desde la red. Prueba de nuevo o revisa la conexión.",
+  "nostrGdprConsentRequired": "Acepta la política de privacidad para cargar cursos desde la red.",
+  "nostrLoadFailedError": "No encontramos este curso en la red ahora mismo. Si acabas de publicarlo, espera un minuto y vuelve a intentar. Si sigue fallando, pide otro enlace al autor.",
+  "nostrNotLoadedHint": "No se pudo activar la conexión para cursos públicos en línea. Prueba recargar la página, otra red, o abrir Arborito con https://. Sin eso, códigos de compartir, publicar y el foro en línea pueden no estar disponibles.",
+  "nostrNotReadyError": "No se pudo conectar a la red todavía. Espera unos segundos e inténtalo de nuevo.",
+  "nostrPublicWarningBody": "Alguien te compartió este curso por la red. Comprueba que conoces al autor o institución que te lo envió.",
+  "nostrPublicWarningCheck": "Si el curso tiene foro, los mensajes los ve quien tenga el enlace. Arborito no revisa el contenido: confía en quien te pasó el curso.",
+  "nostrPublicWarningConfirm": "Entiendo",
+  "nostrPublicWarningTitle": "Curso compartido en la red",
+  "nostrStructureEditHint": "Los cambios de estructura quedan en la memoria de esta pestaña hasta que publiques el curso en la red pública.",
+  "nostrUniverseRevokedError": "Este árbol público fue retirado por quien lo publicó."
+}

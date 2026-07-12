@@ -1,0 +1,10 @@
+/**
+ * Firefox (RFP / font visibility): `font-serif` / `ui-serif` resolve to Nimbus/P052
+ * and spam the console. `.font-sans` / `.font-mono` come from `tailwind.config.js` (generic stacks).
+ * Here we only reinforce `.font-serif` if a module uses it without going through the theme.
+ */
+@layer utilities {
+    .font-serif {
+        font-family: var(--font-family-base);
+    }
+}

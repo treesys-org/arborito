@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2026 Treesys -->
+<component type="desktop-application">
+  <id>org.treesys.arborito</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <name>Arborito</name>
+  <summary>Learn anything as an interactive tree of lessons</summary>
+  <summary xml:lang="es">Aprende cualquier tema como un árbol interactivo de lecciones</summary>
+  <description>
+    <p>
+      Arborito turns any subject into a visual map of lessons you explore at your own pace.
+      Study from community trees, plant your own, translate lessons, or remix what others published.
+    </p>
+    <p>
+      Free and open source under GPL v3. Local-first by default: your progress stays on your device.
+      No subscription, no mandatory account, no ads.
+    </p>
+    <p>
+      The desktop build adds optional local Sage AI tutoring and high-quality voice on capable hardware.
+    </p>
+    <p xml:lang="es">
+      Arborito convierte cualquier tema en un mapa visual de lecciones que exploras a tu ritmo.
+      Estudia árboles de la comunidad, planta el tuyo, traduce lecciones o remezcla lo que otros publicaron.
+    </p>
+    <p xml:lang="es">
+      Gratis y de código abierto bajo GPL v3. Local-first por defecto: tu progreso permanece en tu dispositivo.
+      Sin suscripción, sin cuenta obligatoria, sin anuncios.
+    </p>
+    <p xml:lang="es">
+      La app de escritorio añade tutoría opcional con Sage IA local y voz de alta calidad en equipos capaces.
+    </p>
+  </description>
+  <developer id="org.treesys">
+    <name>Treesys</name>
+  </developer>
+  <launchable type="desktop-id">org.treesys.arborito.desktop</launchable>
+  <url type="homepage">https://arborito.org</url>
+  <url type="bugtracker">https://github.com/treesys-org/arborito/issues</url>
+  <url type="vcs-browser">https://github.com/treesys-org/arborito</url>
+  <url type="help">https://github.com/treesys-org/arborito/blob/master/README.md</url>
+  <update_contact>support@treesys.org</update_contact>
+  <content_rating type="oars-1.1">
+    <content_attribute id="social-chat">moderate</content_attribute>
+  </content_rating>
+  <categories>
+    <category>Education</category>
+  </categories>
+  <keywords>
+    <keyword>education</keyword>
+    <keyword>learning</keyword>
+    <keyword>lessons</keyword>
+    <keyword>curriculum</keyword>
+    <keyword>open source</keyword>
+    <keyword>local-first</keyword>
+  </keywords>
+  <releases>
+    <release version="0.1.0-alpha" date="2026-07-08">
+      <description>
+        <p>Initial public alpha: interactive lesson maps, local-first progress, optional Sage AI on desktop.</p>
+      </description>
+    </release>
+  </releases>
+</component>

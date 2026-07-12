@@ -1,0 +1,399 @@
+/* --- more-menu-version-chip --- */
+/* Desktop: Versions chip bottom-right, left of the owl (Sage FAB) */
+html.arborito-desktop .mobile-version-fixed-slot {
+    display: block !important;
+    pointer-events: none !important;
+    left: auto !important;
+    top: auto !important;
+    right: calc(max(1rem, env(safe-area-inset-right, 0px)) + 3.5rem + 0.55rem) !important;
+    bottom: max(1.1rem, env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 113 !important;
+    width: min(14rem, calc(100vw - 6rem)) !important;
+}
+
+html.arborito-desktop .mobile-version-fixed-slot .arborito-mobile-version-root {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* More menu — base chrome (profile card, drill rows, sub-hero) */
+.arborito-sheet__grab {
+    width: 2.5rem;
+    height: 0.25rem;
+    border-radius: 9999px;
+    background: var(--arborito-theme-learning-arborito-sheet__grab-background);
+    margin: 0 auto 0.75rem;
+}
+.arborito-profile-card {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-radius: 1.125rem;
+    border: var(--arborito-theme-learning-arborito-profile-card-border);
+    background: var(--arborito-theme-learning-arborito-profile-card-background);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.15s ease;
+}
+
+.arborito-profile-card:active {
+    transform: scale(0.99);
+}
+.arborito-menu-section {
+    font-size: 0.6875rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--arborito-theme-learning-arborito-menu-section-color);
+    padding: 0 0.25rem;
+    margin: 0.75rem 0 0.5rem;
+}
+
+.arborito-sheet__hero--mmenu-sub {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1rem 0.85rem;
+}
+
+/* Title + back row — same geometry as dock modals (search, sage…) */
+.arborito-mmenu-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    width: 100%;
+}
+
+/* Emoji / mark in unified sheet heroes (profile, search, arcade…) */
+.arborito-sheet-hero__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.arborito-sheet-hero__icon img {
+    display: block;
+    width: 1.375rem;
+    height: 1.375rem;
+    object-fit: contain;
+}
+
+.arborito-mmenu-drill-chevron {
+    color: var(--arborito-theme-auth-chevron-fg);
+}
+
+.arborito-mmenu-drill-hint {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+/* Sheet heroes (More menu, search, Sage…): grab + toolbar */
+.arborito-mmenu-hero--sheet.arborito-sheet__hero--mmenu-sub {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.35rem;
+    padding-top: max(0.65rem, env(safe-area-inset-top, 0px));
+}
+
+.arborito-mmenu-hero--sheet .arborito-sheet__grab {
+    margin-bottom: 0.15rem;
+}
+.arborito-mmenu-subtitle {
+    font-size: 1.0625rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--arborito-theme-learning-arborito-mmenu-subtitle-color);
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.arborito-mmenu-drill-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    text-align: left;
+    padding: 0.95rem 1rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--arborito-theme-learning-arborito-mmenu-drill-row-color);
+    border: var(--arborito-theme-learning-arborito-mmenu-drill-row-border);
+    border-radius: 1rem;
+    background: var(--arborito-theme-learning-arborito-mmenu-drill-row-background);
+    margin-bottom: 0.5rem;
+    transition: background 0.15s ease, transform 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.arborito-mmenu-drill-row:active {
+    transform: scale(0.99);
+    background: var(--arborito-theme-learning-arborito-mmenu-drill-row-background-2);
+}
+.arborito-mmenu-divider {
+    height: 1px;
+    margin: 0.65rem 0 0.85rem;
+    background: var(--arborito-theme-learning-arborito-mmenu-divider-background);
+    border: none;
+}
+
+/* More menu — editorial header */
+.arborito-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 65;
+    background: rgb(15 23 42 / 0.4);
+}
+html:not(.dark) .arborito-sheet-backdrop {
+    background: rgb(240 253 250 / 0.82);
+}
+
+.arborito-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 66;
+    max-height: 82vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: var(--arborito-radius-sheet, 1.5rem) var(--arborito-radius-sheet, 1.5rem) 0 0;
+    background: var(--arborito-theme-shell-arborito-sheet-background);
+    border: var(--arborito-theme-shell-arborito-sheet-border);
+    border-bottom: none;
+    box-shadow: var(--arborito-sheet-elevate);
+    animation: arboritoSheetIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Mobile shell sheets (narrow viewport + force-mobile on wide screens) */
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet-backdrop {
+    z-index: 122;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: var(--arborito-chrome-dock-gap);
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet {
+    z-index: 123;
+    top: auto;
+    bottom: var(--arborito-chrome-dock-gap);
+    left: 0;
+    right: 0;
+    max-height: min(88dvh, calc(100dvh - var(--arborito-chrome-dock-gap) - env(safe-area-inset-top, 0px) - 0.5rem));
+    height: auto;
+    min-height: 0;
+    border-radius: var(--arborito-radius-sheet, 1.5rem) var(--arborito-radius-sheet, 1.5rem) 0 0;
+    border: 1px solid rgb(167 243 208 / 0.45);
+    border-bottom: none;
+    box-shadow: var(--arborito-sheet-elevate);
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet.arborito-sheet--mobile-more {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-sheet-dock-gap) !important;
+    max-height: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: none !important;
+}
+
+/* Mochila: same sheet family as Buscar but fullbleed (dock hidden). */
+:is(html.arborito-shell-mobile, html.force-mobile) #progress-dock-sheet.arborito-sheet--mobile-more,
+:is(html.arborito-shell-mobile, html.force-mobile) #progress-dock-backdrop.arborito-sheet-backdrop--mobile-more {
+    bottom: 0 !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet-backdrop--mobile-more {
+    animation: none !important;
+}
+
+/* Construction dock More sheet stacks above the construction bar (same sheet family as browse). */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+    .construction-panel-host
+    .arborito-sheet-backdrop--mobile-more:not([hidden]) {
+    z-index: 139 !important;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+    .construction-panel-host
+    .arborito-sheet.arborito-sheet--mobile-more:not([hidden]) {
+    z-index: 140 !important;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+    .construction-panel-host
+    :is(#construction-dock-hub-backdrop, #dock-hub-backdrop, #sage-dock-backdrop) {
+    z-index: 139 !important;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+    .construction-panel-host
+    :is(#construction-dock-hub-sheet, #dock-hub-sheet, #sage-dock-sheet) {
+    z-index: 140 !important;
+}
+
+/* Mobile construction dock hub sheets fill space above dock bar */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+    .construction-panel-host
+    :is(#construction-dock-hub-sheet, #sage-dock-sheet).arborito-sheet--mobile-more:not([hidden]) {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-sheet-dock-gap, var(--arborito-chrome-dock-gap, 4.25rem)) !important;
+    max-height: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: none !important;
+}
+
+/* Compact construction hubs — profile / language style (content height, rounded top) */
+:is(html.arborito-construction-mobile, html.force-mobile.arborito-construction-mobile)
+    .construction-panel-host
+    #construction-dock-hub-sheet.arborito-sheet--hub-compact:not([hidden]) {
+    top: auto !important;
+    height: auto !important;
+    max-height: min(85dvh, calc(100dvh - var(--arborito-chrome-dock-gap, 4.25rem) - 1.5rem)) !important;
+    border-radius: var(--arborito-radius-sheet, 1.5rem) var(--arborito-radius-sheet, 1.5rem) 0 0 !important;
+    border: 1px solid rgb(226 232 240 / 0.9) !important;
+    overflow: hidden;
+}
+
+html.dark.arborito-construction-mobile .construction-panel-host
+    #construction-dock-hub-sheet.arborito-sheet--hub-compact:not([hidden]) {
+    border-color: rgb(51 65 85 / 0.9) !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet.arborito-sheet--mobile-more .arborito-mmenu-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet.arborito-sheet--mobile-more .arborito-mmenu-scroll.arborito-mmenu-scroll--about {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet.arborito-sheet--mobile-more .arborito-mmenu-scroll--about .arborito-mmenu-about-host {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet.arborito-sheet--mobile-more .arborito-mmenu-scroll.arborito-mmenu-scroll--embed-pane {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet.arborito-sheet--mobile-more .arborito-mmenu-scroll--embed-pane > .arborito-mmenu-embed-host {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet.arborito-sheet--mobile-more > .arborito-sheet__hero,
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet.arborito-sheet--mobile-more > .arborito-sheet__hero--mmenu-sub {
+    flex-shrink: 0;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet.arborito-sheet--mobile-more .arborito-mmenu-drill-row {
+    min-height: 3.25rem;
+    display: flex;
+    align-items: center;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet.arborito-sheet--mobile-more.arborito-dock-modal-enter {
+    animation: arboritoDockModalIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet.arborito-sheet--mobile-more.arborito-sheet--instant,
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet-backdrop--mobile-more.arborito-sheet-backdrop--instant {
+    animation: none !important;
+    opacity: 1 !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-sheet {
+    border: 1px solid rgb(226 232 240 / 0.9);
+}
+
+@keyframes arboritoSheetIn {
+    from {
+        transform: translateY(110%);
+        opacity: 0.85;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Mobile "More" drill: subtle pane enter (full sidebar render; animates body only) */
+@keyframes arboritoMmenuPaneFwd {
+    from {
+        opacity: 0.35;
+        transform: translateX(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+@keyframes arboritoMmenuPaneBack {
+    from {
+        opacity: 0.35;
+        transform: translateX(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+.arborito-mmenu-pane-body.arborito-mmenu-pane--fwd {
+    animation: arboritoMmenuPaneFwd 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.arborito-mmenu-pane-body.arborito-mmenu-pane--back {
+    animation: arboritoMmenuPaneBack 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+    .arborito-mmenu-pane-body.arborito-mmenu-pane--fwd,
+    .arborito-mmenu-pane-body.arborito-mmenu-pane--back {
+        animation: none;
+    }
+    .arborito-sheet {
+        animation: none;
+    }
+    .arborito-sheet.arborito-sheet--mobile-more {
+        animation: none !important;
+    }
+}
+

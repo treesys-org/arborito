@@ -1,0 +1,1120 @@
+/*
+ * Sage panel — host positioning, FAB clearance, guide/chat shells.
+ * Extracted from app-flex-and-pointer-hosts.css + forest-shell-header-graph.css.
+ */
+
+:root {
+    --arborito-sage-fab-size: 3.5rem;
+    --arborito-sage-fab-bottom: 1.1rem;
+    --arborito-sage-fab-gap: 0.35rem;
+    /* FAB bottom + height — panel bottom aligns with owl top */
+    --arborito-sage-fab-clearance: calc(var(--arborito-sage-fab-bottom) + var(--arborito-sage-fab-size));
+    --arborito-sage-shell-radius: 1rem;
+    --arborito-sage-guide-width: min(28rem, calc(100vw - 2rem));
+    --arborito-sage-chat-width: min(26.25rem, calc(100vw - 2rem));
+    --arborito-sage-guide-height: min(72vh, 36rem);
+    --arborito-sage-chat-height: min(80vh, 40rem);
+    --arborito-sage-construct-guide-height: min(30rem, calc(100vh - var(--arborito-sage-fab-clearance) - 1.5rem));
+}
+
+/* --- Host (React mounts inside #root, not body — match panel attribute too) --- */
+
+:is(arborito-sage, [data-arborito-panel="sage"]) {
+    position: fixed !important;
+    inset: 0 0 auto 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    z-index: 235 !important;
+    pointer-events: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Dock-tab Sage: content lives in sidebar/construction dock host (DockHubSheet); collapse empty host. */
+:is(arborito-sage, [data-arborito-panel="sage"]).arborito-sage-dock-hub {
+    inset: auto !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    z-index: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Dock-tab Sage: single DockHubShell in DockHubSheet — inner screens use embedded (no SageMobPanel). */
+#sage-dock-sheet .arborito-dock-hub-shell .arborito-sage-embedded,
+#sage-dock-sheet .arborito-dock-hub-shell .arborito-sage-guide-embedded {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+}
+
+arborito-sage > * {
+    pointer-events: auto;
+}
+
+/* Transparent hit target: dismiss Sage on outside tap (desktop corner panels). */
+.arborito-sage-outside-dismiss {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: auto;
+    background: transparent;
+}
+
+.arborito-sage-outside-dismiss + * {
+    position: relative;
+    z-index: 1;
+}
+
+html:not(.arborito-sage-open) :is(arborito-sage, [data-arborito-panel="sage"]) {
+    display: none !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+}
+
+body > arborito-sage.arborito-sage--open.arborito-sage-mob-frame,
+:is(arborito-sage, [data-arborito-panel="sage"]).arborito-sage--open.arborito-sage-mob-frame {
+    bottom: var(--arborito-sheet-dock-gap, var(--arborito-chrome-dock-gap)) !important;
+    height: auto !important;
+    max-height: none !important;
+}
+
+body > arborito-sage.arborito-sage--open:not(.arborito-sage-desk-scrim):not(.arborito-sage-mob-frame),
+:is(arborito-sage, [data-arborito-panel="sage"]).arborito-sage--open:not(.arborito-sage-desk-scrim):not(.arborito-sage-mob-frame) {
+    bottom: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    justify-content: flex-end !important;
+    padding-right: max(1.5rem, env(safe-area-inset-right, 0px)) !important;
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px)) !important;
+}
+
+html.arborito-desktop.arborito-sage-open :is(body > arborito-sage, arborito-sage, [data-arborito-panel="sage"]).arborito-sage--open:not(.arborito-sage-mob-frame):not(.arborito-sage-desk-scrim),
+html.arborito-electron.arborito-sage-open :is(body > arborito-sage, arborito-sage, [data-arborito-panel="sage"]).arborito-sage--open:not(.arborito-sage-mob-frame):not(.arborito-sage-desk-scrim) {
+    padding-bottom: max(
+        var(--arborito-sage-fab-clearance),
+        calc(env(safe-area-inset-bottom, 0px) + var(--arborito-sage-fab-clearance))
+    ) !important;
+}
+
+html.arborito-desktop.arborito-mob-dock-modal-open :is(body > arborito-sage, arborito-sage, [data-arborito-panel="sage"]).arborito-sage--open:not(.arborito-sage-mob-frame):not(.arborito-sage-desk-scrim) {
+    padding-bottom: calc(var(--arborito-chrome-dock-gap) + 0.35rem) !important;
+}
+
+arborito-sage.arborito-sage--open {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    flex: 0 0 auto !important;
+}
+
+arborito-sage.arborito-sage--open.arborito-sage-mob-frame {
+    background-color: var(--arborito-theme-sage-mob-frame-bg) !important;
+}
+
+/* Construction + shell: FAB clearance when panel open (mobile only — desktop FAB stays corner-anchored). */
+:is(
+    html.arborito-construction-mobile:not(.arborito-desktop),
+    html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)
+) {
+    --arborito-sage-fab-clearance: calc(
+        var(--arborito-chrome-dock-gap) + var(--arborito-sage-fab-bottom) + var(--arborito-sage-fab-size) + var(--arborito-sage-fab-gap)
+    );
+}
+
+/* Construction uses the same guide shell footprint as lesson (no cramped fixed height). */
+
+html.arborito-desktop.arborito-construction-mobile arborito-sage.arborito-sage--open .arborito-sage-chat-shell {
+    max-height: min(72vh, calc(100vh - var(--arborito-sage-fab-clearance) - 2rem));
+}
+
+html.arborito-desktop.arborito-sage-open arborito-sage.arborito-sage--open :is(.arborito-sage-chat-shell, .arborito-sage-guide-shell) {
+    max-height: min(80vh, calc(100vh - var(--arborito-sage-fab-clearance) - 2rem));
+}
+
+html.arborito-desktop.arborito-mob-dock-modal-open arborito-sage.arborito-sage--open :is(.arborito-sage-guide-shell, .arborito-sage-chat-shell) {
+    max-height: min(72vh, calc(100vh - var(--arborito-chrome-dock-gap) - 2rem));
+}
+
+/* --- Shared shell chrome (guide + chat) --- */
+
+arborito-sage.arborito-sage--open :is(.arborito-sage-guide-shell, .arborito-sage-chat-shell) {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--arborito-sage-shell-radius);
+    border: 1px solid var(--arborito-theme-sage-shell-border);
+    background: var(--arborito-theme-surface-bg);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+}
+
+arborito-sage.arborito-sage--open :is(.arborito-sage-guide-shell, .arborito-sage-chat-shell) > .arborito-sage-dock-inner {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+arborito-sage.arborito-sage--open .arborito-sage-guide-shell {
+    width: var(--arborito-sage-guide-width);
+    height: var(--arborito-sage-guide-height);
+    min-height: var(--arborito-sage-guide-height);
+    max-height: calc(100vh - 2.5rem);
+}
+
+arborito-sage.arborito-sage--open .arborito-sage-chat-shell {
+    width: var(--arborito-sage-chat-width);
+    height: var(--arborito-sage-chat-height);
+    min-height: var(--arborito-sage-chat-height);
+    max-height: calc(100vh - 2.5rem);
+}
+
+arborito-sage.arborito-sage--open .arborito-sage-body--guide {
+    min-height: 0;
+}
+
+/* --- Mobile full-bleed shells --- */
+
+arborito-sage.arborito-sage--open :is(.arborito-sage-guide-full-mob, .arborito-sage-chat-shell-mob) {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    max-height: 100%;
+    background: var(--arborito-theme-surface-bg);
+}
+
+arborito-sage.arborito-sage--open .arborito-sage-chat-shell-mob > .arborito-modal-dock-panel,
+arborito-sage.arborito-sage--open .arborito-sage-chat-stack {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+arborito-sage.arborito-sage--open .arborito-sage-chat-shell-mob > .arborito-modal-dock-panel {
+    height: 100%;
+}
+
+.arborito-sage-mob-panel-root {
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+.arborito-sage-mob-panel-root > .arborito-modal-dock-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
+}
+
+.arborito-sage-chat-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--arborito-theme-sage-chat-scroll-bg);
+}
+
+.arborito-sage-chat-form {
+    padding: 0.75rem;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 20px));
+    background: var(--arborito-theme-sage-chat-form-bg);
+    border-top: 1px solid var(--arborito-theme-sage-chat-form-border);
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-end;
+    flex-shrink: 0;
+}
+
+.arborito-sage-chat-form--desk {
+    padding-bottom: 0.75rem;
+}
+
+.arborito-sage-chat-quick-actions {
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    flex-shrink: 0;
+    background: var(--arborito-theme-sage-chat-quick-bg);
+    border-top: 1px solid var(--arborito-theme-sage-chat-quick-border);
+}
+
+.sage-msg-bubble--assistant {
+    background: var(--arborito-theme-sage-msg-assistant-bg);
+    color: var(--arborito-theme-sage-msg-assistant-fg);
+    border: 1px solid var(--arborito-theme-sage-msg-assistant-border);
+}
+
+.arborito-sage-loading-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+}
+
+.arborito-sage-loading-panel__title {
+    font-size: 1.125rem;
+    font-weight: 900;
+    color: var(--arborito-theme-sage-loading-title-fg);
+    margin: 0 0 0.5rem;
+}
+
+.arborito-sage-loading-panel__desc {
+    font-size: 0.75rem;
+    color: var(--arborito-theme-sage-loading-desc-fg);
+    margin: 0 0 1.5rem;
+}
+
+.arborito-sage-loading-track {
+    width: 100%;
+    background: var(--arborito-theme-sage-loading-track-bg);
+    border: 1px solid var(--arborito-theme-sage-loading-track-border);
+    border-radius: 999px;
+    height: 0.75rem;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+}
+
+.arborito-sage-loading-cancel {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    border: none;
+    background: var(--arborito-theme-sage-loading-cancel-bg);
+    color: var(--arborito-theme-sage-loading-cancel-fg);
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 160ms ease, background 160ms ease;
+}
+
+.arborito-sage-loading-cancel:hover {
+    filter: brightness(1.05);
+}
+
+arborito-sage.arborito-sage--open #sage-chat-area {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+html.arborito-sage-open .arborito-lesson-mobile-footer {
+    display: none !important;
+    pointer-events: none;
+}
+
+arborito-sage.arborito-sage--open .arborito-sage-settings-shell {
+    box-sizing: border-box;
+    width: min(32rem, calc(100vw - 2rem));
+    max-width: 100%;
+    max-height: min(92vh, 46rem);
+    min-height: 0;
+}
+
+/* --- Mobile frame: anchor to chrome dock (never the tree scroll clamp) --- */
+
+.arborito-sage-mob-frame,
+arborito-sage.arborito-sage--open.arborito-sage-mob-frame {
+    position: fixed;
+    inset: 0 0 var(--arborito-sheet-dock-gap, var(--arborito-chrome-dock-gap)) 0;
+    height: auto;
+    max-height: none;
+}
+
+/* Dock-tab Sage (browse + construction): same sheet anchor + chrome as More / Arcade */
+:is(html.arborito-shell-mobile, html.force-mobile)
+    arborito-sage.arborito-sage--open.arborito-sage-mob-frame {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-sheet-dock-gap, var(--arborito-chrome-dock-gap)) !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    height: auto !important;
+    max-height: none !important;
+    z-index: 220 !important;
+    background: var(--arborito-theme-modal-dock-panel-background) !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    arborito-sage.arborito-sage--open.arborito-sage-mob-frame
+    :is(.arborito-sage-mob-panel-root, .arborito-modal-dock-panel) {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    flex: 1 1 auto !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: var(--arborito-theme-modal-dock-panel-background) !important;
+}
+
+@media (max-width: 767px) {
+    arborito-sage.arborito-sage--open:not(.arborito-sage-desk-scrim) {
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: var(--arborito-sheet-dock-gap, var(--arborito-chrome-dock-gap)) !important;
+        height: auto !important;
+        max-height: none !important;
+    }
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) arborito-sage.arborito-sage--open:not(.arborito-sage-desk-scrim) {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: var(--arborito-sheet-dock-gap, var(--arborito-chrome-dock-gap)) !important;
+    height: auto !important;
+    max-height: none !important;
+}
+
+:is(
+    html.arborito-shell-mobile.arborito-mob-first-run-gate,
+    html.force-mobile.arborito-mob-first-run-gate
+) :is(arborito-sage.arborito-sage--open, .arborito-sage-mob-frame) {
+    bottom: 0 !important;
+}
+
+:is(
+    html.arborito-shell-mobile.arborito-sage-lesson-overlay,
+    html.force-mobile.arborito-sage-lesson-overlay
+) #sage-lesson-backdrop.arborito-modal-root.arborito-modal--sage-lesson {
+    inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-height: 100dvh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+}
+
+:is(
+    html.arborito-shell-mobile.arborito-sage-lesson-overlay,
+    html.force-mobile.arborito-sage-lesson-overlay
+) #sage-lesson-backdrop.arborito-modal-root .arborito-sage-embedded,
+:is(
+    html.arborito-shell-mobile.arborito-sage-lesson-overlay,
+    html.force-mobile.arborito-sage-lesson-overlay
+) #sage-lesson-backdrop.arborito-modal-root .arborito-dock-hub-shell {
+    height: 100% !important;
+    min-height: 0 !important;
+    flex: 1 1 auto !important;
+}
+
+:is(
+    html.arborito-shell-mobile.arborito-sage-lesson-overlay,
+    html.force-mobile.arborito-sage-lesson-overlay
+) :is(.arborito-mob-dock-wrap, .arborito-mob-dock--floating) {
+    display: none !important;
+    pointer-events: none !important;
+}
+
+/* Lesson sage: fullbleed panel replaces reader chrome — no double header or page scroll. */
+:is(
+    html.arborito-shell-mobile.arborito-sage-lesson-overlay,
+    html.force-mobile.arborito-sage-lesson-overlay
+) {
+    overflow: hidden !important;
+}
+
+:is(
+    html.arborito-shell-mobile.arborito-sage-lesson-overlay,
+    html.force-mobile.arborito-sage-lesson-overlay
+) .arborito-lesson-sheet.arborito-lesson-aside {
+    overflow: hidden !important;
+}
+
+:is(
+    html.arborito-shell-mobile.arborito-sage-lesson-overlay,
+    html.force-mobile.arborito-sage-lesson-overlay
+) .arborito-lesson-progress-slim {
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+@media (max-width: 767px) {
+    arborito-sage.arborito-sage--open > div:first-child {
+        height: 100% !important;
+        max-height: 100% !important;
+        min-height: 0 !important;
+    }
+
+    arborito-sage.arborito-sage--open .bg-gradient-to-r {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 30 !important;
+    }
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) arborito-sage.arborito-sage--open > div:first-child {
+    height: 100% !important;
+    max-height: 100% !important;
+    min-height: 0 !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) arborito-sage.arborito-sage--open .bg-gradient-to-r {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 30 !important;
+}
+
+/* Lesson reader: Sage only in LessonHeader — hide global entry points (see lesson-reader-open.js). */
+html.arborito-lesson-reader-open .arborito-desktop-sage-fab,
+html.arborito-lesson-reader-open .js-btn-sage-mobile-dock,
+html.arborito-lesson-reader-open #btn-construction-sage {
+    display: none !important;
+}
+
+/* --- Desktop Sage FAB (unified from forest-shell-header-graph + profile-popover-mochila) --- */
+
+html.arborito-desktop .arborito-desktop-sage-fab {
+    display: inline-flex;
+    position: fixed;
+    z-index: 108;
+    left: auto;
+    right: max(1rem, env(safe-area-inset-right, 0px));
+    bottom: max(1.1rem, env(safe-area-inset-bottom, 0px));
+    width: 3.5rem;
+    height: 3.5rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    background: var(--arborito-chrome-gradient);
+    border: 1px solid var(--arborito-moss-border);
+    box-shadow:
+        0 4px 14px rgb(6 78 59 / 0.12),
+        0 0 0 1px rgb(255 255 255 / 0.55) inset;
+    transition:
+        transform 140ms ease,
+        box-shadow 180ms ease,
+        border-color 180ms ease;
+}
+
+html.arborito-desktop .arborito-desktop-sage-fab:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 10px 28px rgb(15 23 42 / 0.18),
+        0 0 0 1px rgb(255 255 255 / 0.85) inset;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    html.arborito-desktop .arborito-desktop-sage-fab:hover {
+        animation: arborito-chrome-btn-bounce 0.38s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+}
+
+html.arborito-desktop .arborito-desktop-sage-fab.is-active {
+    border-color: rgb(45 212 191 / 0.65);
+    box-shadow:
+        0 0 0 3px rgb(45 212 191 / 0.22),
+        0 6px 20px rgb(15 23 42 / 0.14);
+}
+
+html.arborito-desktop .arborito-desktop-sage-fab__ic {
+    font-size: 1.65rem;
+    line-height: 1;
+}
+
+/* Sage: unified dock header (guide, chat, settings…) — tokens from mobile-sheets-dock.css */
+arborito-sage.arborito-sage--open .arborito-dock-modal-hero.arborito-sheet__hero--mmenu-sub {
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+arborito-sage.arborito-sage--open .arborito-sage-guide-full-mob .arborito-modal-dock-panel > .arborito-dock-modal-hero,
+arborito-sage.arborito-sage--open .arborito-modal-dock-panel > .arborito-dock-modal-hero {
+    flex-shrink: 0;
+}
+
+arborito-sage.arborito-sage--open .arborito-sage-guide-full-mob .arborito-modal-dock-panel > .arborito-sage-body--guide {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Block owl FAB / dock from stealing the same tap as the Sage mode switch. */
+html.arborito-sage-pointer-guard .arborito-desktop-sage-fab,
+html.arborito-sage-pointer-guard .js-btn-sage-mobile-dock {
+    pointer-events: none !important;
+}
+
+/* Keep FAB above panel so desktop/Electron can toggle closed via the owl */
+html.arborito-sage-open .arborito-desktop-sage-fab {
+    z-index: 200 !important;
+    pointer-events: auto !important;
+}
+
+arborito-sage.arborito-sage--open .arborito-dock-modal-hero .arborito-emoji-img,
+arborito-sage.arborito-sage--open .arborito-dock-modal-hero .arborito-emoji-glyph,
+arborito-sage.arborito-sage--open .arborito-dock-modal-hero .arborito-emoji-native,
+arborito-sage.arborito-sage--open .arborito-icon-btn .arborito-emoji-img,
+arborito-sage.arborito-sage--open .arborito-icon-btn .arborito-emoji-glyph,
+arborito-sage.arborito-sage--open .arborito-icon-btn .arborito-emoji-native {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+}
+
+arborito-sage.arborito-sage--open .arborito-dock-modal-hero .arborito-emoji-native {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- Settings --- */
+
+.arborito-sage-settings-body,
+.arborito-sage-settings-body .arborito-sage-settings-card,
+.arborito-sage-settings-body input,
+.arborito-sage-settings-body select,
+.arborito-sage-settings-body summary,
+.arborito-sage-settings-body p,
+.arborito-sage-settings-body label {
+    font-family: var(--font-family-base);
+    letter-spacing: normal;
+    word-spacing: normal;
+    text-align: left;
+    line-height: 1.45;
+}
+
+.arborito-sage-settings-body button:not(.arborito-switch) {
+    font-family: var(--font-family-base);
+    letter-spacing: normal;
+    line-height: 1.25;
+    min-height: 2.5rem;
+    box-sizing: border-box;
+    overflow: visible;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.arborito-sage-settings-body .arborito-sage-settings-note {
+    line-height: 1.5;
+}
+
+.arborito-sage-settings-panel--green {
+    border: 1px solid var(--arborito-theme-sage-settings-panel-green-border);
+    background: var(--arborito-theme-sage-settings-panel-green-bg);
+}
+
+.arborito-sage-settings-panel--purple {
+    border: 1px solid var(--arborito-theme-sage-settings-panel-purple-border);
+    background: var(--arborito-theme-sage-settings-panel-purple-bg);
+}
+
+.arborito-sage-settings-card {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--arborito-theme-sage-settings-card-border);
+    background: var(--arborito-theme-sage-settings-card-bg);
+    box-shadow: var(--shadow-sm);
+}
+
+.arborito-sage-settings-card__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.arborito-sage-settings-card__title {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0;
+}
+
+.arborito-sage-settings-card__title--green {
+    color: var(--arborito-theme-sage-settings-card-title-green-fg);
+}
+
+.arborito-sage-settings-card__title--purple {
+    color: var(--arborito-theme-sage-settings-card-title-purple-fg);
+}
+
+.arborito-sage-settings-card__hint {
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: var(--arborito-theme-sage-settings-card-hint-fg);
+    margin: 0.25rem 0 0;
+}
+
+.arborito-sage-settings-subpanel {
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--arborito-theme-sage-settings-subpanel-border);
+    background: var(--arborito-theme-sage-settings-subpanel-bg);
+}
+
+.arborito-sage-settings-details {
+    border-radius: 0.75rem;
+    border: 1px solid var(--arborito-theme-sage-settings-details-border);
+    background: var(--arborito-theme-sage-settings-details-bg);
+}
+
+.arborito-sage-settings-details > summary {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--arborito-theme-sage-settings-details-summary-fg);
+    cursor: pointer;
+    user-select: none;
+}
+
+.arborito-sage-settings-details__body {
+    padding: 0.25rem 0.75rem 0.75rem;
+    border-top: 1px solid var(--arborito-theme-sage-settings-details-border);
+}
+
+.arborito-sage-settings-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--arborito-theme-sage-settings-label-fg);
+    margin-bottom: 0.25rem;
+}
+
+.arborito-sage-settings-meta {
+    font-size: 0.6875rem;
+    line-height: 1.45;
+    color: var(--arborito-theme-sage-settings-meta-fg);
+    margin: 0;
+}
+
+.arborito-sage-settings-body--mob {
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+}
+
+.arborito-sage-settings-progress-track {
+    width: 100%;
+    height: 0.375rem;
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--arborito-theme-sage-settings-progress-track);
+}
+
+.arborito-sage-settings-footer-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+    .arborito-sage-settings-footer-actions {
+        flex-direction: row;
+    }
+}
+
+.arborito-sage-success-icon {
+    background: var(--arborito-theme-sage-success-icon-bg);
+}
+
+.arborito-sage-chat-shell .arborito-sage-chat-quick-actions .sage-quick {
+    border: none;
+    color: white;
+}
+
+.arborito-sage-chat-shell .btn-qa--blue {
+    background: var(--arborito-callout-blue-bg);
+    color: var(--arborito-callout-blue-fg);
+    border: 1px solid var(--arborito-callout-blue-border);
+}
+.arborito-sage-chat-shell .btn-qa--blue:hover {
+    filter: brightness(0.97);
+}
+
+.arborito-sage-settings-footer {
+    flex-shrink: 0;
+    padding: 0.75rem 1.25rem 1.25rem;
+    border-top: 1px solid var(--arborito-theme-sage-settings-footer-border);
+    background: var(--arborito-theme-sage-settings-footer-bg);
+}
+
+.arborito-sage-settings-body .arborito-switch {
+    position: relative;
+    overflow: visible;
+    flex-shrink: 0;
+}
+
+.arborito-sage-settings-body details > div {
+    overflow: visible;
+}
+
+/* --- Chat body + overlays --- */
+
+/* Sage dock inner: full-bleed body under ModalHubHero (no hub scroll padding). */
+.arborito-sage-dock-inner {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.arborito-sage-dock-inner > .arborito-dock-modal-hero {
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.arborito-sage-dock-inner > .arborito-sage-chat-body,
+.arborito-sage-dock-inner > .arborito-sage-chat-stack,
+.arborito-sage-dock-inner > .arborito-sage-body--guide {
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.arborito-sage-chat-shell .arborito-sage-dock-inner > .arborito-sage-chat-body,
+.arborito-sage-chat-shell .arborito-sage-dock-inner > .arborito-sage-chat-stack > .arborito-sage-chat-body {
+    background: var(--arborito-theme-sage-chat-scroll-bg);
+}
+
+.arborito-sage-chat-note {
+    border-radius: 0;
+    border-inline: none;
+    border-top: none;
+}
+
+:is(.arborito-sage-chat-shell, .arborito-sage-chat-shell-mob) .arborito-sage-provider-footer:last-child {
+    background: var(--arborito-theme-sage-chat-form-bg);
+    border-bottom-left-radius: calc(var(--arborito-sage-shell-radius) - 1px);
+    border-bottom-right-radius: calc(var(--arborito-sage-shell-radius) - 1px);
+}
+
+:is(.arborito-sage-chat-shell, .arborito-sage-chat-shell-mob)
+    .arborito-sage-chat-body
+    > .arborito-sage-chat-form:last-child {
+    border-bottom-left-radius: calc(var(--arborito-sage-shell-radius) - 1px);
+    border-bottom-right-radius: calc(var(--arborito-sage-shell-radius) - 1px);
+}
+
+.arborito-sage-chat-shell .sage-msg-bubble {
+    font-family: var(--font-family-base);
+    line-height: 1.5;
+}
+
+.arborito-sage-chat-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.arborito-sage-overlay-host {
+    position: relative;
+}
+
+.arborito-sage-chat-shell > .arborito-sage-chat-body,
+.arborito-sage-chat-stack > .arborito-sage-chat-body {
+    flex: 1;
+    min-height: 0;
+}
+
+.sage-chat-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem 1.5rem;
+    background: var(--arborito-theme-sage-chat-overlay-bg);
+}
+
+.sage-chat-overlay.hidden {
+    display: none;
+}
+
+.sage-chat-overlay__card {
+    width: 100%;
+    max-width: 18rem;
+    text-align: center;
+}
+
+.sage-chat-overlay__icon {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 1rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--arborito-theme-sage-overlay-icon-bg);
+}
+
+.sage-chat-overlay__icon--voice {
+    background: var(--arborito-theme-sage-voice-icon-bg);
+}
+
+.sage-chat-overlay__icon--model {
+    background: var(--arborito-theme-sage-overlay-icon-model-bg);
+}
+
+.sage-chat-overlay__title {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--arborito-theme-sage-overlay-title-fg);
+    line-height: 1.3;
+}
+
+.sage-chat-overlay__msg {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--arborito-theme-sage-overlay-msg-fg);
+}
+
+.sage-chat-overlay__bar-wrap {
+    width: 100%;
+    height: 0.625rem;
+    border-radius: 9999px;
+    overflow: hidden;
+    background: var(--arborito-theme-sage-overlay-bar-track);
+    margin-bottom: 0.5rem;
+}
+
+.sage-chat-overlay__bar {
+    height: 100%;
+    min-width: 0;
+    transition: width 0.25s ease-out;
+}
+
+.sage-chat-overlay__bar-wrap--indeterminate {
+    overflow: hidden;
+}
+
+.sage-chat-overlay__bar-wrap--indeterminate .sage-chat-overlay__bar {
+    width: 38% !important;
+    animation: sage-overlay-indeterminate 1.15s ease-in-out infinite;
+}
+
+@keyframes sage-overlay-indeterminate {
+    0% {
+        transform: translateX(-120%);
+    }
+
+    100% {
+        transform: translateX(320%);
+    }
+}
+
+.sage-chat-overlay__pct {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--arborito-theme-eyebrow-fg);
+}
+
+.sage-chat-overlay__actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.sage-msg-speak-btn:focus-visible {
+    opacity: 1;
+    outline: 2px solid rgb(147 51 234);
+    outline-offset: 2px;
+}
+
+.sage-thinking {
+    color: var(--arborito-theme-sage-thinking-fg);
+}
+
+.sage-thinking__dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.sage-thinking__dots span {
+    width: 0.35rem;
+    height: 0.35rem;
+    border-radius: 9999px;
+    background: var(--arborito-theme-sage-thinking-dot);
+    opacity: var(--arborito-theme-sage-thinking-dot-opacity);
+    animation: sage-thinking-dot 1.2s ease-in-out infinite;
+}
+
+.sage-thinking__dots span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.sage-thinking__dots span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+@keyframes sage-thinking-dot {
+    0%,
+    80%,
+    100% {
+        opacity: 0.35;
+        transform: translateY(0);
+    }
+
+    40% {
+        opacity: 1;
+        transform: translateY(-0.15rem);
+    }
+}
+
+.sage-stream-cursor {
+    animation: sage-stream-cursor-blink 1s step-end infinite;
+}
+
+@keyframes sage-stream-cursor-blink {
+    0%,
+    100% {
+        opacity: 0.7;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+/* --- Sage semantic UI (no Tailwind dark:* in JS) --- */
+
+arborito-sage.arborito-sage--open .arborito-modal-dock-panel,
+arborito-sage.arborito-sage--open .arborito-sage-mob-panel-root,
+.arborito-sage-settings-body {
+    color: var(--arborito-theme-modal-text);
+}
+
+.arborito-sage-hero-subtitle {
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: var(--arborito-theme-eyebrow-fg);
+    margin-top: 0.125rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.arborito-sage-hero-subtitle--accent {
+    color: var(--arborito-theme-sage-hero-subtitle-accent-fg);
+}
+
+.arborito-sage-decline-btn {
+    width: 100%;
+    margin-top: 0.75rem;
+    padding: 0.5rem 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--arborito-theme-eyebrow-fg);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.arborito-sage-decline-btn:hover {
+    color: var(--arborito-theme-modal-text);
+}
+
+.arborito-sage-status--ok {
+    color: var(--arborito-theme-sage-status-ok-fg);
+}
+
+.arborito-sage-status--error {
+    color: var(--arborito-theme-sage-status-error-fg);
+}
+
+.arborito-sage-progress--ok {
+    background: var(--arborito-theme-sage-progress-ok-bg);
+}
+
+.arborito-sage-progress--error {
+    background: var(--arborito-theme-sage-progress-error-bg);
+}
+
+.arborito-sage-provider-footer {
+    font-size: 0.625rem;
+    text-align: center;
+    color: var(--arborito-theme-sage-status-ok-fg);
+    opacity: 0.85;
+    padding: 0.25rem 0.75rem;
+    margin: 0;
+    flex-shrink: 0;
+    background: var(--arborito-theme-sage-chat-form-bg);
+    border-top: 1px solid var(--arborito-theme-sage-not-configured-border);
+}
+
+.arborito-sage-chat-toolbar-divider {
+    border-left: 1px solid var(--arborito-theme-sage-chat-toolbar-divider);
+}
+
+.arborito-sage-not-configured-strip {
+    padding: 0.25rem 1rem;
+    text-align: center;
+    flex-shrink: 0;
+    background: var(--arborito-theme-sage-not-configured-bg);
+    border-top: 1px solid var(--arborito-theme-sage-not-configured-border);
+}
+
+.arborito-sage-loading-desk-wrap {
+    pointer-events: auto;
+    background: var(--arborito-theme-sage-loading-desk-bg);
+}
+
+.arborito-sage-loading-panel--desk {
+    border: 1px solid var(--arborito-theme-sage-loading-desk-border);
+}
+
+.sage-msg-speak-btn--idle {
+    background: var(--arborito-theme-sage-speak-btn-bg);
+    border: 1px solid var(--arborito-theme-sage-speak-btn-border);
+    color: var(--arborito-theme-sage-speak-btn-fg);
+}
+
+.sage-msg-speak-btn--active {
+    background: rgb(239 68 68);
+    border-color: rgb(248 113 113);
+    color: rgb(255 255 255);
+}
+
+.arborito-sage-overlay-cancel-btn {
+    flex: 1 1 auto;
+    font-size: 0.875rem;
+    padding: 0.625rem 1rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+}

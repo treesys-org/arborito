@@ -1,0 +1,259 @@
+/* Community — desktop hover popover + More menu + About */
+html.arborito-desktop .arborito-desktop-community-wrap {
+    position: relative;
+    z-index: 12;
+    display: inline-flex;
+    align-items: center;
+}
+
+html.arborito-desktop-community-menu-open .arborito-desktop-app-header {
+    z-index: 120;
+}
+
+html.arborito-desktop .arborito-desktop-community-wrap:hover,
+html.arborito-desktop .arborito-desktop-community-wrap:focus-within {
+    z-index: 250;
+}
+
+html.arborito-desktop .arborito-community-desktop-popover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    height: 0.45rem;
+}
+
+html.arborito-desktop .arborito-desktop-community-wrap:hover .arborito-community-desktop-popover,
+html.arborito-desktop .arborito-desktop-community-wrap:focus-within .arborito-community-desktop-popover {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    transition-delay: 0s;
+}
+
+.arborito-community-menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.arborito-community-menu-list__support-heading {
+    margin: 0.55rem 0 0.15rem;
+    padding: 0 0.35rem;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--arborito-theme-eyebrow-fg, rgb(100 116 139));
+}
+
+.arborito-support-modal__intro {
+    margin: 0 0 1rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--arborito-theme-text-muted, rgb(100 116 139));
+}
+
+.arborito-support-modal__thanks {
+    margin: 0 0 1rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--arborito-cta-emerald-bg, rgb(16 185 129)) 35%, transparent);
+    background: color-mix(in srgb, var(--arborito-cta-emerald-bg, rgb(16 185 129)) 12%, transparent);
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--arborito-theme-text, rgb(30 41 59));
+}
+
+.arborito-support-modal__options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.arborito-support-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    width: 100%;
+    padding: 0.75rem 0.8rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--arborito-theme-picker-panel-border, rgb(226 232 240));
+    background: var(--arborito-theme-picker-panel-bg, rgb(248 250 252));
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+}
+
+.arborito-support-option:hover {
+    border-color: color-mix(in srgb, var(--arborito-cta-emerald-bg, rgb(16 185 129)) 45%, transparent);
+    background: color-mix(in srgb, var(--arborito-cta-emerald-bg, rgb(16 185 129)) 8%, var(--arborito-theme-picker-panel-bg, rgb(248 250 252)));
+}
+
+.arborito-support-option:active {
+    transform: scale(0.99);
+}
+
+.arborito-support-option__ic {
+    flex-shrink: 0;
+    font-size: 1.15rem;
+    line-height: 1.2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.arborito-support-option__ic img {
+    display: block;
+}
+
+.arborito-support-option__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.arborito-support-option__label {
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.arborito-support-option__hint {
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: var(--arborito-theme-text-muted, rgb(100 116 139));
+}
+
+.arborito-support-option__ext {
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    opacity: 0.55;
+    margin-top: 0.1rem;
+}
+
+.arborito-support-modal__legal {
+    margin: 1rem 0 0;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    color: var(--arborito-theme-text-muted, rgb(100 116 139));
+}
+
+.arborito-community-menu-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    border: none;
+    border-radius: 0.85rem;
+    background: transparent;
+    color: var(--arborito-theme-modal-text-strong, #0f172a);
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 120ms ease;
+}
+
+.arborito-community-menu-item:hover:not(:disabled),
+.arborito-community-menu-item:focus-visible:not(:disabled) {
+    background: color-mix(in srgb, var(--arborito-theme-accent, #7c3aed) 12%, transparent);
+    outline: none;
+}
+
+.arborito-community-menu-item--disabled {
+    opacity: 0.72;
+    cursor: not-allowed;
+}
+
+.arborito-community-menu-item__ic {
+    flex-shrink: 0;
+    width: 1.35rem;
+    text-align: center;
+    line-height: 1.25;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.arborito-community-menu-item__ic img {
+    display: block;
+}
+
+.arborito-community-brand-icon,
+.arborito-brand-icon {
+    display: block;
+    flex-shrink: 0;
+}
+
+.arborito-community-menu-item[data-brand='reddit'] .arborito-brand-icon,
+.arborito-community-menu-item[data-brand='reddit'] .arborito-community-brand-icon {
+    color: #ff4500;
+}
+
+.arborito-community-menu-item[data-brand='youtube'] .arborito-brand-icon,
+.arborito-community-menu-item[data-brand='youtube'] .arborito-community-brand-icon {
+    color: #ff0000;
+}
+
+.arborito-community-menu-item[data-brand='github'] .arborito-brand-icon,
+.arborito-community-menu-item[data-brand='github'] .arborito-community-brand-icon {
+    color: var(--arborito-theme-fg, #0f172a);
+}
+
+html.dark .arborito-community-menu-item[data-brand='github'] .arborito-brand-icon,
+html.dark .arborito-community-menu-item[data-brand='github'] .arborito-community-brand-icon {
+    color: #f8fafc;
+}
+
+.arborito-community-menu-item[data-brand='mastodon'] .arborito-brand-icon,
+.arborito-community-menu-item[data-brand='mastodon'] .arborito-community-brand-icon {
+    color: #6364ff;
+}
+
+.arborito-community-menu-item__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.arborito-community-menu-item__label {
+    font-size: 0.82rem;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.arborito-community-menu-item__hint {
+    font-size: 0.68rem;
+    line-height: 1.35;
+    color: var(--arborito-theme-modal-text-muted, #64748b);
+    font-weight: 500;
+}
+
+.arborito-community-menu-item__ext {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 800;
+    opacity: 0.55;
+    margin-top: 0.1rem;
+}
+
+.arborito-community-menu-list--mmenu .arborito-community-menu-item,
+.arborito-community-menu-list--about .arborito-community-menu-item {
+    padding: 0.85rem 0.9rem;
+}
+
+.arborito-community-menu-list--mmenu .arborito-community-menu-item__label,
+.arborito-community-menu-list--about .arborito-community-menu-item__label {
+    font-size: 0.9rem;
+}

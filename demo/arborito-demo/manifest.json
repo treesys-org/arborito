@@ -1,0 +1,12 @@
+{
+  "magic": "ARBORITO_ARCHIVE",
+  "version": 2,
+  "contentKind": "branch",
+  "meta": {
+    "id": "arborito-demo",
+    "name": "Arborito demo",
+    "description": "Tutorial paso a paso: mapa, Bosque, logros, juegos y construcción. Escrito por Sage. ES y EN.",
+    "icon": "🌳",
+    "language": "ES"
+  }
+}

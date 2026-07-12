@@ -1,0 +1,8 @@
+{
+  "welcomeAccountEnabledToast": "Cuenta conectada. Sincronización activada.",
+  "welcomeCloudSyncBodyShort": "Respalda lecciones, rachas y marcadores cifrados, los restaura en cualquier dispositivo al iniciar sesión.",
+  "welcomeCloudSyncOffRisk": "Sin cuenta, el progreso web vive solo en este navegador. Borrar cookies o datos del sitio puede borrar meses de estudio.",
+  "welcomeCloudSyncOnLabel": "Respaldar ahora",
+  "welcomeCloudSyncTitle": "Protege tu progreso",
+  "welcomeEnterGardenLicenseReminder": "Todos los árboles son libres (CC BY-SA 4.0)."
+}

@@ -1,0 +1,536 @@
+/**
+ * Modal footer (sticky action bar) — replaces three idioms of
+ * `safe-area-inset-bottom` + sticky border + button row.
+ *
+ * Usage:
+ *   <div class="arborito-modal-footer">
+ *     <div class="arborito-action-row">
+ *       <button class="arborito-cta-slate">Cancel</button>
+ *       <button class="arborito-cta-emerald">Save</button>
+ *     </div>
+ *   </div>
+ *
+ * Modifiers:
+ *   --bg-flat     no translucent backdrop (just solid)
+ *   --blend       transparent — inherits panel/sheet surface (compact hubs)
+ *   --compact     tighter padding
+ */
+.arborito-modal-footer {
+    flex-shrink: 0;
+    padding: 0.875rem 1rem;
+    padding-bottom: max(0.875rem, env(safe-area-inset-bottom));
+    background: var(--arborito-theme-modal-footer-bg);
+    border-top: 1px solid var(--arborito-theme-modal-footer-border);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.arborito-modal-footer--bg-flat {
+    background: var(--arborito-theme-modal-footer-flat-bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.arborito-modal-footer--blend {
+    background: transparent;
+    border-top: 1px solid var(--arborito-theme-modal-footer-border);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.arborito-modal-footer--compact {
+    padding: 0.625rem 0.875rem;
+    padding-bottom: max(0.625rem, env(safe-area-inset-bottom));
+}
+
+/* Keyframes + enter animations (Tailwind has no animate-in plugin). */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes slideInBottom { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes slideInTop { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+.animate-in {   animation-duration: 0.3s; animation-fill-mode: forwards; will-change: transform, opacity;   }
+.fade-in {   animation-name: fadeIn;   }
+.zoom-in {   animation-name: zoomIn;   }
+.zoom-in-95 {   animation-name: zoomIn;   }
+.slide-in-from-bottom-2 {   animation-name: slideInBottom; --tw-enter-translate-y: 0.5rem;   }
+.slide-in-from-bottom-10 {   animation-name: slideInBottom;   }
+.slide-in-from-top-2 {   animation-name: slideInTop;   }
+
+/* Canonical opening animation for modals that originate from the mobile dock
+ * (search, sage, arcade, profile, "More" sheet). One easing + duration so every dock
+ * surface enters the same way. Apply to the outermost animated child of the host
+ * (backdrop or sheet); the host should NOT also carry a competing `animate-in` class.
+ *
+ * IMPORTANT: only mobile slides up. On desktop the dock layout center the panel
+ * (see modal-shell.js → backdropLayoutCls else branch), so a slide-in from the
+ * bottom moves the entire centered card and looks like a sheet — wrong.
+ * Desktop falls back to `fade-fast` (zoom/fade) like sources/search/centered modals.
+ */
+.arborito-dock-modal-enter {
+    animation: arboritoDockModalFade 0.22s ease-out both;
+    will-change: opacity;
+}
+@media (max-width: 767px) {
+    .arborito-dock-modal-enter {
+        animation: arboritoDockModalIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+        will-change: transform, opacity;
+    }
+}
+@keyframes arboritoDockModalIn {
+    from { transform: translateY(8%); opacity: 0; }
+    to   { transform: translateY(0);   opacity: 1; }
+}
+@keyframes arboritoDockModalFade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+/* Companion fade for the backdrop scrim when the sheet itself slides in
+ * (used by the "More" sheet where the scrim is a separate element). */
+.arborito-dock-modal-scrim-enter {
+    animation: arboritoDockModalScrimIn 0.22s ease-out both;
+}
+@keyframes arboritoDockModalScrimIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .arborito-dock-modal-enter,
+    .arborito-dock-modal-scrim-enter { animation-duration: 0.01ms !important; }
+}
+
+/* Cross-fade when swapping dock tabs (search ↔ sage ↔ arcade ↔ profile). */
+.arborito-modal-backdrop--dock-swap > .arborito-float-modal-card,
+.arborito-modal-backdrop--dock-swap > #modal-panel {
+    animation: arboritoDockModalSwap 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes arboritoDockModalSwap {
+    from { opacity: 0.5; transform: translateY(6px); }
+    to   { opacity: 1;   transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .arborito-modal-backdrop--dock-swap > .arborito-float-modal-card,
+    .arborito-modal-backdrop--dock-swap > #modal-panel {
+        animation: none !important;
+    }
+}
+
+/* Markdown prose (readmes) — explicit sans stack: avoids Nimbus/P052 resolution under Firefox RFP. */
+.prose {   max-width: 65ch; font-family: var(--font-family-base, system-ui, sans-serif);   }
+.prose h1 {   font-size: 2.25rem; font-weight: 800; margin-bottom: 1.5rem; margin-top: 0; line-height: 1.1; color: var(--slate-900);   }
+.prose h2 {   font-size: 1.5rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; line-height: 1.3; color: var(--slate-800);   }
+.prose h3 {   font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem; color: var(--slate-700);   }
+.prose p {   margin-top: 1.25em; margin-bottom: 1.25em; line-height: 1.75; color: var(--slate-600);   }
+.prose ul {   list-style-type: disc; padding-left: 1.625em; margin-top: 1.25em; margin-bottom: 1.25em;   }
+.prose li {   margin-top: 0.5em; margin-bottom: 0.5em; color: var(--slate-600);   }
+.prose strong {   font-weight: 700; color: var(--slate-900);   }
+.prose a {   color: var(--blue-600); text-decoration: underline; font-weight: 500;   }
+.prose blockquote {   border-left: 4px solid var(--yellow-400); padding-left: 1rem; font-style: italic; font-family: var(--font-family-base, system-ui, sans-serif); color: var(--slate-700); background: #fefce8; padding: 1rem; border-radius: 0 0.5rem 0.5rem 0; margin-top: 1.6em; margin-bottom: 1.6em;   }
+.prose code {   color: #db2777; background-color: var(--slate-100); padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-size: 0.875em; font-family: var(--font-family-mono);   }
+.prose pre {   background-color: var(--slate-800); color: var(--slate-200); padding: 1em; border-radius: 0.375rem; overflow-x: auto; margin-top: 1.7em; margin-bottom: 1.7em;   }
+.prose img {   margin-top: 2em; margin-bottom: 2em; border-radius: 0.5rem;   }
+.not-prose {   color: inherit;   }
+.dark .prose h1, .dark .prose h2, .dark .prose strong {   color: white;   }
+.dark .prose h3 {   color: var(--slate-200);   }
+.dark .prose p, .dark .prose li {   color: var(--slate-300);   }
+.dark .prose a {   color: var(--blue-400);   }
+.dark .prose blockquote {   background: rgb(234 179 8 / 0.1); color: var(--slate-200);   }
+.dark .prose code {   color: #f472b6; background-color: var(--slate-800);   }
+.dark .prose-invert {   color: var(--slate-300);   }
+
+/* Class names from Tailwind Typography / templates (colon escaped for CSS selectors) */
+.prose-sm {   font-size: 0.875rem; line-height: 1.7142857;   }
+.prose-base {   font-size: 1rem; line-height: 1.75;   }
+.prose-lg {   font-size: 1.125rem; line-height: 1.75;   }
+.dark .dark\:prose-invert {   color: var(--slate-300);   }
+.prose.prose-p\:text-slate-600 p,
+.prose.prose-p\:text-slate-600 li {   color: var(--slate-600);   }
+.dark .dark\:prose-p\:text-slate-300 p,
+.dark .dark\:prose-p\:text-slate-300 li {   color: var(--slate-300);   }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {  
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .animate-spin { animation: none !important; }
+    .animate-pulse { animation: none !important; }
+    .animate-bounce { animation: none !important; }
+    .animate-in { animation-duration: 0.01ms !important; }
+  }
+
+/* Lesson reader: soft fade on topic change (panel no longer uses slide-in-from-right on every render). */
+.arborito-lesson-prose-frame {
+  animation: arboritoLessonProseSoft 0.24s ease-out;
+}
+@keyframes arboritoLessonProseSoft {
+  from { opacity: 0.93; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arborito-lesson-prose-frame { animation: none !important; }
+}
+/**
+ * Semantic CTA color classes.
+ *
+ * Why this file exists: across the codebase, the same Tailwind color soup
+ * (`bg-emerald-600 hover:bg-emerald-500 text-white …`) is repeated 30+ times,
+ * with inconsistent dark-mode handling — some sites add
+ * `dark:bg-emerald-500 dark:hover:bg-emerald-400` for higher contrast and
+ * others don't. Centralizing the COLOR contract here means:
+ *   - One place to tweak the brand palette.
+ *   - Consistent dark-mode contrast everywhere.
+ *   - Call sites still own padding/font/shadow/rounding via Tailwind utilities
+ *     (those genuinely vary by context).
+ *
+ * Usage:
+ *   <button class="arborito-cta-emerald px-4 py-2 rounded-xl text-xs font-black">…</button>
+ *
+ * These classes intentionally only touch background, text color, and hover/
+ * dark state. They use plain CSS so they are unaffected by Tailwind purging.
+ *
+ * Tokens (light → dark) in arborito-theme-surfaces.css:
+ *   - emerald: primary action / publish / start
+ *   - slate  : neutral / cancel / secondary
+ *   - amber  : warning / report / destructive-with-undo
+ *   - rose   : danger / delete-with-confirm
+ */
+
+.arborito-cta-emerald {
+    background-color: var(--arborito-cta-emerald-bg);
+    color: var(--arborito-cta-emerald-fg);
+    transition: background-color 150ms;
+}
+.arborito-cta-emerald:hover:not(:disabled) {
+    background-color: var(--arborito-cta-emerald-bg-hover);
+}
+.arborito-cta-emerald:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.arborito-cta-slate {
+    background-color: var(--arborito-cta-slate-bg);
+    color: var(--arborito-cta-slate-fg);
+    transition: background-color 150ms;
+}
+.arborito-cta-slate:hover:not(:disabled) {
+    background-color: var(--arborito-cta-slate-bg-hover);
+}
+.arborito-cta-slate:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-amber {
+    background-color: var(--arborito-cta-amber-bg);
+    color: var(--arborito-cta-amber-fg);
+    transition: background-color 150ms;
+}
+.arborito-cta-amber:hover:not(:disabled) {
+    background-color: var(--arborito-cta-amber-bg-hover);
+}
+.arborito-cta-amber:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-rose {
+    background-color: var(--arborito-cta-rose-bg);
+    color: var(--arborito-cta-rose-fg);
+    transition: background-color 150ms;
+}
+.arborito-cta-rose:hover:not(:disabled) {
+    background-color: var(--arborito-cta-rose-bg-hover);
+}
+.arborito-cta-rose:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-purple {
+    background-color: var(--arborito-cta-purple-bg);
+    color: var(--arborito-cta-purple-fg);
+    transition: background-color 150ms;
+}
+.arborito-cta-purple:hover:not(:disabled) {
+    background-color: var(--arborito-cta-purple-bg-hover);
+}
+.arborito-cta-purple:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-blue {
+    background-color: var(--arborito-cta-blue-bg);
+    color: var(--arborito-cta-blue-fg);
+    transition: background-color 150ms;
+}
+.arborito-cta-blue:hover:not(:disabled) {
+    background-color: var(--arborito-cta-blue-bg-hover);
+}
+.arborito-cta-blue:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-green {
+    background-color: var(--arborito-cta-green-bg);
+    color: var(--arborito-cta-green-fg);
+    transition: background-color 150ms;
+}
+.arborito-cta-green:hover:not(:disabled) {
+    background-color: var(--arborito-cta-green-bg-hover);
+}
+.arborito-cta-green:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-red {
+    background-color: var(--arborito-cta-red-bg);
+    color: var(--arborito-cta-red-fg);
+    transition: background-color 150ms;
+}
+.arborito-cta-red:hover:not(:disabled) {
+    background-color: var(--arborito-cta-red-bg-hover);
+}
+.arborito-cta-red:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-sky {
+    background-color: var(--arborito-cta-sky-bg);
+    color: var(--arborito-cta-sky-fg);
+    transition: background-color 150ms;
+}
+.arborito-cta-sky:hover:not(:disabled) {
+    background-color: var(--arborito-cta-sky-bg-hover);
+}
+.arborito-cta-sky:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.arborito-cta-indigo {
+    background-color: var(--arborito-cta-indigo-bg);
+    color: var(--arborito-cta-indigo-fg);
+    transition: background-color 150ms;
+}
+.arborito-cta-indigo:hover:not(:disabled) {
+    background-color: var(--arborito-cta-indigo-bg-hover);
+}
+.arborito-cta-indigo:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/** Quiz editor/player — selected chip / cloze word / step dot active state. */
+.arborito-quiz-chip--active {
+    background-color: var(--arborito-cta-indigo-bg);
+    color: var(--arborito-cta-indigo-fg);
+}
+
+/**
+ * Form primitives — inputs, textareas, selects, search icon slot.
+ *
+ * Usage:
+ *   <input class="arborito-input" type="text" placeholder="…" />
+ *   <input class="arborito-input arborito-input--search" type="search" />
+ *   <select class="arborito-select"> … </select>
+ *   <textarea class="arborito-input arborito-textarea" rows="4"></textarea>
+ *
+ * Composable: `--compact` for toolbars, `--mono` for code/key fields.
+ * Layout (`w-full`, `flex-1`) and spacing stay at the call site.
+ */
+.arborito-input,
+.arborito-select,
+.arborito-textarea {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--arborito-theme-form-border);
+    background: var(--arborito-theme-form-bg);
+    color: var(--arborito-theme-form-fg);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.arborito-input::placeholder,
+.arborito-textarea::placeholder {
+    color: var(--arborito-theme-form-placeholder);
+}
+.arborito-input:focus,
+.arborito-select:focus,
+.arborito-textarea:focus {
+    border-color: var(--arborito-theme-form-focus-border);
+    box-shadow: var(--arborito-theme-form-focus-ring);
+}
+.arborito-input:disabled,
+.arborito-select:disabled,
+.arborito-textarea:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* Compact variant for toolbars and dense rows. */
+.arborito-input--compact,
+.arborito-select--compact { padding: 0.375rem 0.75rem; font-size: 0.8125rem; }
+
+/* Search variant — extra left padding to make room for an absolute-positioned icon. */
+.arborito-input--search { padding-left: 2.5rem; }
+
+/* Monospaced (codes, sync secrets, public keys). */
+.arborito-input--mono { font-family: var(--font-family-mono); letter-spacing: 0.02em; }
+
+/* Textarea sizing override (height comes from rows= or call-site min-height). */
+.arborito-textarea { padding: 0.625rem 1rem; resize: vertical; }
+
+/* Search icon slot — to be placed inside a relative parent next to .arborito-input--search. */
+.arborito-search-icon {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--arborito-theme-form-search-icon);
+    pointer-events: none;
+    font-size: 0.875rem;
+    line-height: 1;
+}
+
+/* Helper for the wrapper around input + icon. */
+.arborito-field-wrap { position: relative; }
+
+/**
+ * Callout / banner — tinted tip, info, and warning surfaces.
+ *
+ * Usage:
+ *   <div class="arborito-callout arborito-callout--amber">
+ *     <span class="arborito-callout__icon">⚠</span>
+ *     <div>
+ *       <p class="arborito-callout__title">Heads up</p>
+ *       <p class="arborito-callout__body">Save before you switch trees.</p>
+ *     </div>
+ *   </div>
+ *
+ *   <div class="arborito-callout arborito-callout--sm arborito-callout--sky">
+ *     This is an inline tip.
+ *   </div>
+ */
+.arborito-callout {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-radius: 0.875rem;
+    border: 1px solid transparent;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.arborito-callout--sm    { padding: 0.5rem 0.75rem; gap: 0.5rem; border-radius: 0.625rem; font-size: 0.8125rem; }
+.arborito-callout--lg    { padding: 1.25rem 1.5rem; border-radius: 1rem; }
+.arborito-callout--stack { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+.arborito-callout--centered { align-items: center; text-align: center; flex-direction: column; gap: 0.5rem; }
+
+.arborito-callout__icon {
+    font-size: 1.25rem;
+    line-height: 1.1;
+    flex-shrink: 0;
+}
+.arborito-callout__title {
+    margin: 0;
+    font-weight: 800;
+    font-size: 0.9375rem;
+    line-height: 1.3;
+}
+.arborito-callout__body {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    opacity: 0.92;
+}
+
+/* Tones — all use the same dark opacity (.40 for bg, .60 for border) so they
+ * read consistently regardless of which color the callout uses. */
+.arborito-callout--amber   { background: var(--arborito-callout-amber-bg);   border-color: var(--arborito-callout-amber-border);   color: var(--arborito-callout-amber-fg); }
+.arborito-callout--yellow  { background: var(--arborito-callout-yellow-bg);  border-color: var(--arborito-callout-yellow-border);  color: var(--arborito-callout-yellow-fg); }
+.arborito-callout--sky     { background: var(--arborito-callout-sky-bg);     border-color: var(--arborito-callout-sky-border);     color: var(--arborito-callout-sky-fg); }
+.arborito-callout--blue    { background: var(--arborito-callout-blue-bg);    border-color: var(--arborito-callout-blue-border);    color: var(--arborito-callout-blue-fg); }
+.arborito-callout--emerald { background: var(--arborito-callout-emerald-bg); border-color: var(--arborito-callout-emerald-border); color: var(--arborito-callout-emerald-fg); }
+.arborito-callout--green   { background: var(--arborito-callout-green-bg);   border-color: var(--arborito-callout-green-border);   color: var(--arborito-callout-green-fg); }
+.arborito-callout--rose    { background: var(--arborito-callout-rose-bg);    border-color: var(--arborito-callout-rose-border);    color: var(--arborito-callout-rose-fg); }
+.arborito-callout--red     { background: var(--arborito-callout-red-bg);     border-color: var(--arborito-callout-red-border);     color: var(--arborito-callout-red-fg); }
+.arborito-callout--purple  { background: var(--arborito-callout-purple-bg);  border-color: var(--arborito-callout-purple-border);  color: var(--arborito-callout-purple-fg); }
+.arborito-callout--violet  { background: var(--arborito-callout-violet-bg);  border-color: var(--arborito-callout-violet-border);  color: var(--arborito-callout-violet-fg); }
+.arborito-callout--slate   { background: var(--arborito-callout-slate-bg);   border-color: var(--arborito-callout-slate-border);   color: var(--arborito-callout-slate-fg); }
+
+/* Solid variant — saturated bg, white text (CTAs in a callout). */
+.arborito-callout--solid {
+    color: rgb(255 255 255);
+}
+.arborito-callout--solid.arborito-callout--emerald  { background: rgb(16 185 129); border-color: rgb(5 150 105); }
+.arborito-callout--solid.arborito-callout--rose     { background: rgb(225 29 72);  border-color: rgb(190 18 60); }
+.arborito-callout--solid.arborito-callout--amber    { background: rgb(217 119 6);  border-color: rgb(180 83 9); }
+.arborito-callout--solid.arborito-callout--sky      { background: rgb(2 132 199);  border-color: rgb(3 105 161); }
+.arborito-callout--solid.arborito-callout--purple   { background: rgb(147 51 234); border-color: rgb(126 34 206); }
+
+.btn-lang-sel--selected {
+    background: var(--arborito-pill-green-bg);
+}
+.btn-create-lesson {
+    background: var(--arborito-pill-green-bg);
+}
+.a11y-test-voice-btn {
+    background: var(--arborito-callout-sky-bg);
+}
+.a11y-test-voice-btn:hover {
+    filter: brightness(0.97);
+}
+.arborito-garden-thumb-icon {
+    background: var(--arborito-pill-green-bg);
+}
+
+/**
+ * Busy banner — shared loading/pending pill (spinner + message).
+ * Used by onboarding (`.arborito-onb-busy-banner`) and profile (`.profile-busy-banner`).
+ *
+ * HTML shape (both modals): `loadingBusyBannerHtml()` from `shared/ui/loading.js`.
+ *
+ * Import this file BEFORE the per-modal partials in `main.entry.css` so the
+ * modal-side override blocks for `gap` / `border` / `background` win the
+ * cascade for those three properties only.
+ */
+
+.arborito-modal--onboarding .arborito-onb-busy-banner,
+.arborito-auth-surface .arborito-onb-busy-banner,
+.profile-busy-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 0 0 0.5rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--arborito-theme-busy-banner-border);
+    background: var(--arborito-theme-busy-banner-bg);
+    color: var(--arborito-theme-busy-banner-fg);
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.arborito-modal--onboarding .arborito-onb-busy-banner .arborito-inline-spinner,
+.arborito-auth-surface .arborito-onb-busy-banner .arborito-inline-spinner,
+.profile-busy-banner .arborito-inline-spinner {
+    margin-top: 0.15rem;
+}
+
+.arborito-modal--onboarding .arborito-onb-busy-banner__text,
+.arborito-auth-surface .arborito-onb-busy-banner__text,
+.profile-busy-banner__text {
+    flex: 1;
+    font-weight: 600;
+}

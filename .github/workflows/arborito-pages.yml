@@ -1,0 +1,86 @@
+# Vite production build + deploy to GitHub Pages (arborito.org).
+# Runs automatically after GitSync pushes to main.
+name: Arborito Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install (auto-recover from lock drift)
+        run: |
+          npm ci --no-audit --no-fund --prefer-offline \
+            || (echo "::warning::package-lock.json drift detected; falling back to 'npm install'. Run 'npm install' locally and commit the updated lock to restore reproducible builds." \
+                && npm install --no-audit --no-fund --prefer-offline)
+
+      - name: Vendor emoji assets (Noto + Twemoji offline)
+        run: npm run vendor:emoji
+
+      - name: Stamp build id (cache bust)
+        run: |
+          node -e "const fs=require('fs');const p='src/core/version.js';const sha=process.env.GITHUB_SHA||'';const short=sha?sha.slice(0,10):'dev';const d=new Date();const iso=d.toISOString().slice(0,19).replace(/[:T]/g,'-');const id=\`\${iso}-\${short}\`;let s=fs.readFileSync(p,'utf8');s=s.replace(/export const ARBORITO_BUILD_ID\\s*=\\s*'[^']*'\\s*;?/m,\`export const ARBORITO_BUILD_ID = '\${id}';\`);fs.writeFileSync(p,s);console.log('ARBORITO_BUILD_ID=',id);"
+
+      - name: Vite build
+        run: npm run build
+
+      - name: Verify Vite output (not raw src/ deploy)
+        run: node ./scripts/verify-vite-www.mjs
+
+      - name: Show deploy fingerprint (check this in arborito.org view-source)
+        run: grep -E 'arborito:build|script.*assets/' www/index.html || true
+
+      - name: Check GitHub Pages is enabled
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${GITHUB_REPOSITORY}/pages" >/dev/null 2>&1; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            echo "GitHub Pages is enabled."
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::GitHub Pages no está activado en este repo."
+            echo "::warning::Una sola vez: Settings → Pages → Build and deployment → Source: GitHub Actions → Save"
+            echo "::warning::El build de www/ terminó bien; el deploy se omite hasta activar Pages."
+          fi
+
+      - name: Configure Pages
+        if: steps.pages.outputs.enabled == 'true'
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        if: steps.pages.outputs.enabled == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: www
+
+      - name: Deploy to GitHub Pages
+        if: steps.pages.outputs.enabled == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v4
