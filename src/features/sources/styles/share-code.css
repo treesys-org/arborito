@@ -1,0 +1,106 @@
+/* Share code — compact row (Biblioteca rows + mobile curriculum chip). Eager bundle. */
+button.arborito-share-code {
+    font: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.arborito-share-code {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    max-width: 100%;
+    margin-top: 0.4rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px dashed rgb(148 163 184);
+    background: rgb(248 250 252);
+    font-size: 0.6875rem;
+    line-height: 1.2;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+html.dark .arborito-share-code {
+    border-color: rgb(71 85 105);
+    background: rgb(15 23 42 / 0.45);
+}
+
+.arborito-share-code--loading {
+    cursor: default;
+    opacity: 0.75;
+}
+
+.arborito-share-code__label {
+    font-weight: 700;
+    color: rgb(100 116 139);
+    white-space: nowrap;
+}
+
+html.dark .arborito-share-code__label {
+    color: rgb(148 163 184);
+}
+
+.arborito-share-code__value {
+    font-family: ui-monospace, monospace;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: rgb(6 95 70);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+html.dark .arborito-share-code__value {
+    color: rgb(110 231 183);
+}
+
+.arborito-share-code--violet .arborito-share-code__value {
+    color: rgb(109 40 217);
+}
+
+html.dark .arborito-share-code--violet .arborito-share-code__value {
+    color: rgb(196 181 253);
+}
+
+.arborito-share-code__action {
+    margin-left: 0.15rem;
+    font-weight: 700;
+    color: rgb(5 150 105);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+html.dark .arborito-share-code__action {
+    color: rgb(52 211 153);
+}
+
+.arborito-share-code--violet .arborito-share-code__action {
+    color: rgb(109 40 217);
+}
+
+html.dark .arborito-share-code--violet .arborito-share-code__action {
+    color: rgb(167 139 250);
+}
+
+.arborito-share-code--emerald:hover {
+    border-color: rgb(52 211 153);
+    background: rgb(236 253 245);
+}
+
+html.dark .arborito-share-code--emerald:hover {
+    border-color: rgb(16 185 129);
+    background: rgb(6 78 59 / 0.3);
+}
+
+.arborito-share-code--violet:hover {
+    border-color: rgb(167 139 250);
+    background: rgb(245 243 255);
+}
+
+html.dark .arborito-share-code--violet:hover {
+    border-color: rgb(139 92 246);
+    background: rgb(76 29 149 / 0.25);
+}

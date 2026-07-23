@@ -1,0 +1,13 @@
+{
+  "secCancel": "Cancel",
+  "secConfirm": "Yes, I trust it, save this link",
+  "secLoadCancel": "No, do not load it",
+  "secLoadConfirm": "Yes, load this course",
+  "secLoadWarningBody": "This link opens content we cannot verify for you. If you are unsure, cancel and ask the author for the link over a channel you already trust.",
+  "secLoadWarningTitle": "Load this course?",
+  "secUrlDetailsToggle": "Show full link",
+  "secUrlSummaryLabel": "Link origin",
+  "secWarningBody": "You are about to save a link to a course we do not vet. Anyone can publish on the web, make sure the person or organization giving you the link is one you trust.",
+  "secWarningCheck": "Check that the link origin matches who they claim to be (official website, known email, etc.):",
+  "secWarningTitle": "Do you trust this source?"
+}

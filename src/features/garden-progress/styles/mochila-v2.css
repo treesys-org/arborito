@@ -1,0 +1,610 @@
+/* --- mochila-v2 --- */
+/* My Progress — forest / mochila panel */
+
+.mochila-v2--forest {
+    --mochila-canopy: var(--arborito-theme-mochila-canopy);
+    --mochila-trail: var(--arborito-theme-mochila-trail);
+}
+
+.mochila-v2__grove {
+    border-radius: 1.1rem;
+    padding: 0.85rem 0.75rem 0.75rem;
+    background: radial-gradient(120% 80% at 50% -10%, rgb(187 247 208 / 0.45), transparent 55%),
+        var(--mochila-canopy);
+    border: var(--arborito-theme-garden-mochila-v2__grove-border);
+    box-shadow: var(--arborito-theme-garden-mochila-v2__grove-box-shadow);
+}
+
+.mochila-v2__trail {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.55rem;
+    margin-top: 0.75rem;
+    width: 100%;
+}
+.mochila-v2__trail-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.12rem;
+    min-height: 4.5rem;
+    min-width: 0;
+    max-width: 100%;
+    padding: 0.5rem 0.2rem;
+    border-radius: 0.9rem;
+    background: var(--mochila-trail);
+    border: var(--arborito-theme-garden-mochila-v2__trail-item-border);
+    text-align: center;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.mochila-v2__trail-item--dim {
+    opacity: 0.7;
+}
+
+.mochila-v2__trail-ic {
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgb(34 197 94 / 0.15));
+}
+
+.mochila-v2__trail-val {
+    font-size: 1.2rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--mochila-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.mochila-v2__trail-lb {
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--mochila-muted);
+    line-height: 1.15;
+    width: 100%;
+    max-width: 100%;
+    padding: 0 0.05rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.mochila-v2--forest .mochila-v2__card {
+    background: var(--arborito-theme-garden-mochila-v2__card-background);
+}
+.mochila-v2--forest .mochila-v2__card--care {
+    background: var(--arborito-theme-garden-mochila-v2__card--care-background);
+    border-color: var(--arborito-theme-garden-mochila-v2__card--care-border-color);
+}
+.mochila-v2 {
+    --mochila-ink: var(--arborito-theme-garden-mochila-v2-mochila-ink);
+    --mochila-muted: var(--arborito-theme-garden-mochila-v2-mochila-muted);
+    --mochila-accent: var(--arborito-theme-garden-mochila-v2-mochila-accent);
+    --mochila-accent-soft: var(--arborito-theme-garden-mochila-v2-mochila-accent-soft);
+    --mochila-surface: var(--arborito-theme-garden-mochila-v2-mochila-surface);
+    --mochila-border: var(--arborito-theme-garden-mochila-v2-mochila-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    color: var(--mochila-ink);
+}
+
+.mochila-v2__head {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding-bottom: 0.15rem;
+}
+.mochila-v2__head-mark {
+    width: 2.35rem;
+    height: 2.35rem;
+    display: grid;
+    place-items: center;
+    border-radius: 0.85rem;
+    background: var(--arborito-theme-garden-mochila-v2__head-mark-background);
+    border: 1px solid var(--mochila-border);
+    box-shadow: 0 6px 16px rgb(34 197 94 / 0.12);
+    flex-shrink: 0;
+}
+
+.mochila-v2__head-title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--mochila-ink);
+}
+
+.mochila-v2__head-tagline {
+    margin: 0.12rem 0 0;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--mochila-muted);
+}
+.mochila-v2--mobile {
+    padding: 0.35rem 0 0.75rem;
+    min-height: min(100%, 100%);
+    background: var(--arborito-theme-garden-mochila-v2--mobile-background);
+    border-radius: 1.35rem 1.35rem 0 0;
+    margin: 0 -0.25rem;
+    padding-inline: 1rem;
+    border: var(--arborito-theme-garden-mochila-v2--mobile-border);
+    border-bottom: none;
+}
+
+.mochila-v2__splash {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0.35rem 0 0.15rem;
+}
+
+.mochila-v2__splash-ring-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.mochila-v2__ring {
+    --ring-size: 7.5rem;
+    width: var(--ring-size);
+    height: var(--ring-size);
+    border-radius: 999px;
+    background: conic-gradient(
+        var(--mochila-accent) calc(var(--pct, 0) * 1%),
+        var(--mochila-accent-soft) 0
+    );
+    display: grid;
+    place-items: center;
+    box-shadow: 0 10px 28px rgb(34 197 94 / 0.18);
+}
+
+.mochila-v2--mobile .mochila-v2__ring {
+    --ring-size: 7.25rem;
+}
+
+.mochila-v2__ring-heading {
+    margin: 0;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    line-height: 1.2;
+    color: var(--mochila-muted);
+    text-align: center;
+}
+.mochila-v2__ring-inner {
+    width: calc(var(--ring-size) - 1.1rem);
+    height: calc(var(--ring-size) - 1.1rem);
+    border-radius: 999px;
+    background: var(--arborito-theme-garden-mochila-v2__ring-inner-background);
+    border: var(--arborito-theme-garden-mochila-v2__ring-inner-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 0.35rem;
+    box-sizing: border-box;
+    box-shadow: var(--arborito-theme-garden-mochila-v2__ring-inner-highlight);
+}
+
+.mochila-v2__ring-core {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.08rem;
+    min-height: 0;
+    max-width: 100%;
+}
+
+.mochila-v2__ring-label {
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    line-height: 1.1;
+    color: var(--mochila-muted);
+    max-width: 5.75rem;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.mochila-v2__ring-pct {
+    font-size: 1.45rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--mochila-ink);
+}
+
+.mochila-v2__ring-pct small {
+    font-size: 0.8rem;
+    font-weight: 800;
+    opacity: 0.55;
+}
+
+.mochila-v2__ring-emoji {
+    font-size: 0.95rem;
+    line-height: 1;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 4px rgb(34 197 94 / 0.25));
+}
+
+.mochila-v2__subtitle {
+    margin: 0.75rem 0 0;
+    max-width: 18rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--mochila-muted);
+    line-height: 1.45;
+}
+
+.mochila-v2__badges {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem;
+}
+
+.mochila-v2__badges--trio {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mochila-v2__badge {
+    border-radius: 1rem;
+    padding: 0.65rem 0.45rem;
+    text-align: center;
+    border: 1px solid var(--mochila-border);
+    background: var(--mochila-surface);
+    box-shadow: 0 4px 14px rgb(15 23 42 / 0.04);
+}
+
+.mochila-v2__badge--muted {
+    opacity: 0.72;
+}
+.mochila-v2__badge--streak {
+    background: var(--arborito-theme-garden-mochila-v2__badge--streak-background);
+}
+.mochila-v2__badge--sun {
+    background: var(--arborito-theme-garden-mochila-v2__badge--sun-background);
+}
+
+.mochila-v2__badge-ic {
+    display: block;
+    font-size: 1.25rem;
+    line-height: 1;
+    margin-bottom: 0.15rem;
+}
+
+.mochila-v2__badge-val {
+    display: block;
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: var(--mochila-ink);
+    line-height: 1.1;
+}
+
+.mochila-v2__badge-lb {
+    display: block;
+    margin-top: 0.1rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--mochila-muted);
+}
+
+.mochila-v2__cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.mochila-v2__card {
+    border-radius: 1rem;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid var(--mochila-border);
+    background: var(--mochila-surface);
+    box-shadow: 0 6px 18px rgb(15 23 42 / 0.05);
+}
+
+.mochila-v2__card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.mochila-v2__card-title {
+    font-size: 0.875rem;
+    font-weight: 800;
+    color: var(--mochila-ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.mochila-v2__card-count {
+    font-size: 0.8125rem;
+    font-weight: 800;
+    color: var(--mochila-muted);
+    font-variant-numeric: tabular-nums;
+}
+.mochila-v2__card-count--due {
+    color: var(--arborito-theme-garden-mochila-v2__card-count--due-color);
+    background: var(--arborito-theme-garden-mochila-v2__card-count--due-background);
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+}
+.mochila-v2__card--care {
+    background: var(--arborito-theme-garden-mochila-v2__card--care-background-2);
+    border: var(--arborito-theme-garden-mochila-v2__card--care-border);
+}
+
+.mochila-v2__care-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.15rem;
+}
+.mochila-v2__care-stat {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    line-height: 1.2;
+    padding: 0.2rem 0.45rem;
+    border-radius: 999px;
+    background: var(--arborito-theme-garden-mochila-v2__care-stat-background);
+    color: var(--arborito-theme-garden-mochila-v2__care-stat-color);
+    font-variant-numeric: tabular-nums;
+}
+
+.mochila-v2__hint {
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--mochila-muted);
+    line-height: 1.45;
+}
+
+.mochila-v2__hint--empty {
+    font-size: 0.75rem;
+    font-style: normal;
+    opacity: 0.85;
+}
+
+.mochila-v2__collection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+}
+
+.mochila-v2__chip {
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 0.12rem;
+}
+.mochila-v2__trophy {
+    font-size: 1.25rem;
+    line-height: 1;
+    padding: 0.18rem 0.28rem;
+    border: none;
+    background: var(--arborito-theme-garden-mochila-v2__trophy-background);
+    border-radius: 0.55rem;
+    cursor: pointer;
+    transition: transform 140ms ease;
+}
+
+.mochila-v2__trophy--locked,
+.arborito-achievement-trophy--locked {
+    filter: grayscale(1);
+    opacity: 0.45;
+    cursor: default;
+}
+
+.mochila-v2__trophy--earned,
+.arborito-achievement-trophy--earned {
+    filter: saturate(1.35) brightness(1.05);
+}
+
+.mochila-v2__trophy:hover {
+    transform: scale(1.1) rotate(-4deg);
+}
+
+.mochila-v2__trophy--locked:hover {
+    transform: none;
+}
+
+.mochila-v2__actions {
+    padding-top: 0.25rem;
+}
+.mochila-v2__btn {
+    width: 100%;
+    border-radius: 0.85rem;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 800;
+    cursor: pointer;
+    border: var(--arborito-theme-garden-mochila-v2__btn-border);
+    background: var(--arborito-theme-garden-mochila-v2__btn-background);
+    color: var(--arborito-theme-garden-mochila-v2__btn-color);
+    transition: transform 120ms ease, box-shadow 140ms ease;
+}
+
+.mochila-v2__btn:active {
+    transform: scale(0.98);
+}
+
+.mochila-v2__btn--primary {
+    background: linear-gradient(135deg, rgb(34 197 94), rgb(16 185 129));
+    border-color: transparent;
+    color: rgb(255 255 255);
+    box-shadow: 0 6px 18px rgb(34 197 94 / 0.28);
+}
+
+/* Desktop v2: inherit host height cap (header → Sage); scroll only if content overflows */
+html.arborito-desktop .arborito-desktop-mochila-host:has(.arborito-mochila-card--v2) {
+    max-height: calc(
+        100vh
+            - var(--arborito-desktop-header-height)
+            - max(0.65rem, env(safe-area-inset-top, 0px))
+            - var(--arborito-sage-fab-clearance)
+            - var(--arborito-sage-fab-gap)
+            - env(safe-area-inset-bottom, 0px)
+    );
+}
+
+html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2__ring-inner {
+    box-shadow: var(--arborito-theme-garden-mochila-v2__ring-inner-highlight);
+}
+
+html.arborito-desktop .arborito-mochila-card--v2.arborito-mochila-card {
+    border-radius: 1.2rem;
+    overflow: hidden;
+    border: var(--arborito-theme-garden-mochila-v2-desktop-card-border);
+    background: var(--arborito-theme-garden-mochila-v2-desktop-card-background);
+    box-shadow: var(--arborito-theme-garden-mochila-v2-desktop-card-shadow);
+}
+
+html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2 {
+    padding: 0.9rem 1rem 1rem;
+    max-height: inherit;
+    overflow-y: auto;
+    overflow-x: hidden;
+    gap: 0.65rem;
+}
+
+html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2__grove {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    padding: 0.75rem;
+}
+
+html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2__splash {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.85rem;
+    text-align: left;
+    padding-bottom: 0;
+    width: 100%;
+}
+
+html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2__splash-ring-block {
+    flex-shrink: 0;
+}
+
+html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2__trail {
+    margin-top: 0;
+    flex: none;
+    width: 100%;
+}
+
+html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2__grove .mochila-v2__splash {
+    flex: none;
+    width: 100%;
+}
+
+html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2__ring {
+    --ring-size: 5.25rem;
+}
+
+html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2__subtitle {
+    margin: 0;
+    max-width: none;
+    flex: 1;
+    font-size: 0.8125rem;
+}
+
+/* Backpack: lesson titles in normal case (not all-caps shouting) */
+.mochila-v2--forest .garden-vitality__label {
+    text-transform: none;
+    letter-spacing: 0.02em;
+    font-size: 0.75rem;
+}
+
+.mochila-v2--forest .garden-vitality__meta {
+    font-size: 0.72rem;
+}
+
+html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2__cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem;
+}
+
+html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2__card--care {
+    grid-column: 1 / -1;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) #progress-dock-sheet .arborito-mochila-mobile-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 0 0 max(0.75rem, env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
+}
+
+.mochila-v2--mobile.mochila-v2--modal {
+    gap: 0.5rem;
+    padding: 0.15rem 1rem 0.35rem;
+    min-height: 0;
+    border: none;
+    border-radius: 0;
+    margin: 0;
+    background: transparent;
+}
+
+.mochila-v2--mobile.mochila-v2--modal .mochila-v2__ring {
+    --ring-size: 6.5rem;
+}
+
+.mochila-v2--mobile.mochila-v2--modal .mochila-v2__splash {
+    padding: 0.15rem 0 0;
+}
+
+.mochila-v2--mobile.mochila-v2--modal .mochila-v2__badges--trio {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+}
+
+.mochila-v2--mobile.mochila-v2--modal .mochila-v2__badges {
+    gap: 0.35rem;
+}
+
+.mochila-v2--mobile.mochila-v2--modal .mochila-v2__badge {
+    padding: 0.35rem 0.5rem;
+}
+
+.mochila-v2--mobile.mochila-v2--modal .mochila-v2__cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.45rem;
+}
+
+.mochila-v2--mobile.mochila-v2--modal .mochila-v2__card--care {
+    grid-column: 1 / -1;
+}
+
+.mochila-v2--mobile.mochila-v2--modal .mochila-v2__card {
+    padding: 0.55rem 0.65rem;
+}
+
+.mochila-v2--mobile.mochila-v2--modal .mochila-v2__hint {
+    font-size: 0.625rem;
+    line-height: 1.35;
+}
+

@@ -1,0 +1,90 @@
+/*
+ * Connected services — online (Nostr/internet), cloud sync, AI (Sage/expert).
+ * Use these tokens for Biblioteca filters, published pills, Sage panels, network callouts.
+ */
+
+:root {
+        --arborito-theme-online-accent: rgb(126 34 206);
+        --arborito-theme-online-accent-soft: rgb(243 232 255);
+        --arborito-theme-online-accent-border: rgb(233 213 255);
+        --arborito-theme-online-fg: rgb(88 28 135);
+        --arborito-theme-online-surface: rgb(250 245 255 / 0.85);
+        --arborito-theme-online-surface-border: rgb(233 213 255 / 0.75);
+
+        --arborito-theme-trees-accent: rgb(109 40 217);
+        --arborito-theme-trees-accent-soft: rgb(237 233 254);
+        --arborito-theme-trees-fg: rgb(91 33 182);
+        --arborito-theme-trees-surface: rgb(245 243 255 / 0.85);
+        --arborito-theme-trees-surface-border: rgb(221 214 254 / 0.7);
+
+        --arborito-theme-ai-accent: rgb(79 70 229);
+        --arborito-theme-ai-accent-soft: rgb(238 242 255);
+        --arborito-theme-ai-fg: rgb(67 56 202);
+        --arborito-theme-ai-surface: rgb(238 242 255 / 0.9);
+        --arborito-theme-ai-surface-border: rgb(199 210 254 / 0.65);
+
+        --arborito-theme-cloud-accent: rgb(5 150 105);
+        --arborito-theme-cloud-accent-soft: rgb(209 250 229);
+        --arborito-theme-cloud-fg: rgb(6 95 70);
+
+        --arborito-theme-filter-chip-idle-bg: rgb(209 250 229);
+        --arborito-theme-filter-chip-idle-fg: var(--arborito-bark-ink);
+        --arborito-theme-filter-chip-idle-border: var(--arborito-moss-border-strong);
+        --arborito-theme-filter-chip-idle-hover-bg: rgb(167 243 208);
+
+        --arborito-theme-filter-chip-neutral-active-bg: rgb(15 23 42);
+        --arborito-theme-filter-chip-neutral-active-fg: rgb(255 255 255);
+        --arborito-theme-filter-chip-neutral-active-border: rgb(15 23 42);
+}
+
+html.dark {
+        --arborito-theme-online-accent: rgb(192 132 252);
+        --arborito-theme-online-accent-soft: rgb(46 16 101 / 0.45);
+        --arborito-theme-online-accent-border: rgb(88 28 135 / 0.45);
+        --arborito-theme-online-fg: rgb(233 213 255);
+        --arborito-theme-online-surface: rgb(46 16 101 / 0.28);
+        --arborito-theme-online-surface-border: rgb(88 28 135 / 0.35);
+
+        --arborito-theme-trees-accent: rgb(167 139 250);
+        --arborito-theme-trees-accent-soft: rgb(46 16 101 / 0.4);
+        --arborito-theme-trees-fg: rgb(221 214 254);
+        --arborito-theme-trees-surface: rgb(46 16 101 / 0.25);
+        --arborito-theme-trees-surface-border: rgb(91 33 182 / 0.35);
+
+        --arborito-theme-ai-accent: rgb(129 140 248);
+        --arborito-theme-ai-accent-soft: rgb(30 27 75 / 0.55);
+        --arborito-theme-ai-fg: rgb(199 210 254);
+        --arborito-theme-ai-surface: rgb(30 27 75 / 0.45);
+        --arborito-theme-ai-surface-border: rgb(67 56 202 / 0.35);
+
+        --arborito-theme-cloud-accent: rgb(52 211 153);
+        --arborito-theme-cloud-accent-soft: rgb(6 78 59 / 0.35);
+        --arborito-theme-cloud-fg: rgb(167 243 208);
+
+        --arborito-theme-filter-chip-idle-bg: rgb(15 23 42);
+        --arborito-theme-filter-chip-idle-fg: rgb(226 232 240);
+        --arborito-theme-filter-chip-idle-border: rgb(51 65 85);
+        --arborito-theme-filter-chip-idle-hover-bg: rgb(30 41 59);
+
+        --arborito-theme-filter-chip-neutral-active-bg: rgb(248 250 252);
+        --arborito-theme-filter-chip-neutral-active-fg: rgb(15 23 42);
+        --arborito-theme-filter-chip-neutral-active-border: rgb(248 250 252);
+}
+
+/* Sage AI surfaces — alias duplicated indigo/purple tokens to connected-service AI scale */
+:root {
+        --arborito-theme-sage-hero-kicker-fg: var(--arborito-theme-ai-accent);
+        --arborito-theme-sage-hero-chip-fg: var(--arborito-theme-ai-fg);
+        --arborito-theme-sage-hero-chip-bg: var(--arborito-theme-ai-accent-soft);
+        --arborito-theme-sage-thinking-dot: var(--arborito-theme-ai-accent);
+        --arborito-theme-sage-intro-strong-fg: var(--arborito-theme-ai-fg);
+        --arborito-theme-sage-step-num-fg: var(--arborito-theme-ai-fg);
+        --arborito-theme-sage-step-num-bg: var(--arborito-theme-ai-accent-soft);
+}
+
+html.dark {
+        --arborito-theme-sage-hero-kicker-fg: var(--arborito-theme-ai-accent);
+        --arborito-theme-sage-hero-chip-fg: var(--arborito-theme-ai-fg);
+        --arborito-theme-sage-thinking-dot: var(--arborito-theme-ai-accent);
+        --arborito-theme-sage-intro-strong-fg: var(--arborito-theme-ai-fg);
+}

@@ -1,0 +1,343 @@
+import { getArboritoStore } from '../core/store-singleton.js';
+import { DataProcessor } from '../features/tree-graph/api/data-processor.js';
+import { buildArboritoBundle, sanitizeCurriculumForArboritoArchive } from '../features/publishing/api/arborito-bundle.js';
+import { syncReadmeFromUniversePresentation } from '../features/learning/api/course-intro-markdown.js';
+import { updateCareOnLessonCompleteFallback } from '../features/garden-progress/api/care-schedule.js';
+import { celebrate } from '../features/garden-progress/api/celebration.js';
+import { buildBranchExportAttribution } from '../shared/lib/arborito-attribution.js';
+import { notifyUserProgressChanged, notifyIdentityChanged } from './store-notify.js';
+
+function shell() {
+    return getArboritoStore();
+}
+
+export function checkStreakAction() {
+    const store = shell();
+    if (!store) return undefined;
+ 
+        const gBefore = store.userStore.state.gamification.streakShields;
+        const msg = store.userStore.settings.checkStreak(); 
+        const gAfter = store.userStore.state.gamification;
+        if (msg) {
+            const usedShield = gAfter.streakShields < gBefore;
+            celebrate(usedShield ? 'streak-shield' : 'streak');
+            store.notify(msg);
+        }
+        store.dispatchEvent(new CustomEvent('arborito-user-progress-changed'));
+        if (msg) store._scheduleRankingPublish?.();
+    
+}
+
+export function addXPAction(amount, opts = false) {
+    const store = shell();
+    if (!store) return undefined;
+
+        const silent = typeof opts === 'boolean' ? opts : !!opts.silent;
+        const fromArcade = typeof opts === 'object' && opts.fromArcade === true;
+        const result = store.userStore.settings.addXP(amount, fromArcade ? { fromArcade: true } : {});
+        if (!result) return;
+        const msg = typeof result === 'string' ? result : result.msg;
+        const ui = store.ui || {};
+        if (result.earnedShield) {
+            celebrate('streak-shield');
+            store.notify(
+                ui.streakShieldEarned ||
+                    ui.streakShieldHint ||
+                    'Leaf shield earned — it protects one missed day.',
+                false
+            );
+        } else if (!silent && msg) {
+            store.notify(msg);
+        }
+        if (!silent && !result.earnedShield) {
+            celebrate(result.hitGoal ? 'daily-goal' : 'leaf-done');
+        }
+        store.dispatchEvent(new CustomEvent('arborito-user-progress-changed'));
+        store._scheduleRankingPublish?.();
+    
+}
+
+export function harvestSeedAction(moduleId) {
+    const store = shell();
+    if (!store) return undefined;
+
+        const msg = store.userStore.settings.harvestSeed(moduleId);
+        if (msg) {
+            celebrate('seed-collected');
+            store.notify(msg);
+        }
+        notifyUserProgressChanged(store);
+        store.dispatchEvent(new CustomEvent('graph-update'));
+    
+}
+
+export function updateGamificationAction(updates) {
+    const store = shell();
+    if (!store) return undefined;
+
+        store.userStore.settings.updateGamification(updates);
+        notifyUserProgressChanged(store);
+    
+}
+
+export function updateUserProfileAction(username, avatar) {
+    const store = shell();
+    if (!store) return undefined;
+
+        store.userStore.settings.updateGamification({ username, avatar });
+        store.notify(store.ui.profileUpdated);
+        notifyIdentityChanged(store);
+        notifyUserProgressChanged(store);
+        void store._scheduleRankingPublish?.();
+        try {
+            store.publishInstalledSourcesForAccount?.({ immediate: true });
+        } catch { /* ignore */ }
+    
+}
+
+export function markCompleteAction(nodeId, forceState = null, options = {}) {
+    const store = shell();
+    if (!store) return undefined;
+
+    const xpResult = store.userStore.markComplete(nodeId, forceState, options);
+    if (xpResult) {
+        const msg = xpResult.msg || xpResult;
+        const ui = store.ui || {};
+        if (xpResult.earnedShield) {
+            celebrate('streak-shield');
+            store.notify(
+                ui.streakShieldEarned ||
+                    'Leaf shield earned — it protects one missed day.',
+                false
+            );
+        } else {
+            if (msg) store.notify(typeof msg === 'string' ? msg : xpResult.msg);
+            celebrate(xpResult.hitGoal ? 'daily-goal' : 'leaf-done');
+        }
+        store._scheduleRankingPublish?.();
+    }
+    if (store.userStore.isCompleted(nodeId)) {
+        updateCareOnLessonCompleteFallback(store, nodeId);
+    }
+    notifyUserProgressChanged(store);
+    store.dispatchEvent(new CustomEvent('graph-update'));
+    checkForModuleCompletionAction(nodeId);
+}
+
+export function markExamExemptSiblingLeavesAction(examNodeId) {
+    const store = shell();
+    if (!store) return undefined;
+
+        const exam = store.findNode?.(examNodeId);
+        if (!exam || exam.type !== 'exam' || !exam.parentId) return;
+        const parent = store.findNode?.(exam.parentId);
+        if (!(parent && parent.children && parent.children.length)) return;
+
+        const leafIds = [];
+        const collectLeaves = (n) => {
+            if (!n) return;
+            if (n.type === 'leaf') {
+                leafIds.push(n.id);
+                return;
+            }
+            if (n.type === 'exam') return;
+            if (n.children && n.children.length) {
+                n.children.forEach(collectLeaves);
+                return;
+            }
+            if (Array.isArray(n.leafIds) && n.leafIds.length) {
+                for (const id of n.leafIds) {
+                    const resolved = store.findNode?.(id);
+                    if (resolved?.type === 'exam') continue;
+                    if (resolved?.type === 'leaf' || !resolved) leafIds.push(id);
+                }
+            }
+        };
+
+        let changed = false;
+        const markDone = (id) => {
+            if (id == null) return;
+            if (!store.userStore.state.completedNodes.has(id)) {
+                store.userStore.state.completedNodes.add(id);
+                changed = true;
+            }
+        };
+
+        markDone(parent.id);
+        for (const sibling of parent.children) {
+            if (String(sibling.id) === String(examNodeId)) continue;
+            markDone(sibling.id);
+            collectLeaves(sibling);
+        }
+
+        for (const id of leafIds) {
+            if (!store.userStore.state.completedNodes.has(id)) {
+                store.userStore.state.completedNodes.add(id);
+                changed = true;
+                updateCareOnLessonCompleteFallback(store, id);
+            }
+        }
+        if (changed) {
+            store.userStore.persist();
+            notifyUserProgressChanged(store);
+            store.dispatchEvent(new CustomEvent('graph-update'));
+        }
+        checkForModuleCompletionAction(examNodeId);
+    
+}
+
+export function markBranchCompleteAction(branchId) {
+    const store = shell();
+    if (!store) return undefined;
+
+        if (!branchId) return;
+        const branchNode = store.findNode?.(branchId);
+        
+        if (branchNode) {
+            store.userStore.state.completedNodes.add(branchNode.id);
+            
+            if (branchNode.children) {
+                branchNode.children.forEach(child => {
+                    store.userStore.state.completedNodes.add(child.id);
+                });
+            }
+            
+            if (branchNode.leafIds && Array.isArray(branchNode.leafIds)) {
+                branchNode.leafIds.forEach(id => store.userStore.state.completedNodes.add(id));
+            }
+            
+            DataProcessor.hydrateCompletionState(store, branchNode);
+        }
+        
+        store.userStore.persist();
+        notifyUserProgressChanged(store);
+        store.dispatchEvent(new CustomEvent('graph-update'));
+    
+}
+
+export function checkForModuleCompletionAction(relatedNodeId) {
+    const store = shell();
+    if (!store) return undefined;
+
+        const modules = store.getModulesStatus?.() ?? [];
+        modules.forEach(m => {
+            if (m.isComplete) {
+                if (!store.userStore.state.completedNodes.has(m.id)) {
+                     store.markBranchComplete?.(m.id);
+                }
+                store.harvestSeed?.(m.id);
+            }
+        });
+    
+}
+
+export function getExportJsonAction() {
+    const store = shell();
+    if (!store) return undefined;
+ return store.userStore.getExportJson(); 
+}
+
+export function buildArboritoBundleObjectAction() {
+    const store = shell();
+    if (!store) return undefined;
+
+        const raw = store.state.rawGraphData;
+        const src = store.state.activeSource;
+        if (!raw || !src) return null;
+        const rawCopy = JSON.parse(JSON.stringify(raw));
+        /* Copy hydrated lesson bodies from the live graph into the publish payload. */
+        const liveById = new Map();
+        const collect = (n) => {
+            if (!n || typeof n !== 'object') return;
+            if ((n.type === 'leaf' || n.type === 'exam') && n.content) {
+                liveById.set(String(n.id), n.content);
+            }
+            if (Array.isArray(n.children)) n.children.forEach(collect);
+        };
+        collect(store.state.data);
+        const applyLive = (n) => {
+            if (!n || typeof n !== 'object') return;
+            if (n.type === 'leaf' || n.type === 'exam') {
+                const live = liveById.get(String(n.id));
+                if (live && live !== n.content) {
+                    n.content = live;
+                    delete n.treeLazyContent;
+                    delete n.treeContentKey;
+                }
+            }
+            if (Array.isArray(n.children)) n.children.forEach(applyLive);
+        };
+        for (const lang of Object.keys(rawCopy.languages || {})) applyLive(rawCopy.languages[lang]);
+        syncReadmeFromUniversePresentation(rawCopy, store.ui);
+        return buildArboritoBundle({
+            rawGraphData: rawCopy,
+            activeSource: src,
+            persistenceData: store.userStore.getPersistenceData(),
+            forumSnapshot: store.forumStore.getSnapshot(src.id),
+            instanceId: src.id,
+            collaboratorRoles: store.value?.treeCollaboratorRoles || null,
+        });
+    
+}
+
+export async function exportBranchArchiveAction(treeId) {
+    const store = shell();
+    if (!store) return undefined;
+
+        const entry = store.userStore.state.branches.find((t) => t.id === treeId);
+        if (!entry) return null;
+        let treeCopy = JSON.parse(JSON.stringify(entry.data));
+        /* Prefer live open-lesson bodies when exporting the active branch. */
+        const activeId = String(store.state.activeSource?.url || '').startsWith('branch://')
+            ? String(store.state.activeSource.url).slice('branch://'.length)
+            : String(store.state.activeSource?.id || '');
+        if (activeId && activeId === String(treeId) && store.state.rawGraphData?.languages) {
+            treeCopy = JSON.parse(JSON.stringify(store.state.rawGraphData));
+            const liveById = new Map();
+            const collect = (n) => {
+                if (!n || typeof n !== 'object') return;
+                if ((n.type === 'leaf' || n.type === 'exam') && n.content) {
+                    liveById.set(String(n.id), n.content);
+                }
+                if (Array.isArray(n.children)) n.children.forEach(collect);
+            };
+            collect(store.state.data);
+            const applyLive = (n) => {
+                if (!n || typeof n !== 'object') return;
+                if (n.type === 'leaf' || n.type === 'exam') {
+                    const live = liveById.get(String(n.id));
+                    if (live && live !== n.content) {
+                        n.content = live;
+                        delete n.treeLazyContent;
+                        delete n.treeContentKey;
+                    }
+                }
+                if (Array.isArray(n.children)) n.children.forEach(applyLive);
+            };
+            for (const lang of Object.keys(treeCopy.languages || {})) applyLive(treeCopy.languages[lang]);
+        }
+        syncReadmeFromUniversePresentation(treeCopy, store.ui);
+        const curriculumOnly = sanitizeCurriculumForArboritoArchive(treeCopy);
+        const attribution = buildBranchExportAttribution(store, {
+            treeData: curriculumOnly,
+            branchId: entry.id,
+        });
+        return store.userStore.serializeArboritoArchive(entry.id, entry.name, curriculumOnly, { attribution });
+    
+}
+
+/** Store.prototype, explicit actions. */
+export const userProgressBundleMethods = {
+    checkStreak: checkStreakAction,
+    addXP: addXPAction,
+    harvestSeed: harvestSeedAction,
+    updateGamification: updateGamificationAction,
+    updateUserProfile: updateUserProfileAction,
+    markComplete: markCompleteAction,
+    markExamExemptSiblingLeaves: markExamExemptSiblingLeavesAction,
+    markBranchComplete: markBranchCompleteAction,
+    checkForModuleCompletion: checkForModuleCompletionAction,
+    getExportJson: getExportJsonAction,
+    buildArboritoBundleObject: buildArboritoBundleObjectAction,
+    exportBranchArchive: exportBranchArchiveAction,
+};

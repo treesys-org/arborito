@@ -1,0 +1,16 @@
+{
+  "mediaBlockedHint": "This resource has not been loaded yet.",
+  "mediaBlockedRetry": "Load media…",
+  "mediaBlockedTitle": "Media not loaded",
+  "mediaConsentAccept": "Load media",
+  "mediaConsentBody": "Only resources from the origins you approve below will load. Your browser will connect to those domains to fetch the image, audio, or video.",
+  "mediaConsentGameBody": "This game loads third-party content. Allow this site for lesson media?",
+  "mediaConsentDecline": "Do not load",
+  "mediaConsentDomainLabel": "Domain",
+  "mediaConsentListLabel": "Origins in this lesson",
+  "mediaConsentRememberHint": "Choosing Load media stores only those domain origins in this browser (not the full URLs) so we will not ask again for them. Do not load keeps external media blocked here.",
+  "mediaConsentTitle": "External media",
+  "mediaPlaceholderAudio": "External audio",
+  "mediaPlaceholderImage": "External image",
+  "mediaPlaceholderVideo": "External video"
+}

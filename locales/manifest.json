@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "namespaces": [
+    "core",
+    "nav",
+    "search",
+    "tour",
+    "graph",
+    "lesson",
+    "sage",
+    "construction",
+    "forum",
+    "sources",
+    "arcade",
+    "profile",
+    "modals",
+    "nostr",
+    "games",
+    "auth",
+    "welcome",
+    "onboarding",
+    "editor",
+    "roadmap",
+    "publishing",
+    "legal",
+    "media",
+    "security",
+    "garden",
+    "import",
+    "settings",
+    "misc"
+  ]
+}

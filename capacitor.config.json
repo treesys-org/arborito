@@ -1,0 +1,8 @@
+{
+  "appId": "org.treesys.arborito",
+  "appName": "Arborito",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

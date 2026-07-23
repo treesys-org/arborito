@@ -1,0 +1,618 @@
+/* --- forest-shell-header-graph --- */
+/* =============================================================================
+   DESKTOP FOREST — wide layout, broad trunk, side branches; nav = same mobile dock (bottom pill)
+   ============================================================================= */
+html.arborito-desktop {
+    /* Top strip: brand, nav, search, actions */
+    --arborito-desktop-header-height: 3.75rem;
+    /* Top-right gap (backpack): same value as .arborito-desktop-mochila-host */
+    --arborito-desktop-mochila-edge: max(1rem, env(safe-area-inset-right, 0px));
+    --arborito-desktop-mochila-width: min(27rem, calc(100vw - 1.75rem));
+    --arborito-forest-glass: rgb(15 23 42 / 0.42);
+    --arborito-forest-glass-light: rgb(236 253 245 / 0.88);
+    --arborito-forest-edge: rgb(94 234 212 / 0.35);
+    --arborito-forest-glow: rgb(52 211 153 / 0.45);
+    --arborito-forest-text: rgb(241 245 249);
+    --arborito-forest-text-muted: rgb(186 230 253 / 0.92);
+}
+
+html.arborito-desktop body.arborito-app #app.arborito-shell {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    min-height: 100dvh;
+    box-shadow: none;
+}
+
+/* Trunk: full width; top padding matches header (construction mode still shows header on desktop) */
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-sizing: border-box;
+    padding-top: var(--arborito-desktop-header-height);
+}
+
+/* Graph: side breathing room so branches can reach the edge. */
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-trunk-scroll-content {
+    max-width: min(1920px, 100%);
+    margin: 0 auto;
+    padding-left: clamp(0.5rem, 3vw, 2.5rem);
+    padding-right: clamp(0.5rem, 3vw, 2.5rem);
+}
+
+/*
+ * Backpack is position:fixed to the viewport: the trunk/curriculum lives on this row and
+ * previously extended to the right edge — width reserved (edge + panel + gap).
+ * No backpack in construction; only the top clamp remains.
+ */
+html.arborito-desktop:not(.arborito-construction-mobile) .arborito-mobile-path.mobile-tree-ui .mobile-trunk-scroll-content {
+    padding-right: calc(
+        clamp(0.5rem, 3vw, 2.5rem) + var(--arborito-desktop-mochila-width) + var(--arborito-desktop-mochila-edge) + 0.75rem
+    );
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-knot.mobile-knot--svg:not(.mobile-knot-tone-root) {
+    padding: 0.14rem;
+    font-size: 1.5rem;
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-knot-tone-root.mobile-knot--svg {
+    /* Wider than the surrounding column so the clover renders at its
+       natural size without relying on CSS scale (which would push the
+       artwork outside the scroll container's horizontal bounds and
+       clip the side lobes). */
+    width: 5.25rem;
+    height: 5.25rem;
+    min-width: 5.25rem;
+    min-height: 5.25rem;
+    padding: 0;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    /* Above the branch connector SVG (z:6) so the clover covers
+       the connector joint. */
+    position: relative;
+    z-index: 12;
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-knot-tone-root.mobile-knot--svg.active {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-knot-tone-root .arborito-root-knot-mark {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 6px rgb(34 197 94 / 0.55)) drop-shadow(0 2px 10px rgb(34 197 94 / 0.38));
+    /* Slight upward shift so the trunk/branch connector appears to
+       emerge from inside the clover (its top overlaps the connector
+       joint) instead of just touching it from below. No horizontal
+       scaling so the side lobes never get clipped by the scroll
+       container's overflow-x: hidden. */
+    transform: translate3d(0, -0.6rem, 0);
+    transform-origin: center bottom;
+    isolation: isolate;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-knot-tone-root.mobile-knot--svg.active .arborito-root-knot-mark {
+    filter: drop-shadow(0 0 10px rgb(34 197 94 / 0.78)) drop-shadow(0 0 22px rgb(34 197 94 / 0.48));
+    transform: translate3d(0, -0.6rem, 0);
+    transform-origin: center bottom;
+}
+
+/* Ensure no ancestor clips the scaled-up clover. */
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-trunk-scroll-content,
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-trunk-body,
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-right-col,
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-knot-wrapper { overflow: visible; }
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-trunk-scroll-content { padding-bottom: 2rem; }
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-knot--svg .mobile-knot__svg:not(.arborito-root-knot-mark),
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-knot--svg .arborito-icon-mark--color:not(.arborito-root-knot-mark) {
+    width: 100%;
+    height: 100%;
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-trunk-fade {
+    width: 8rem;
+    background: var(--arborito-vignette-trunk-light);
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-right-col {
+    flex: 1 1 0%;
+    min-width: 0;
+    padding: var(--space-lg) 0 calc(env(safe-area-inset-bottom, 0px) + 0.75rem) clamp(0.5rem, 2vw, 1.25rem);
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-label-text {
+    font-size: 0.9375rem;
+    font-weight: 800;
+    color: var(--arborito-forest-text);
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.45), 0 0 20px rgb(52 211 153 / 0.2);
+    -webkit-line-clamp: 3;
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-label-row.is-active .mobile-label-text {
+    font-size: 1rem;
+    color: rgb(255 255 255);
+    text-shadow: 0 2px 8px rgb(0 0 0 / 0.5), 0 0 24px rgb(94 234 212 / 0.35);
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-label-meta,
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-child-meta {
+    font-size: 0.6875rem;
+    color: var(--arborito-forest-text-muted);
+    font-weight: 600;
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-child-name {
+    font-size: 0.9375rem;
+    font-weight: 800;
+    color: rgb(248 250 252);
+    text-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+}
+
+/*
+ * Children panel (slots from trunk): desktop geometry only.
+ * Bordes, colores y sombras alineados con mobile/graph-knowledge-cards.css
+ * (forest glass used to win on specificity and looked different from mobile).
+ */
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-children-panel {
+    width: min(100%, min(42vw, 36rem));
+    margin-left: 0;
+    margin-right: 0;
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-children-panel .mobile-panel-header {
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    font-weight: 800;
+}
+
+html.arborito-desktop:not(.dark) .arborito-mobile-path.mobile-tree-ui .mobile-children-panel .mobile-panel-header {
+    color: var(--arborito-bark-ink) !important;
+    text-shadow: none;
+    background: var(--arborito-path-panel-header);
+    border: 1px solid var(--arborito-moss-border);
+    border-radius: 0.65rem;
+    box-shadow:
+        0 1px 2px rgb(6 78 59 / 0.08),
+        inset 0 1px 0 rgb(255 255 255 / 0.55);
+}
+
+html.arborito-desktop.dark .arborito-mobile-path.mobile-tree-ui .mobile-children-panel .mobile-panel-header {
+    color: rgb(167 243 208) !important;
+    text-shadow:
+        0 0 2px rgb(0 0 0 / 0.9),
+        0 1px 4px rgb(0 0 0 / 0.82),
+        0 2px 18px rgb(0 0 0 / 0.48);
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-child-row {
+    border-radius: 1rem;
+}
+
+html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-child-row:hover {
+    background: rgb(52 211 153 / 0.12);
+}
+
+/* Desktop: same pill as mobile — max width so it does not look like a system bar */
+html.arborito-desktop .arborito-mob-dock {
+    max-width: min(42rem, calc(100vw - 2rem));
+    width: 100%;
+}
+
+/* Header fino: solo en escritorio; marca | contexto (el dock sigue abajo) */
+.arborito-desktop-app-header {
+    display: none;
+}
+
+html.arborito-desktop .arborito-desktop-app-header {
+    display: grid;
+    /* Narrower center: room for nav (e.g. Teachers) and less overlap feel */
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, min(28rem, 58vw)) minmax(0, 1fr);
+    align-items: center;
+    column-gap: 0.75rem;
+    row-gap: 0.35rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    /* Above version chip (113) and tree dropdown (110); below modals (125) */
+    z-index: 115;
+    min-height: var(--arborito-desktop-header-height);
+    padding: 0.45rem max(1rem, env(safe-area-inset-right, 0px)) 0.45rem max(1rem, env(safe-area-inset-left, 0px));
+    padding-top: max(0.45rem, env(safe-area-inset-top, 0px));
+    box-sizing: border-box;
+    pointer-events: none;
+    overflow: visible;
+    border-bottom: 1px solid var(--arborito-moss-border);
+    background: var(--arborito-chrome-gradient);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.45) inset;
+}
+
+html.dark html.arborito-desktop .arborito-desktop-app-header {
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.06) inset;
+}
+
+html.arborito-desktop .arborito-desktop-header__left {
+    grid-column: 1;
+    justify-self: start;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+    max-width: 100%;
+    overflow: visible;
+}
+
+html.arborito-desktop .arborito-desktop-header__search-wrap {
+    grid-column: 2;
+    justify-self: stretch;
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+html.arborito-desktop .arborito-desktop-actions {
+    grid-column: 3;
+    justify-self: end;
+}
+
+html.arborito-desktop .arborito-desktop-hit {
+    pointer-events: auto;
+}
+
+html.arborito-desktop .arborito-desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex: 0 0 auto;
+    min-width: 0;
+    max-width: min(44vw, 40rem);
+    overflow-x: auto;
+    overflow-y: visible;
+    padding-block: 3px;
+    margin-block: -3px;
+    scrollbar-width: none;
+}
+html.arborito-desktop .arborito-desktop-nav::-webkit-scrollbar {
+    display: none;
+}
+
+html.arborito-desktop .arborito-desktop-nav__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--arborito-moss-border);
+    background: var(--arborito-chrome-tile);
+    border-radius: 999px;
+    padding: 0.28rem 0.7rem;
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    font-weight: 850;
+    font-size: 0.82rem;
+    letter-spacing: -0.015em;
+    color: var(--arborito-bark-ink);
+    user-select: none;
+    white-space: nowrap;
+    transition: transform 120ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+html.arborito-desktop .arborito-desktop-nav__btn:hover {
+    transform: translateY(-2px);
+    background: var(--arborito-chrome-tile-hover);
+    border-color: var(--arborito-moss-border-strong);
+    box-shadow: 0 6px 18px rgb(6 78 59 / 0.14);
+}
+html.dark html.arborito-desktop .arborito-desktop-nav__btn:hover {
+    box-shadow: 0 8px 22px rgb(0 0 0 / 0.28);
+}
+@media (prefers-reduced-motion: no-preference) {
+    html.arborito-desktop .arborito-desktop-nav__btn:hover {
+        animation: arborito-chrome-btn-bounce 0.38s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+}
+@keyframes arborito-chrome-btn-bounce {
+    0% { transform: translateY(0); }
+    45% { transform: translateY(-3px); }
+    75% { transform: translateY(-1px); }
+    100% { transform: translateY(-2px); }
+}
+/* "Leave construction" notice: static glow (no pulse — photosensitivity). */
+html.arborito-desktop .arborito-desktop-nav__ic--construct-exit-blink {
+    display: inline-block;
+    filter: drop-shadow(0 0 8px rgb(251 191 36 / 0.9));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    html.arborito-desktop .arborito-desktop-nav__ic--construct-exit-blink {
+        transition: filter 0.35s ease;
+    }
+}
+
+html.arborito-desktop .arborito-desktop-nav__btn.is-active,
+html.arborito-desktop .arborito-desktop-nav__btn[aria-current="page"] {
+    border-color: rgb(45 212 191 / 0.55);
+    box-shadow:
+        0 0 0 3px rgb(45 212 191 / 0.18),
+        0 10px 26px -24px rgb(45 212 191 / 0.65);
+}
+html.dark html.arborito-desktop .arborito-desktop-nav__btn.is-active,
+html.dark html.arborito-desktop .arborito-desktop-nav__btn[aria-current="page"] {
+    border-color: rgb(94 234 212 / 0.45);
+    box-shadow:
+        0 0 0 3px rgb(94 234 212 / 0.12),
+        0 10px 26px -24px rgb(0 0 0 / 0.45);
+}
+
+html.arborito-desktop .arborito-desktop-nav__btn--construct-on.is-active {
+    border-color: var(--arborito-theme-shell-arborito-desktop-nav-btn-construct-on-is-active-border-color);
+    box-shadow: var(--arborito-theme-shell-arborito-desktop-nav-btn-construct-on-is-active-box-shadow);
+}
+
+html.arborito-desktop .arborito-desktop-nav__ic {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    line-height: 1;
+    font-family: var(--font-family-emoji);
+}
+html.arborito-desktop .arborito-desktop-nav__lb {
+    line-height: 1;
+}
+
+/* Nav en la barra superior (junto a la marca; sin Home — el logo lleva a inicio) */
+html.arborito-desktop .arborito-desktop-nav.arborito-desktop-header__nav {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: min(50vw, 36rem);
+    justify-content: flex-start;
+}
+
+html.arborito-desktop .arborito-desktop-nav__btn.relative {
+    position: relative;
+}
+
+html.arborito-desktop .arborito-desktop-nav__badge {
+    position: absolute;
+    top: 0.1rem;
+    right: 0.15rem;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 999px;
+    background: rgb(239 68 68);
+    box-shadow: 0 0 0 2px rgb(255 255 255);
+}
+
+@media (max-width: 1100px) {
+    html.arborito-desktop .arborito-desktop-nav__lb {
+        display: none;
+    }
+    html.arborito-desktop .arborito-desktop-nav__btn {
+        padding: 0.28rem 0.52rem;
+    }
+}
+
+html.arborito-desktop .arborito-desktop-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    overflow: visible;
+    padding-block: 3px;
+    margin-block: -3px;
+}
+html.arborito-desktop .arborito-desktop-action {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid var(--arborito-moss-border);
+    background: var(--arborito-chrome-tile);
+    box-shadow: 0 2px 10px rgb(6 78 59 / 0.08);
+    font-size: 1.05rem;
+    color: var(--arborito-bark-ink);
+    user-select: none;
+    transition: transform 120ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, color 180ms ease;
+}
+html.dark html.arborito-desktop .arborito-desktop-action {
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.25);
+}
+html.arborito-desktop .arborito-chrome-tip[data-arbor-tip]::after {
+    z-index: 120;
+    white-space: nowrap;
+}
+html.arborito-desktop .arborito-desktop-action:hover {
+    transform: translateY(-2px);
+    border-color: var(--arborito-moss-border-strong);
+    background: var(--arborito-chrome-tile-hover);
+    color: var(--arborito-bark-ink);
+    box-shadow: 0 10px 26px -22px rgb(6 78 59 / 0.22);
+}
+html.dark html.arborito-desktop .arborito-desktop-action:hover {
+    box-shadow: 0 10px 26px -22px rgb(0 0 0 / 0.35);
+}
+@media (prefers-reduced-motion: no-preference) {
+    html.arborito-desktop .arborito-desktop-action:hover {
+        animation: arborito-chrome-btn-bounce 0.38s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+}
+
+html.arborito-desktop .arborito-desktop-action--icon-lang {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    min-width: 2.85rem;
+    padding-left: 0.35rem;
+    padding-right: 0.35rem;
+}
+html.arborito-desktop .arborito-desktop-action__lang-flag {
+    font-size: 1rem;
+    line-height: 1;
+}
+html.arborito-desktop .arborito-desktop-action__lang-code {
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    color: var(--arborito-bark-ink);
+}
+html.arborito-desktop .arborito-desktop-action__lang-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--arborito-bark-ink);
+}
+
+html.arborito-desktop .arborito-desktop-action--profile {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.2rem;
+    border-width: 2px;
+    border-color: var(--arborito-moss-border);
+    box-shadow: 0 2px 10px rgb(6 78 59 / 0.08);
+}
+html.dark html.arborito-desktop .arborito-desktop-action--profile {
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.25);
+}
+
+html.arborito-desktop .arborito-desktop-action__profile-ic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.arborito-creator-moderation-bell {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    color: inherit;
+}
+
+html.arborito-desktop .arborito-creator-moderation-bell.arborito-desktop-action {
+    width: 2.25rem;
+    height: 2.25rem;
+}
+
+.arborito-creator-moderation-bell__ic {
+    display: inline-flex;
+    line-height: 1;
+}
+
+.arborito-creator-moderation-bell__badge {
+    position: absolute;
+    top: -0.15rem;
+    right: -0.2rem;
+    min-width: 1.05rem;
+    height: 1.05rem;
+    padding: 0 0.2rem;
+    border-radius: 999px;
+    background: #e11d48;
+    color: #fff;
+    font-size: 0.58rem;
+    font-weight: 800;
+    line-height: 1.05rem;
+    text-align: center;
+    box-shadow: 0 0 0 2px var(--arborito-shell-bg, #fff);
+}
+
+html.arborito-mob-top-actions__btn--bell {
+    position: relative;
+    min-width: 2.5rem;
+}
+
+/*
+ * Course metadata (arborito-tree-pres-anchor): above tree plane; on desktop
+ * a la derecha y debajo de la cabecera fija (no bajo el tronco ni el conector SVG).
+ * Se desplaza a la izquierda del panel 🎒 para no superponerse (misma banda vertical).
+ */
+/* Construction: inline metadata card on the right (desktop) */
+html.arborito-desktop.arborito-construction-mobile .arborito-tree-pres-anchor:has(.arborito-tree-pres--inline-desktop) {
+  display: block !important;
+  pointer-events: auto !important;
+  inset: auto !important;
+  width: min(22rem, calc(100vw - 2rem)) !important;
+  right: max(0.75rem, env(safe-area-inset-right, 0px)) !important;
+  left: auto !important;
+  top: calc(var(--arborito-desktop-header-height, 3rem) + 0.5rem) !important;
+}
+
+html.arborito-desktop.arborito-construction-mobile .arborito-tree-pres-anchor:has(.arborito-tree-pres--inline) {
+  display: block !important;
+  pointer-events: auto !important;
+}
+
+html.arborito-desktop.arborito-construction-mobile .arborito-tree-pres-anchor:has(arborito-tree-presentation.hidden) {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+html.arborito-desktop .arborito-tree-pres-anchor {
+    /* Por encima de .mobile-tree-ui (z-30 en graph-dom); por debajo del header (115) y la 🎒 (108) */
+    z-index: 55 !important;
+    /* Desktop: ensure the course form can be focused/typed into (anchor in graph DOM uses pointer-events:none). */
+    pointer-events: auto !important;
+    top: calc(var(--arborito-desktop-header-height) + 0.5rem) !important;
+    left: auto !important;
+    right: calc(
+        var(--arborito-desktop-mochila-edge) + var(--arborito-desktop-mochila-width) + 0.75rem
+    ) !important;
+    width: min(
+            22rem,
+            calc(
+                100vw - var(--arborito-desktop-mochila-edge) - var(--arborito-desktop-mochila-width) -
+                    max(0.75rem, env(safe-area-inset-left, 0px)) - 1rem
+            )
+        )
+        !important;
+    max-width: min(36rem, 42vw);
+    bottom: auto;
+    padding-top: 0 !important;
+    padding-left: 0.25rem;
+    padding-right: 0;
+    justify-content: flex-end;
+    align-items: flex-start;
+    box-sizing: border-box;
+}
+
+/* Construction: no backpack; restore previous position */
+html.arborito-desktop.arborito-construction-mobile .arborito-tree-pres-anchor {
+    right: max(0.75rem, env(safe-area-inset-right, 0px)) !important;
+    width: min(22rem, calc(100vw - 2rem)) !important;
+}
+
+:is(
+    html.arborito-construction-mobile:not(.arborito-desktop),
+    html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)
+) .arborito-tree-pres-flow-slot arborito-tree-presentation.arborito-tree-pres--inline {
+  background: rgb(255 255 255) !important;
+}
+
+html.arborito-desktop .arborito-tree-pres-anchor arborito-tree-presentation {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Escritorio: Arcade en la cabecera; ocultar CTA duplicado en la fila del camino (evita “flotando” a la derecha). */
+html.arborito-desktop .mobile-path-actions {
+    display: none !important;
+}
+

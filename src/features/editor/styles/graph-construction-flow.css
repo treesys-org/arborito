@@ -1,0 +1,586 @@
+/* --- graph-construction-flow --- */
+/* Mobile construction: course chip in trunk scroll + exploration-style root grounding.
+ * Shared dock rules: editor.css (construction section). Desktop: shell-chrome/styles/shell-chrome.css.
+ */
+
+/*
+ * Mobile construction: course chip lives in #arborito-tree-pres-flow-slot (in-flow).
+ * The fixed .arborito-tree-pres-anchor must not stay in the hit-test stack — even
+ * empty it spanned the top band (z~45 in exploration rules + inline pointer-events)
+ * and blocked taps on the root clover (“carita”).
+ */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .arborito-tree-pres-anchor {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Default: anchor is a layout shell; only mounted presentation receives taps. */
+.arborito-tree-pres-anchor {
+  pointer-events: none;
+}
+
+.arborito-tree-pres-anchor > arborito-tree-presentation:not(.hidden) {
+  pointer-events: auto;
+}
+
+/*
+ * Construction course chip lives in trunk scroll (in-flow), not as a fixed overlay.
+ * That keeps the same root-on-floor scroll physics as exploration mode.
+ */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .mobile-trunk-scroll-content
+  > .arborito-tree-pres-flow-slot:not([hidden]) {
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 100%;
+  z-index: 4;
+  padding-left: max(0.25rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.25rem, env(safe-area-inset-right, 0px));
+  padding-top: max(0.35rem, env(safe-area-inset-top, 0px));
+  padding-bottom: 0.35rem;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+/* Theme + profile: above construction dock (z~130) and graph */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-top-actions {
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  z-index: 135;
+}
+
+/* Modals, Sheets, and Editor aside: hide luna + profile when active */
+html[class*="arborito-"][class*="-modal-open"].arborito-construction-mobile:not(.arborito-desktop)
+  :is(arborito-sidebar, [data-arborito-panel="sidebar"])
+  .arborito-mob-top-actions,
+html.arborito-construction-more-open.arborito-construction-mobile:not(.arborito-desktop)
+  :is(arborito-sidebar, [data-arborito-panel="sidebar"])
+  .arborito-mob-top-actions,
+html.arborito-tree-pres-course-sheet-open.arborito-construction-mobile:not(.arborito-desktop)
+  :is(arborito-sidebar, [data-arborito-panel="sidebar"])
+  .arborito-mob-top-actions,
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)):has(.arborito-lesson-aside--construct-edit)
+  :is(arborito-sidebar, [data-arborito-panel="sidebar"])
+  .arborito-mob-top-actions {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .arborito-tree-pres-flow-slot arborito-tree-presentation {
+  display: block;
+  position: relative;
+  max-width: min(36rem, 100%);
+  margin-left: 0;
+  margin-right: auto;
+  pointer-events: auto;
+  padding-bottom: 0.35rem;
+}
+
+/* CC BY-SA: short notice about the tree (exploration + construction), aligned with welcome/sources. */
+.arborito-tree-pres-cc-wrap {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.arborito-tree-pres-cc-notice {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    border: var(--arborito-theme-construction-arborito-tree-pres-cc-notice-border);
+    background: var(--arborito-theme-construction-arborito-tree-pres-cc-notice-background);
+    font-size: 0.7rem;
+    font-weight: 800;
+    line-height: 1.35;
+    color: var(--arborito-theme-construction-arborito-tree-pres-cc-notice-color);
+    text-align: left;
+}
+
+.arborito-tree-pres-cc-notice--btn {
+  cursor: pointer;
+  font-family: inherit;
+}
+.arborito-tree-pres-cc-notice--btn:hover {
+    border-color: var(--arborito-theme-construction-arborito-tree-pres-cc-notice--btn-border-color);
+    background: var(--arborito-theme-construction-arborito-tree-pres-cc-notice--btn-background);
+}
+
+/* Branch / tree info card — solid panel (no blur or transparency) */
+arborito-tree-presentation.arborito-tree-pres--inline {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  border-radius: 1rem;
+  border: var(--arborito-theme-construction-arborito-tree-pres-inline-border);
+  background: var(--arborito-theme-construction-arborito-tree-pres-inline-background) !important;
+  box-shadow: var(--arborito-theme-construction-arborito-tree-pres-inline-shadow);
+  color: var(--arborito-theme-construction-arborito-tree-pres-inline-color);
+  overflow: hidden;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.arborito-tree-pres-inline {
+  padding: 0.75rem 0.85rem;
+  background: inherit;
+}
+.arborito-tree-pres-inline__title {
+    margin: 0 0 0.65rem;
+    font-size: 0.6875rem;
+    font-weight: 850;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--arborito-theme-construction-arborito-tree-pres-inline__title-color);
+}
+
+.arborito-tree-pres-save:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  filter: saturate(0.65);
+  box-shadow: none;
+}
+.arborito-tree-pres-save--ready:not(:disabled) {
+  opacity: 1;
+  filter: none;
+  box-shadow: 0 2px 10px rgb(5 150 105 / 0.28);
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .arborito-tree-pres-flow-slot
+  arborito-tree-presentation.arborito-tree-pres--compact-chip {
+  max-width: min(14rem, calc(100vw - 13rem));
+}
+
+/* Trunk stroke: no taps or selection (only .mobile-knot is interactive). */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-knot-wrapper--construction-root-pick {
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 3;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .mobile-tree-ui.mobile-tree-ui--construction
+  :is(.mobile-trunk-svg, .tree-path-chrome-svg),
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .mobile-tree-ui.mobile-tree-ui--construction
+  :is(.mobile-trunk-svg, .tree-path-chrome-svg) * {
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+/* Match explore column padding so the bottom rows are not cut against the dock
+ * (construction previously reduced this to 0.2rem, leaving last items unreachable). */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-trunk-col,
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-right-col {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.75rem);
+}
+
+/* Ground strip: masks any residual clip at the trunk floor in construction. */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .mobile-trunk-ground-strip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.5rem;
+  z-index: 11;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgb(34 197 94 / 0.38) 0%,
+    rgb(34 197 94 / 0.12) 45%,
+    transparent 100%
+  );
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-trunk-scroll-content {
+  padding-bottom: 2.25rem;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-trunk-container {
+  scroll-padding-bottom: calc(1.75rem + var(--arborito-mobile-tree-scroll-extra, 0px));
+}
+
+/* Mobile exploration: floating card above trunk; --arbor-mobile-pres-clearance in tree-presentation.js */
+html:not(.arborito-desktop) .arborito-tree-pres-anchor:not(.arborito-tree-pres-anchor--flow-empty) {
+  z-index: 45 !important;
+}
+
+html:not(.arborito-desktop) .arborito-mobile-path.mobile-tree-ui .mobile-trunk-scroll-content {
+  padding-top: var(--arbor-mobile-pres-clearance, 0px);
+}
+
+html:not(.arborito-desktop) .arborito-mobile-path.mobile-tree-ui .mobile-trunk-container {
+  scroll-padding-top: max(0.5rem, var(--arbor-mobile-pres-clearance, 0px));
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .mobile-tree-ui.mobile-tree-ui--construction .mobile-trunk-fade {
+  opacity: 0.22;
+}
+
+/* Full-width tools row only when tools sit outside the header (e.g. course card). */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-panel-head
+  > .mobile-inline-tools-host {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 100%;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-panel-head--course
+  .mobile-panel-header {
+  flex: 1 1 100%;
+  width: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 0.25rem;
+  display: flex;
+}
+
+/* Unified “Version and tree” chip: full row so text is not squeezed beside back / emoji */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-panel-head--course
+  .mobile-panel-header
+  .mobile-panel-root-head,
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-panel-head--course
+  .mobile-panel-header
+  .mobile-panel-version-slot {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-panel-head--course
+  .mobile-panel-header
+  .arborito-curriculum-switcher-host {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-panel-head--course
+  .mobile-panel-header
+  .arborito-timeline-chip--btn {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+html:not(.dark).arborito-construction-mobile:not(.arborito-desktop)
+  .arborito-mobile-path.mobile-tree-ui--construction
+  .mobile-child-name {
+  color: rgb(15 23 42);
+}
+
+html:not(.dark).arborito-construction-mobile:not(.arborito-desktop)
+  .arborito-mobile-path.mobile-tree-ui--construction
+  .mobile-panel-title {
+  color: rgb(51 65 85);
+}
+
+/* Branch version chip in construction (root + folders) — tokens in 06-shell-switcher-forum.css.
+ * Unit chips live inside .mobile-panel-branch-unit (flush consolidation); do not re-tile them. */
+html.arborito-construction-mobile
+  .mobile-tree-ui--construction
+  .arborito-branch-panel-version-chip:not(.arborito-branch-panel-version-chip--unit) {
+  border-color: var(--arborito-theme-branch-version-chip-border-color);
+  background: var(--arborito-theme-branch-version-chip-background);
+}
+
+html.arborito-construction-mobile
+  .mobile-tree-ui--construction
+  .mobile-panel-branch-unit
+  .arborito-branch-panel-version-chip--unit {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+html.arborito-construction-mobile
+  .mobile-tree-ui--construction
+  .arborito-branch-panel-version-chip__ver {
+  color: var(--arborito-theme-branch-version-chip-ver-color);
+  background: var(--arborito-theme-branch-version-chip-ver-background);
+  border-color: var(--arborito-theme-branch-version-chip-ver-border-color);
+}
+
+/* Unit chip inherits mobile-tree light text; force readable copy on construction panels. */
+html.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-panel-branch-unit
+  .arborito-branch-panel-version-chip--unit
+  :is(.arborito-switcher-chip-title, .arborito-switcher-chip-author, .arborito-switcher-chip-sub, .arborito-chip-version-line) {
+  color: var(--arborito-theme-branch-version-chip-color);
+}
+
+html.arborito-construction-mobile:not(.arborito-desktop)
+  .mobile-panel-branch-unit
+  .arborito-branch-panel-version-chip--unit
+  .arborito-chip-version-line--local {
+  color: var(--arborito-theme-switcher-arborito-chip-version-line--local-color, var(--arborito-theme-branch-version-chip-ver-color));
+}
+
+/* "End of branch" in construction: increase contrast on light panel. */
+html:not(.dark).arborito-construction-mobile:not(.arborito-desktop)
+  .arborito-mobile-path.mobile-tree-ui--construction
+  .mobile-empty-branch-text {
+  color: rgb(51 65 85) !important;
+  opacity: 1 !important;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Fallback: if wrapper classes differ, still ensure “End of branch” is readable. */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .mobile-tree-ui--construction .mobile-empty-branch {
+  opacity: 1 !important;
+}
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .mobile-tree-ui--construction .mobile-empty-branch-text {
+  opacity: 1 !important;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+html:not(.dark).arborito-construction-mobile:not(.arborito-desktop) .mobile-tree-ui--construction .mobile-empty-branch-text {
+    color: var(--arborito-theme-construction-mobile-empty-branch-text-color);
+    text-shadow: none !important;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+  .mobile-tree-ui.mobile-tree-ui--construction
+  .mobile-inline-tool {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-construction-mobile) .arborito-mobile-path.mobile-tree-ui .mobile-trunk-scroll-content {
+  padding-top: 0 !important;
+}
+
+/* Construction uses in-flow chip — no floating pres clearance band over the trunk. */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .arborito-mobile-path.mobile-tree-ui .mobile-trunk-scroll-content {
+  padding-top: 0 !important;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .arborito-mobile-path.mobile-tree-ui .mobile-trunk-container {
+  scroll-padding-top: 0.5rem;
+}
+
+html.arborito-shell-mobile:not(.arborito-construction-mobile) .arborito-mobile-path.mobile-tree-ui .mobile-trunk-container {
+  scroll-padding-top: 0.5rem;
+}
+
+/* Construction "More": language selector inside the More menu sheet */
+.construction-more__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+.construction-more__field-lb {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--arborito-theme-construction-more__field-lb-color);
+}
+
+.arborito-mmenu-course-about-host arborito-tree-presentation {
+  display: block;
+  min-height: 5rem;
+}
+
+/* "Created by …" footer row + collaborator pill.
+ * The row replaces the old free-text author/about block — single line so the card stays compact
+ * (no noisy boxed author card). The collaborator pill expands a dialog list when tapped. */
+.arborito-tree-pres-creator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
+  padding-top: 0.45rem;
+  margin-top: 0.45rem;
+  border-top: 1px solid var(--arborito-theme-construction-arborito-tree-pres-creator-border-color);
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--arborito-theme-construction-arborito-tree-pres-creator-color);
+}
+
+.arborito-tree-pres-creator__label {
+  font-size: 0.625rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--arborito-theme-text-muted);
+}
+.arborito-tree-pres-creator__name {
+    font-weight: 800;
+    color: var(--arborito-theme-construction-arborito-tree-pres-creator__name-color);
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.arborito-tree-pres-creator__sub {
+  font-family: var(--font-family-mono);
+  font-size: 0.6875rem;
+  color: var(--arborito-theme-construction-arborito-tree-pres-creator__sub-color);
+  word-break: break-all;
+}
+.arborito-tree-pres-creator__collab {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 9999px;
+    background: var(--arborito-theme-construction-arborito-tree-pres-creator__collab-background);
+    color: var(--arborito-theme-construction-arborito-tree-pres-creator__collab-color);
+    border: var(--arborito-theme-construction-arborito-tree-pres-creator__collab-border);
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+.arborito-tree-pres-creator__collab:hover {
+    background: var(--arborito-theme-construction-arborito-tree-pres-creator__collab-background-2);
+    border-color: var(--arborito-theme-construction-arborito-tree-pres-creator__collab-border-color);
+}
+
+.arborito-tree-pres-creator__collab:active {
+  transform: scale(0.97);
+}
+
+/* Shown in edit mode when the creator identity cannot yet be resolved (not signed in). */
+.arborito-tree-pres-creator-hint {
+  margin: 0.45rem 0 0;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.5rem;
+  background: var(--arborito-theme-construction-arborito-tree-pres-creator-hint-background);
+  border: var(--arborito-theme-construction-arborito-tree-pres-creator-hint-border);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--arborito-theme-construction-arborito-tree-pres-creator-hint-color);
+}
+
+/* Collaborator-list dialog body (rendered through `store.showDialog({ bodyHtml: true })`). */
+.arborito-tree-pres-collab-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: left;
+}
+.arborito-tree-pres-collab-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.6rem;
+    padding: 0.5rem 0.65rem;
+    border-radius: 0.65rem;
+    background: var(--arborito-theme-construction-arborito-tree-pres-collab-item-background);
+    border: var(--arborito-theme-construction-arborito-tree-pres-collab-item-border);
+}
+.arborito-tree-pres-collab-item__name {
+    font-weight: 800;
+    color: var(--arborito-theme-construction-arborito-tree-pres-collab-item__name-color);
+}
+
+.arborito-tree-pres-collab-item__sub {
+  font-family: var(--font-family-mono);
+  font-size: 0.6875rem;
+  color: rgb(100 116 139);
+  word-break: break-all;
+}
+.arborito-tree-pres-collab-item__role {
+    margin-left: auto;
+    font-size: 0.625rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--arborito-theme-construction-arborito-tree-pres-collab-item__role-color);
+}
+
+/* Construction scope chrome — same dimensions as Forum/Arcade chips (explore mode) */
+.mobile-tree-ui--construction .mobile-panel-head--construction {
+  margin-bottom: 0.25rem;
+}
+
+.mobile-tree-ui--construction .mobile-panel-head--course.mobile-panel-head--construction {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+}
+
+.mobile-tree-ui--construction .mobile-panel-head--course.mobile-panel-head--construction .mobile-panel-toolbar {
+  display: flex;
+  width: 100%;
+  margin-top: 0;
+}
+
+.mobile-tree-ui--construction .mobile-panel-head--course.mobile-panel-head--construction .mobile-panel-actions {
+  display: flex;
+  align-items: stretch;
+  gap: 0.35rem;
+  width: 100%;
+  margin-left: 0;
+}
+
+.mobile-tree-ui--construction .mobile-panel-head--course.mobile-panel-head--construction .mobile-panel-cta {
+  flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
+  text-align: center;
+}
+
+.mobile-tree-ui--construction .mobile-panel-head--construction .mobile-panel-toolbar {
+  display: flex;
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
+.mobile-tree-ui--construction .mobile-panel-head--construction .mobile-panel-toolbar .mobile-panel-actions {
+  display: flex;
+  align-items: stretch;
+  gap: 0.35rem;
+  width: 100%;
+  margin-left: 0;
+}
+
+.mobile-tree-ui--construction .mobile-panel-head--construction .mobile-panel-toolbar .mobile-panel-cta {
+  flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Tree chip uses shared branch-chip styles (arborito-panel-tree-chip in tree-graph.css) */

@@ -1,0 +1,515 @@
+/* --- dock-versions-curriculum --- */
+/* Desktop forest + version bar tweaks only; construction dock lives in editor/styles/construction-dock.css. */
+
+/* Desktop + construction: "Workspace" clashed with course card; versions via dock bar */
+html.arborito-desktop.arborito-construction-mobile .mobile-version-fixed-slot {
+    display: none !important;
+}
+
+/* Version chip: more legible on forest background */
+html.arborito-desktop .arborito-timeline-chip--btn {
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+}
+
+html.arborito-desktop:not(.dark) .arborito-mobile-path.mobile-tree-ui .mobile-label-text,
+html.arborito-desktop:not(.dark) .arborito-mobile-path.mobile-tree-ui .mobile-label-row.is-active .mobile-label-text {
+    color: rgb(15 23 42);
+    text-shadow:
+        0 1px 0 rgb(255 255 255 / 0.5),
+        0 1px 4px rgb(15 23 42 / 0.14),
+        0 0 12px rgb(255 255 255 / 0.35);
+}
+
+html.arborito-desktop:not(.dark) .arborito-mobile-path.mobile-tree-ui .mobile-child-name {
+    color: rgb(15 23 42);
+    text-shadow:
+        0 1px 0 rgb(255 255 255 / 0.5),
+        0 1px 4px rgb(15 23 42 / 0.14);
+}
+
+/* Floating dock — solid surface, same family as the rest of the app (Nunito) */
+.arborito-mob-dock-wrap {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    margin: 0;
+    z-index: 110;
+    pointer-events: none;
+    display: flex;
+    justify-content: stretch;
+    align-items: flex-end;
+    padding: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* Por encima del grafo; con dock-modal-open por encima del host [data-arborito-panel="modals"] (220). */
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-dock-wrap {
+    z-index: 130;
+}
+
+/* Sage / search / arcade: dock tabs stay visible and tappable over dock sheets */
+:is(html.arborito-shell-mobile, html.force-mobile).arborito-mob-dock-modal-open :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-dock-wrap,
+:is(html.arborito-shell-mobile, html.force-mobile).arborito-sage-open.arborito-mob-dock-modal-open :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-dock-wrap {
+    z-index: 230;
+}
+
+/* Owl tab stays tappable above the Sage dock sheet */
+html.arborito-sage-open .js-btn-sage-mobile-dock {
+    position: relative;
+    z-index: 3;
+    pointer-events: auto !important;
+}
+
+/* Mobile (not desktop): theme + profile top-right — same layer as sidebar dock */
+.arborito-mob-top-actions {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 118;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding-top: max(0.35rem, env(safe-area-inset-top, 0px));
+    padding-right: max(0.45rem, env(safe-area-inset-right, 0px));
+    padding-bottom: 0.35rem;
+    padding-left: 0.35rem;
+    pointer-events: none;
+    -webkit-tap-highlight-color: transparent;
+    isolation: isolate;
+}
+
+/*
+ * Protective plate behind perfil / mochila / sol — covers gaps between chips so
+ * tree nodes, course cards, and labels never bleed through. z-index 0 only;
+ * buttons stay at z-index 1 (never covered by the shield).
+ */
+.arborito-mob-top-actions::before {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: -0.75rem;
+    pointer-events: none;
+    border-radius: 0 0 0 1.35rem;
+    background: var(--arborito-mob-top-actions-shield-bg-solid);
+    border-bottom: 1px solid var(--arborito-mob-top-actions-shield-border);
+    border-left: 1px solid var(--arborito-mob-top-actions-shield-border);
+    box-shadow: var(--arborito-mob-top-actions-shield-shadow);
+}
+
+/* Debajo de `[data-arborito-panel="modals"]` (z 125): no tapar modales con perfil/tema */
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-top-actions {
+    z-index: 118;
+}
+
+/*
+ * Solo pantalla principal del mapa: ficha del curso + perfil/tema.
+ * Otherwise (lesson, modal, "More") hidden via `html.arborito-mob-tree-home` in ui-store + sidebar.
+ */
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-mob-tree-home) :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-top-actions {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/*
+ * Exception: with a dock sheet open (search/sage/arcade) keep profile/theme
+ * accesibles para que el usuario pueda salir o cambiar de contexto sin quedar atrapado
+ * on the sheet. Dock button already toggles; this covers the path from the top bar.
+ */
+:is(html.arborito-shell-mobile, html.force-mobile).arborito-mob-dock-modal-open :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-top-actions {
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: none !important;
+}
+:is(html.arborito-shell-mobile, html.force-mobile).arborito-mob-dock-modal-open :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-top-actions__btn {
+    pointer-events: auto !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-mob-tree-home) .arborito-tree-pres-anchor {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Tree / version chip (e.g. local course): same rules as the course card */
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-mob-tree-home) .mobile-tree-ui .arborito-curriculum-switcher-host {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/*
+ * Bottom dock: with dock-modal-open, z-index clears [data-arborito-panel="modals"] (220) so tabs stay tappable.
+ * During first-run onboarding and the gated Trees modal, hide the dock so only the fullscreen flow is visible.
+ */
+:is(html.arborito-shell-mobile, html.force-mobile).arborito-mob-first-run-gate :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-dock-wrap {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile).arborito-mob-first-run-gate :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-top-actions {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.arborito-mob-top-actions__btn {
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid var(--arborito-moss-border);
+    background: var(--arborito-chrome-tile);
+    box-shadow: var(--arborito-theme-mob-top-actions-btn-box-shadow);
+    font-size: 1.12rem;
+    line-height: 1;
+    color: var(--arborito-bark-ink);
+    cursor: pointer;
+    user-select: none;
+    transition:
+        transform 0.12s ease,
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.arborito-mob-top-actions__btn.arborito-chrome-tip[data-arbor-tip]::after {
+    z-index: 120;
+    white-space: nowrap;
+}
+
+.arborito-mob-top-actions__btn:active {
+    transform: scale(0.94);
+}
+
+.arborito-mob-top-actions__btn--profile {
+    width: auto;
+    max-width: min(11.5rem, 46vw);
+    height: var(--arborito-mob-chrome-btn);
+    padding: 0 0.5rem 0 0.28rem;
+    gap: 0.35rem;
+    justify-content: flex-start;
+}
+
+.arborito-mob-top-actions__profile-ic {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.68rem;
+    height: 1.68rem;
+    font-size: 1.05rem;
+}
+
+.arborito-mob-top-actions__profile-name {
+    min-width: 0;
+    font-size: 0.6875rem;
+    font-weight: 850;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+.arborito-mob-top-actions__btn--progress {
+    width: auto;
+    min-width: 2.75rem;
+    height: var(--arborito-mob-chrome-btn);
+    padding: 0 0.45rem;
+    gap: 0.2rem;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.arborito-mob-top-actions__progress-ic {
+    font-size: 1.05rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.arborito-mob-top-actions__progress-pct {
+    font-size: 0.625rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--arborito-theme-shell-arborito-mob-top-actions__progress-pct-color);
+}
+
+/* Contenedor flex: dock a ancho completo, sin centrar como pastilla */
+.arborito-app-nav-inner {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: stretch;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+}
+
+/* Groups do not wrap layout: tabs share one row in .arborito-mob-dock */
+.arborito-desktop-nav-group {
+    display: contents;
+}
+
+.arborito-mob-dock:not(.arborito-mob-dock--floating) {
+    pointer-events: auto;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-around;
+    width: 100%;
+    max-width: none;
+    min-height: var(--arborito-mob-dock-bar-height);
+    padding: var(--arborito-mob-dock-pad-y) var(--arborito-mob-dock-pad-x);
+    border-radius: 0;
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    background: var(--arborito-theme-mob-dock-background);
+    border-top: var(--arborito-theme-mob-dock-border-top);
+    box-shadow: var(--arborito-theme-mob-dock-box-shadow);
+}
+
+/* Floating pill (desktop forest construction + hub contexts) — rules in arborito-mob-chrome.css */
+.arborito-mob-dock.arborito-mob-dock--floating {
+    pointer-events: auto;
+    display: flex;
+}
+
+html.arborito-construction-mobile.arborito-mob-dock-modal-open .construction-panel-host--mob-dock .arborito-mob-dock-wrap,
+html.arborito-construction-mobile.arborito-construction-more-open .construction-panel-host--mob-dock .arborito-mob-dock-wrap,
+html.arborito-construction-mobile.arborito-construction-more-open .construction-panel-host--float-dock .arborito-mob-dock-wrap {
+    position: relative;
+    z-index: 230;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: none;
+}
+
+html.arborito-construction-mobile.arborito-mob-dock-modal-open
+    .construction-panel-host--mob-dock
+    .arborito-mob-dock-wrap
+    .arborito-mob-tab,
+html.arborito-construction-mobile.arborito-mob-dock-modal-open
+    .construction-panel-host--mob-dock
+    .arborito-mob-dock-wrap
+    button {
+    pointer-events: auto;
+}
+
+.arborito-mob-tab {
+    flex: 1;
+    min-width: 0;
+    min-height: var(--arborito-mob-touch, 2.75rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--arborito-mob-tab-gap);
+    padding: var(--arborito-mob-tab-pad-y) var(--arborito-mob-tab-pad-x);
+    border: none;
+    border-radius: 1rem;
+    background: transparent;
+    font-family: inherit;
+    color: var(--arborito-theme-shell-arborito-mob-tab-color);
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.2s ease, transform 0.15s ease, background 0.2s ease;
+}
+
+.arborito-mob-tab:active {
+    transform: scale(0.94);
+}
+
+.arborito-mob-tab--active {
+    color: var(--arborito-theme-mob-tab-active-fg);
+    background: var(--arborito-theme-mob-tab-active-bg);
+}
+
+.arborito-mob-tab:focus-visible {
+    outline: 2px solid var(--arborito-brand, #14b8a6);
+    outline-offset: 2px;
+}
+
+.arborito-mob-tab__icon {
+    font-size: var(--arborito-mob-tab-icon);
+    line-height: 1;
+    height: var(--arborito-mob-tab-icon-h, var(--arborito-mob-tab-icon));
+    min-height: var(--arborito-mob-tab-icon-h, var(--arborito-mob-tab-icon));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.arborito-mob-tab__icon--menu {
+    font-weight: 700;
+}
+
+/* Inactive dock emoji tabs: monochrome like Home SVG (active tab keeps full colour in pill). */
+.arborito-mob-tab:not(.arborito-mob-tab--active) .arborito-mob-tab__icon .arborito-emoji-img,
+.arborito-mob-tab:not(.arborito-mob-tab--active) .arborito-mob-tab__icon .arborito-emoji-glyph {
+    filter: grayscale(1) brightness(1.12);
+}
+
+.arborito-mob-tab__badge {
+    position: absolute;
+    top: 2px;
+    right: calc(50% - 22px);
+    width: 7px;
+    height: 7px;
+    background: var(--red-500);
+    border-radius: 50%;
+}
+
+.arborito-mob-tab__label {
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    font-size: var(--arborito-mob-tab-label);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+    max-width: 100%;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    white-space: normal;
+    padding: 0 1px;
+    text-align: center;
+}
+
+/* Curriculum chrome: single row (mobile + overlay); chip: .arborito-timeline-chip--btn via graph-version.js */
+#arborito-curriculum-chrome .arborito-timeline-chip,
+#arborito-mobile-version-fixed .arborito-timeline-chip,
+.arborito-mobile-curriculum-chrome .arborito-timeline-chip {
+    max-width: min(100%, 14rem);
+}
+
+@media (max-width: 767px) {
+    .arborito-mobile-curriculum-chrome {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .arborito-mobile-curriculum-chrome .arborito-mobile-version-root {
+        margin-left: 0 !important;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .arborito-mobile-curriculum-chrome .arborito-timeline-chip--btn {
+        max-width: 100%;
+    }
+}
+
+#arborito-curriculum-chrome {
+    font-family: var(--arborito-font-display, var(--font-family-base, ui-sans-serif, system-ui, sans-serif));
+    overflow: visible;
+    position: relative;
+}
+
+/* Chip “Versions” — fondos opacos por modo (sin /90) */
+.arborito-timeline-chip--btn {
+    max-width: min(100%, 14rem);
+    color: var(--arborito-theme-timeline-chip-rolling-color);
+    background: var(--arborito-theme-timeline-chip-rolling-background) !important;
+    border-color: var(--arborito-theme-timeline-chip-rolling-border-color) !important;
+}
+
+.arborito-timeline-chip--btn[data-arborito-version-kind="archive"] {
+    color: var(--arborito-theme-shell-arborito-timeline-chip--btn-color);
+    background: var(--arborito-theme-shell-arborito-timeline-chip--btn-background);
+    border-color: var(--arborito-theme-shell-arborito-timeline-chip--btn-border-color);
+}
+
+.arborito-timeline-chip--btn:active {
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .arborito-timeline-chip--btn {
+        transition: none;
+    }
+}
+
+.arborito-timeline-local-pill {
+    color: var(--arborito-theme-timeline-local-fg);
+    background: var(--arborito-theme-timeline-local-bg) !important;
+    border-color: var(--arborito-theme-timeline-local-border) !important;
+}
+
+@media (max-width: 767px) {
+    .arborito-mobile-curriculum-chrome .arborito-timeline-chip {
+        max-width: min(100%, 14rem);
+    }
+}
+
+html:not(.arborito-desktop) #arborito-curriculum-chrome.arborito-mobile-path .mobile-label-text {
+    color: var(--arborito-theme-curriculum-label-text-color) !important;
+    text-shadow: var(--arborito-theme-curriculum-label-text-shadow);
+}
+html:not(.arborito-desktop) #arborito-curriculum-chrome.arborito-mobile-path .mobile-label-meta {
+    color: var(--arborito-theme-curriculum-label-meta-color) !important;
+    text-shadow: var(--arborito-theme-curriculum-label-meta-shadow);
+}
+
+/* No floating version chip on trunk (control lives in root panel slot) */
+html:not(.arborito-desktop) .mobile-version-fixed-slot {
+    display: none !important;
+}
+
+html:not(.arborito-desktop) #arborito-curriculum-chrome .mobile-trunk-version-static {
+    padding-left: var(--space-sm);
+    line-height: 1.35;
+}
+
+/* Mobile: tree name may sit on very dark backgrounds; force readable contrast. */
+html:not(.arborito-desktop) #arborito-curriculum-chrome .arborito-mobile-trunk-static .mobile-label-text {
+    color: rgb(248 250 252);
+    text-shadow:
+        0 0 1px rgb(15 23 42 / 0.95),
+        0 1px 2px rgb(15 23 42 / 0.88),
+        0 2px 14px rgb(15 23 42 / 0.55);
+}
+html:not(.arborito-desktop) #arborito-curriculum-chrome .arborito-mobile-trunk-static .mobile-label-meta {
+    color: rgb(226 232 240 / 0.95);
+    text-shadow:
+        0 0 1px rgb(15 23 42 / 0.9),
+        0 1px 2px rgb(15 23 42 / 0.82),
+        0 2px 12px rgb(15 23 42 / 0.48);
+}
+
+/* Escritorio: el tronco puede ir sobre fondo oscuro (rejilla) incluso en tema claro → mismo contraste alto. */
+html.arborito-desktop #arborito-curriculum-chrome .arborito-mobile-trunk-static .mobile-label-text {
+    color: rgb(248 250 252) !important;
+    text-shadow:
+        0 0 1px rgb(15 23 42 / 0.95),
+        0 1px 2px rgb(15 23 42 / 0.88),
+        0 2px 14px rgb(15 23 42 / 0.55) !important;
+}
+html.arborito-desktop #arborito-curriculum-chrome .arborito-mobile-trunk-static .mobile-label-meta {
+    color: rgb(226 232 240 / 0.95) !important;
+    text-shadow:
+        0 0 1px rgb(15 23 42 / 0.9),
+        0 1px 2px rgb(15 23 42 / 0.82),
+        0 2px 12px rgb(15 23 42 / 0.48) !important;
+}
+
+/* Versions: no floating slot (#arborito-mobile-version-fixed); control lives in root panel slot */
+#arborito-mobile-version-fixed.mobile-version-fixed-slot {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+

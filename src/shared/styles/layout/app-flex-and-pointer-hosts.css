@@ -1,0 +1,202 @@
+/* =============================================================================
+   HIT TARGETING — flex row was leaving invisible hosts over the graph (#app)
+   ============================================================================= */
+#app {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    min-height: 0;
+}
+
+#app > main {
+    flex: 1 1 0%;
+    min-width: 0;
+    min-height: 0;
+    position: relative;
+}
+
+/*
+ * Grafo: legacy host was <arborito-graph>; React shell uses [data-arborito-panel="graph"].
+ * Without display:block + height:100% the host collapses (inline by default) and the map
+ * is invisible or has no usable height (WebKit/Android).
+ */
+:is(arborito-graph, [data-arborito-panel="graph"]) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    position: relative;
+    z-index: 0;
+}
+
+/* Hosts must NOT steal touches; only real UI inside them receives events */
+/* Lesson open: zero-width flex host must still paint fixed reader above the graph */
+html.arborito-lesson-open :is(arborito-content, [data-arborito-panel="content"]) {
+    position: fixed;
+    inset: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    z-index: 150;
+    pointer-events: none;
+}
+
+/*
+ * Shell side panels are flex siblings of <main>. They must collapse to width:0 so
+ * <main> (flex:1) fills the row — otherwise the graph is squeezed to 0px wide.
+ * Match both custom-element hosts and [data-arborito-panel="…"] hosts.
+ */
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]:not([data-embed])),
+:is(arborito-content, [data-arborito-panel="content"]:not([data-embed])),
+:is(arborito-construction-panel, [data-arborito-panel="construction-panel"]:not([data-embed])),
+:is(arborito-sage, [data-arborito-panel="sage"]),
+:is(arborito-progress-widget, [data-arborito-panel="progress-widget"]:not([data-embed])) {
+    flex: 0 0 auto;
+    /* The `:not([data-embed])` raises specificity to (0,2,0) so this beats the
+     * Tailwind `.w-full` (0,1,0) the migrated React hosts carry — Tailwind's
+     * utilities layer is emitted AFTER this file, so equal specificity would
+     * lose. It also scopes the collapse to the shell hosts only, leaving
+     * embedded panes (same data-panel inside modals/sidebar) at their natural
+     * width. `width:0` (no !important) still yields to the lesson-open rule. */
+    width: 0;
+    min-width: 0;
+    max-width: 100%;
+    overflow: visible;
+    pointer-events: none;
+    align-self: stretch;
+}
+
+/* Construction panel: flex host is width:0 — display:contents removes the ghost column over the graph */
+html.arborito-construction-mobile :is(arborito-construction-panel, [data-arborito-panel="construction-panel"]) {
+    display: contents !important;
+    align-self: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+}
+
+/* Construction dock: fixed layer above graph (flex host is width:0 / display:contents). */
+html.arborito-construction-mobile [data-construction-dock] {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    z-index: 130 !important;
+    pointer-events: none !important;
+    margin: 0 !important;
+}
+
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]) button,
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-app-nav-inner,
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]) nav.arborito-mob-dock,
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]) #mobile-menu-backdrop,
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]) #mobile-menu,
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]) #sage-dock-backdrop,
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]) #sage-dock-sheet,
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]) #browse-dock-hub-backdrop,
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]) #browse-dock-hub-sheet,
+/* Desktop: host has width:0; reinforce hit targets for inline search and results */
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-desktop-header__search-wrap,
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-desktop-search-inline,
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-desktop-search-inline__results {
+    pointer-events: auto;
+}
+
+/* pointer-events inherits — descendants must be re-enabled for the whole lesson surface */
+:is(arborito-content, [data-arborito-panel="content"]) * {
+    pointer-events: auto;
+}
+
+/* Lesson toolbar lives in a width:0 flex host; ensure the sticky header stack wins hit-testing over the reader body */
+:is(arborito-content, [data-arborito-panel="content"]) .arborito-lesson-mobile-head {
+    pointer-events: auto;
+    z-index: 130;
+}
+
+/* Same width as modals: width:0 on host breaks hit-test for 🎒 (backpack) chip on desktop */
+#app > :is(arborito-progress-widget, [data-arborito-panel="progress-widget"]) {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    pointer-events: none !important;
+    z-index: 108 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+}
+
+/*
+ * Sage overlay: width:0 flex host rule collapses the panel; when open, fixed full-viewport
+ * layer (same pattern as progress-widget + modal host — React mounts in #root, not body).
+ */
+:is(arborito-sage, [data-arborito-panel="sage"]).arborito-sage--open {
+    position: fixed !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    pointer-events: none !important;
+    z-index: 235 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    visibility: visible !important;
+}
+
+/* Sage host + shells → shared/styles/components/arborito-sage-shell.css */
+
+/* No dar pointer-events al wrapper ancho-cero: evita capas fantasma sobre el grafo */
+:is(arborito-progress-widget, [data-arborito-panel="progress-widget"]) > * {
+    pointer-events: none;
+}
+
+:is(arborito-progress-widget, [data-arborito-panel="progress-widget"]) .arborito-desktop-mochila-host,
+:is(arborito-progress-widget, [data-arborito-panel="progress-widget"]) #progress-dock-backdrop,
+:is(arborito-progress-widget, [data-arborito-panel="progress-widget"]) #progress-dock-sheet {
+    pointer-events: auto;
+}
+
+/* Progress / lesson overlays: Mochila fullbleed (DockHubSheet — dock hidden, edge-to-edge) */
+@media (max-width: 767px) {
+    #progress-dock-backdrop,
+    #progress-dock-sheet,
+    #backdrop-overlay.arborito-lesson-mobile-scrim {
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+    }
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) :is(#progress-dock-backdrop, #progress-dock-sheet, #backdrop-overlay.arborito-lesson-mobile-scrim) {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+}
+
+/* Reinforcement: no backdrop-blur on any overlay (classes in modal templates, etc.) */
+body.arborito-app,
+body.arborito-app * {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}

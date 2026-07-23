@@ -1,0 +1,224 @@
+/* --- lesson-toc-construct-editor — WYSIWYG prose + ghost outline --- */
+
+.arborito-lesson-toc-row.is-toc-drop-nest.is-toc-drop-target::after {
+    content: none;
+    display: none;
+}
+
+/* Lesson editor: outline headings hidden (syllabus only) */
+
+.arborito-lesson-editor--ghost-outline .arborito-authoring-outline {
+    display: none !important;
+}
+
+/* WYSIWYG construct editor: real headings + reader-like prose (no amber chrome) */
+
+.arborito-lesson-prose-frame--construct #lesson-visual-editor.arborito-lesson-editor--wysiwyg {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.arborito-lesson-prose-frame--construct #lesson-visual-editor.arborito-lesson-editor--wysiwyg:focus {
+    outline: none;
+}
+
+/*
+ * Empty/short sections: last block fills the editor so clicks land on a real node
+ * (contenteditable does not place a caret in host padding alone).
+ */
+
+.arborito-lesson-editor--wysiwyg > :last-child {
+    min-height: 8rem;
+}
+
+.arborito-lesson-editor--wysiwyg h1,
+.arborito-lesson-editor--wysiwyg h2,
+.arborito-lesson-editor--wysiwyg h3,
+.arborito-lesson-editor--wysiwyg h4,
+.arborito-lesson-editor--wysiwyg h5,
+.arborito-lesson-editor--wysiwyg h6 {
+    scroll-margin-top: 4.5rem;
+    color: var(--arborito-theme-sheet-text, rgb(15 23 42));
+    line-height: 1.25;
+}
+
+.arborito-lesson-editor--wysiwyg strong,
+.arborito-lesson-editor--wysiwyg b {
+    font-weight: 700;
+}
+
+.arborito-lesson-editor--wysiwyg em,
+.arborito-lesson-editor--wysiwyg i {
+    font-style: italic;
+}
+
+.arborito-lesson-editor--wysiwyg ul,
+.arborito-lesson-editor--wysiwyg ol {
+    margin: 0 0 0.85rem;
+    padding-left: 1.625em;
+    line-height: 1.65;
+}
+
+.arborito-lesson-editor--wysiwyg ul {
+    list-style-type: disc;
+}
+
+.arborito-lesson-editor--wysiwyg ol {
+    list-style-type: decimal;
+}
+
+.arborito-lesson-editor--wysiwyg li {
+    margin: 0.35em 0;
+}
+
+.arborito-lesson-editor--wysiwyg li > p {
+    margin: 0;
+}
+
+.arborito-lesson-editor--wysiwyg h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0 0 1rem;
+    line-height: 1.15;
+}
+
+.arborito-lesson-editor--wysiwyg h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 1.25rem 0 0.75rem;
+    line-height: 1.25;
+}
+
+.arborito-lesson-editor--wysiwyg h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 1rem 0 0.5rem;
+    line-height: 1.3;
+}
+
+.arborito-lesson-editor--wysiwyg h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0.85rem 0 0.45rem;
+}
+
+.arborito-lesson-editor--wysiwyg h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0.75rem 0 0.35rem;
+}
+
+.arborito-lesson-editor--wysiwyg h6 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin: 0.65rem 0 0.3rem;
+    color: var(--arborito-theme-muted-fg, rgb(71 85 105));
+}
+
+/*
+ * Inline text sizes — fixed type steps (rem = same px everywhere, not relative
+ * to the surrounding paragraph). Normal body ≈ 1rem.
+ */
+
+:root {
+    --arborito-text-size-sm: 0.75rem; /* ~12px — clearly below body */
+    --arborito-text-size-md: 1.125rem; /* ~18px */
+    --arborito-text-size-lg: 1.5rem; /* ~24px */
+}
+
+#lesson-visual-editor span[data-arb-size='lg'],
+.arborito-lesson-editor--wysiwyg span[data-arb-size='lg'],
+.prose span[data-arb-size='lg'],
+.prose .arb-inline-size--lg {
+    font-size: var(--arborito-text-size-lg) !important;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+#lesson-visual-editor span[data-arb-size='md'],
+.arborito-lesson-editor--wysiwyg span[data-arb-size='md'],
+.prose span[data-arb-size='md'],
+.prose .arb-inline-size--md {
+    font-size: var(--arborito-text-size-md) !important;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+#lesson-visual-editor span[data-arb-size='sm'],
+.arborito-lesson-editor--wysiwyg span[data-arb-size='sm'],
+.prose span[data-arb-size='sm'],
+.prose .arb-inline-size--sm {
+    font-size: var(--arborito-text-size-sm) !important;
+    font-weight: 400;
+    line-height: 1.45;
+}
+
+.dark .arborito-lesson-editor--wysiwyg h1,
+.dark .arborito-lesson-editor--wysiwyg h2,
+.dark .arborito-lesson-editor--wysiwyg h3,
+.dark .arborito-lesson-editor--wysiwyg h4,
+.dark .arborito-lesson-editor--wysiwyg h5 {
+    color: rgb(248 250 252);
+}
+
+.dark .arborito-lesson-editor--wysiwyg h6 {
+    color: rgb(203 213 225);
+}
+
+.arborito-lesson-editor--ghost-outline .arborito-authoring-outline__rail {
+    flex: 0 0 3px;
+    align-self: stretch;
+    min-height: 0.75rem;
+    border-radius: 9999px;
+    background: linear-gradient(180deg, rgb(14 165 233), rgb(56 189 248));
+    opacity: 0.55;
+}
+
+.arborito-lesson-editor--ghost-outline .arborito-authoring-outline__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Mobile: shrink chrome so the reader gets more vertical space */
+
+html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area {
+    padding-top: 0.5rem;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-mobile-footer {
+    padding: 0.35rem 0.6rem calc(0.4rem + env(safe-area-inset-bottom, 8px));
+}
+
+html:not(.arborito-desktop) .arborito-lesson-footer-progress {
+    padding: 0.28rem 0.55rem;
+    min-width: 2.75rem;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-footer-progress .arborito-lesson-footer-meta--progress {
+    font-size: 0.625rem;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-footer-nav .arborito-lesson-footer-btn--back,
+html:not(.arborito-desktop) .arborito-lesson-footer-nav .arborito-lesson-footer-btn--next {
+    min-height: 2.65rem;
+    padding: 0.55rem 0.65rem;
+    border-radius: 0.75rem;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-footer-nav .arborito-lesson-footer-btn--next .arborito-lesson-footer-btn__label {
+    font-size: 0.8125rem;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-mobile-body {
+    padding-top: 0.15rem;
+}
