@@ -1,0 +1,357 @@
+/** editor.css — construction dock + graph construction flow */
+/* --- construction dock --- */
+
+/* Browse dock hidden while constructing (sidebar only — not construction panel). */
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+    :is(arborito-sidebar, [data-arborito-panel="sidebar"])
+    .arborito-mob-dock-wrap {
+    display: none !important;
+}
+
+.construction-panel-host {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    margin: 0;
+    width: 100%;
+    max-width: 100vw;
+    height: auto;
+    max-height: none;
+    z-index: 130;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-end;
+    pointer-events: none;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* Desktop forest: centered floating pill (same .arborito-mob-dock--floating as browse hub sheets). */
+.construction-panel-host--float-dock {
+    align-items: center;
+    padding-left: max(0.5rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.5rem, env(safe-area-inset-right, 0px));
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--arborito-mob-dock-float-gap, 0.5rem));
+}
+
+.construction-panel-host--float-dock .arborito-mob-dock-wrap {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    backface-visibility: visible;
+    width: auto;
+    max-width: 100%;
+    padding-bottom: 0;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.construction-panel-host--float-dock .arborito-app-nav-inner {
+    width: auto;
+    max-width: 100%;
+    justify-content: center;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)) .construction-panel-host {
+    width: 100vw;
+    max-width: 100vw;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+    .construction-panel-host.construction-panel-host--mob-dock {
+    width: 100%;
+    max-width: 100vw;
+    left: 0;
+    right: 0;
+}
+
+html.arborito-desktop.arborito-construction-mobile .construction-panel-host--float-dock {
+    align-items: center;
+}
+
+html.arborito-desktop.arborito-construction-mobile .construction-panel-host--float-dock .arborito-mob-dock-wrap {
+    align-self: center;
+}
+
+/* Construction dock hub sheets (history, publish, team, language) — mobile + desktop forest */
+html.arborito-construction-mobile .construction-panel-host
+    :is(#construction-dock-hub-backdrop, #sage-dock-backdrop).arborito-sheet-backdrop--mobile-more:not([hidden]) {
+    z-index: 139 !important;
+}
+
+html.arborito-construction-mobile .construction-panel-host
+    :is(#construction-dock-hub-sheet, #sage-dock-sheet).arborito-sheet--mobile-more:not([hidden]) {
+    z-index: 140 !important;
+}
+
+html.arborito-desktop.arborito-construction-mobile .construction-panel-host
+    :is(#construction-dock-hub-backdrop, #sage-dock-backdrop).arborito-sheet-backdrop--mobile-more:not([hidden]) {
+    position: fixed;
+    inset: 0;
+}
+
+html.arborito-desktop.arborito-construction-mobile .construction-panel-host
+    :is(#construction-dock-hub-sheet, #sage-dock-sheet).arborito-sheet--mobile-more:not([hidden]) {
+    position: fixed;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(42rem, calc(100vw - 1rem));
+    bottom: calc(
+        env(safe-area-inset-bottom, 0px) + var(--arborito-mob-dock-float-gap, 0.5rem) + 3.75rem
+    );
+    max-height: min(72dvh, calc(100dvh - 7rem));
+    border-radius: var(--arborito-radius-sheet, 1.5rem);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+html.arborito-desktop.arborito-construction-mobile .construction-panel-host
+    #construction-dock-hub-sheet.arborito-sheet--hub-compact:not([hidden]) {
+    height: auto !important;
+    max-height: min(85dvh, calc(100dvh - 7rem)) !important;
+}
+
+.arborito-dock-hub-shell--compact {
+    height: auto !important;
+    flex: 0 1 auto !important;
+}
+
+.arborito-sheet--hub-compact .arborito-dock-hub-shell {
+    height: auto !important;
+    flex: 0 1 auto !important;
+}
+
+.construction-panel-host .construction-dock-inner {
+    pointer-events: none;
+}
+
+.construction-panel-host .arborito-mob-dock-wrap,
+.construction-panel-host .arborito-mob-dock-wrap .arborito-app-nav-inner,
+.construction-panel-host .arborito-mob-dock-wrap nav.arborito-mob-dock,
+.construction-panel-host .arborito-mob-dock .arborito-mob-tab,
+.construction-panel-host .arborito-mob-dock button,
+.construction-panel-host .arborito-sheet-backdrop--mobile-more:not([hidden]),
+.construction-panel-host .arborito-sheet.arborito-sheet--mobile-more:not([hidden]),
+.construction-panel-host #construction-dock-hub-backdrop,
+.construction-panel-host #dock-hub-backdrop,
+.construction-panel-host #construction-dock-hub-sheet,
+.construction-panel-host #dock-hub-sheet,
+.construction-panel-host #sage-dock-backdrop,
+.construction-panel-host #sage-dock-sheet,
+.construction-panel-host .construction-readonly-banner,
+.construction-panel-host .construction-readonly-banner__action {
+    pointer-events: auto;
+}
+
+/* Compact mobile: full-width bar — same shell as browse. */
+.construction-panel-host--mob-dock {
+    flex: 0 0 auto;
+    min-height: min-content;
+    overflow: visible;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+}
+
+.construction-panel-host--mob-dock .arborito-mob-dock-wrap {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    z-index: auto;
+    transform: none;
+    backface-visibility: visible;
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.construction-dock-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    overflow: visible;
+}
+
+/* Construction More: [hidden] vs .arborito-sheet--mobile-more display:flex specificity */
+.construction-panel-host .arborito-sheet-backdrop--mobile-more[hidden],
+.construction-panel-host .arborito-sheet.arborito-sheet--mobile-more[hidden] {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+    :is(
+        #modal-backdrop.arborito-modal-root.arborito-modal--mobile:not(.arborito-modal--immersive):not(.arborito-modal--mobile-fullbleed):not(.arborito-modal--construction-dock-hub),
+        #modal-backdrop:not(.arborito-modal--immersive):not(.arborito-modal--mobile-fullbleed):not(.arborito-modal--construction-dock-hub)
+    ) {
+    bottom: calc(
+        var(--arborito-chrome-dock-gap, 4.25rem) + var(--arborito-construction-dock-seam-cover, 4px)
+    ) !important;
+}
+
+.construction-readonly-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem;
+    min-width: 0;
+    width: 100%;
+    padding: 0.42rem 0.55rem;
+    border-bottom: var(--arborito-theme-construction-dock-readonly-banner-border-bottom);
+    background: var(--arborito-theme-construction-dock-readonly-banner-background);
+    box-sizing: border-box;
+}
+
+.construction-dock-inner > .construction-readonly-banner {
+    padding-left: max(0.55rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.55rem, env(safe-area-inset-right, 0px));
+}
+
+.construction-readonly-banner__msg {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.72rem;
+    font-weight: 650;
+    color: var(--arborito-theme-construction-dock-readonly-banner__msg-color);
+}
+
+.construction-readonly-banner__action {
+    flex: 0 0 auto;
+    max-width: 46%;
+    padding: 0.34rem 0.72rem;
+    border-radius: 999px;
+    border: var(--arborito-theme-construction-dock-readonly-banner__action-border);
+    background: var(--arborito-theme-construction-dock-readonly-banner__action-background);
+    color: var(--arborito-theme-construction-dock-readonly-banner__action-color);
+    font-size: 0.68rem;
+    font-weight: 800;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.arborito-mmenu-drill-row--danger {
+    border-color: var(--arborito-theme-construction-arborito-mmenu-drill-row--danger-border-color);
+    color: var(--arborito-theme-construction-arborito-mmenu-drill-row--danger-color);
+    background: var(--arborito-theme-construction-arborito-mmenu-drill-row--danger-background);
+}
+
+.arborito-mmenu-drill-row:disabled {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+.arborito-mob-tab__lang-svg {
+    display: block;
+    color: inherit;
+}
+
+html.arborito-construction-mobile .mobile-tree-ui.mobile-tree-ui--construction .mobile-trunk-container {
+    scroll-padding-bottom: calc(0.25rem + var(--arborito-mobile-tree-scroll-extra, 0px));
+}
+
+html.arborito-construction-mobile .mobile-tree-ui.mobile-tree-ui--construction .mobile-node-toolbar-structure-dropdown,
+html.arborito-construction-mobile .mobile-tree-ui.mobile-tree-ui--construction .mobile-structure-dropdown {
+    top: auto;
+    bottom: calc(100% + 0.2rem);
+}
+
+html.arborito-construction-mobile .mobile-tree-ui.mobile-tree-ui--construction .mobile-inline-tools-host .mobile-structure-dropdown {
+    top: auto;
+    bottom: calc(100% + 0.2rem);
+}
+
+.arborito-construction-pick-card {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border-radius: 1rem;
+    border: var(--arborito-theme-construction-arborito-construction-pick-card-border);
+    background: var(--arborito-theme-construction-arborito-construction-pick-card-background);
+    color: var(--arborito-theme-construction-arborito-construction-pick-card-color);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.arborito-construction-pick-card:active {
+    transform: scale(0.98);
+}
+
+.arborito-construction-pick-card__main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.arborito-construction-pick-card__title {
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.arborito-construction-pick-card__hint {
+    font-size: 0.75rem;
+    opacity: 0.78;
+}
+
+.arborito-construction-pick-card__chev,
+.arborito-construction-pick-row__chev {
+    font-size: 1.25rem;
+    opacity: 0.55;
+    flex-shrink: 0;
+}
+
+.arborito-construction-pick-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 2.85rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.9rem;
+    border: var(--arborito-theme-construction-arborito-construction-pick-row-border);
+    background: var(--arborito-theme-construction-arborito-construction-pick-row-background);
+    color: var(--arborito-theme-construction-arborito-construction-pick-row-color);
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.arborito-construction-pick-row:hover {
+    background: var(--arborito-theme-hover-surface);
+}
+
+.arborito-construction-pick-row:active {
+    transform: scale(0.99);
+}
+
+.arborito-construction-pick-row__label {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

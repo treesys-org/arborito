@@ -1,0 +1,589 @@
+@import url("./share-code.css");
+
+/* Prefs block inside row `⋯` — switches read as settings for this item, not orphans. */
+.arborito-sources-menu-prefs {
+    margin: 0 0 0.65rem;
+    padding: 0.55rem 0.75rem 0.35rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--arborito-theme-sources-action-chip-border);
+    background: var(--arborito-theme-sources-action-chip-bg);
+}
+
+.arborito-sources-menu-prefs__title {
+    margin: 0 0 0.15rem;
+    font-size: 0.625rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--arborito-theme-text-muted, rgb(100 116 139));
+}
+
+.arborito-sources-menu-prefs__body > .flex {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    gap: 0.75rem;
+}
+
+.arborito-sources-menu-prefs__body > .flex + .flex {
+    border-top: 1px solid var(--arborito-theme-sources-action-chip-border);
+}
+
+/* Same offline/freeze family as Arcade (`arborito-switch--freeze`). */
+.arborito-sources-menu-prefs--freeze {
+    border-color: color-mix(in srgb, var(--arborito-theme-switch-freeze-on) 35%, var(--arborito-theme-sources-action-chip-border));
+    background: color-mix(in srgb, var(--arborito-theme-switch-freeze-on) 8%, var(--arborito-theme-sources-action-chip-bg));
+}
+
+.arborito-sources-menu-prefs--freeze .arborito-sources-menu-prefs__title {
+    color: var(--arborito-theme-switch-freeze-on);
+}
+
+/* Expanded row secondary actions — soft tinted chips (light theme must not be flat white). */
+.arborito-sources-action-chip {
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.025em;
+    border: 1px solid var(--arborito-theme-sources-action-chip-border);
+    background: var(--arborito-theme-sources-action-chip-bg);
+    color: var(--arborito-theme-sources-action-chip-fg);
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.arborito-sources-action-chip:hover {
+    background: var(--arborito-theme-sources-action-chip-hover-bg);
+    border-color: var(--arborito-theme-sources-action-chip-hover-border);
+}
+
+.arborito-sources-action-chip--accent {
+    border-color: var(--arborito-theme-sources-action-chip-accent-border);
+    background: var(--arborito-theme-sources-action-chip-accent-bg);
+    color: var(--arborito-theme-sources-action-chip-accent-fg);
+}
+
+.arborito-sources-action-chip--accent:hover {
+    background: var(--arborito-theme-sources-action-chip-accent-hover-bg);
+    border-color: var(--arborito-theme-sources-action-chip-accent-border);
+}
+
+.arborito-sources-action-chip--export {
+    border-color: var(--arborito-theme-action-export-border);
+    background: var(--arborito-theme-action-export-bg);
+    color: var(--arborito-theme-action-export-fg);
+}
+
+.arborito-sources-action-chip--export:hover {
+    background: var(--arborito-theme-emerald-hover-bg);
+    border-color: var(--arborito-theme-action-export-border);
+}
+
+.arborito-sources-action-chip--import {
+    border-color: var(--arborito-theme-action-import-border);
+    background: var(--arborito-theme-action-import-bg);
+    color: var(--arborito-theme-action-import-fg);
+}
+
+.arborito-sources-action-chip--import:hover {
+    background: var(--arborito-theme-sources-action-chip-sky-hover-bg);
+    border-color: var(--arborito-theme-action-import-border);
+}
+
+.arborito-sources-action-chip--danger {
+    border-color: var(--arborito-theme-sources-action-chip-danger-border);
+    background: var(--arborito-theme-sources-action-chip-danger-bg);
+    color: var(--arborito-theme-sources-action-chip-danger-fg);
+}
+
+.arborito-sources-action-chip--danger:hover {
+    background: var(--arborito-theme-sources-action-chip-danger-hover-bg);
+    border-color: var(--arborito-theme-sources-action-chip-danger-border);
+}
+
+.arborito-sources-action-chip--warn {
+    border-color: var(--arborito-theme-sources-action-chip-warn-border);
+    background: var(--arborito-theme-sources-action-chip-warn-bg);
+    color: var(--arborito-theme-sources-action-chip-warn-fg);
+}
+
+.arborito-sources-action-chip--warn:hover {
+    background: var(--arborito-theme-sources-action-chip-warn-hover-bg);
+    border-color: var(--arborito-theme-sources-action-chip-warn-border);
+}
+
+.arborito-sources-action-chip--sky {
+    border-color: var(--arborito-theme-sources-action-chip-sky-border);
+    background: var(--arborito-theme-sources-action-chip-sky-bg);
+    color: var(--arborito-theme-sources-action-chip-sky-fg);
+}
+
+.arborito-sources-action-chip--sky:hover {
+    background: var(--arborito-theme-sources-action-chip-sky-hover-bg);
+    border-color: var(--arborito-theme-sources-action-chip-sky-border);
+}
+
+.arborito-sources-action-chip--kind-active {
+    border-color: var(--arborito-theme-trees-accent);
+    background: var(--arborito-theme-trees-accent);
+    color: rgb(255 255 255);
+}
+
+.arborito-sources-action-chip--kind-active:hover {
+    background: var(--arborito-theme-trees-accent);
+    border-color: var(--arborito-theme-trees-accent);
+    filter: brightness(1.05);
+}
+
+html.dark .arborito-sources-action-chip--kind-active {
+    color: rgb(15 23 42);
+}
+
+/* Trees modal — fixed-width action column (uniform CTAs + aligned icon row) */
+.arborito-sources-row-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  flex: 0 0 8.75rem;
+  width: 8.75rem;
+  min-width: 8.75rem;
+  max-width: 8.75rem;
+}
+
+.arborito-sources-primary-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.3rem;
+  width: 100%;
+  min-height: 2.25rem;
+}
+
+.arborito-sources-cta-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.arborito-sources-cta-row .arborito-sources-row-cta {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.arborito-sources-toolbar {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  width: 100%;
+  min-height: 2.25rem;
+}
+
+.arborito-sources-toolbar--social {
+  justify-content: flex-end;
+  gap: 0.3rem;
+}.arborito-sources-vote-group {
+    display: inline-flex;
+    align-items: stretch;
+    height: 2.25rem;
+    border-radius: 0.75rem;
+    border: var(--arborito-theme-sources-arborito-sources-vote-group-border);
+    background: var(--arborito-theme-sources-arborito-sources-vote-group-background);
+    overflow: hidden;
+    flex-shrink: 0;
+}.arborito-sources-vote-group__btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--arborito-theme-sources-arborito-sources-vote-group__btn-color);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}.arborito-sources-vote-group__btn:hover {
+    background: var(--arborito-theme-sources-arborito-sources-vote-group__btn-background);
+}
+.arborito-sources-vote-group__btn.is-liked {
+  background: rgb(5 150 105);
+  color: #fff;
+}.arborito-sources-vote-group__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    padding: 0 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--arborito-theme-sources-arborito-sources-vote-group__count-color);
+    border-left: var(--arborito-theme-sources-arborito-sources-vote-group__count-border-left);
+}.arborito-sources-icon-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 0.75rem;
+    border: var(--arborito-theme-sources-arborito-sources-icon-btn-border);
+    background: var(--arborito-theme-sources-arborito-sources-icon-btn-background);
+    color: var(--arborito-theme-sources-arborito-sources-icon-btn-color);
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}.arborito-sources-icon-btn:hover {
+    background: var(--arborito-theme-sources-arborito-sources-icon-btn-background-2);
+}
+
+.arborito-sources-row-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.arborito-sources-primary-stack--placeholder {
+  min-height: 2.25rem;
+  display: none;
+}
+
+.arborito-sources-row--active .arborito-sources-primary-stack--load {
+  display: none;
+}
+
+.arborito-sources-row--active .arborito-sources-primary-stack--placeholder {
+  display: flex;
+}
+
+/* First-run Bosque tour: demo stays tappable even when already active */
+html.arborito-product-tour-sources-picker
+  [data-arbor-tour='sources-demo-branch'].arborito-sources-row--active
+  .arborito-sources-primary-stack--load {
+  display: flex;
+}
+
+html.arborito-product-tour-sources-picker
+  [data-arbor-tour='sources-demo-branch'].arborito-sources-row--active
+  .arborito-sources-primary-stack--placeholder {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .arborito-sources-row-aside {
+    flex: 0 0 10.5rem;
+    width: 10.5rem;
+    min-width: 10.5rem;
+    max-width: 10.5rem;
+  }
+
+  .arborito-sources-row-cta {
+    min-height: 2.75rem;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+}
+
+@media (max-width: 767px) {
+  .arborito-sources-row-layout {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .arborito-sources-row-aside {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .arborito-sources-cta-row {
+    flex-wrap: nowrap;
+  }
+
+  .arborito-sources-row-cta {
+    min-height: 2.75rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Card body + action column */
+/* Trees modal — pinned active curriculum (always first in the list) */
+.arborito-sources-active-pin {
+    margin-bottom: 0.35rem;
+    padding: 0.65rem 0.7rem 0.75rem;
+    border-radius: 1rem;
+    background: var(--arborito-theme-sources-active-pin-background);
+    border: 1px solid var(--arborito-theme-sources-active-pin-border-color);
+    box-shadow: var(--arborito-theme-sources-active-pin-box-shadow);
+}
+
+.arborito-sources-active-pin__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0 0 0.5rem;
+    font-size: 0.62rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--arborito-theme-sources-arborito-sources-active-pin__label-color-2);
+}
+
+.arborito-sources-active-pin__label::before {
+    content: '';
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 9999px;
+    background: rgb(16 185 129);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+    flex-shrink: 0;
+}
+
+.dark .arborito-sources-active-pin__label::before {
+    background: rgb(52 211 153);
+    box-shadow: none;
+}.arborito-sources-row--pinned-active {
+    border-color: var(--arborito-theme-sources-arborito-sources-row--pinned-active-border-color);
+    background: var(--arborito-theme-sources-arborito-sources-row--pinned-active-background);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}.arborito-sources-list-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin: 0.85rem 0 0.35rem;
+    color: var(--arborito-theme-sources-arborito-sources-list-divider-color);
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.arborito-sources-list-divider::before,
+.arborito-sources-list-divider::after {
+    content: '';
+    flex: 1 1 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.45), transparent);
+}
+
+.arborito-tree-branch-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+    min-width: 0;
+}.arborito-tree-branch-chip {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 1 auto;
+    max-width: min(100%, 14rem);
+    min-width: 0;
+    padding: 0.1rem 0.45rem;
+    border-radius: 0.5rem;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--arborito-theme-sources-arborito-tree-branch-chip-color);
+    background: var(--arborito-theme-sources-arborito-tree-branch-chip-background);
+    border: var(--arborito-theme-sources-arborito-tree-branch-chip-border);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}.arborito-tree-branch-chip--more {
+    color: var(--arborito-theme-sources-arborito-tree-branch-chip--more-color);
+    background: transparent;
+    border-style: dashed;
+}
+
+.arborito-sources-tree-row--compact {
+    padding: 0.75rem 0.85rem;
+}
+
+.arborito-sources-tree-row--compact .arborito-sources-row-cta {
+    min-height: 2.25rem;
+    padding: 0.35rem 0.75rem;
+    font-size: 11px;
+}
+
+/* Biblioteca hub body — scroll inside list; footer pinned (same flex chain as Arcade toolbar + body). */
+.arborito-sources-modal-shell {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.arborito-dock-hub-body__scroll > .arborito-sources-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Full-shell overlay host for in-hub prompts (confirm + compact form). */
+.arborito-sources-modal-shell > #overlay-container.arborito-sources-overlay:not(.hidden),
+.arborito-sources-modal-shell--embed > #overlay-container.arborito-sources-overlay:not(.hidden) {
+    display: block;
+    min-height: 100%;
+    height: 100%;
+}
+
+.arborito-sources-modal-shell > #overlay-container.arborito-sources-overlay:not(.hidden) .arborito-nested-confirm-scrim,
+.arborito-sources-modal-shell--embed > #overlay-container.arborito-sources-overlay:not(.hidden) .arborito-nested-confirm-scrim {
+    position: absolute;
+    inset: 0;
+    min-height: 100%;
+    width: 100%;
+}
+
+.arborito-sources-export-scope {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.arborito-sources-export-scope__option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    padding: 0.7rem 0.75rem;
+    border-radius: 0.9rem;
+    border: 1px solid var(--arborito-theme-surface-tile-border-light, rgba(148, 163, 184, 0.35));
+    background: var(--arborito-theme-surface-tile-light, rgba(248, 250, 252, 0.92));
+    cursor: pointer;
+}
+
+html.dark .arborito-sources-export-scope__option {
+    border-color: var(--arborito-theme-surface-tile-border-dark, rgba(71, 85, 105, 0.55));
+    background: var(--arborito-theme-surface-tile-dark, rgba(15, 23, 42, 0.55));
+}
+
+.arborito-sources-export-scope__option:has(input:checked) {
+    border-color: rgba(59, 130, 246, 0.55);
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+.arborito-tree-editor {
+    max-height: 100%;
+}
+
+.arborito-tree-editor-scroll {
+    overscroll-behavior: contain;
+}
+
+.arborito-tree-editor-footer {
+    box-shadow: var(--arborito-theme-sources-sticky-foot-shadow);
+    background: var(--arborito-theme-surface-bg);
+}
+
+.arborito-sources-loading-slot {
+    background: var(--arborito-theme-sources-loading-slot-bg);
+    margin: 0.5rem 0 0.75rem;
+    padding: 0.85rem 1rem;
+    border-radius: 1rem;
+}
+
+.arborito-sources-overlay-panel {
+    background: var(--arborito-theme-surface-bg);
+}
+
+.arborito-pick-row:focus-visible {
+    outline: 2px solid rgb(109 40 217);
+    outline-offset: 2px;
+}
+
+.arborito-tree-branch-list {
+    list-style: none;
+    margin: 0.35rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}.arborito-tree-branch-list__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.35rem;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--arborito-theme-sources-arborito-tree-branch-list__item-color);
+}
+
+.arborito-tree-branch-list__icon {
+    flex-shrink: 0;
+    line-height: 1.4;
+}
+
+.arborito-tree-branch-list__name {
+    min-width: 0;
+    flex: 1;
+    word-break: break-word;
+}.arborito-sources-active-pin--tree {
+    padding: 0.5rem 0.6rem 0.6rem;
+    margin-bottom: 0.5rem;
+    background: var(--arborito-theme-sources-arborito-sources-active-pin--tree-background);
+    border-color: var(--arborito-theme-sources-arborito-sources-active-pin--tree-border-color);
+    box-shadow: var(--arborito-theme-sources-arborito-sources-active-pin--tree-box-shadow);
+}.arborito-sources-active-pin--tree .arborito-sources-active-pin__label {
+    color: var(--arborito-theme-sources-arborito-sources-active-pin__label-color);
+}
+
+.arborito-sources-active-pin--tree .arborito-sources-active-pin__label::before {
+    background: rgb(139 92 246);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+}.arborito-sources-tree-active-inner {
+    padding: 0.65rem 0.75rem;
+    border-radius: 0.75rem;
+    border: var(--arborito-theme-sources-arborito-sources-tree-active-inner-border);
+    background: var(--arborito-theme-sources-arborito-sources-tree-active-inner-background);
+}
+
+/* Row title — tree/branch name (not section headings) */
+.arborito-sources-row-title {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    font-weight: 600;
+    color: rgb(30 41 59);
+}
+
+html.dark .arborito-sources-row-title {
+    color: rgb(241 245 249);
+}
+
+button.arborito-sources-row-title--button {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--sources.arborito-modal--mobile-fullbleed
+    > .arborito-float-modal-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100%;
+}

@@ -1,0 +1,510 @@
+/* Segmented question progress (one cell per question) */
+.arborito-question-progress__segments {
+    display: flex;
+    align-items: stretch;
+    gap: 0.3rem;
+}
+
+.arborito-question-progress__segment {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0.5rem;
+    max-width: 2.5rem;
+    height: 0.875rem;
+    box-sizing: border-box;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: rgb(226 232 240);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.dark .arborito-question-progress__segment {
+    background: rgb(51 65 85);
+}
+
+.arborito-question-progress__segment--current {
+    background: rgb(129 140 248);
+    border-color: rgb(199 210 254 / 0.9);
+    box-shadow: none;
+}
+
+.arborito-question-progress--exam .arborito-question-progress__segment--current {
+    background: rgb(248 113 113);
+    border-color: rgb(254 202 202 / 0.9);
+    box-shadow: none;
+}
+
+.dark .arborito-question-progress__segment--current {
+    background: rgb(99 102 241);
+    border-color: rgb(67 56 202 / 0.55);
+    box-shadow: none;
+}
+
+.dark .arborito-question-progress--exam .arborito-question-progress__segment--current {
+    background: rgb(239 68 68);
+    border-color: rgb(185 28 28 / 0.55);
+    box-shadow: none;
+}
+
+.arborito-question-progress__segment--correct {
+    background: rgb(34 197 94);
+}
+
+.arborito-question-progress__segment--wrong {
+    background: rgb(239 68 68);
+}
+
+.arborito-question-progress__mark {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.55rem;
+    font-weight: 900;
+    line-height: 1;
+    color: white;
+    text-shadow: 0 1px 1px rgb(0 0 0 / 0.25);
+    pointer-events: none;
+}
+
+.arborito-question-progress__segments--summary {
+    max-width: 28rem;
+    margin-inline: auto;
+}
+
+/* Inline exam / quiz session chrome */
+.arborito-question-runner--exam .not-prose.my-12 {
+    border-color: rgb(248 113 113 / 0.45);
+    box-shadow:
+        0 10px 40px -12px rgb(220 38 38 / 0.25),
+        0 0 0 1px rgb(248 113 113 / 0.2);
+}
+
+.arborito-question-runner--exam .not-prose.my-12 > .arborito-eyebrow {
+    color: rgb(220 38 38);
+}
+
+.arborito-question-runner--exam .quiz-cloze-ans {
+    border-color: rgb(239 68 68);
+}
+
+.arborito-question-runner--exam .btn-quiz-ans:hover {
+    border-color: rgb(248 113 113);
+}
+
+.arborito-question-runner--exam .arborito-cta-indigo,
+.arborito-question-runner--exam .btn-quiz-cloze-check.arborito-cta-indigo {
+    background-color: var(--arborito-cta-red-bg);
+    color: var(--arborito-cta-red-fg);
+}
+
+.arborito-question-runner--exam .arborito-cta-indigo:hover:not(:disabled),
+.arborito-question-runner--exam .btn-quiz-cloze-check.arborito-cta-indigo:hover:not(:disabled) {
+    background-color: var(--arborito-cta-red-bg-hover);
+}
+
+.arborito-question-runner--quiz .not-prose.my-12 {
+    border-color: rgb(129 140 248 / 0.45);
+}
+
+/* Session runner: stage grows with content so CTAs are never clipped under the nav */
+.arborito-question-runner--live {
+    overflow-anchor: none;
+}
+
+.arborito-question-runner__card {
+    display: flex;
+    flex-direction: column;
+    min-height: 26rem;
+    border-radius: 1.5rem;
+    border: 1px solid rgb(129 140 248 / 0.45);
+    background: rgb(255 255 255);
+    box-shadow: 0 20px 40px -16px rgb(15 23 42 / 0.35);
+    overflow: hidden;
+}
+
+.dark .arborito-question-runner__card {
+    background: rgb(30 41 59);
+    border-color: rgb(99 102 241 / 0.35);
+}
+
+.arborito-question-runner--exam .arborito-question-runner__card {
+    border-color: rgb(248 113 113 / 0.45);
+    box-shadow:
+        0 10px 40px -12px rgb(220 38 38 / 0.25),
+        0 0 0 1px rgb(248 113 113 / 0.2);
+}
+
+.arborito-question-runner__stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+    box-sizing: border-box;
+    margin-block: 0;
+    padding: 1.5rem 1.5rem 1rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 768px) {
+    .arborito-question-runner__stage {
+        padding: 2rem 2rem 1.25rem;
+    }
+}
+
+.arborito-question-runner__stage > .not-prose.my-12,
+.arborito-question-runner__stage > [data-mode] {
+    box-sizing: border-box;
+    height: auto;
+    min-height: 0;
+    margin-block: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: visible;
+    /* Inner cards lose duplicate chrome when nested in the session shell */
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+}
+
+.arborito-quiz-challenge__interaction {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.arborito-quiz-challenge__scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.arborito-quiz-challenge__actions {
+    flex-shrink: 0;
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+.arborito-quiz-challenge__interaction--feedback {
+    justify-content: center;
+}
+
+.arborito-quiz-result__body {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.arborito-quiz-result__icon {
+    font-size: 2.25rem;
+    line-height: 1;
+    margin-bottom: 0.75rem;
+    font-weight: 900;
+}
+
+.arborito-quiz-result__title {
+    font-size: 1.25rem;
+    font-weight: 900;
+    margin: 0 0 0.5rem;
+    color: rgb(30 41 59);
+}
+
+.dark .arborito-quiz-result__title {
+    color: rgb(248 250 252);
+}
+
+.arborito-quiz-result__answer {
+    margin: 0 0 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.45;
+    color: rgb(100 116 139);
+    max-width: 28rem;
+}
+
+.dark .arborito-quiz-result__answer {
+    color: rgb(148 163 184);
+}
+
+/* Session feedback (nav in footer): scale up to fill the fixed stage */
+.arborito-quiz-result--feedback .arborito-quiz-challenge__interaction {
+    flex: 1 1 auto;
+    justify-content: center;
+}
+
+.arborito-quiz-result--feedback .arborito-quiz-result__body {
+    flex: 1 1 auto;
+    justify-content: center;
+    gap: 0.35rem;
+    padding-block: 0.5rem;
+}
+
+.arborito-quiz-result--feedback .arborito-quiz-result__icon {
+    font-size: clamp(3.5rem, 10vw, 5.5rem);
+    margin-bottom: 0.35rem;
+}
+
+.arborito-quiz-result--feedback .arborito-quiz-result__title {
+    font-size: clamp(1.5rem, 4.5vw, 2rem);
+    margin-bottom: 0.65rem;
+}
+
+.arborito-quiz-result--feedback .arborito-quiz-result__answer {
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 0;
+    max-width: 32rem;
+    color: rgb(71 85 105);
+}
+
+.dark .arborito-quiz-result--feedback .arborito-quiz-result__answer {
+    color: rgb(203 213 225);
+}
+
+.arborito-quiz-result--feedback .arborito-quiz-result__hint {
+    font-size: clamp(0.875rem, 2.5vw, 1rem);
+    line-height: 1.45;
+    margin: 0.5rem 0 0;
+    max-width: 32rem;
+}
+
+.arborito-question-footer--exam .arborito-lesson-footer-btn--next {
+    box-shadow: 0 2px 8px rgb(220 38 38 / 0.35);
+}
+
+.arborito-question-footer--quiz .arborito-lesson-footer-btn--next {
+    box-shadow: 0 2px 8px rgb(99 102 241 / 0.35);
+}
+
+.arborito-lesson-toc-item--quiz .arborito-lesson-toc-quiz-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: 0.35rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    font-size: 0.625rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgb(67 56 202);
+    background: rgb(224 231 255);
+    border: 1px solid rgb(165 180 252 / 0.65);
+}
+
+.dark .arborito-lesson-toc-item--quiz .arborito-lesson-toc-quiz-pill {
+    color: rgb(199 210 254);
+    background: rgb(49 46 129 / 0.45);
+    border-color: rgb(99 102 241 / 0.35);
+}
+
+.arborito-lesson-toc-item--locked {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.arborito-lesson-toc-item--locked:hover {
+    background-color: var(--arborito-theme-toc-item-background);
+}
+
+.arborito-lesson-toc-arcade-count {
+    position: absolute;
+    right: -0.15rem;
+    bottom: -0.1rem;
+    min-width: 0.95rem;
+    height: 0.95rem;
+    padding: 0 0.2rem;
+    border-radius: 999px;
+    font-size: 0.55rem;
+    font-weight: 800;
+    line-height: 0.95rem;
+    text-align: center;
+    color: rgb(49 46 129);
+    background: rgb(224 231 255);
+    border: 1px solid rgb(165 180 252 / 0.8);
+}
+
+.arborito-lesson-toc-arcade {
+    position: relative;
+}
+
+.arborito-inline-quiz--idle .btn-quiz-block-start {
+    transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.arborito-inline-quiz--idle .btn-quiz-block-start:active {
+    transform: scale(0.98);
+}
+
+.arborito-inline-quiz.arborito-quiz-attention {
+    outline: 3px solid rgb(251 191 36);
+    outline-offset: 4px;
+    border-radius: 1.25rem;
+    animation: arborito-attention-pulse 0.9s ease-in-out 3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .arborito-inline-quiz.arborito-quiz-attention {
+        animation: none;
+    }
+}
+
+.arborito-quiz-session-nav {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 1rem;
+    border: 1px solid rgb(148 163 184 / 0.35);
+    background: rgb(248 250 252 / 0.9);
+    scroll-margin-bottom: 6rem;
+}
+
+.arborito-quiz-session-nav--embedded {
+    flex-shrink: 0;
+    margin-top: 0;
+    border-radius: 0;
+    border-width: 1px 0 0;
+    border-color: rgb(148 163 184 / 0.35);
+    background: rgb(248 250 252 / 0.95);
+    scroll-margin-bottom: 0;
+}
+
+.dark .arborito-quiz-session-nav--embedded {
+    background: rgb(15 23 42 / 0.85);
+    border-color: rgb(71 85 105 / 0.55);
+}
+
+.dark .arborito-quiz-session-nav {
+    background: rgb(15 23 42 / 0.75);
+    border-color: rgb(71 85 105 / 0.55);
+}
+
+.arborito-quiz-session-nav--exam {
+    border-color: rgb(248 113 113 / 0.45);
+    background: rgb(254 242 242 / 0.85);
+}
+
+.dark .arborito-quiz-session-nav--exam {
+    background: rgb(69 10 10 / 0.35);
+    border-color: rgb(185 28 28 / 0.45);
+}
+
+.arborito-quiz-session-nav__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 2.25rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid rgb(148 163 184 / 0.5);
+    background: white;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: rgb(51 65 85);
+    transition: background 0.12s ease, transform 0.12s ease;
+}
+
+.dark .arborito-quiz-session-nav__btn {
+    background: rgb(30 41 59);
+    color: rgb(226 232 240);
+    border-color: rgb(71 85 105 / 0.7);
+}
+
+.arborito-quiz-session-nav__btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.arborito-quiz-session-nav__btn--next {
+    justify-self: end;
+    border-color: rgb(99 102 241 / 0.55);
+    background: rgb(238 242 255);
+    color: rgb(67 56 202);
+}
+
+.arborito-quiz-session-nav__btn--next.arborito-quiz-session-nav__btn--exam {
+    border-color: rgb(248 113 113 / 0.55);
+    background: rgb(254 226 226);
+    color: rgb(185 28 28);
+}
+
+.dark .arborito-quiz-session-nav__btn--next {
+    background: rgb(49 46 129 / 0.45);
+    color: rgb(199 210 254);
+}
+
+.arborito-quiz-session-nav__btn--back {
+    justify-self: start;
+}
+
+.arborito-quiz-session-nav__progress {
+    justify-self: center;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgb(100 116 139);
+    white-space: nowrap;
+}
+
+.arborito-quiz-session-nav__icon {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+}
+
+.arborito-quiz-session-nav__icon--forward {
+    transform: scaleX(-1);
+}
+
+.arborito-quiz-session-nav__btn--back .arborito-quiz-session-nav__icon {
+    margin-inline-end: 0.1rem;
+}
+
+.arborito-quiz-session-nav__btn--next .arborito-quiz-session-nav__icon {
+    margin-inline-start: 0.1rem;
+}
+
+.arborito-exam-results {
+    border-top: 2px dashed rgb(248 113 113 / 0.35);
+    padding-top: 1.5rem;
+}
+
+/* Exam intro: muted syllabus until «Iniciar examen» */
+.arborito-lesson-aside--exam-prestart .arborito-lesson-toc-item--exam-prestart {
+    opacity: 0.55;
+    color: rgb(148 163 184);
+}
+
+.arborito-lesson-aside--exam-prestart .arborito-lesson-toc-sheet .btn-toc.arborito-lesson-toc-item.is-active-exam-awaiting,
+.arborito-lesson-aside--exam-prestart .arborito-lesson-toc-sheet .btn-toc.arborito-lesson-toc-item.is-active-exam-awaiting[aria-current='true'] {
+    color: rgb(203 213 225);
+    background-color: rgb(51 65 85 / 0.42);
+    border-color: rgb(71 85 105 / 0.55);
+}
+
+.arborito-lesson-aside--exam-prestart .arborito-lesson-toc-item--locked {
+    opacity: 0.35;
+}
+
+/* Exam active: keep full syllabus readable */
+.arborito-lesson-aside--exam-active .arborito-lesson-toc-sheet .btn-toc.arborito-lesson-toc-item {
+    opacity: 1;
+}
+
+.arborito-lesson-aside--exam-active .arborito-lesson-toc-item--locked:not(.arborito-lesson-toc-item--exam-final) {
+    opacity: 0.72;
+}

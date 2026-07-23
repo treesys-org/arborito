@@ -1,0 +1,311 @@
+/* Core surface, modal, float-card, scrim, form, and chrome-adjacent tokens */
+
+:root {
+        --arborito-theme-surface-bg: var(--arborito-modal-surface-gradient-light);
+        --arborito-theme-surface-border: var(--arborito-surface-panel-border-light);
+        --arborito-theme-tile-bg: var(--arborito-surface-tile-light);
+        --arborito-theme-tile-border: var(--arborito-surface-tile-border-light);
+        --arborito-theme-modal-text: rgb(30 41 59);
+        --arborito-theme-modal-text-strong: rgb(15 23 42);
+        --arborito-theme-modal-prose: rgb(30 41 59);
+        --arborito-theme-modal-prose-strong: rgb(15 23 42);
+        --arborito-theme-modal-inner-shadow: var(--arborito-modal-shadow-light);
+        --arborito-theme-modal-inner-border: rgb(167 243 208 / 0.5);
+        --arborito-theme-modal-head-border: rgb(226 232 240 / 0.9);
+        --arborito-theme-sheet-hero-bg: linear-gradient(
+            135deg,
+            rgb(5 150 105 / 0.1) 0%,
+            rgb(14 165 233 / 0.05) 100%
+        );
+        --arborito-theme-sheet-hero-border: rgb(226 232 240 / 0.75);
+        --arborito-theme-dock-hub-head-bg: var(--arborito-theme-sheet-hero-bg);
+        --arborito-theme-dock-hub-head-border: var(--arborito-theme-sheet-hero-border);
+        --arborito-theme-dock-hub-head-shadow: none;
+        --arborito-theme-dock-hub-head-title: var(--arborito-theme-learning-arborito-mmenu-subtitle-color, rgb(15 23 42));
+        --arborito-theme-dock-hub-head-subtitle: var(--arborito-theme-text-muted);
+        --arborito-theme-dock-hub-head-icon-bg: transparent;
+        --arborito-theme-dock-hub-head-icon-bg-hover: rgb(255 255 255 / 0.08);
+        --arborito-theme-dock-hub-head-icon-border: transparent;
+        --arborito-theme-dock-hub-head-icon-shadow: none;
+        /* Forest consolidación — light dim only; hubs float over the tree. */
+        --arborito-theme-modal-scrim: rgb(15 23 42 / 0.30);
+        --arborito-theme-float-card-shadow:
+    0 28px 64px -14px rgb(15 23 42 / 0.22),
+    0 4px 12px -2px rgb(15 23 42 / 0.07),
+    0 0 0 1px rgb(15 23 42 / 0.07);
+        --arborito-theme-float-card-lift-soft:
+    0 24px 56px -16px rgb(15 23 42 / 0.18),
+    0 2px 8px -2px rgb(15 23 42 / 0.06),
+    0 0 0 1px rgb(15 23 42 / 0.04);
+        --arborito-theme-float-card-lift-strong:
+    0 32px 120px -20px rgb(15 23 42 / 0.32),
+    0 4px 16px -4px rgb(15 23 42 / 0.08),
+    0 0 0 1px rgb(15 23 42 / 0.05);
+        --arborito-theme-scrim-sage: var(--arborito-theme-modal-scrim);
+        --arborito-theme-scrim-game: rgb(0 0 0);
+        --arborito-theme-tab-bar-border: rgb(226 232 240);
+        --arborito-theme-tab-fg: rgb(148 163 184);
+        --arborito-theme-tab-hover-fg: rgb(71 85 105);
+        --arborito-theme-tab-active-fg: rgb(30 41 59);
+        --arborito-theme-tab-active-indicator: rgb(30 41 59);
+        --arborito-theme-eyebrow-fg: rgb(100 116 139);
+        --arborito-theme-eyebrow-sky-fg: rgb(12 74 110);
+        --arborito-theme-eyebrow-strong-fg: rgb(51 65 85);
+        --arborito-theme-danger-bg: rgb(254 242 242 / 0.9);
+        --arborito-theme-danger-border: rgb(252 165 165 / 0.85);
+        --arborito-theme-danger-fg: rgb(185 28 28);
+        --arborito-theme-danger-border-subtle: rgb(254 202 202);
+        --arborito-theme-hover-surface: rgb(241 245 249);
+        --arborito-theme-hover-surface-opaque: rgb(241 245 249);
+        --arborito-theme-border-muted: rgb(148 163 184);
+        --arborito-theme-border-muted-hover: rgb(148 163 184);
+        --arborito-theme-form-bg: rgb(255 255 255);
+        --arborito-theme-form-border: rgb(226 232 240);
+        --arborito-theme-form-fg: rgb(15 23 42);
+        --arborito-theme-form-placeholder: rgb(148 163 184);
+        --arborito-theme-form-focus-border: rgb(16 185 129);
+        --arborito-theme-form-focus-ring: 0 0 0 2px rgb(16 185 129 / 0.35);
+        --arborito-theme-form-search-icon: rgb(148 163 184);
+        --arborito-theme-form-color-scheme: light;
+        --arborito-theme-busy-banner-border: rgb(14 165 233 / 0.4);
+        --arborito-theme-busy-banner-bg: rgb(224 242 254 / 0.7);
+        --arborito-theme-busy-banner-fg: rgb(22 101 52);
+        --arborito-theme-busy-spinner-track: rgb(34 197 94 / 0.25);
+        --arborito-theme-busy-spinner-head: rgb(34 197 94);
+        --arborito-theme-icon-btn-bg: rgb(241 245 249 / 0.95);
+        --arborito-theme-icon-btn-fg: rgb(71 85 105);
+        --arborito-theme-icon-btn-hover-bg: rgb(226 232 240);
+        --arborito-theme-icon-btn-danger-bg: rgb(254 226 226);
+        --arborito-theme-icon-btn-danger-fg: rgb(185 28 28);
+        --arborito-theme-icon-btn-danger-hover-bg: rgb(254 202 202);
+        --arborito-theme-mmenu-back-bg: rgb(241 245 249 / 0.95);
+        --arborito-theme-mmenu-back-fg: var(--slate-600);
+        --arborito-theme-mmenu-back-active-bg: rgb(226 232 240);
+        --arborito-theme-btn-ghost-bg: rgb(226 232 240);
+        --arborito-theme-btn-ghost-fg: rgb(71 85 105);
+        --arborito-theme-btn-ghost-hover-bg: rgb(203 213 225);
+        --arborito-theme-seg-track-bg: rgb(241 245 249 / 0.9);
+        --arborito-theme-seg-track-border: rgb(226 232 240 / 0.8);
+        --arborito-theme-seg-btn-fg: rgb(100 116 139);
+        --arborito-theme-seg-btn-hover-fg: rgb(51 65 85);
+        --arborito-theme-seg-btn-active-bg: rgb(255 255 255);
+        --arborito-theme-seg-btn-active-fg: rgb(30 41 59);
+        --arborito-theme-seg-btn-active-ring: rgb(226 232 240 / 0.8);
+        --arborito-theme-seg-btn-active-accent-bg: rgb(147 51 234);
+        --arborito-theme-seg-btn-active-accent-fg: rgb(255 255 255);
+        --arborito-theme-seg-btn-active-accent-ring: rgb(168 85 247 / 0.5);
+        --arborito-theme-seg-btn-active-warn-bg: rgb(255 237 213);
+        --arborito-theme-seg-btn-active-warn-fg: rgb(234 88 12);
+        --arborito-theme-seg-btn-active-warn-ring: rgb(254 215 170);
+        --arborito-theme-meter-track-bg: rgb(226 232 240);
+        --arborito-theme-picker-panel-bg: rgb(248 250 252);
+        --arborito-theme-picker-panel-border: rgb(241 245 249);
+        --arborito-theme-picker-row-hover-bg: rgb(255 255 255);
+        --arborito-theme-picker-row-selected-bg: rgb(255 237 213);
+        --arborito-theme-picker-row-selected-fg: rgb(154 52 18);
+        --arborito-theme-picker-row-selected-ring: rgb(249 115 22);
+        --arborito-theme-loading-slot-border: rgb(253 186 116 / 0.75);
+        --arborito-theme-loading-slot-bg: rgb(255 247 237 / 0.55);
+        --arborito-theme-loading-slot-fg: rgb(124 45 18);
+        --arborito-theme-loading-spinner-track: rgb(253 186 116);
+        --arborito-theme-loading-spinner-head: rgb(234 88 12);
+        --arborito-theme-empty-fg: rgb(100 116 139);
+        --arborito-theme-empty-dashed-border: rgb(203 213 225);
+        --arborito-theme-empty-card-bg: rgb(248 250 252);
+        --arborito-theme-empty-card-border: rgb(226 232 240);
+        --arborito-theme-empty-title-fg: rgb(51 65 85);
+        --arborito-theme-empty-body-fg: rgb(100 116 139);
+        --arborito-theme-modal-footer-bg: rgb(255 255 255 / 0.95);
+        --arborito-theme-modal-footer-border: rgb(226 232 240);
+        --arborito-theme-modal-footer-flat-bg: rgb(255 255 255);
+        --arborito-theme-modal-nav-border: rgb(226 232 240 / 0.6);
+        --arborito-theme-modal-nav-btn-bg: rgb(255 255 255 / 0.85);
+        --arborito-theme-modal-nav-btn-border: rgb(226 232 240);
+        --arborito-theme-modal-nav-btn-fg: rgb(15 23 42);
+        --arborito-theme-modal-nav-btn-hover-border: rgb(148 163 184);
+        --arborito-theme-modal-nav-btn-hover-bg: rgb(248 250 252);
+        --arborito-theme-sheet-text: rgb(15 23 42);
+        --arborito-theme-placeholder-fg: rgb(51 65 85);
+        --arborito-theme-modal-close-hover-bg: rgb(241 245 249);
+        --arborito-theme-modal-close-hover-border: rgb(100 116 139 / 0.65);
+        --arborito-theme-modal-close-hover-fg: rgb(30 41 59);
+        --arborito-theme-sheet-elevate: 0 18px 44px -8px rgb(15 23 42 / 0.1);
+        --arborito-theme-modal-dock-panel-background: var(--arborito-modal-surface-gradient-light);
+        --arborito-theme-modal-head-border-light: rgb(148 163 184 / 0.2);
+        --arborito-theme-modal-head-border-slate: rgb(148 163 184 / 0.2);
+        --arborito-theme-modal-window-x-border: rgb(148 163 184 / 0.45);
+        --arborito-theme-modal-window-x-background: rgb(255 255 255 / 0.9);
+        --arborito-theme-modal-window-x-color: rgb(51 65 85);
+        --arborito-theme-inline-spinner-border-color: rgb(148 163 184 / 0.35);
+        --arborito-theme-inline-spinner-border-top-color: rgb(16 185 129);
+        --arborito-theme-scrollbar-color: rgb(148 163 184 / 0.55) transparent;
+        --arborito-theme-tip-after-color: rgb(15 23 42);
+        --arborito-theme-tip-after-background: rgb(255 255 255 / 0.98);
+        --arborito-theme-tip-after-border-color: rgb(226 232 240 / 0.95);
+        --arborito-theme-card-bg: rgb(255 255 255);
+        --arborito-theme-card-border: rgb(226 232 240);
+        --arborito-theme-card-border-emphasis: rgb(226 232 240);
+        --arborito-theme-card-fg: rgb(30 41 59);
+        --arborito-theme-text-muted: rgb(100 116 139);
+        --arborito-theme-text-strong: rgb(15 23 42);
+        --arborito-theme-divider-border: rgb(241 245 249);
+        --arborito-theme-strip-bg: rgb(255 255 255 / 0.55);
+        --arborito-theme-icon-tile-bg: rgb(255 237 213);
+        --arborito-theme-icon-tile-border: rgb(254 215 170);
+        --arborito-theme-icon-tile-fg: rgb(234 88 12);
+}
+
+html.dark {
+        --arborito-theme-surface-bg: var(--arborito-modal-surface-gradient-dark);
+        --arborito-theme-surface-border: var(--arborito-surface-panel-border-dark);
+        --arborito-theme-tile-bg: var(--arborito-surface-tile-dark);
+        --arborito-theme-tile-border: var(--arborito-surface-tile-border-dark);
+        --arborito-theme-modal-text: rgb(241 245 249);
+        --arborito-theme-modal-text-strong: rgb(248 250 252);
+        --arborito-theme-modal-prose: rgb(226 232 240);
+        --arborito-theme-modal-prose-strong: rgb(248 250 252);
+        --arborito-theme-modal-inner-shadow: var(--arborito-modal-shadow);
+        --arborito-theme-modal-inner-border: var(--arborito-surface-panel-border-dark);
+        --arborito-theme-modal-head-border: rgb(51 65 85 / 0.55);
+        --arborito-theme-sheet-hero-bg: linear-gradient(
+            180deg,
+            rgb(45 212 191 / 0.07) 0%,
+            transparent 100%
+        );
+        --arborito-theme-sheet-hero-border: rgb(51 65 85 / 0.55);
+        --arborito-theme-dock-hub-head-bg: var(--arborito-theme-sheet-hero-bg);
+        --arborito-theme-dock-hub-head-border: var(--arborito-theme-sheet-hero-border);
+        --arborito-theme-dock-hub-head-shadow: none;
+        --arborito-theme-dock-hub-head-title: var(--arborito-theme-learning-arborito-mmenu-subtitle-color, rgb(241 245 249));
+        --arborito-theme-dock-hub-head-subtitle: var(--arborito-theme-text-muted);
+        --arborito-theme-dock-hub-head-icon-bg: transparent;
+        --arborito-theme-dock-hub-head-icon-bg-hover: rgb(255 255 255 / 0.06);
+        --arborito-theme-dock-hub-head-icon-border: transparent;
+        --arborito-theme-dock-hub-head-icon-shadow: none;
+        /* Forest consolidación — light dim only; hubs float over the tree. */
+        --arborito-theme-modal-scrim: rgb(2 6 23 / 0.34);
+        --arborito-theme-float-card-shadow:
+    0 30px 72px -16px rgb(0 0 0 / 0.62),
+    0 4px 12px -2px rgb(0 0 0 / 0.32),
+    0 0 0 1px rgb(255 255 255 / 0.08);
+        --arborito-theme-float-card-lift-soft:
+    0 28px 72px -18px rgb(0 0 0 / 0.55),
+    0 2px 8px -2px rgb(0 0 0 / 0.25),
+    0 0 0 1px rgb(255 255 255 / 0.06);
+        --arborito-theme-float-card-lift-strong:
+    0 32px 120px -20px rgb(0 0 0 / 0.75),
+    0 4px 16px -4px rgb(0 0 0 / 0.35),
+    0 0 0 1px rgb(255 255 255 / 0.10);
+        --arborito-theme-scrim-sage: var(--arborito-theme-modal-scrim);
+        --arborito-theme-scrim-game: rgb(0 0 0);
+        --arborito-theme-tab-bar-border: rgb(51 65 85);
+        --arborito-theme-tab-hover-fg: rgb(203 213 225);
+        --arborito-theme-tab-active-fg: rgb(255 255 255);
+        --arborito-theme-tab-active-indicator: rgb(255 255 255);
+        --arborito-theme-eyebrow-fg: rgb(148 163 184);
+        --arborito-theme-eyebrow-sky-fg: rgb(224 242 254);
+        --arborito-theme-eyebrow-strong-fg: rgb(226 232 240);
+        --arborito-theme-danger-bg: rgb(69 10 10 / 0.55);
+        --arborito-theme-danger-border: rgb(239 68 68 / 0.45);
+        --arborito-theme-danger-fg: rgb(252 165 165);
+        --arborito-theme-danger-border-subtle: rgb(127 29 29 / 0.55);
+        --arborito-theme-hover-surface: rgb(30 41 59 / 0.92);
+        --arborito-theme-hover-surface-opaque: rgb(51 65 85);
+        --arborito-theme-border-muted: rgb(100 116 139);
+        --arborito-theme-border-muted-hover: rgb(100 116 139);
+        --arborito-theme-form-bg: rgb(30 41 59);
+        --arborito-theme-form-border: rgb(51 65 85);
+        --arborito-theme-form-fg: rgb(241 245 249);
+        --arborito-theme-form-placeholder: rgb(100 116 139);
+        --arborito-theme-form-focus-border: rgb(52 211 153);
+        --arborito-theme-form-focus-ring: 0 0 0 2px rgb(52 211 153 / 0.30);
+        --arborito-theme-form-search-icon: rgb(100 116 139);
+        --arborito-theme-form-color-scheme: dark;
+        --arborito-theme-busy-banner-border: rgb(34 197 94 / 0.35);
+        --arborito-theme-busy-banner-bg: rgb(6 44 34 / 0.55);
+        --arborito-theme-busy-banner-fg: rgb(187 247 208);
+        --arborito-theme-busy-spinner-track: rgb(74 222 128 / 0.25);
+        --arborito-theme-busy-spinner-head: rgb(74 222 128);
+        --arborito-theme-icon-btn-bg: rgb(30 41 59 / 0.95);
+        --arborito-theme-icon-btn-fg: rgb(226 232 240);
+        --arborito-theme-icon-btn-hover-bg: rgb(51 65 85 / 0.95);
+        --arborito-theme-icon-btn-danger-bg: rgb(127 29 29 / 0.40);
+        --arborito-theme-icon-btn-danger-fg: rgb(252 165 165);
+        --arborito-theme-icon-btn-danger-hover-bg: rgb(127 29 29 / 0.60);
+        --arborito-theme-mmenu-back-bg: rgb(30 41 59 / 0.95);
+        --arborito-theme-mmenu-back-fg: var(--slate-200);
+        --arborito-theme-mmenu-back-active-bg: rgb(51 65 85 / 0.9);
+        --arborito-theme-btn-ghost-bg: rgb(30 41 59);
+        --arborito-theme-btn-ghost-fg: rgb(203 213 225);
+        --arborito-theme-btn-ghost-hover-bg: rgb(51 65 85);
+        --arborito-theme-seg-track-bg: rgb(30 41 59 / 0.9);
+        --arborito-theme-seg-track-border: rgb(51 65 85 / 0.8);
+        --arborito-theme-seg-btn-fg: rgb(148 163 184);
+        --arborito-theme-seg-btn-hover-fg: rgb(203 213 225);
+        --arborito-theme-seg-btn-active-bg: rgb(51 65 85);
+        --arborito-theme-seg-btn-active-fg: rgb(241 245 249);
+        --arborito-theme-seg-btn-active-ring: rgb(71 85 105);
+        --arborito-theme-seg-btn-active-accent-bg: rgb(147 51 234);
+        --arborito-theme-seg-btn-active-accent-fg: rgb(255 255 255);
+        --arborito-theme-seg-btn-active-accent-ring: rgb(168 85 247 / 0.5);
+        --arborito-theme-seg-btn-active-warn-bg: rgb(124 45 18 / 0.55);
+        --arborito-theme-seg-btn-active-warn-fg: rgb(254 215 170);
+        --arborito-theme-seg-btn-active-warn-ring: rgb(249 115 22 / 0.45);
+        --arborito-theme-meter-track-bg: rgb(51 65 85);
+        --arborito-theme-picker-panel-bg: rgb(2 6 23 / 0.9);
+        --arborito-theme-picker-panel-border: rgb(51 65 85);
+        --arborito-theme-picker-row-hover-bg: rgb(30 41 59);
+        --arborito-theme-picker-row-selected-bg: rgb(124 45 18 / 0.45);
+        --arborito-theme-picker-row-selected-fg: rgb(254 215 170);
+        --arborito-theme-picker-row-selected-ring: rgb(249 115 22);
+        --arborito-theme-loading-slot-border: rgb(249 115 22 / 0.45);
+        --arborito-theme-loading-slot-bg: rgb(67 20 7 / 0.35);
+        --arborito-theme-loading-slot-fg: rgb(254 215 170);
+        --arborito-theme-loading-spinner-track: rgb(124 45 18);
+        --arborito-theme-loading-spinner-head: rgb(251 146 60);
+        --arborito-theme-empty-fg: rgb(148 163 184);
+        --arborito-theme-empty-dashed-border: rgb(71 85 105);
+        --arborito-theme-empty-card-bg: rgb(15 23 42 / 0.5);
+        --arborito-theme-empty-card-border: rgb(51 65 85);
+        --arborito-theme-empty-title-fg: rgb(226 232 240);
+        --arborito-theme-empty-body-fg: rgb(148 163 184);
+        --arborito-theme-modal-footer-bg: rgb(15 23 42 / 0.92);
+        --arborito-theme-modal-footer-border: rgb(51 65 85);
+        --arborito-theme-modal-footer-flat-bg: rgb(15 23 42);
+        --arborito-theme-modal-nav-border: rgb(51 65 85 / 0.55);
+        --arborito-theme-modal-nav-btn-bg: rgb(15 23 42 / 0.7);
+        --arborito-theme-modal-nav-btn-border: rgb(51 65 85);
+        --arborito-theme-modal-nav-btn-fg: rgb(241 245 249);
+        --arborito-theme-modal-nav-btn-hover-border: rgb(100 116 139);
+        --arborito-theme-modal-nav-btn-hover-bg: rgb(30 41 59 / 0.7);
+        --arborito-theme-sheet-text: rgb(241 245 249);
+        --arborito-theme-placeholder-fg: rgb(203 213 225);
+        --arborito-theme-modal-close-hover-bg: rgb(51 65 85 / 0.95);
+        --arborito-theme-modal-close-hover-border: rgb(100 116 139 / 0.75);
+        --arborito-theme-modal-close-hover-fg: rgb(248 250 252);
+        --arborito-theme-sheet-elevate: 0 18px 44px -8px rgb(0 0 0 / 0.35);
+        --arborito-theme-modal-dock-panel-background: var(--arborito-modal-surface-gradient-dark);
+        --arborito-theme-modal-head-border-light: rgb(51 65 85 / 0.85);
+        --arborito-theme-modal-head-border-slate: rgb(148 163 184 / 0.2);
+        --arborito-theme-modal-window-x-border: rgb(71 85 105 / 0.65);
+        --arborito-theme-modal-window-x-background: rgb(30 41 59 / 0.92);
+        --arborito-theme-modal-window-x-color: rgb(226 232 240);
+        --arborito-theme-inline-spinner-border-color: rgb(148 163 184 / 0.25);
+        --arborito-theme-inline-spinner-border-top-color: rgb(52 211 153);
+        --arborito-theme-scrollbar-color: rgb(71 85 105 / 0.65) transparent;
+        --arborito-theme-tip-after-color: rgb(248 250 252);
+        --arborito-theme-tip-after-background: rgb(15 23 42 / 0.98);
+        --arborito-theme-tip-after-border-color: rgb(51 65 85 / 0.9);
+        --arborito-theme-card-bg: rgb(30 41 59);
+        --arborito-theme-card-border: rgb(51 65 85);
+        --arborito-theme-card-border-emphasis: rgb(51 65 85);
+        --arborito-theme-card-fg: rgb(241 245 249);
+        --arborito-theme-text-muted: rgb(148 163 184);
+        --arborito-theme-text-strong: rgb(248 250 252);
+        --arborito-theme-divider-border: rgb(51 65 85);
+        --arborito-theme-strip-bg: rgb(2 6 23 / 0.9);
+        --arborito-theme-icon-tile-bg: rgb(124 45 18 / 0.35);
+        --arborito-theme-icon-tile-border: rgb(249 115 22 / 0.45);
+        --arborito-theme-icon-tile-fg: rgb(254 215 170);
+        --arborito-theme-tab-fg: rgb(148 163 184);
+}

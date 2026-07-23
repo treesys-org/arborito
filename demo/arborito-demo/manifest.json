@@ -1,0 +1,15 @@
+{
+  "format": "arborito",
+  "contentKind": "branch",
+  "meta": {
+    "titles": {
+      "ES": "Arborito demo",
+      "EN": "Arborito demo"
+    },
+    "descriptions": {
+      "ES": "Tutorial paso a paso con capturas: mapa, Bosque, logros, juegos y construcción. Escrito por Sage.",
+      "EN": "Step-by-step tutorial with screenshots: map, Forest, achievements, games and construction. Written by Sage."
+    },
+    "icon": "🌳"
+  }
+}

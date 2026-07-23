@@ -1,0 +1,112 @@
+/* --- accessibility --- */
+/**
+ * App-wide accessibility baseline (WCAG-oriented).
+ * Loaded after main.css via runtime-overrides — no build:css required.
+ */
+
+/* Visible keyboard focus — box-shadow follows border-radius (outline draws a square).
+ * Baseline lives in foundation/arborito-foundation.css; this file only reinforces
+ * modal/prompt CTAs that still inherit a square outline from older bundles. */
+
+/* Modal / prompt CTAs: beat any leftover outline and hug the pill radius. */
+.arborito-modal-footer .arborito-action-row > button:focus-visible,
+.arborito-action-row > button.btn-cancel:focus-visible,
+.arborito-action-row > button.btn-confirm:focus-visible,
+.arborito-dialog-choice-sheet .arborito-action-row > button:focus-visible,
+button.arborito-cta-slate:focus-visible,
+button.arborito-cta-emerald:focus-visible,
+button.arborito-cta-rose:focus-visible,
+.arborito-lang-pill:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px var(--arborito-theme-focus-outline-color, #2dd4bf);
+}
+
+/* Respect user motion preferences globally */
+@media (prefers-reduced-motion: reduce) {
+  html *,
+  html *::before,
+  html *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Skip link — shown on keyboard focus only */
+.arborito-skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 20000;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--arborito-theme-skip-link-color);
+  background: var(--arborito-theme-skip-link-background);
+  border: 1px solid var(--arborito-theme-skip-link-border-color);
+  box-shadow: 0 8px 20px -10px rgb(15 23 42 / 0.35);
+  transform: translateY(-150%);
+  transition: transform 0.15s ease;
+}
+
+.arborito-skip-link:focus {
+  transform: translateY(0);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Toggle switches — used in accessibility, profile, arcade, sources, Sage */
+.arborito-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 2.375rem;
+  height: 1.375rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--arborito-theme-switch-off-background);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.arborito-switch::after {
+  content: "";
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  background: rgb(255 255 255);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.15);
+  transition: transform 0.2s ease;
+}.arborito-switch[aria-checked="true"] {
+    background: var(--arborito-theme-a11y-arborito-switch-background);
+}
+
+.arborito-switch[aria-checked="true"]::after {
+  transform: translateX(1rem);
+}
+
+.arborito-switch.arborito-switch--freeze[aria-checked="true"] {
+  background: var(--arborito-theme-switch-freeze-on);
+}
+
+.arborito-switch:focus-visible {
+  outline: 2px solid rgb(14 165 233);
+  outline-offset: 2px;
+}
+

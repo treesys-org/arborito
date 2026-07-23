@@ -1,0 +1,8 @@
+{
+  "welcomeAccountEnabledToast": "Account connected. Sync enabled.",
+  "welcomeCloudSyncBodyShort": "Backs up lessons, streaks and bookmarks encrypted, restores them on any device when you sign in.",
+  "welcomeCloudSyncOffRisk": "Without an account, web progress lives only in this browser. Clearing cookies or site data can erase months of study.",
+  "welcomeCloudSyncOnLabel": "Back up now",
+  "welcomeCloudSyncTitle": "Protect your progress",
+  "welcomeEnterGardenLicenseReminder": "All shared trees are free to reuse (CC BY-SA 4.0)."
+}

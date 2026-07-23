@@ -1,0 +1,11 @@
+/**
+ * Runtime overrides — imported from main.jsx after main.entry.css.
+ * Cascade order: misc chrome → tree switcher → sage → electron → a11y → boot spinner.
+ */
+@import url("./misc-chrome.css");
+@import url("./tree-switcher.css");
+@import url("./sage-overrides.css");
+@import url("./electron-viewport.css");
+@import url("./mobile-web-perf.css");
+@import url("./accessibility.css");
+@import url("./boot-spinner.css");

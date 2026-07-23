@@ -1,0 +1,235 @@
+{
+ "name": "arborito",
+ "version": "0.1.0-alpha",
+ "description": "Visual Knowledge Explorer, Vite + React + Tailwind CSS v3.",
+ "main": "electron-main.js",
+ "scripts": {
+ "dev": "vite",
+ "dev:electron": "ARBORITO_VITE_DEV=1 electron . --no-sandbox",
+ "build": "vite build",
+ "postbuild": "node ./scripts/verify-vite-www.mjs",
+ "prebuild": "npm run ensure:icon && npm run locales:pack && npm run vendor:deps",
+ "preview": "vite preview",
+ "vendor:deps": "node ./scripts/vendor-deps.mjs",
+ "vendor:emoji": "npm run vendor:deps",
+ "build:css": "node ./scripts/build-css.mjs",
+ "build:css:min": "node ./scripts/build-css.mjs --minify",
+ "watch:css": "tailwindcss -i ./src/shared/styles/main.entry.css -o ./src/shared/styles/main.css --watch",
+ "prestart": "npm run build && npm run vendor:deps && npm run ensure:icon",
+ "start": "electron . --no-sandbox",
+ "predist": "npm run build && npm run vendor:deps && npm run flatpak:sync && npm run ensure:icon",
+ "dist": "electron-builder --linux flatpak --publish never",
+ "dist:win": "electron-builder --win nsis --publish never",
+ "release:build": "node ./scripts/release-build.mjs",
+ "release:build:flatpak": "node ./scripts/release-build.mjs --flatpak",
+ "release:build:win": "node ./scripts/release-build.mjs --win",
+ "release:build:android": "node ./scripts/build-android-apk.mjs",
+ "dist:android": "node ./scripts/build-android-apk.mjs",
+ "ensure:icon": "node ./scripts/ensure-build-icon.mjs",
+ "flatpak:sync": "node ./scripts/flatpak-sync.mjs",
+ "flatpak": "node ./scripts/flatpak-toolkit.mjs",
+ "setup:flatpak": "npm run flatpak -- setup",
+ "sync:flatpak-screenshots": "npm run flatpak:sync",
+ "sync:flatpak-metainfo": "npm run flatpak:sync",
+ "knip": "knip",
+ "check:quality": "node ./scripts/check-quality.mjs",
+ "check:max-lines": "node ./scripts/check-quality.mjs -- --only max-lines",
+ "check:css-conventions": "node ./scripts/check-quality.mjs -- --only css-conventions",
+ "check:modal-compliance": "node ./scripts/check-quality.mjs -- --only modal-compliance",
+ "locales:validate": "python3 scripts/validate-locales.py",
+ "locales:pack": "node ./scripts/build-locale-packs.mjs",
+ "directory-index:build": "node ./scripts/directory-index-aggregator.mjs",
+ "directory-index:keygen": "node ./scripts/directory-index-keygen.mjs",
+ "serve:http": "npm run preview"
+ },
+ "author": {
+ "name": "Treesys",
+ "email": "support@treesys.org"
+ },
+ "homepage": "https://arborito.org",
+ "repository": {
+ "type": "git",
+ "url": "https://github.com/treesys-org/arborito.git"
+ },
+ "bugs": {
+ "url": "https://github.com/treesys-org/arborito/issues"
+ },
+ "license": "GPL-3.0",
+ "desktopName": "org.treesys.arborito",
+ "dependencies": {
+ "electron-updater": "^6.6.2"
+ },
+ "devDependencies": {
+ "@capacitor/android": "^7.2.0",
+ "@capacitor/cli": "^7.2.0",
+ "@capacitor/core": "^7.2.0",
+ "@fontsource/noto-color-emoji": "^5.2.5",
+ "@vitejs/plugin-react": "^4.5.2",
+ "autoprefixer": "^10.4.20",
+ "electron": "^42.2.0",
+ "electron-builder": "^26.8.1",
+ "html2pdf.js": "^0.14.0",
+ "jspdf": "^4.2.1",
+ "knip": "^5.45.0",
+ "postcss": "^8.4.49",
+ "postcss-import": "^16.1.0",
+ "react": "^19.1.0",
+ "react-dom": "^19.1.0",
+ "sharp": "^0.34.4",
+ "tailwindcss": "^3.4.17",
+ "twemoji": "^14.0.2",
+ "vite": "^6.3.5",
+ "vite-plugin-static-copy": "^3.0.2",
+ "zustand": "^5.0.5"
+ },
+ "build": {
+ "appId": "org.treesys.arborito",
+ "productName": "Arborito",
+ "directories": {
+ "output": "dist",
+ "buildResources": "build"
+ },
+ "files": [
+ "**/*",
+ "!dist/",
+ "!release/",
+ "!package/",
+ "!scripts/",
+ "!**/*.md",
+ "!.cursor/"
+ ],
+ "asarUnpack": [
+ "electron-sage-voice.js",
+ "electron-llama-bin.cjs",
+ "electron-llama-chat.cjs",
+ "vendor/fonts/**/*",
+ "vendor/emoji/**/*"
+ ],
+ "linux": {
+ "target": [
+ "flatpak"
+ ],
+ "category": "Education",
+ "synopsis": "Free, open-source app to learn any subject as an interactive lesson tree",
+ "description": "Arborito is a free, open-source education app from Treesys. Explore interactive lesson maps, plant your own courses, use spaced repetition (Memory Garden), optional minigames, and local-first progress; GPL, no subscription, no ads.",
+ "maintainer": "Treesys <support@treesys.org>",
+ "icon": "icon.png",
+ "desktop": {
+ "entry": {
+ "Name": "Arborito",
+ "GenericName": "Visual Knowledge Explorer",
+ "Comment": "Free open-source education app: visual lesson maps, quizzes, Memory Garden, optional Arcade, local-first progress; no subscription or ads.",
+ "Keywords": "arborito;education;learning;lessons;tree;quiz;memory-garden;",
+ "StartupWMClass": "org.treesys.arborito"
+ }
+ }
+ },
+ "flatpak": {
+ "runtime": "org.freedesktop.Platform",
+ "runtimeVersion": "24.08",
+ "sdk": "org.freedesktop.Sdk",
+ "base": "org.electronjs.Electron2.BaseApp",
+ "baseVersion": "24.08",
+ "branch": "stable",
+ "license": "LICENSE",
+ "files": [
+ [
+ "build/org.treesys.arborito.desktop",
+ "share/applications/org.treesys.arborito.desktop"
+ ],
+ [
+ "build/org.treesys.arborito.metainfo.xml",
+ "share/metainfo/org.treesys.arborito.metainfo.xml"
+ ],
+ [
+ "LICENSE",
+ "share/doc/org.treesys.arborito/LICENSE"
+ ],
+ [
+ "build/icons/hicolor/48x48/apps/org.treesys.arborito.png",
+ "share/icons/hicolor/48x48/apps/org.treesys.arborito.png"
+ ],
+ [
+ "build/icons/hicolor/64x64/apps/org.treesys.arborito.png",
+ "share/icons/hicolor/64x64/apps/org.treesys.arborito.png"
+ ],
+ [
+ "build/icons/hicolor/128x128/apps/org.treesys.arborito.png",
+ "share/icons/hicolor/128x128/apps/org.treesys.arborito.png"
+ ],
+ [
+ "build/icons/hicolor/256x256/apps/org.treesys.arborito.png",
+ "share/icons/hicolor/256x256/apps/org.treesys.arborito.png"
+ ],
+ [
+ "build/icons/hicolor/512x512/apps/org.treesys.arborito.png",
+ "share/icons/hicolor/512x512/apps/org.treesys.arborito.png"
+ ],
+ [
+ "demo/arborito-demo/media/02-mapa-claro-en.png",
+ "share/app-info/media/org.treesys.arborito/02-mapa-claro-en.png"
+ ],
+ [
+ "demo/arborito-demo/media/03-mapa-oscuro-en.png",
+ "share/app-info/media/org.treesys.arborito/03-mapa-oscuro-en.png"
+ ],
+ [
+ "demo/arborito-demo/media/12-construccion-en.png",
+ "share/app-info/media/org.treesys.arborito/12-construccion-en.png"
+ ],
+ [
+ "demo/arborito-demo/media/05-leccion-en.png",
+ "share/app-info/media/org.treesys.arborito/05-leccion-en.png"
+ ],
+ [
+ "demo/arborito-demo/media/07-arcade-en.png",
+ "share/app-info/media/org.treesys.arborito/07-arcade-en.png"
+ ],
+ [
+ "demo/arborito-demo/media/08-alonso-en.png",
+ "share/app-info/media/org.treesys.arborito/08-alonso-en.png"
+ ],
+ [
+ "demo/arborito-demo/media/11-jardin-en.png",
+ "share/app-info/media/org.treesys.arborito/11-jardin-en.png"
+ ],
+ [
+ "demo/arborito-demo/media/01-sage-en.png",
+ "share/app-info/media/org.treesys.arborito/01-sage-en.png"
+ ]
+ ],
+ "finishArgs": [
+ "--share=network",
+ "--share=ipc",
+ "--talk-name=org.freedesktop.portal.Desktop",
+ "--talk-name=org.freedesktop.portal.OpenURI",
+ "--talk-name=org.freedesktop.portal.Camera",
+ "--socket=fallback-x11",
+ "--socket=x11",
+ "--socket=wayland",
+ "--socket=pulseaudio",
+ "--device=dri",
+ "--device=shm",
+ "--filesystem=xdg-run/pipewire-0",
+ "--filesystem=home"
+ ]
+ },
+ "win": {
+ "target": "nsis",
+ "icon": "icon.png"
+ },
+ "nsis": {
+ "oneClick": false,
+ "allowToChangeInstallationDirectory": true,
+ "installerSidebar": "installerSidebar.bmp",
+ "installerHeader": "installerHeader.bmp",
+ "shortcutName": "Arborito",
+ "uninstallDisplayName": "Arborito"
+ },
+ "publish": {
+ "provider": "github",
+ "owner": "treesys-org",
+ "repo": "arborito"
+ }
+ }
+}

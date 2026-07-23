@@ -1,0 +1,236 @@
+/*
+ * Universal modal window headbar — same tokens as sheet heroes (Search, More, Profile…).
+ * Mobile dock sheets use plain tone → `.arborito-sheet__hero--mmenu-sub`.
+ */
+
+.arborito-dock-hub-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    padding: max(1rem, env(safe-area-inset-top, 0px)) 1.35rem 0.95rem;
+    background: var(--arborito-theme-sheet-hero-bg);
+    border-bottom: 1px solid var(--arborito-theme-sheet-hero-border);
+    box-shadow: none;
+}
+
+.arborito-dock-hub-head__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0;
+    font-size: 1.25rem;
+    line-height: 1;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.arborito-dock-hub-head__icon img {
+    display: block;
+    width: 1.65rem;
+    height: 1.65rem;
+    object-fit: contain;
+}
+
+.arborito-dock-hub-head__body {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.arborito-dock-hub-head__title {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--arborito-theme-learning-arborito-mmenu-subtitle-color, var(--arborito-theme-dock-hub-head-title));
+}
+
+.arborito-dock-hub-head__subtitle {
+    margin: 0.22rem 0 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--arborito-theme-dock-hub-head-subtitle);
+}
+
+.arborito-dock-hub-head .arborito-mmenu-back {
+    border-color: var(--arborito-theme-dock-hub-head-icon-border);
+    background: var(--arborito-theme-dock-hub-head-icon-bg);
+    color: var(--arborito-theme-dock-hub-head-title);
+}
+
+.arborito-dock-hub-head .arborito-modal-window-x {
+    border-color: var(--arborito-theme-dock-hub-head-icon-border);
+    background: var(--arborito-theme-dock-hub-head-icon-bg);
+    color: var(--arborito-theme-dock-hub-head-title);
+}
+
+.arborito-dock-hub-head .arborito-modal-window-x:hover {
+    background: var(--arborito-theme-dock-hub-head-icon-bg-hover);
+}
+
+/* Desktop hub body scroll (Arcade tabs + content, Biblioteca list) */
+.arborito-dock-hub-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.arborito-dock-hub-body__scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.75rem 1.35rem 1.35rem;
+}
+
+.arborito-dock-hub-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.65rem 1.35rem 0.75rem;
+    border-bottom: 1px solid var(--arborito-theme-modal-head-border);
+    background: var(--arborito-theme-surface-bg);
+}
+
+@media (min-width: 640px) {
+    .arborito-dock-hub-toolbar {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+
+.arborito-dock-hub-shell {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* --- Mobile dock hub layout (canonical — no duplicar en feature CSS) --- */
+
+/* ModalHubHero inside DockHubShell */
+:is(html.arborito-shell-mobile, html.force-mobile)
+    .arborito-dock-hub-shell
+    > .arborito-dock-modal-hero.arborito-mmenu-hero--sheet {
+    align-self: stretch;
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+    margin-top: 0;
+    border-radius: 0;
+}
+
+/* Sheet hero tokens (Search, More sub-panels, Arcade, Profile…) */
+.arborito-sheet__hero--mmenu-sub.arborito-dock-modal-hero,
+.arborito-modal-dock-panel > .arborito-dock-modal-hero {
+    flex-shrink: 0;
+}
+
+.arborito-sheet__hero--mmenu-sub.arborito-dock-modal-hero {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    background: var(--arborito-theme-sheet-hero-bg);
+    border-bottom: 1px solid var(--arborito-theme-sheet-hero-border);
+    box-shadow: none;
+    padding-top: max(0.65rem, env(safe-area-inset-top)) !important;
+    padding-bottom: 0.75rem !important;
+    padding-left: max(1rem, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(1rem, env(safe-area-inset-right, 0px)) !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* Sheets hosting DockHubShell (browse, progress, construction hubs…) */
+:is(
+    html.arborito-shell-mobile,
+    html.force-mobile,
+    html.arborito-construction-mobile:not(.arborito-desktop),
+    html.force-mobile.arborito-construction-mobile:not(.arborito-desktop)
+)
+    :is(
+        .arborito-sheet.arborito-sheet--mobile-more,
+        .construction-panel-host .arborito-sheet--mobile-more
+    ):has(.arborito-dock-hub-shell) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/*
+ * Browse dock hub (Search / Arcade / Forum): tab-cache slots sit between sheet
+ * and DockHubShell — without flex:1 the hero can float below the top.
+ */
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #browse-dock-hub-sheet
+    > :is([data-dock-hub-tab], [data-arborito-panel]) {
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Modal-host hub panels (Arcade, Forum, Profile…) — flex column inside dock backdrop */
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile:is(
+        .arborito-modal--arcade,
+        .arborito-modal--forum,
+        .arborito-modal--profile,
+        .arborito-modal--certificates-hub,
+        .arborito-modal--about,
+        .arborito-modal--dialog,
+        .arborito-modal--backup
+    )
+    > #modal-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-dock-hub-shell > .arborito-dock-hub-head {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-dock-hub-shell > .arborito-dock-hub-body__scroll,
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-dock-hub-shell > .flex-1.flex.flex-col.min-h-0 {
+    -webkit-overflow-scrolling: touch;
+}
+
+.arborito-dock-hub-shell > .arborito-tab-strip,
+.arborito-dock-hub-body > .arborito-tab-strip {
+    flex-shrink: 0;
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* Tab strip nested inside a padded toolbar (e.g. Certificates) — stay flush to toolbar edges. */
+.arborito-dock-hub-toolbar .arborito-tab-strip {
+    flex-shrink: 0;
+    width: 100%;
+    margin: 0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.arborito-float-modal-card--dock-hub .arborito-dock-hub-body__scroll,
+.arborito-dock-hub-body .arborito-dock-hub-body__scroll {
+    flex: 1 1 auto;
+}

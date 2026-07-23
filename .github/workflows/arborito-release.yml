@@ -1,0 +1,238 @@
+# Build Flatpak (Linux), NSIS (Windows), and APK (Android).
+# Manual only: GitHub → Actions → Arborito Release → Run workflow.
+name: Arborito Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_flatpak:
+        description: Linux Flatpak
+        type: boolean
+        default: true
+      build_windows:
+        description: Windows .exe (NSIS)
+        type: boolean
+        default: true
+      build_android:
+        description: Android APK
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-manual
+  cancel-in-progress: true
+
+jobs:
+  build-flatpak:
+    if: inputs.build_flatpak
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Flatpak deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder elfutils ostree
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y flathub org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.electronjs.Electron2.BaseApp//24.08
+      - name: Install (auto-recover from lock drift)
+        run: |
+          npm ci --no-audit --no-fund --prefer-offline \
+            || (echo "::warning::package-lock.json drift; falling back to npm install" \
+                && npm install --no-audit --no-fund --prefer-offline)
+      - run: npm run release:build -- --flatpak
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flatpak
+          path: dist/*.flatpak
+          if-no-files-found: error
+          retention-days: 30
+
+  build-windows:
+    if: inputs.build_windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install (auto-recover from lock drift)
+        run: |
+          npm ci --no-audit --no-fund --prefer-offline
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::warning::package-lock.json drift; falling back to npm install"
+            npm install --no-audit --no-fund --prefer-offline
+          }
+        shell: pwsh
+      - run: npm run release:build -- --win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe
+          path: |
+            dist/*.exe
+            dist/latest.yml
+            dist/*.blockmap
+          if-no-files-found: error
+          retention-days: 30
+
+  build-android:
+    if: inputs.build_android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Verify JDK 21 for Gradle
+        run: |
+          echo "JAVA_HOME=$JAVA_HOME"
+          java -version
+          javac -version
+      - name: Require Android signing secrets
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          missing=
+          [ -n "$ANDROID_KEYSTORE_BASE64" ] || missing="$missing ANDROID_KEYSTORE_BASE64"
+          [ -n "$ANDROID_KEYSTORE_PASSWORD" ] || missing="$missing ANDROID_KEYSTORE_PASSWORD"
+          [ -n "$ANDROID_KEY_ALIAS" ] || missing="$missing ANDROID_KEY_ALIAS"
+          [ -n "$ANDROID_KEY_PASSWORD" ] || missing="$missing ANDROID_KEY_PASSWORD"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing GitHub Actions secrets:$missing"
+            echo "Add ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD"
+            echo "under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+      - name: Install (auto-recover from lock drift)
+        run: |
+          npm ci --no-audit --no-fund --prefer-offline \
+            || (echo "::warning::package-lock.json drift; falling back to npm install" \
+                && npm install --no-audit --no-fund --prefer-offline)
+      - name: Build signed APK
+        env:
+          ANDROID_REQUIRE_SIGN: '1'
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: npm run release:build -- --android
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: dist/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+  publish-release:
+    needs: [build-flatpak, build-windows, build-android]
+    if: |
+      always() &&
+      needs.build-flatpak.result == 'success' &&
+      needs.build-windows.result == 'success' &&
+      needs.build-android.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve release version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_ENV"
+          echo "tag_name=v$VERSION" >> "$GITHUB_ENV"
+          echo "Publishing GitHub Release v$VERSION"
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: '*'
+          merge-multiple: true
+          path: dist
+
+      - name: Verify release artifacts
+        run: |
+          ls -la dist/
+          test -n "$(ls dist/*.flatpak 2>/dev/null)" || (echo "Missing .flatpak" && exit 1)
+          test -n "$(ls dist/*.exe 2>/dev/null)" || (echo "Missing .exe" && exit 1)
+          test -n "$(ls dist/*.apk 2>/dev/null)" || (echo "Missing .apk" && exit 1)
+          test -f dist/latest.yml || (echo "Missing latest.yml (Windows auto-update metadata)" && exit 1)
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="${{ env.tag_name }}"
+          NAME="Arborito ${{ env.version }}"
+          PRE=""
+          case "${{ env.version }}" in
+            *-*) PRE="--prerelease" ;;
+          esac
+          # GitHub sometimes returns the HTML "Unicorn" page (5xx) instead of JSON.
+          # Retry create/upload a few times with backoff.
+          attempt=1
+          max=6
+          while [ "$attempt" -le "$max" ]; do
+            echo "Release attempt $attempt/$max for $TAG"
+            shopt -s nullglob
+            assets=(dist/*.flatpak dist/*.exe dist/*.apk dist/latest.yml dist/*.blockmap)
+            shopt -u nullglob
+            if [ "${#assets[@]}" -eq 0 ]; then
+              echo "::error::No release assets found in dist/"
+              exit 1
+            fi
+            if gh release view "$TAG" >/dev/null 2>&1; then
+              if gh release upload "$TAG" "${assets[@]}" --clobber; then
+                echo "Assets uploaded to existing release $TAG"
+                exit 0
+              fi
+            else
+              if gh release create "$TAG" "${assets[@]}" \
+                --title "$NAME" \
+                --generate-notes \
+                $PRE; then
+                echo "Created release $TAG"
+                exit 0
+              fi
+            fi
+            sleep_s=$(( attempt * 20 ))
+            echo "GitHub API failed (often Unicorn/5xx). Retrying in ${sleep_s}s…"
+            sleep "$sleep_s"
+            attempt=$(( attempt + 1 ))
+          done
+          echo "::error::Could not publish GitHub Release after $max attempts (API HTML/Unicorn or rate limit)."
+          exit 1
+
+  build-summary:
+    needs: [build-flatpak, build-windows, build-android, publish-release]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          echo "## Arborito release" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Paso | Estado |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Flatpak | ${{ needs.build-flatpak.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Windows | ${{ needs.build-windows.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Android | ${{ needs.build-android.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| GitHub Release | ${{ needs.publish-release.result }} |" >> "$GITHUB_STEP_SUMMARY"

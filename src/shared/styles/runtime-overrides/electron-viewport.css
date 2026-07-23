@@ -1,0 +1,116 @@
+/* --- electron-viewport --- */
+/**
+ * Electron-only viewport fixes (html.arborito-electron set in boot).
+ * Loaded via runtime-overrides after main.css — no npm run build:css required.
+ */
+
+/* No centered “phone column” on wide-short windows — stale pixels bleed outside #app. */
+html.arborito-electron.arborito-shell-mobile body.arborito-app #app.arborito-shell {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+}
+
+html.arborito-electron {
+    overflow-x: hidden;
+}
+
+html.arborito-electron body.arborito-app {
+    overflow-x: hidden;
+}
+
+html.arborito-electron body.arborito-app #app.arborito-shell {
+    overflow: hidden;
+    isolation: isolate;
+    width: 100% !important;
+    max-width: none !important;
+}
+
+html.arborito-electron #arborito-graph-tour-anchor,
+html.arborito-electron :is(arborito-graph, [data-arborito-panel="graph"]),
+html.arborito-electron #graph-container,
+html.arborito-electron #mobile-tree-ui {
+    overflow: hidden;
+    contain: layout style;
+}
+
+html.arborito-electron .mobile-trunk-container,
+html.arborito-electron .mobile-trunk-scroll-content {
+    overflow-x: hidden;
+}
+
+/* Root clover bleeds below its wrapper — do not clip the “carita” at the ground line. */
+html.arborito-electron .mobile-trunk-col {
+    overflow: visible;
+}
+
+html.arborito-electron .mobile-trunk-container {
+    scroll-padding-bottom: 1.75rem;
+}
+
+/* visibility:hidden still paints in some Electron builds — use display:none */
+html.arborito-electron.arborito-shell-mobile:not(.arborito-mob-tree-home) :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-top-actions,
+html.arborito-electron.force-mobile:not(.arborito-mob-tree-home) :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-top-actions {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+html.arborito-electron.arborito-shell-mobile:not(.arborito-mob-tree-home) .arborito-tree-pres-anchor,
+html.arborito-electron.force-mobile:not(.arborito-mob-tree-home) .arborito-tree-pres-anchor {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+html.arborito-electron.arborito-shell-mobile:not(.arborito-mob-tree-home) .mobile-tree-ui .arborito-curriculum-switcher-host,
+html.arborito-electron.force-mobile:not(.arborito-mob-tree-home) .mobile-tree-ui .arborito-curriculum-switcher-host {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* JS tooltips — see arbor-tip.js */
+.arborito-chrome-tip[data-arbor-tip]::after {
+    content: none !important;
+    display: none !important;
+}.arborito-tip-float {
+    position: fixed;
+    z-index: 10000;
+    max-width: 14rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 0.65rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.35;
+    text-align: center;
+    color: var(--arborito-theme-chrome-arborito-tip-float-color);
+    background: var(--arborito-theme-chrome-arborito-tip-float-background);
+    border: var(--arborito-theme-chrome-arborito-tip-float-border);
+    box-shadow: 0 10px 24px -12px rgb(15 23 42 / 0.28);
+    pointer-events: none;
+    font-family: var(--font-family-base);
+}
+
+/*
+ * Electron: mob-frame clearance + dock above Sage corner card.
+ * `#app { isolation: isolate }` traps fixed FAB/dock below `body > arborito-sage` (z 160);
+ * drop isolation while Sage is open so the owl can stack above the panel.
+ */
+html.arborito-electron.arborito-sage-open body.arborito-app #app.arborito-shell {
+    isolation: auto;
+}
+
+html.arborito-electron :is(body > arborito-sage, arborito-sage, [data-arborito-panel="sage"]).arborito-sage--open.arborito-sage-mob-frame {
+    bottom: var(--arborito-chrome-dock-gap) !important;
+    height: auto !important;
+    max-height: none !important;
+}
+
+html.arborito-electron.arborito-mob-dock-modal-open :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-dock-wrap,
+html.arborito-electron.arborito-sage-open.arborito-mob-dock-modal-open :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-dock-wrap {
+    z-index: 200 !important;
+}
+
+html.arborito-electron.arborito-sage-open .arborito-desktop-sage-fab {
+    z-index: 200 !important;
+}
+

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Arborito background - Day scene.
+
+ Stylized but illustrative: sky gradient, sun with halo, three soft cloud
+ layers, three layered hill silhouettes (depth), a hint of grass at the
+ bottom + scattered grass tufts. Designed to anchor the LANDSCAPE at the
+ bottom of the viewport (preserveAspectRatio="xMidYMax slice") so as the
+ tree grows / the user scrolls down, the hills stay grounded and the sky
+ expands above to give that "climbing" sensation.
+
+ ViewBox 1920x1080 keeps the source resolution honest at 1080p reference;
+ every layer scales proportionally to any device. SVG is ~6 KB raw.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+ <defs>
+ <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+ <stop offset="0%" stop-color="#a4cee8"/>
+ <stop offset="38%" stop-color="#cee4f1"/>
+ <stop offset="72%" stop-color="#e6f0f5"/>
+ <stop offset="100%" stop-color="#eef7ec"/>
+ </linearGradient>
+ <radialGradient id="sunGlow" cx="86%" cy="16%" r="42%">
+ <stop offset="0%" stop-color="#fff7b3" stop-opacity="0.85"/>
+ <stop offset="22%" stop-color="#fde68a" stop-opacity="0.45"/>
+ <stop offset="55%" stop-color="#fcd34d" stop-opacity="0.16"/>
+ <stop offset="100%" stop-color="#fcd34d" stop-opacity="0"/>
+ </radialGradient>
+ <radialGradient id="sunBody" cx="45%" cy="40%" r="55%">
+ <stop offset="0%" stop-color="#fff9c4"/>
+ <stop offset="55%" stop-color="#fde047"/>
+ <stop offset="100%" stop-color="#f59e0b"/>
+ </radialGradient>
+ <linearGradient id="hillFar" x1="0" y1="0" x2="0" y2="1">
+ <stop offset="0%" stop-color="#b8e0c7"/>
+ <stop offset="100%" stop-color="#a3d4b5"/>
+ </linearGradient>
+ <linearGradient id="hillMid" x1="0" y1="0" x2="0" y2="1">
+ <stop offset="0%" stop-color="#88c79e"/>
+ <stop offset="100%" stop-color="#6fb585"/>
+ </linearGradient>
+ <linearGradient id="hillNear" x1="0" y1="0" x2="0" y2="1">
+ <stop offset="0%" stop-color="#5fa676"/>
+ <stop offset="100%" stop-color="#3f8a5a"/>
+ </linearGradient>
+ </defs>
+
+ <rect width="1920" height="1080" fill="url(#sky)"/>
+ <rect width="1920" height="1080" fill="url(#sunGlow)"/>
+
+ <!-- Sun -->
+ <circle cx="1640" cy="172" r="64" fill="url(#sunBody)" opacity="0.95"/>
+
+ <!-- Clouds (3 layered groups, soft fluffy silhouettes) -->
+ <g opacity="0.95">
+ <g fill="#ffffff">
+ <ellipse cx="250" cy="218" rx="78" ry="20"/>
+ <ellipse cx="198" cy="212" rx="48" ry="17"/>
+ <ellipse cx="308" cy="208" rx="56" ry="19"/>
+ <ellipse cx="263" cy="200" rx="42" ry="15"/>
+ </g>
+ <g fill="#ffffff" opacity="0.82">
+ <ellipse cx="980" cy="378" rx="98" ry="22"/>
+ <ellipse cx="918" cy="370" rx="55" ry="18"/>
+ <ellipse cx="1042" cy="370" rx="58" ry="18"/>
+ <ellipse cx="988" cy="358" rx="48" ry="14"/>
+ </g>
+ <g fill="#ffffff" opacity="0.74">
+ <ellipse cx="1440" cy="492" rx="72" ry="18"/>
+ <ellipse cx="1398" cy="484" rx="44" ry="14"/>
+ <ellipse cx="1486" cy="484" rx="48" ry="15"/>
+ </g>
+ </g>
+
+ <!-- Hills (far near). Cubic curves so they undulate naturally. -->
+ <path d="M-50,742 C300,672 600,712 920,702 C1200,694 1500,720 1980,688 L1980,1080 L-50,1080 Z"
+ fill="url(#hillFar)" opacity="0.55"/>
+ <path d="M-50,830 C260,772 580,800 880,810 C1180,820 1500,792 1980,810 L1980,1080 L-50,1080 Z"
+ fill="url(#hillMid)" opacity="0.7"/>
+ <path d="M-50,915 C220,870 500,880 800,905 C1100,930 1450,900 1980,920 L1980,1080 L-50,1080 Z"
+ fill="url(#hillNear)" opacity="0.85"/>
+
+ <!-- Grass strip + tufts at the absolute bottom (subtle "ground line") -->
+ <rect x="0" y="1042" width="1920" height="38" fill="#2f7d4d" opacity="0.55"/>
+
+ <g fill="#1f6b3c" opacity="0.85">
+ <path d="M40,1080 L42,1048 L37,1048 Z"/>
+ <path d="M48,1080 L51,1054 L44,1054 Z"/>
+ <path d="M152,1080 L154,1044 L148,1044 Z"/>
+ <path d="M160,1080 L163,1052 L156,1052 Z"/>
+ <path d="M276,1080 L278,1050 L272,1050 Z"/>
+ <path d="M308,1080 L310,1046 L304,1046 Z"/>
+ <path d="M422,1080 L424,1043 L418,1043 Z"/>
+ <path d="M448,1080 L452,1052 L444,1052 Z"/>
+ <path d="M572,1080 L574,1048 L568,1048 Z"/>
+ <path d="M608,1080 L611,1054 L604,1054 Z"/>
+ <path d="M734,1080 L736,1046 L730,1046 Z"/>
+ <path d="M778,1080 L780,1050 L774,1050 Z"/>
+ <path d="M892,1080 L894,1044 L888,1044 Z"/>
+ <path d="M922,1080 L925,1054 L918,1054 Z"/>
+ <path d="M1044,1080 L1046,1048 L1040,1048 Z"/>
+ <path d="M1082,1080 L1084,1046 L1078,1046 Z"/>
+ <path d="M1198,1080 L1200,1050 L1194,1050 Z"/>
+ <path d="M1238,1080 L1241,1052 L1234,1052 Z"/>
+ <path d="M1358,1080 L1360,1044 L1354,1044 Z"/>
+ <path d="M1392,1080 L1394,1050 L1388,1050 Z"/>
+ <path d="M1512,1080 L1514,1046 L1508,1046 Z"/>
+ <path d="M1548,1080 L1551,1054 L1544,1054 Z"/>
+ <path d="M1672,1080 L1674,1048 L1668,1048 Z"/>
+ <path d="M1712,1080 L1714,1052 L1708,1052 Z"/>
+ <path d="M1828,1080 L1830,1044 L1824,1044 Z"/>
+ <path d="M1872,1080 L1874,1050 L1868,1050 Z"/>
+ </g>
+</svg>

@@ -1,0 +1,50 @@
+# PR / push gate — Vite must build cleanly before merge.
+name: Arborito Vite
+
+on:
+  push:
+    paths:
+      - "src/**"
+      - "index.html"
+      - "vite.config.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - "postcss.config.js"
+      - "tailwind.config.js"
+      - "locales/**"
+      - "vendor/**"
+      - ".github/workflows/arborito-vite.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "index.html"
+      - "vite.config.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - "postcss.config.js"
+      - "tailwind.config.js"
+      - "locales/**"
+      - "vendor/**"
+  workflow_dispatch: {}
+
+jobs:
+  vite-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install (auto-recover from lock drift)
+        run: |
+          npm ci --no-audit --no-fund --prefer-offline \
+            || (echo "::warning::package-lock.json drift; falling back to npm install" \
+                && npm install --no-audit --no-fund --prefer-offline)
+      - name: Vendor emoji
+        run: npm run vendor:emoji
+      - name: Vite build
+        run: npm run build
+      - name: Verify output
+        run: test -s www/index.html && test -d www/locales && test -d www/vendor

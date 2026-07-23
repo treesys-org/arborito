@@ -1,0 +1,27 @@
+/* Garden progress — merged from progress-scope, mochila-v2, mochila-inline-search, garden-gamification */
+
+/* --- progress-scope --- */
+/* Composed-tree (árbol) vs branch progress chip colors */
+.arborito-progress--tree.arborito-mob-top-actions__btn--progress {
+  --arborito-progress-accent: rgb(251 146 60);
+  border-color: rgb(251 146 60 / 0.45);
+}
+.arborito-progress--tree .arborito-mob-top-actions__progress-pct {
+  color: var(--arborito-theme-accent-orange-fg);
+}
+
+.arborito-progress--branch.arborito-mob-top-actions__btn--progress {
+  --arborito-progress-accent: rgb(34 197 94);
+  border-color: rgb(34 197 94 / 0.4);
+}
+.arborito-progress--branch .arborito-mob-top-actions__progress-pct {
+  color: var(--arborito-theme-accent-green-fg);
+}
+
+.arborito-progress-ring--tree {
+  stroke: rgb(251 146 60);
+}
+.arborito-progress-ring--branch {
+  stroke: rgb(34 197 94);
+}
+

@@ -1,0 +1,11 @@
+{
+  "searchBookmarksEmpty": "Marca una sección con la estrella en la barra de la lección para verla aquí.",
+  "searchCert": "Buscar certificado...",
+  "searchIndexBuilding": "Preparando la búsqueda en este dispositivo… (unos segundos; puedes seguir leyendo el mapa)",
+  "searchIndexFailed": "La búsqueda no se preparó bien en este dispositivo. Puedes seguir usando el curso; prueba a cerrar y volver a abrir la búsqueda más tarde. Si persiste, prueba con otro navegador o recarga la página.",
+  "searchKeepTyping": "Sigue escribiendo para filtrar...",
+  "searchManualBookmarksHeader": "Tus marcadores",
+  "searchPlaceholder": "Buscar temas...",
+  "searchRecentLessonsHeader": "Vistos recientemente",
+  "searchRecentBookmarksHeader": "Lecciones recientes (en curso)"
+}

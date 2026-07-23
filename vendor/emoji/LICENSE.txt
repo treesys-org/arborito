@@ -1,0 +1,37 @@
+Twemoji — emoji graphics bundled in this directory (vendor/emoji/twemoji/)
+==========================================================================
+
+Arborito renders emoji using the Twemoji image set. The PNG assets under
+`twemoji/72x72/` are vendored offline (no runtime CDN) from the Twemoji
+project, currently maintained by jdecked:
+
+  https://github.com/jdecked/twemoji
+  (originally created and released by Twitter, Inc.)
+
+Copyright and licenses
+----------------------
+Copyright 2019 Twitter, Inc and other contributors.
+Copyright 2020-present jdecked and other contributors.
+
+  - Graphics (the emoji images bundled here):
+    Creative Commons Attribution 4.0 International (CC-BY 4.0)
+    https://creativecommons.org/licenses/by/4.0/
+
+  - Source code (the Twemoji library, not redistributed at runtime here):
+    MIT License
+    https://opensource.org/licenses/MIT
+
+Attribution (required by CC-BY 4.0)
+-----------------------------------
+This product includes graphics from Twemoji
+(https://github.com/jdecked/twemoji), © Twitter, Inc. and other
+contributors, licensed under CC-BY 4.0
+(https://creativecommons.org/licenses/by/4.0/).
+
+Changes
+-------
+The original Twemoji 72x72 PNG assets are used as-is. They are copied into
+this directory at build time by `scripts/vendor-emoji-images.mjs`; no
+modifications are made to the image files themselves.
+
+Full CC-BY 4.0 legal code: https://creativecommons.org/licenses/by/4.0/legalcode

@@ -1,0 +1,341 @@
+/* Global dialog body — content below hero, actions pinned at bottom on mobile sheets. */
+
+.arborito-dialog-sheet-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1 1 auto;
+}
+
+.arborito-dialog-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.arborito-dialog-intro {
+    margin: 0 0 0.85rem;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--arborito-theme-dialog-intro-color, rgb(100 116 139));
+}
+
+.arborito-dialog-duplicate-note {
+    margin: 0 0 0.85rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgb(245 158 11 / 0.45);
+    background: rgb(255 251 235 / 0.92);
+    color: rgb(146 64 14);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    font-weight: 600;
+}
+
+html.dark .arborito-dialog-duplicate-note {
+    border-color: rgb(245 158 11 / 0.35);
+    background: rgb(69 26 3 / 0.55);
+    color: rgb(253 230 138);
+}
+
+.arborito-dialog-summary-card {
+    margin: 0;
+    padding: 0.85rem 0.9rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--arborito-theme-dialog-summary-border, rgb(226 232 240));
+    background: var(--arborito-theme-dialog-summary-background, rgb(248 250 252 / 0.95));
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--arborito-theme-dialog-summary-color, rgb(51 65 85));
+    text-align: left;
+    white-space: pre-line;
+}
+
+html.dark .arborito-dialog-summary-card {
+    --arborito-theme-dialog-summary-border: rgb(51 65 85);
+    --arborito-theme-dialog-summary-background: rgb(15 23 42 / 0.72);
+    --arborito-theme-dialog-summary-color: rgb(226 232 240);
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-dialog-body-block {
+    text-align: left;
+    align-items: stretch;
+}
+
+.arborito-dialog-spotlight {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    min-height: 0;
+    padding: 0.5rem 0 1rem;
+    text-align: center;
+}
+
+.arborito-dialog-spotlight__emoji {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    opacity: 0.92;
+}
+
+.arborito-dialog-spotlight__label {
+    margin: 0;
+    max-width: 14rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--arborito-theme-text-muted, rgb(100 116 139));
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) #modal-backdrop.arborito-modal--dialog .arborito-dialog-prompt-field {
+  scroll-margin-bottom: 1.5rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile) #modal-backdrop.arborito-modal--dialog .arborito-dialog-sheet-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.arborito-dialog-choice-sheet {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.arborito-dialog-choice-footer {
+    width: 100%;
+    padding-top: 0.75rem;
+    margin-top: auto;
+}
+
+/* Viewport confirm/alert/prompt (`store.confirm`) — keep CTAs off the divider line. */
+#modal-backdrop.arborito-modal--dialog .arborito-modal-footer {
+    padding-top: 0.875rem;
+}
+
+#modal-backdrop.arborito-modal--dialog.arborito-modal--danger .arborito-modal-footer .btn-confirm,
+#modal-backdrop.arborito-modal--danger .arborito-modal-footer .btn-confirm {
+    min-height: 3rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 800;
+    text-transform: none;
+    letter-spacing: normal;
+    background-color: var(--arborito-cta-red-bg) !important;
+    color: var(--arborito-cta-red-fg) !important;
+    box-shadow: 0 4px 14px rgb(220 38 38 / 0.35);
+}
+
+#modal-backdrop.arborito-modal--dialog.arborito-modal--danger .arborito-modal-footer .btn-confirm:hover:not(:disabled),
+#modal-backdrop.arborito-modal--danger .arborito-modal-footer .btn-confirm:hover:not(:disabled) {
+    background-color: var(--arborito-cta-red-bg-hover) !important;
+}
+
+#modal-backdrop.arborito-modal--dialog .arborito-modal-footer .btn-confirm.arborito-cta-red {
+    min-height: 3rem;
+    font-size: 0.875rem;
+    font-weight: 800;
+    text-transform: none;
+    letter-spacing: normal;
+    box-shadow: 0 4px 14px rgb(220 38 38 / 0.35);
+}
+
+.arborito-dialog-choice-footer .arborito-action-row {
+    width: 100%;
+}
+
+.arborito-dialog-choice-pick-list {
+    width: 100%;
+    text-align: left;
+}
+
+.arborito-dialog-choice-pick-list > button {
+    min-height: 2.75rem;
+}
+
+/* Profile-stack child sheets (QR, recovery…) — fill overlay, same body rhythm as dialog. */
+.arborito-profile-stack-dialog {
+    background: var(--arborito-surface-panel, rgb(255 255 255));
+}
+
+html.dark .arborito-profile-stack-dialog {
+    background: rgb(15 23 42);
+}
+
+.arborito-profile-stack-dialog .arborito-dock-hub-shell,
+.arborito-profile-stack-dialog .arborito-dock-hub-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+}
+
+/* In-hub binary confirm (Biblioteca delete, snapshot delete, …) — consolidated card chrome. */
+.arborito-nested-confirm-scrim {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 1rem;
+    background: var(--arborito-modal-overlay, rgb(2 6 23 / 0.32));
+    z-index: 1;
+    opacity: 1;
+    animation: none;
+    pointer-events: auto;
+}
+
+@media (min-width: 640px) {
+    .arborito-nested-confirm-scrim {
+        padding: 1.5rem;
+    }
+}
+
+.arborito-nested-confirm-card {
+    width: min(92vw, 20rem);
+    max-width: min(92vw, 20rem);
+    height: auto;
+    min-height: 0;
+    max-height: min(86vh, 32rem);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    overflow: visible;
+    box-sizing: border-box;
+    /* Real CSS padding — do not rely on Tailwind utilities from JS strings. */
+    padding: 1.75rem 1.5rem 1.5rem;
+    box-shadow: var(--arborito-theme-float-card-shadow, 0 22px 48px -12px rgb(0 0 0 / 0.38)) !important;
+}
+
+@media (min-width: 640px) {
+    .arborito-nested-confirm-card {
+        padding: 2rem 1.75rem 1.75rem;
+    }
+}
+
+/* Form prompts: Language / DialogModal header (full-bleed hero) + padded body + footer. */
+.arborito-nested-confirm-card.arborito-nested-form-card {
+    width: min(92vw, 28rem);
+    max-width: min(92vw, 28rem);
+    max-height: min(86vh, 40rem);
+    align-items: stretch;
+    text-align: left;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+    animation: arborito-nested-form-pop 0.28s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+@keyframes arborito-nested-form-pop {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .arborito-nested-confirm-card.arborito-nested-form-card {
+        animation: none;
+    }
+}
+
+.arborito-nested-form-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    width: 100%;
+    max-height: inherit;
+}
+
+.arborito-nested-form-shell > .arborito-dock-modal-hero,
+.arborito-nested-form-shell > .arborito-modal-footer {
+    flex-shrink: 0;
+}
+
+.arborito-nested-form-card .arborito-sheet__hero--mmenu-sub.arborito-dock-modal-hero {
+    border-radius: 0;
+}
+
+.arborito-nested-form-card .arborito-float-modal-head.arborito-dock-modal-hero,
+.arborito-nested-form-card .arborito-sheet__hero--mmenu-sub.arborito-dock-modal-hero {
+    border-bottom: 1px solid var(--arborito-theme-modal-head-border);
+}
+
+.arborito-nested-form-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0.75rem 1rem 1rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+@media (min-width: 640px) {
+    .arborito-nested-form-body {
+        padding: 0.75rem 1.25rem 1.25rem;
+    }
+}
+
+.arborito-nested-form-card .arborito-modal-footer {
+    width: 100%;
+    margin: 0;
+    padding: 0.75rem 1rem max(1rem, env(safe-area-inset-bottom)) !important;
+    border-top: 1px solid var(--arborito-theme-modal-head-border) !important;
+    background: transparent !important;
+}
+
+@media (min-width: 640px) {
+    .arborito-nested-form-card .arborito-modal-footer {
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+    }
+}
+
+.arborito-nested-form-card .arborito-dialog-intro {
+    margin-top: 0;
+}
+
+.arborito-nested-confirm-card:not(.arborito-nested-form-card) .arborito-modal-footer {
+    width: 100%;
+    margin: 0;
+    padding: 0.25rem 0 0 !important;
+    border-top: none !important;
+    background: transparent !important;
+}
+
+.arborito-nested-confirm-card:not(.arborito-nested-form-card) {
+    align-items: center;
+    text-align: center;
+}
+
+.arborito-nested-confirm-card .arborito-action-row {
+    width: 100%;
+    padding-top: 0;
+    gap: 0.75rem;
+}
+
+/* Card already gaps children — don't stack margin on the footer. */
+.arborito-nested-confirm-card .arborito-callout + .arborito-modal-footer {
+    margin-top: 0;
+}
+
+.arborito-nested-confirm-card .arborito-callout__icon {
+    font-size: 1.75rem;
+    line-height: 1;
+}
+
+.arborito-nested-confirm-card .arborito-callout__title {
+    font-size: 1.0625rem;
+    line-height: 1.35;
+}

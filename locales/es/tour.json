@@ -1,0 +1,222 @@
+{
+  "tourAriaLabel": "Recorrido por la interfaz",
+  "tourDone": "Listo",
+  "tourNext": "Siguiente",
+  "tourPrev": "Atrás",
+  "tourSkip": "Saltar recorrido",
+  "tourSourcesPickerBody": "Toca Arborito demo para abrir el curso de ejemplo. El recorrido sigue en el mapa.",
+  "tourSourcesPickerTitle": "Abre una rama",
+  "tourStepIndicator": "Paso {n} de {total}",
+  "uiTourSteps": [
+    {
+      "target": "graph-root",
+      "title": "La raíz del árbol",
+      "body": "Aquí empieza tu rama 🌳. Desde la raíz abres carpetas 🗂️, lecciones 📄 y exámenes ⚔️. Toca una carpeta o lección para entrar; debajo verás lo que contiene."
+    },
+    {
+      "target": "home",
+      "title": "Volver al mapa",
+      "body": "El logo te lleva al inicio del árbol cuando te pierdas o quieras una vista amplia."
+    },
+    {
+      "target": "sources",
+      "title": "Cambiar de árbol",
+      "body": "Vuelve aquí para cargar otra rama u otro árbol cuando quieras estudiar otro tema."
+    },
+    {
+      "target": "arcade",
+      "title": "Arcade",
+      "body": "Practica con juegos que pueden adaptarse a lo que estás estudiando."
+    },
+    {
+      "target": "construct",
+      "title": "Modo Construcción",
+      "body": "Actívalo para crear carpetas y lecciones, o reorganizar el árbol en árboles editables."
+    },
+    {
+      "target": "search",
+      "title": "Buscar temas",
+      "body": "Abre la búsqueda para saltar a un tema por nombre sin recorrer todo el mapa."
+    },
+    {
+      "target": "profile",
+      "title": "Perfil y mochila",
+      "body": "Tu avatar abre el menú: perfil, exportar progreso, logros y sincronización opcional entre dispositivos."
+    },
+    {
+      "target": "sage-fab",
+      "title": "Guía en Sage",
+      "body": "Toca el búho 🦉 y elige «¿Qué es Arborito?» para la guía por temas: navegación, jardín, arcade y más."
+    }
+  ],
+  "uiTourStepsConstruction": [
+    {
+      "target": "construct",
+      "title": "Modo construcción",
+      "body": "El casco ⛑️ está activo: puedes editar el curso. Toca una carpeta o lección del mapa para abrir su panel. Pulsa otra vez el casco para volver al modo estudio."
+    },
+    {
+      "target": "con-undo",
+      "title": "Deshacer cambios",
+      "body": "El reloj 🕒 abre el historial: vuelve atrás o adelante en tus cambios y compara antes y después."
+    },
+    {
+      "target": "con-lang",
+      "title": "Idioma",
+      "body": "🌐 Cambia o agrega idiomas del curso. Cada idioma tiene sus propios títulos y textos."
+    },
+    {
+      "target": "con-info",
+      "title": "Datos del curso",
+      "body": "ℹ️ Antes de publicar, escribe una descripción corta (al menos 5 letras). Opcional: un enlace de ayuda. Pulsa Guardar. Con cuenta online apareces como autor."
+    },
+    {
+      "target": "con-gov",
+      "title": "Colaboradores",
+      "body": "Invita a otras personas y elige quién puede editar este curso."
+    },
+    {
+      "target": "con-publish",
+      "title": "Publicar",
+      "body": "Cuando esté listo, publica en línea o actualiza lo que ya compartiste. El borrador local sigue aparte."
+    },
+    {
+      "target": "cloud-sync",
+      "title": "Copia de seguridad",
+      "body": "Los cambios se guardan primero en este dispositivo. Opcional: activa la cuenta para tener copia en otros equipos."
+    },
+    {
+      "target": "profile",
+      "title": "Tu perfil",
+      "body": "Tu avatar abre el perfil: nombre, foto y cuenta (opcional). Sin cuenta, todo queda en este dispositivo."
+    },
+    {
+      "target": "sage-fab",
+      "title": "Ayuda del búho 🦉",
+      "body": "Si te pierdes, toca el búho: Sage te explica qué hacer según lo que estés editando."
+    }
+  ],
+  "uiTourStepsConstructionMobile": [
+    {
+      "target": "con-exit",
+      "title": "Modo construcción",
+      "body": "Estás editando el curso. La flecha ← del dock te devuelve al modo estudio. Toca una carpeta o lección del mapa para editarla."
+    },
+    {
+      "target": "con-undo",
+      "title": "Deshacer cambios",
+      "body": "El reloj 🕒 abre el historial: puedes volver atrás o adelante en los cambios del mapa."
+    },
+    {
+      "target": "con-info",
+      "title": "Datos del curso",
+      "body": "ℹ️ Antes de publicar, escribe una descripción corta (al menos 5 letras). Opcional: un enlace de ayuda. Pulsa Guardar. Con cuenta online apareces como autor."
+    },
+    {
+      "target": "con-more",
+      "title": "Más opciones",
+      "body": "🌐 Cambia el idioma, invita colaboradores, revisa permisos y compara tu borrador con lo publicado."
+    },
+    {
+      "target": "con-publish",
+      "title": "Publicar",
+      "body": "Cuando esté listo, publica aquí o actualiza la copia en línea. Tu borrador local sigue aparte."
+    },
+    {
+      "target": "mob-profile",
+      "title": "Tu perfil",
+      "body": "Tu avatar abre el perfil: nombre, foto y cuenta (opcional). Sin cuenta, todo queda guardado en este dispositivo."
+    },
+    {
+      "target": "con-ai",
+      "title": "Ayuda del búho 🦉",
+      "body": "Si te pierdes, toca el búho: Sage te explica qué hacer según lo que estés editando."
+    }
+  ],
+  "uiTourStepsMobile": [
+    {
+      "target": "graph-root",
+      "title": "La raíz del árbol",
+      "body": "Este círculo con el logo es la raíz 🌳 de tu rama. Toca las carpetas y lecciones de abajo para entrar."
+    },
+    {
+      "target": "mob-home",
+      "title": "Inicio",
+      "body": "Vuelve al mapa principal del árbol desde cualquier sitio."
+    },
+    {
+      "target": "mob-search",
+      "title": "Buscar",
+      "body": "Encuentra lecciones por nombre sin recorrer todo el bosque."
+    },
+    {
+      "target": "mob-sage",
+      "title": "Sage, tu guía",
+      "body": "El búho abre atajos y la guía «¿Qué es Arborito?». Sin IA obligatoria: solo lo escrito en tu curso."
+    },
+    {
+      "target": "mob-arcade",
+      "title": "Arcade",
+      "body": "Juegos de práctica relacionados con lo que estudias."
+    },
+    {
+      "target": "mob-more",
+      "title": "Más",
+      "body": "Guía, árboles, logros, idioma y herramientas. Perfil y tema van arriba a la derecha."
+    }
+  ],
+  "uiTourStepsLessonEdit": [
+    {
+      "target": "lesson-edit-meta",
+      "title": "Título y descripción",
+      "body": "Pon título, descripción y emoji. Aparecen en el mapa y en la búsqueda. Sin esto no se publica la lección."
+    },
+    {
+      "target": "lesson-edit-toolbar",
+      "title": "Barra de edición",
+      "body": "A la izquierda: ↩ deshace, B e I dan formato, Aa abre más opciones de texto. A la derecha: 📋 abre el cuestionario y + inserta bloques."
+    },
+    {
+      "target": "lesson-edit-insert",
+      "title": "Insertar bloques",
+      "body": "Pulsa + y elige imagen, video, aviso, juego u otro bloque para añadirlo al texto."
+    },
+    {
+      "target": "lesson-edit-quiz",
+      "title": "Cuestionario",
+      "body": "Pulsa 📋 para crear o editar el cuestionario. Con pregunta y respuesta correcta activas juegos en el Arcade."
+    },
+    {
+      "target": "lesson-edit-toc",
+      "title": "Temario",
+      "body": "Pulsa el botón de lista para ver las partes de la lección. 🎮 indica si esa parte tiene cuestionario listo para juegos."
+    },
+    {
+      "target": "lesson-edit-save",
+      "title": "Guardar",
+      "body": "Guarda en el borrador local. Para publicar en línea usa el botón Publicar del mapa."
+    }
+  ],
+  "uiTourStepsSourcesPicker": [
+    {
+      "target": "sources-main-tabs",
+      "title": "El Bosque",
+      "body": "Aquí gestionas ramas y árboles. Una rama es un curso completo."
+    },
+    {
+      "target": "sources-tab-trees",
+      "title": "Los árboles",
+      "body": "Los árboles combinan varias ramas. Cuando quieras volver a las ramas, cambia la pestaña de arriba."
+    },
+    {
+      "target": "sources-trees-footer",
+      "title": "Crea o importa",
+      "body": "Puedes crear tu propio árbol o rama para enseñar, compartir sin conexión e importarlo cuando quieras."
+    },
+    {
+      "target": "sources-demo-branch",
+      "title": "Toca para cargar",
+      "body": "Pulsa la tarjeta Arborito demo para cargar el curso. Cuando abra en el mapa, el recorrido sigue."
+    }
+  ]
+}

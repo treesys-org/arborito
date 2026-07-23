@@ -1,0 +1,24 @@
+/**
+ * Arborito — style entry for PostCSS + Tailwind (no CDN).
+ * See `README.md` in this folder. Build: npm run build:css
+ *
+ * Order: tokens → reset → own modules → @tailwind (last for cascade).
+ * Keep custom CSS BEFORE @tailwind: the Tailwind CLI drops rules placed after @tailwind utilities.
+ */
+@import "./foundation/arborito-foundation.css";
+@import "./foundation/theme-surfaces/index.css";
+@import url("./utilities/index.css");
+@import url("../../features/publishing/styles/arborito-publishing-lock.css");
+@import url("../../features/identity-auth/styles/index.css");
+@import url("../../features/tree-graph/styles/index.css");
+@import url("../../features/garden-progress/styles/index.css");
+@import url("../../features/shell-chrome/styles/index.css");
+@import url("../../features/learning/styles/learning/index.css");
+@import url("./layout/app-flex-and-pointer-hosts.css");
+@import url("./components/arborito-sage-shell.css");
+@import url("./modals/index.css");
+@import url("../../features/privacy-gdpr/styles/font-fingerprint-quiet.css");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

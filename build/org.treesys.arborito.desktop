@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Arborito
+GenericName=Visual Knowledge Explorer
+Comment=Free open-source education app: visual lesson maps, quizzes, Memory Garden, optional Arcade, local-first progress; no subscription or ads.
+Exec=electron-wrapper %U
+Icon=org.treesys.arborito
+Categories=Education;
+Keywords=arborito;education;learning;lessons;tree;quiz;memory-garden;
+StartupWMClass=org.treesys.arborito
+Terminal=false

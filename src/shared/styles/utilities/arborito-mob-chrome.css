@@ -1,0 +1,147 @@
+/**
+ * Mobile chrome — one ruler for tabs, top actions, square buttons, scroll panes.
+ * Tokens live in arborito-foundation.css (--arborito-mob-*).
+ */
+
+/* --- Scroll host under dock sheet heroes --- */
+.arborito-mob-scroll-pane {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.arborito-mob-scroll-pane.custom-scrollbar,
+.custom-scrollbar.arborito-mob-scroll-pane {
+    overflow-y: auto;
+}
+
+.arborito-mob-scroll-pane--pad {
+    padding: var(--arborito-mob-scroll-pad, 1.25rem);
+}
+
+.arborito-mob-scroll-pane--pad-lg {
+    padding: var(--arborito-mob-scroll-pad-lg, 1.5rem);
+}
+
+/* --- Square touch action (send, mic, dock-adjacent CTAs) --- */
+.arborito-icon-btn--touch,
+.arborito-mob-sq-btn {
+    width: var(--arborito-mob-touch);
+    height: var(--arborito-mob-touch);
+    min-width: var(--arborito-mob-touch);
+    min-height: var(--arborito-mob-touch);
+    border-radius: var(--arborito-mob-sq-radius, 0.75rem);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* --- Shared tab footprint (floating dock pill) --- */
+.arborito-mob-dock--floating .arborito-mob-tab {
+    flex: 0 1 auto;
+    min-width: var(--arborito-mob-tab-min);
+    max-width: var(--arborito-mob-tab-max);
+    gap: var(--arborito-mob-tab-gap);
+    padding: var(--arborito-mob-tab-pad-y) var(--arborito-mob-tab-pad-x);
+}
+
+.arborito-mob-dock--floating .arborito-mob-tab__label {
+    font-size: var(--arborito-mob-tab-label);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    display: block !important;
+    -webkit-box-orient: unset !important;
+    -webkit-line-clamp: unset !important;
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.arborito-mob-dock--floating .arborito-mob-tab__icon {
+    font-size: var(--arborito-mob-tab-icon);
+    line-height: 1;
+    height: var(--arborito-mob-tab-icon-h, var(--arborito-mob-tab-icon));
+    min-height: var(--arborito-mob-tab-icon-h, var(--arborito-mob-tab-icon));
+}
+
+.arborito-mob-dock--floating {
+    width: auto !important;
+    max-width: var(--arborito-mob-dock-float-max) !important;
+    min-height: var(--arborito-mob-dock-bar-height);
+    box-sizing: border-box;
+    padding: var(--arborito-mob-dock-pad-y) var(--arborito-mob-dock-pad-x);
+    gap: var(--arborito-mob-dock-gap, 0.15rem);
+    justify-content: center;
+    align-items: stretch;
+    border-radius: var(--arborito-mob-dock-float-radius);
+    border: 1px solid var(--arborito-moss-border);
+    border-top: 1px solid var(--arborito-moss-border);
+}
+
+/* Construction dock tab variants (desktop floating pill + mobile bar). */
+html.arborito-construction-mobile .construction-panel-host .arborito-mob-tab--accent {
+    color: var(--arborito-theme-construction-mob-tab--accent-color);
+}
+
+html.arborito-construction-mobile .construction-panel-host .arborito-mob-tab--blue {
+    color: var(--arborito-theme-construction-mob-tab--blue-color);
+}
+
+html.arborito-construction-mobile .construction-panel-host .arborito-mob-tab--cta {
+    border: var(--arborito-theme-construction-mob-tab--cta-border);
+    background: var(--arborito-theme-construction-mob-tab--cta-background);
+}
+
+html.arborito-construction-mobile .construction-panel-host .arborito-mob-tab--cta-amber {
+    color: var(--arborito-theme-construction-mob-tab--cta-amber-color);
+    border-color: var(--arborito-theme-construction-mob-tab--cta-amber-border-color);
+    background: var(--arborito-theme-construction-mob-tab--cta-amber-background);
+}
+
+html.arborito-construction-mobile .construction-panel-host .arborito-mob-tab--cta-danger {
+    color: var(--arborito-theme-construction-mob-tab--cta-danger-color);
+    border-color: var(--arborito-theme-construction-mob-tab--cta-danger-border-color);
+    background: var(--arborito-theme-construction-mob-tab--cta-danger-background);
+}
+
+html.arborito-construction-mobile .construction-panel-host--float-dock .arborito-mob-dock--floating {
+    background: var(--arborito-theme-mob-dock-background);
+    box-shadow: var(--arborito-theme-mob-dock-box-shadow);
+    border: var(--arborito-theme-mob-dock-border-top);
+}
+
+@media (max-width: 767px) {
+    :is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+        .construction-panel-host
+        .arborito-mob-tab--accent:not(.arborito-mob-tab--cta),
+    :is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
+        .construction-panel-host
+        .arborito-mob-tab--blue {
+        color: var(--arborito-theme-construction-mob-tab-scroll-muted-color);
+    }
+}
+
+/* Top-right chrome chips use the same round control size */
+.arborito-mob-top-actions__btn {
+    width: var(--arborito-mob-chrome-btn);
+    height: var(--arborito-mob-chrome-btn);
+}
+
+.arborito-mob-top-actions__btn--profile,
+.arborito-mob-top-actions__btn--progress {
+    height: var(--arborito-mob-chrome-btn);
+}
+
+/* Sage guide hub tiles: icon slot matches tab min width (full-mob hub only) */
+.arborito-sage-guide-full-mob .sage-guide-cards--grid .sage-card--compact .sage-card__icon,
+.arborito-sage-guide-full-mob .sage-guide-cards--duo .sage-card--compact .sage-card__icon,
+.arborito-sage-guide-full-mob .sage-guide-cards--stack .sage-card--compact .sage-card__icon {
+    width: var(--arborito-mob-tab-min);
+    height: var(--arborito-mob-tab-min);
+    font-size: 1.35rem;
+    border-radius: 0.85rem;
+}

@@ -1,0 +1,1076 @@
+/* --- lesson-toc-sheet — syllabus rows, format/insert panels --- */
+
+/* --- lesson-toc-nav --- */
+
+.arborito-lesson-toc-sheet .btn-toc.arborito-lesson-toc-item {
+    color: var(--arborito-theme-toc-item-color);
+    background-color: var(--arborito-theme-toc-item-background);
+    border-color: var(--arborito-theme-toc-item-border);
+}
+
+.arborito-lesson-toc-sheet .btn-toc.arborito-lesson-toc-item:hover {
+    background-color: var(--arborito-theme-hover-surface-opaque);
+}
+
+.arborito-lesson-toc-sheet .btn-toc.arborito-lesson-toc-item.is-active,
+.arborito-lesson-toc-sheet .btn-toc.arborito-lesson-toc-item[aria-current="true"] {
+    color: var(--arborito-theme-toc-active-fg);
+    background-color: var(--arborito-theme-toc-active-bg);
+    border-color: var(--arborito-theme-toc-active-border);
+}
+
+@keyframes arborito-attention-pulse {
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgb(251 191 36 / 0);
+    }
+    50% {
+        box-shadow:
+            0 0 0 3px rgb(251 191 36 / 0.55),
+            0 0 20px rgb(251 191 36 / 0.35);
+    }
+}
+
+.arborito-toc-attention {
+    animation: arborito-attention-pulse 0.9s ease-in-out 3;
+    outline: 2px solid rgb(251 191 36);
+    outline-offset: 2px;
+}
+
+.arborito-quiz-attention {
+    animation: arborito-attention-pulse 0.9s ease-in-out 3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .arborito-toc-attention,
+    .arborito-quiz-attention {
+        animation: none;
+        outline: 2px solid rgb(251 191 36);
+    }
+}
+
+/* Punto / tick en la lista de temas */
+
+.arborito-lesson-toc-sheet .arborito-lesson-toc-item .js-toc-tick {
+    flex-shrink: 0;
+    min-width: 1.375rem;
+    min-height: 1.375rem;
+    position: relative;
+    z-index: 2;
+    overflow: visible;
+}
+
+.arborito-lesson-toc-sheet .arborito-lesson-toc-item .js-toc-tick .arborito-toc-tick-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: 0.875rem;
+    line-height: 1;
+    color: rgb(34 197 94);
+}
+
+.arborito-lesson-toc-sheet .arborito-lesson-toc-item .js-toc-tick .arborito-toc-tick-mark svg {
+    display: block;
+    width: 0.9em;
+    height: 0.9em;
+}
+
+.arborito-lesson-toc-sheet .arborito-lesson-toc-item.is-active .js-toc-tick .arborito-toc-tick-mark {
+    color: rgb(22 163 74);
+}
+
+html:not(.arborito-desktop) .arborito-lesson-toc-sheet .arborito-lesson-toc-item .js-toc-tick {
+    min-width: 1.5rem;
+    min-height: 1.5rem;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-toc-sheet .arborito-lesson-toc-item .js-toc-tick .arborito-toc-tick-mark {
+    font-size: 0.9375rem;
+}
+
+.arborito-lesson-toc-sheet .arborito-lesson-toc-item .js-toc-tick span.arborito-toc-tick-dot.rounded-full.border {
+    border-color: var(--arborito-theme-border-muted);
+}
+
+/* Mobile: syllabus panel floats over #content-area; without explicit z-index the reader stole +/- taps */
+
+html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area {
+    position: relative;
+    z-index: 0;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-toc-sheet__head:has(.arborito-mmenu-hero--sheet) {
+    padding: 0;
+    border-bottom: 0;
+    background: transparent;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-toc-sheet__toolbar {
+    flex-shrink: 0;
+    padding: 0.35rem 1rem 0.75rem;
+    border-bottom: 1px solid rgb(226 232 240 / 0.65);
+    background: var(--arborito-theme-learning-arborito-lesson-toc-sheet__head-background);
+}
+
+html.dark:not(.arborito-desktop) .arborito-lesson-toc-sheet__toolbar {
+    border-bottom-color: rgb(51 65 85 / 0.55);
+}
+
+html:not(.arborito-desktop) .arborito-lesson-toc-sheet__toolbar .arborito-lesson-toc-filter-wrap {
+    margin: 0;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-toc-sheet {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    max-height: 100dvh;
+    z-index: 50;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Mobile temario portaled above lesson chrome (sticky head z-index 130). */
+
+html:not(.arborito-desktop) .arborito-lesson-toc-sheet--portaled {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-height: 100dvh;
+    z-index: 190;
+    border-radius: 0;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-toc-backdrop--portaled {
+    position: fixed;
+    inset: 0;
+    z-index: 185;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-toc-sheet--portaled:not(.is-collapsed) {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+}
+
+.arborito-lesson-toc-sheet__scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+/* Lesson format bar (construction): two rows, dropdown not clipped */
+
+.lesson-editor-toolbar-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+    flex: 1;
+}
+
+.lesson-editor-toolbar-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.lesson-editor-toolbar-row--insert {
+    padding-top: 0.15rem;
+}
+
+/* Format / insert dropdown panels (inline under toolbar toggle; no body portal). */
+
+.lesson-editor-format-panel,
+.lesson-editor-insert-panel {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 0.35rem);
+    z-index: 120;
+    display: flex;
+    flex-direction: column;
+    min-width: 11.5rem;
+    max-width: min(18rem, calc(100vw - 2rem));
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    background: rgb(255 255 255);
+    border: 1px solid rgb(226 232 240 / 0.8);
+    box-shadow: 0 20px 25px -5px rgb(15 23 42 / 0.12), 0 8px 10px -6px rgb(15 23 42 / 0.08);
+}
+
+.lesson-editor-dropdown-portal.lesson-editor-format-panel,
+.lesson-editor-dropdown-portal.lesson-editor-insert-panel {
+    position: fixed;
+    left: auto;
+    top: auto;
+}
+
+.dark .lesson-editor-format-panel,
+.dark .lesson-editor-insert-panel {
+    background: rgb(15 23 42);
+    border-color: rgb(51 65 85 / 0.7);
+}
+
+.lesson-editor-format-panel {
+    gap: 0.5rem;
+    min-width: 20rem;
+    max-width: min(36rem, calc(100vw - 1.5rem));
+}
+
+.lesson-editor-insert-panel {
+    gap: 0.25rem;
+    border-color: rgb(252 211 77 / 0.5);
+    max-height: min(70vh, 32rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+html.arborito-desktop .lesson-editor-dropdown-portal.lesson-editor-format-panel {
+    min-width: 30rem;
+    max-width: min(36rem, calc(100vw - 2rem));
+}
+
+html.arborito-desktop .lesson-editor-dropdown-portal.lesson-editor-insert-panel {
+    min-width: 26rem;
+    max-width: min(34rem, calc(100vw - 2rem));
+    max-height: min(88vh, 40rem);
+}
+
+.dark .lesson-editor-insert-panel {
+    border-color: rgb(217 119 6 / 0.5);
+}
+
+.lesson-editor-menu-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.25rem;
+    padding: 0.45rem 0.65rem;
+    border-radius: 0.55rem;
+    border: 1px solid rgb(203 213 225);
+    background: rgb(248 250 252);
+    font-weight: 700;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    color: rgb(51 65 85);
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.lesson-editor-format-panel .lesson-editor-menu-item {
+    min-width: 0;
+}
+
+.lesson-editor-menu-item:hover {
+    background: rgb(241 245 249);
+    border-color: rgb(148 163 184);
+}
+
+.dark .lesson-editor-menu-item {
+    border-color: rgb(71 85 105);
+    background: rgb(30 41 59);
+    color: rgb(226 232 240);
+}
+
+.dark .lesson-editor-menu-item:hover {
+    background: rgb(51 65 85);
+    border-color: rgb(100 116 139);
+}
+
+.lesson-editor-insert-panel__opt.block-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    min-height: 2.75rem;
+    padding: 0.55rem 0.65rem;
+    border-radius: 0.65rem;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: var(--arborito-theme-learning-block-btn-border);
+    background: var(--arborito-theme-learning-block-btn-background);
+    color: var(--arborito-theme-learning-block-btn-color);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.12s ease,
+        transform 0.1s ease;
+}
+
+.lesson-editor-insert-panel__opt.block-btn:active {
+    transform: scale(0.99);
+}
+
+html:not(.arborito-desktop) .lesson-editor-insert-panel {
+    min-width: min(18rem, calc(100vw - 2rem));
+    max-width: calc(100vw - 2rem);
+}
+
+html:not(.arborito-desktop) .lesson-editor-insert-panel__opt.block-btn {
+    min-height: 3rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+}
+
+.arborito-code-edit {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.arborito-code-edit .arborito-code-input {
+    overflow-x: auto;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+.arborito-table-edit__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem 1rem;
+    margin-right: 1.25rem;
+}
+
+.arborito-table-edit__group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.arborito-table-edit__group-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: rgb(100 116 139);
+    line-height: 1;
+    user-select: none;
+}
+
+.dark .arborito-table-edit__group-label {
+    color: rgb(148 163 184);
+}
+
+.arborito-table-edit__segment {
+    display: inline-flex;
+    align-items: stretch;
+    gap: 0.55rem;
+}
+
+.arborito-table-edit__btn {
+    appearance: none;
+    border: 1px solid rgb(203 213 225);
+    border-radius: 0.7rem;
+    background: rgb(255 255 255);
+    color: rgb(71 85 105);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0;
+    cursor: pointer;
+    line-height: 0;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.dark .arborito-table-edit__btn {
+    border-color: rgb(71 85 105);
+    background: rgb(15 23 42 / 0.55);
+    color: rgb(203 213 225);
+}
+
+.arborito-table-edit__btn--del {
+    color: rgb(148 163 184);
+}
+
+.dark .arborito-table-edit__btn--del {
+    color: rgb(148 163 184);
+}
+
+.arborito-table-edit__btn--add {
+    color: rgb(14 165 233);
+}
+
+.dark .arborito-table-edit__btn--add {
+    color: rgb(56 189 248);
+}
+
+.arborito-table-edit__btn:hover {
+    background: rgb(241 245 249);
+}
+
+.dark .arborito-table-edit__btn:hover {
+    background: rgb(30 41 59);
+}
+
+.arborito-table-edit__btn--del:hover {
+    color: rgb(239 68 68);
+    background: rgb(254 242 242);
+    border-color: rgb(252 165 165);
+}
+
+.dark .arborito-table-edit__btn--del:hover {
+    color: rgb(252 165 165);
+    background: rgb(127 29 29 / 0.35);
+    border-color: rgb(185 28 28 / 0.55);
+}
+
+.arborito-table-edit__btn--add:hover {
+    color: rgb(2 132 199);
+    background: rgb(240 249 255);
+    border-color: rgb(125 211 252);
+}
+
+.dark .arborito-table-edit__btn--add:hover {
+    color: rgb(125 211 252);
+    background: rgb(12 74 110 / 0.35);
+    border-color: rgb(14 165 233 / 0.55);
+}
+
+.arborito-table-edit__btn:active {
+    transform: scale(0.96);
+}
+
+.arborito-table-edit__btn:focus-visible {
+    outline: 2px solid rgb(14 165 233 / 0.55);
+    outline-offset: 2px;
+    z-index: 1;
+}
+
+.arborito-table-edit__icon {
+    display: block;
+    flex-shrink: 0;
+    width: 1.15rem;
+    height: 1.15rem;
+}
+
+.arborito-table-edit__scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.arborito-table-edit__table {
+    width: 100%;
+    min-width: 16rem;
+    border-collapse: collapse;
+    background: rgb(255 255 255);
+    border-radius: 0.65rem;
+    overflow: hidden;
+}
+
+.dark .arborito-table-edit__table {
+    background: rgb(15 23 42 / 0.55);
+}
+
+.arborito-table-edit__cell {
+    border: 1px solid rgb(226 232 240);
+    padding: 0.55rem 0.65rem;
+    min-width: 5.5rem;
+    vertical-align: top;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: rgb(30 41 59);
+    outline: none;
+}
+
+.dark .arborito-table-edit__cell {
+    border-color: rgb(51 65 85);
+    color: rgb(226 232 240);
+}
+
+.arborito-table-edit__table thead .arborito-table-edit__cell {
+    background: rgb(241 245 249);
+    font-weight: 800;
+}
+
+.dark .arborito-table-edit__table thead .arborito-table-edit__cell {
+    background: rgb(30 41 59 / 0.9);
+}
+
+.arborito-table-edit__cell:focus {
+    box-shadow: inset 0 0 0 2px rgb(14 165 233 / 0.45);
+}
+
+.arborito-lesson-table-wrap {
+    border: 1px solid rgb(226 232 240);
+    border-radius: 0.9rem;
+    background: rgb(255 255 255);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+}
+
+.dark .arborito-lesson-table-wrap {
+    border-color: rgb(51 65 85);
+    background: rgb(15 23 42 / 0.45);
+}
+
+.arborito-lesson-table {
+    min-width: 100%;
+}
+
+.arborito-lesson-table th,
+.arborito-lesson-table td {
+    border-bottom: 1px solid rgb(226 232 240);
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    vertical-align: top;
+}
+
+.dark .arborito-lesson-table th,
+.dark .arborito-lesson-table td {
+    border-bottom-color: rgb(51 65 85);
+}
+
+.arborito-lesson-table th {
+    background: rgb(248 250 252);
+    color: rgb(15 23 42);
+    font-weight: 800;
+}
+
+.dark .arborito-lesson-table th {
+    background: rgb(30 41 59 / 0.75);
+    color: rgb(248 250 252);
+}
+
+.arborito-lesson-table td {
+    color: rgb(51 65 85);
+}
+
+.dark .arborito-lesson-table td {
+    color: rgb(203 213 225);
+}
+
+.arborito-lesson-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.lesson-editor-insert-panel__math {
+    margin-top: 0.35rem;
+    padding-top: 0.45rem;
+    border-top: 1px solid rgb(226 232 240 / 0.8);
+}
+
+.dark .lesson-editor-insert-panel__math {
+    border-top-color: rgb(51 65 85 / 0.7);
+}
+
+.lesson-editor-insert-panel__math-label {
+    margin-bottom: 0.35rem !important;
+}
+
+.lesson-editor-insert-panel__math-group {
+    margin-bottom: 0.35rem;
+}
+
+.lesson-editor-insert-panel__math-group-label {
+    margin: 0 0 0.2rem;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgb(100 116 139);
+}
+
+.lesson-editor-insert-panel__math-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.lesson-editor-math-symbol {
+    min-width: 1.85rem;
+    min-height: 1.85rem;
+    padding: 0.15rem 0.35rem;
+    border-radius: 0.45rem;
+    border: 1px solid rgb(199 210 254 / 0.9);
+    background: rgb(238 242 255 / 0.9);
+    color: rgb(30 41 59);
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.dark .lesson-editor-math-symbol {
+    border-color: rgb(67 56 202 / 0.55);
+    background: rgb(30 27 75 / 0.55);
+    color: rgb(224 231 255);
+}
+
+.lesson-editor-math-symbol:hover {
+    background: rgb(224 231 255);
+}
+
+.dark .lesson-editor-math-symbol:hover {
+    background: rgb(49 46 129 / 0.75);
+}
+
+.arborito-math {
+    font-family: 'Cambria Math', 'Latin Modern Math', Georgia, 'Times New Roman', serif;
+    font-variant-numeric: lining-nums;
+}
+
+.arborito-math--block {
+    line-height: 1.45;
+}
+
+.arborito-math--inline {
+    display: inline;
+    padding: 0 0.12em;
+}
+
+.arborito-math-frac {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    vertical-align: middle;
+    margin: 0 0.12em;
+    font-size: 0.92em;
+}
+
+.arborito-math-frac__num {
+    border-bottom: 1px solid currentColor;
+    padding: 0 0.2em 0.05em;
+    line-height: 1.1;
+}
+
+.arborito-math-frac__den {
+    padding: 0.05em 0.2em 0;
+    line-height: 1.1;
+}
+
+.arborito-math-sqrt {
+    display: inline-flex;
+    align-items: flex-start;
+    vertical-align: middle;
+}
+
+.arborito-math-sqrt__body {
+    border-top: 1px solid currentColor;
+    padding: 0 0.15em;
+    margin-top: 0.15em;
+}
+
+.arborito-math-sup,
+.arborito-math-sub {
+    font-size: 0.72em;
+    line-height: 0;
+}
+
+.arborito-lesson-actions--construct {
+    align-items: center;
+}
+
+.arborito-lesson-actions--construct .lesson-editor-toolbar-spacer {
+    display: none;
+}
+
+/* Compact icon chips — aria-label on buttons; data-arbor-tip is hover/focus hint (desktop). */
+
+.lesson-editor-tool-chip {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    line-height: 1;
+}
+
+html.arborito-desktop .arborito-lesson-mobile-body #content-area,
+html.arborito-desktop #lesson-visual-editor {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-actions--construct .lesson-editor-tool-chip {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area,
+html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area[contenteditable='true'] {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+.lesson-editor-tool-chip--icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    min-height: 2rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+}
+
+.lesson-editor-format-wrap,
+.lesson-editor-insert-wrap,
+.lesson-editor-insert-menu-wrap {
+    position: relative;
+    flex-shrink: 0;
+    align-self: center;
+    overflow: visible;
+}
+
+.lesson-editor-tool-chip--cmd {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.lesson-editor-tool-chip--cmd:hover:not(:disabled) {
+    background: rgb(0 0 0 / 0.1);
+}
+
+.dark .lesson-editor-tool-chip--cmd:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.1);
+}
+
+.lesson-editor-tool-chip--cmd:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.lesson-editor-tool-chip--cmd-bold {
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.lesson-editor-tool-chip--cmd-italic {
+    font-style: italic;
+    font-size: 0.875rem;
+}
+
+.lesson-editor-toolbar-divider {
+    width: 1px;
+    height: 1.25rem;
+    background: rgb(148 163 184 / 0.3);
+    margin: 0 0.125rem;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.lesson-editor-tool-chip--heading {
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 0.625rem;
+    transition: background-color 0.15s ease;
+}
+
+@media (min-width: 640px) {
+    .lesson-editor-tool-chip--heading {
+        padding-left: 0.625rem;
+        padding-right: 0.625rem;
+        font-size: 0.75rem;
+    }
+}
+
+.lesson-editor-tool-chip--heading:hover {
+    background: rgb(0 0 0 / 0.1);
+}
+
+.dark .lesson-editor-tool-chip--heading:hover {
+    background: rgb(255 255 255 / 0.1);
+}
+
+.lesson-editor-insert-toggle--default {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgb(251 191 36 / 0.55);
+    background: rgb(254 243 199 / 0.5);
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: rgb(120 53 15);
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+}
+
+@media (min-width: 640px) {
+    .lesson-editor-insert-toggle--default {
+        padding-left: 0.625rem;
+        padding-right: 0.625rem;
+        font-size: 0.75rem;
+    }
+}
+
+.dark .lesson-editor-insert-toggle--default {
+    border-color: rgb(217 119 6 / 0.45);
+    background: rgb(69 26 3 / 0.35);
+    color: rgb(253 230 138);
+}
+
+.lesson-editor-insert-toggle--default:hover {
+    background: rgb(253 230 138 / 0.6);
+}
+
+.dark .lesson-editor-insert-toggle--default:hover {
+    background: rgb(120 53 15 / 0.4);
+}
+
+.lesson-editor-insert-toggle--mobile {
+    width: 2.125rem;
+    height: 2.125rem;
+    border-radius: 0.625rem;
+    border: 1px solid rgb(129 140 248 / 0.55);
+    background: linear-gradient(180deg, rgb(238 242 255 / 0.95), rgb(224 231 255 / 0.75));
+    color: rgb(49 46 129);
+    box-shadow: 0 1px 2px rgb(49 46 129 / 0.12);
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lesson-editor-insert-toggle--mobile .lesson-editor-tool-chip__glyph--plus {
+    font-size: 1.125rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.dark .lesson-editor-insert-toggle--mobile {
+    border-color: rgb(129 140 248 / 0.45);
+    background: linear-gradient(180deg, rgb(49 46 129 / 0.55), rgb(30 27 75 / 0.45));
+    color: rgb(224 231 255);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+}
+
+.lesson-editor-insert-toggle--mobile:hover {
+    background: rgb(199 210 254 / 0.55);
+}
+
+.dark .lesson-editor-insert-toggle--mobile:hover {
+    background: rgb(49 46 129 / 0.4);
+}
+
+.arborito-lesson-toolbar-inner {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 0.125rem;
+    padding: 0.125rem;
+    border-radius: 0.75rem;
+    background: rgb(255 251 235 / 0.9);
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.dark .arborito-lesson-toolbar-inner {
+    background: rgb(69 26 3 / 0.3);
+}
+
+.arborito-lesson-toolbar-cluster--format {
+    gap: 0.125rem;
+    padding: 0.125rem;
+    border-radius: 0.75rem;
+    background: rgb(255 251 235 / 0.9);
+    box-sizing: border-box;
+}
+
+.dark .arborito-lesson-toolbar-cluster--format {
+    background: rgb(69 26 3 / 0.3);
+}
+
+.arborito-lesson-toolbar-cluster--insert {
+    gap: 0.125rem;
+    padding: 0.125rem;
+    border-radius: 0.75rem;
+    background: rgb(238 242 255 / 0.85);
+    box-sizing: border-box;
+}
+
+.arborito-lesson-key-actions {
+    display: inline-flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.15rem;
+    border-radius: 0.85rem;
+    background: rgb(238 242 255 / 0.92);
+    box-shadow: inset 0 0 0 1px rgb(99 102 241 / 0.12);
+}
+
+.dark .arborito-lesson-key-actions {
+    background: rgb(30 27 75 / 0.45);
+    box-shadow: inset 0 0 0 1px rgb(129 140 248 / 0.18);
+}
+
+.arborito-lesson-key-action {
+    width: 2.375rem;
+    height: 2.375rem;
+    min-width: 2.375rem;
+    min-height: 2.375rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.7rem;
+    border: 1px solid transparent;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.08);
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+
+.arborito-lesson-key-action:active {
+    transform: scale(0.96);
+}
+
+.arborito-lesson-key-action--quiz {
+    border-color: rgb(99 102 241 / 0.45);
+    background: linear-gradient(180deg, rgb(238 242 255 / 0.98), rgb(224 231 255 / 0.88));
+    color: rgb(67 56 202);
+}
+
+.dark .arborito-lesson-key-action--quiz {
+    border-color: rgb(129 140 248 / 0.4);
+    background: linear-gradient(180deg, rgb(49 46 129 / 0.72), rgb(30 27 75 / 0.55));
+    color: rgb(199 210 254);
+}
+
+.arborito-lesson-key-action--insert {
+    border-color: rgb(16 185 129 / 0.45);
+    background: linear-gradient(180deg, rgb(236 253 245 / 0.98), rgb(209 250 229 / 0.88));
+    color: rgb(4 120 87);
+}
+
+.dark .arborito-lesson-key-action--insert {
+    border-color: rgb(52 211 153 / 0.35);
+    background: linear-gradient(180deg, rgb(6 78 59 / 0.55), rgb(2 44 34 / 0.45));
+    color: rgb(167 243 208);
+}
+
+.arborito-lesson-key-action__plus {
+    width: 1.125rem;
+    height: 1.125rem;
+}
+
+.arborito-lesson-key-actions .lesson-editor-insert-menu-wrap,
+.arborito-lesson-key-actions .lesson-editor-insert-wrap {
+    gap: 0.35rem;
+}
+
+.dark .arborito-lesson-toolbar-cluster--insert {
+    background: rgb(30 27 75 / 0.25);
+}
+
+.lesson-editor-format-panel__section {
+    padding: 0 0.25rem;
+}
+
+.lesson-editor-format-panel__section--foot {
+    padding-bottom: 0.125rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgb(226 232 240 / 0.7);
+}
+
+.dark .lesson-editor-format-panel__section--foot {
+    border-color: rgb(51 65 85 / 0.6);
+}
+
+.lesson-editor-format-panel__rows {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+}
+
+.lesson-editor-format-panel__rows--align {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.lesson-editor-format-panel__rows--align .lesson-editor-menu-item {
+    width: 100%;
+    justify-content: center;
+}
+
+html.arborito-desktop .lesson-editor-format-panel__rows--align {
+    flex-direction: column;
+}
+
+html.arborito-desktop .lesson-editor-dropdown-portal.lesson-editor-insert-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-content: start;
+    gap: 0.35rem;
+}
+
+html.arborito-desktop .lesson-editor-insert-panel__opt.block-btn {
+    min-height: 2.5rem;
+}
+
+html.arborito-desktop .lesson-editor-insert-panel__math {
+    grid-column: 1 / -1;
+}
+
+.lesson-editor-menu-item--full {
+    width: 100%;
+    text-align: left;
+}
+
+.lesson-editor-tool-chip--format {
+    gap: 0.1rem;
+    border: 1px solid rgb(148 163 184 / 0.45);
+    border-radius: 0.65rem;
+    background: rgb(255 255 255 / 0.82);
+    color: rgb(51 65 85);
+    font-weight: 800;
+    font-size: 0.8125rem;
+}
+
+.dark .lesson-editor-tool-chip--format {
+    border-color: rgb(71 85 105 / 0.55);
+    background: rgb(15 23 42 / 0.55);
+    color: rgb(226 232 240);
+}
+
+.lesson-editor-tool-chip__glyph {
+    letter-spacing: -0.03em;
+}
+
+.lesson-editor-tool-chip__chev {
+    font-size: 0.65em;
+    opacity: 0.72;
+    margin-left: 0.05rem;
+}
+
+.lesson-editor-tool-chip--insert {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    min-height: 2rem;
+    padding-left: 0.45rem;
+    padding-right: 0.45rem;
+    text-transform: none;
+    letter-spacing: 0.01em;
+}
+
+.lesson-editor-tool-chip--insert-icon {
+    min-width: 2rem;
+    min-height: 2rem;
+    padding: 0;
+    font-size: 1.05rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.lesson-editor-tool-chip__glyph--plus {
+    font-size: 1.05rem;
+    font-weight: 900;
+    line-height: 1;
+}

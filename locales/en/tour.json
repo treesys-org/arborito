@@ -1,0 +1,232 @@
+{
+  "tourAriaLabel": "Interface walkthrough",
+  "tourDone": "Done",
+  "tourNext": "Next",
+  "tourPrev": "Back",
+  "tourSkip": "Skip tour",
+  "tourSourcesPickerBody": "Tap Arborito demo to open the sample course. The tour continues on the map.",
+  "tourSourcesPickerTitle": "Open a branch",
+  "tourStepIndicator": "Step {n} of {total}",
+  "uiTourSteps": [
+    {
+      "target": "graph-root",
+      "title": "Tree root",
+      "body": "This is where your branch starts 🌳. From the root you open folders 🗂️, lessons 📄, and exams ⚔️. Tap a folder or lesson to enter; the panel below shows what it contains."
+    },
+    {
+      "target": "home",
+      "title": "Back to the map",
+      "body": "The logo returns you to the tree home when you want a clean overview."
+    },
+    {
+      "target": "sources",
+      "title": "Switch tree",
+      "body": "Come back here to load another branch or tree when you want a different course."
+    },
+    {
+      "target": "arcade",
+      "title": "Arcade",
+      "body": "Play friendly practice games that can adapt to what you are studying."
+    },
+    {
+      "target": "construct",
+      "title": "Construction Mode",
+      "body": "Turn this on to add folders and lessons, or reorganize editable trees."
+    },
+    {
+      "target": "search",
+      "title": "Search topics",
+      "body": "Open search to jump to a topic by name without walking every branch."
+    },
+    {
+      "target": "profile",
+      "title": "Profile & backpack",
+      "body": "Your avatar opens the menu: profile, export progress, achievements, and optional cross-device sync."
+    },
+    {
+      "target": "sage-fab",
+      "title": "Guide in Sage",
+      "body": "Tap the owl 🦉 and choose “What is Arborito?” for the topic guide: navigation, garden, arcade, and more."
+    }
+  ],
+  "uiTourStepsConstruction": [
+    {
+      "target": "construct",
+      "title": "You are in construction mode",
+      "body": "The helmet is active: you can now edit the tree. Tap any folder or lesson on the map to open its edit panel on the right. Press this button again to return to study mode."
+    },
+    {
+      "target": "graph-root",
+      "title": "Tap a node on the map",
+      "body": "Select a module (folder) to add lessons inside it, or tap a leaf to open the lesson editor. Right-click or long-press for properties, move, and delete."
+    },
+    {
+      "target": "con-undo",
+      "title": "Edit history",
+      "body": "The 🕒 clock opens the timeline of your edits: step backward and forward between versions without losing your place, and compare before/after."
+    },
+    {
+      "target": "con-lang",
+      "title": "Content language",
+      "body": "🌐 Switch or add the content language for the tree you are editing. Each language has its own titles and copy; you can keep several in parallel."
+    },
+    {
+      "target": "con-info",
+      "title": "About this tree, fill in before publishing",
+      "body": "ℹ️ You need to fill this card before publishing: description (min. 5 characters) and an optional support link. Save with the button. To appear as the creator, sign in with your online account."
+    },
+    {
+      "target": "con-gov",
+      "title": "Collaborators & permissions",
+      "body": "Decide who can edit this tree: invite collaborators, tune roles (editors, proposers), and review the history of permission changes."
+    },
+    {
+      "target": "con-publish",
+      "title": "Publish the tree",
+      "body": "When the draft is ready, publish online or update the public copy you already shared. Your local draft keeps editing on its own without touching the public version."
+    },
+    {
+      "target": "cloud-sync",
+      "title": "Optional backup",
+      "body": "Your changes live on this device first. If you want, enable sync with your account so you have a copy across your devices."
+    },
+    {
+      "target": "profile",
+      "title": "Your profile",
+      "body": "Your avatar opens your profile: name, picture, and the optional account. If you have an account and publish, the tree is linked to that profile; if you don't, you can still create, everything stays on this device."
+    },
+    {
+      "target": "sage-fab",
+      "title": "If you get stuck, the owl 🦉",
+      "body": "If anything is unclear, come back here: Sage walks you through construction step by step with contextual hints based on what you are doing."
+    }
+  ],
+  "uiTourStepsConstructionMobile": [
+    {
+      "target": "con-exit",
+      "title": "You are in construction mode",
+      "body": "The arrow in the dock returns to study mode when you are done editing. While you are here, tap any folder or lesson on the map to open its edit panel."
+    },
+    {
+      "target": "graph-root",
+      "title": "Tap a node on the map",
+      "body": "Select a module to add lessons inside it, or tap a leaf to open the lesson editor. Long-press for properties, move, and delete."
+    },
+    {
+      "target": "con-undo",
+      "title": "Edit history",
+      "body": "History 🕒: review earlier steps and undo or redo changes to the map structure without losing your place."
+    },
+    {
+      "target": "con-info",
+      "title": "About this tree, fill in before publishing",
+      "body": "ℹ️ You need to fill this card before publishing: description (min. 5 characters) and an optional support link. Save with the button. To appear as the creator, sign in with your online account."
+    },
+    {
+      "target": "con-more",
+      "title": "Language & more tools",
+      "body": "🌐 Switch or add curriculum languages, reach permissions and collaborators, compare draft vs public, and other course actions."
+    },
+    {
+      "target": "con-publish",
+      "title": "Publish the tree",
+      "body": "Publish the tree or push updates to the online copy from here. Your local draft remains separate."
+    },
+    {
+      "target": "mob-profile",
+      "title": "Your profile",
+      "body": "Your avatar opens your profile: name, picture, and the optional account. If you have an account and publish, the tree is linked to that profile; if you don't, you can still create, everything stays on this device."
+    },
+    {
+      "target": "con-ai",
+      "title": "If you get stuck, the owl 🦉",
+      "body": "If anything is unclear, come back here: Sage walks you through construction step by step with contextual hints based on what you are doing."
+    }
+  ],
+  "uiTourStepsMobile": [
+    {
+      "target": "graph-root",
+      "title": "Tree root",
+      "body": "This circle with the logo is the root of your branch 🌳. Tap the folders and lessons below to enter."
+    },
+    {
+      "target": "mob-home",
+      "title": "Home",
+      "body": "Return to the main tree view from anywhere."
+    },
+    {
+      "target": "mob-search",
+      "title": "Search",
+      "body": "Find lessons by name without crossing the whole map."
+    },
+    {
+      "target": "mob-sage",
+      "title": "Sage, your guide",
+      "body": "The owl opens shortcuts and “What is Arborito?”. No required AI, only what is in your course."
+    },
+    {
+      "target": "mob-arcade",
+      "title": "Arcade",
+      "body": "Practice games tied to what you are learning."
+    },
+    {
+      "target": "mob-more",
+      "title": "More",
+      "body": "Handbook, trees, achievements, language, and tools. Profile and theme sit at the top right."
+    }
+  ],
+  "uiTourStepsLessonEdit": [
+    {
+      "target": "lesson-edit-meta",
+      "title": "Lesson card, fill in before publishing",
+      "body": "Set the lesson title, description and emoji. These show up in the tree map, in search and in Arcade games. Lessons without these stay as drafts and won't be published."
+    },
+    {
+      "target": "lesson-edit-toolbar",
+      "title": "Edit toolbar",
+      "body": "↩ undoes. B and I are quick format. Aa opens size, alignment, and lists. + inserts images, callouts, games, and more. 📋 opens the quiz."
+    },
+    {
+      "target": "lesson-edit-insert",
+      "title": "Insert blocks",
+      "body": "Tap + and pick what to add: image, video, callout, mini-game, formula, and more."
+    },
+    {
+      "target": "lesson-edit-quiz",
+      "title": "Quiz",
+      "body": "Tap 📋 to create or edit this lesson's quiz. Topic plus correct answer unlock Recall in the Arcade."
+    },
+    {
+      "target": "lesson-edit-toc",
+      "title": "Syllabus & Arcade status",
+      "body": "Open the syllabus with the list button. Each section shows 🎮 when it has a questionnaire: grey = incomplete, green = ready for static Arcade games (no AI)."
+    },
+    {
+      "target": "lesson-edit-save",
+      "title": "Save your work",
+      "body": "Saves the lesson into your local draft of the tree. Use the global Publish button later to push the changes online."
+    }
+  ],
+  "uiTourStepsSourcesPicker": [
+    {
+      "target": "sources-main-tabs",
+      "title": "Forest",
+      "body": "Manage branches and trees here. A branch is one full course."
+    },
+    {
+      "target": "sources-tab-trees",
+      "title": "Trees",
+      "body": "Trees combine several branches. Switch the tab above whenever you want to go back to branches."
+    },
+    {
+      "target": "sources-trees-footer",
+      "title": "Create or import",
+      "body": "You can create your own tree or branch to teach, share offline, and import it whenever you want."
+    },
+    {
+      "target": "sources-demo-branch",
+      "title": "Tap to load",
+      "body": "Tap the Arborito demo card to load the course. When it opens on the map, the tour continues."
+    }
+  ]
+}

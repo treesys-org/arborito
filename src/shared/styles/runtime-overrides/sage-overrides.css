@@ -1,0 +1,85 @@
+/* --- sage-overrides --- */
+#btn-sage-mode-ai {
+    pointer-events: auto;
+    touch-action: manipulation;
+    cursor: pointer;
+}
+
+/* =========================================================================
+ * Sage AI — consent / settings (desktop): the scrim covers the WHOLE viewport
+ * and the modal shadow hugs the content. Applies ONLY when the host carries
+ * `.arborito-sage-desk-scrim` (floating consent / settings), never to the chat
+ * that lives in the bottom-right corner (`md:bottom-6 md:right-6 md:w-auto`).
+ * ========================================================================= */
+arborito-sage.arborito-sage--open.arborito-sage-desk-scrim {
+    position: fixed !important;
+    inset: 0 !important;
+    background: var(--arborito-theme-sage-desk-scrim) !important;
+    z-index: 235 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+}
+
+arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-sage-settings-desk-root {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+}
+
+arborito-sage.arborito-sage--open.arborito-sage-desk-scrim #sage-settings-backdrop.arborito-modal-root {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-sage-settings-shell,
+arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-modal-root,
+arborito-sage.arborito-sage--open.arborito-sage-desk-scrim > .pointer-events-auto {
+    pointer-events: auto !important;
+}
+
+/* Card for Sage's consent / settings on desktop: shadow closed on all
+ * sides so the modal looks like a complete piece, not a poster
+ * with a shadow clipped at the bottom. ONLY applies to consent/settings
+ * (which live inside a host with `.arborito-sage-desk-scrim`). */
+html.arborito-desktop arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-float-modal-card,
+html.arborito-desktop arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-float-modal-card.arborito-float-modal-card--auto-h,
+html.arborito-electron arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-float-modal-card,
+html.arborito-electron arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-float-modal-card.arborito-float-modal-card--auto-h,
+arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-sage-settings-shell.arborito-float-modal-card,
+arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-sage-settings-shell.arborito-float-modal-card.arborito-float-modal-card--auto-h {
+    box-shadow: var(--arborito-theme-sage-desk-card-shadow) !important;
+    border-radius: 1.25rem !important;
+    overflow: hidden !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sage-chat-overlay__bar-wrap--indeterminate .sage-chat-overlay__bar {
+        animation: none !important;
+    }
+
+    .arborito-sage-chat-shell .animate-pulse,
+    .arborito-sage-chat-shell .animate-bounce,
+    .arborito-sage-chat-shell .animate-in {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .sage-stream-cursor {
+        animation: none !important;
+    }
+
+    .sage-thinking__dots span {
+        animation: none !important;
+    }
+}
+

@@ -1,0 +1,259 @@
+/* --- sage-guide-tips — tip body, CTAs, breadcrumbs --- */
+
+.sage-tip-body {
+    padding: 0.75rem 0.85rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--arborito-theme-sage-tip-body-border);
+    background: var(--arborito-theme-sage-tip-body-bg);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--arborito-theme-modal-prose);
+    margin-bottom: 0;
+}
+
+.sage-cta,
+.sage-cta-row .sage-cta {
+    display: block;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: none;
+    border-radius: 0.95rem;
+    font-size: 0.88rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    color: white;
+    background: linear-gradient(135deg, rgb(79 70 229) 0%, rgb(99 102 241) 100%);
+    box-shadow: 0 4px 14px rgb(79 70 229 / 0.35);
+    transition: transform 120ms ease, box-shadow 160ms ease;
+}
+
+.sage-cta-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sage-cta:hover,
+.sage-cta:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgb(79 70 229 / 0.45);
+    outline: none;
+}
+
+.sage-cta-row .sage-cta:last-child {
+    background: linear-gradient(135deg, rgb(124 58 237) 0%, rgb(139 92 246) 100%);
+}
+
+/* Feature tiles (guide topics) — cards instead of numbered steps */
+
+.sage-feature-tiles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin-top: 0.35rem;
+}
+
+.sage-feature-tile {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 1rem;
+    border: 1px solid var(--arborito-theme-sage-feature-tile-border);
+    background: var(--arborito-theme-sage-feature-tile-bg);
+    box-shadow: var(--arborito-theme-sage-feature-tile-shadow);
+}
+
+.sage-feature-tile__icon {
+    font-size: 1.35rem;
+    line-height: 1;
+    flex: 0 0 auto;
+    margin-top: 0.05rem;
+}
+
+.sage-feature-tile__title {
+    margin: 0 0 0.2rem;
+    font-size: 0.82rem;
+    font-weight: 850;
+    letter-spacing: -0.01em;
+    color: var(--arborito-theme-modal-prose);
+}
+
+.sage-feature-tile__text {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: var(--arborito-theme-auth-body-fg);
+}
+
+.sage-guide-sage-intro__text strong {
+    font-weight: 800;
+    color: var(--arborito-theme-sage-intro-strong-fg);
+}
+
+/* =============================================================================
+ * Sage Guide — barra "← Volver" al inicio de cada pantalla de tema/tip.
+ * ============================================================================= */
+
+.sage-guide-back-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    align-self: flex-start;
+    background: transparent;
+    border: 1px solid var(--arborito-theme-sage-back-bar-border);
+    border-radius: 999px;
+    padding: 0.3rem 0.7rem 0.3rem 0.55rem;
+    margin: 0 0 0.4rem;
+    color: var(--arborito-theme-sage-back-bar-fg);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background 140ms ease, border-color 140ms ease, transform 120ms ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.sage-guide-back-bar:hover,
+.sage-guide-back-bar:focus-visible {
+    background: var(--arborito-theme-sage-back-bar-hover-bg);
+    border-color: var(--arborito-theme-sage-back-bar-hover-border);
+    outline: none;
+    transform: translateX(-1px);
+}
+
+.sage-guide-back-bar__chevron {
+    font-weight: 900;
+    line-height: 1;
+}
+
+.sage-guide-back-bar__label {
+    line-height: 1;
+}
+
+/* ---- Breadcrumbs ---- */
+
+.sage-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.1rem 0.2rem;
+    margin: 0 0 0.45rem;
+    padding: 0;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    color: var(--arborito-theme-sage-crumb-fg);
+}
+
+.sage-crumbs__crumb {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    padding: 0.25rem 0.55rem;
+    border: 0;
+    border-radius: 0.55rem;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+    color: inherit;
+    text-align: left;
+}
+
+.sage-crumbs__crumb--link {
+    color: var(--arborito-theme-sage-crumb-link-fg);
+    font-weight: 700;
+}
+
+.sage-crumbs__crumb--link:hover,
+.sage-crumbs__crumb--link:focus-visible {
+    background: var(--arborito-theme-sage-crumb-link-hover-bg);
+    color: var(--arborito-theme-sage-crumb-link-hover-fg);
+    outline: none;
+}
+
+.sage-crumbs__crumb--current {
+    cursor: default;
+    font-weight: 800;
+    color: var(--arborito-theme-sage-crumb-current-fg);
+}
+
+.sage-crumbs__sep {
+    color: var(--arborito-theme-sage-crumb-sep-fg);
+    font-size: 0.85rem;
+    font-weight: 700;
+    user-select: none;
+}
+
+/* ---- Tip body prose ---- */
+
+.sage-tip-body > p {
+    margin: 0 0 0.45rem;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--arborito-theme-modal-prose);
+}
+
+.sage-tip-body > p:last-child {
+    margin-bottom: 0;
+}
+
+.sage-tip-body strong {
+    font-weight: 800;
+    color: var(--arborito-theme-sage-tip-strong-fg);
+}
+
+.sage-tip-list {
+    list-style: none;
+    margin: 0 0 0.45rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.sage-tip-list:last-child {
+    margin-bottom: 0;
+}
+
+.sage-tip-list li {
+    position: relative;
+    padding: 0.05rem 0 0.05rem 1.15rem;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    color: var(--arborito-theme-modal-prose);
+}
+
+.sage-tip-list:not(.sage-tip-list--num) li::before {
+    content: '';
+    position: absolute;
+    left: 0.3rem;
+    top: 0.6rem;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 9999px;
+    background: var(--arborito-theme-sage-tip-bullet);
+}
+
+.sage-tip-list--num {
+    counter-reset: sage-tip;
+}
+
+.sage-tip-list--num li {
+    counter-increment: sage-tip;
+    padding-left: 1.6rem;
+}
+
+.sage-tip-list--num li::before {
+    content: counter(sage-tip) '.';
+    position: absolute;
+    left: 0;
+    top: 0.1rem;
+    width: 1.3rem;
+    text-align: right;
+    font-weight: 800;
+    color: var(--arborito-theme-sage-tip-num-fg);
+}

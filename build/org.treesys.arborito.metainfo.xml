@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2026 Treesys -->
+<component type="desktop-application">
+ <id>org.treesys.arborito</id>
+ <metadata_license>CC0-1.0</metadata_license>
+ <project_license>GPL-3.0-or-later</project_license>
+ <developer id="org.treesys">
+ <name>Treesys</name>
+ </developer>
+
+ <name>Arborito</name>
+ <icon type="stock">org.treesys.arborito</icon>
+
+ <summary>Free, open-source app to learn any subject as an interactive lesson tree</summary>
+
+ <categories>
+ <category>Education</category>
+ </categories>
+
+ <description>
+ <p>
+ Arborito is a free, open-source education app from Treesys. It turns any subject into a visual tree of lessons you explore at your own pace: pick a branch, read, quiz yourself, and keep progress on your device without a subscription or mandatory account.
+ </p>
+ <p>Features in this alpha release:</p>
+ <ul>
+ <li>Interactive lesson maps with light and dark themes</li>
+ <li>Visual editor and Construction mode to plant your own courses</li>
+ <li>Memory Garden spaced repetition from your lesson progress</li>
+ <li>Optional Lesson Arcade minigames tied to what you are studying</li>
+ <li>English and Spanish UI; community translations welcome</li>
+ <li>Local-first progress on your device; optional online sync</li>
+ <li>Optional Sage AI tutoring and high-quality voice on desktop</li>
+ </ul>
+ <p>
+ Free and open source under GPL v3. Study from community trees, translate lessons, or remix what others published.
+ </p>
+ </description>
+
+ <launchable type="desktop-id">org.treesys.arborito.desktop</launchable>
+
+ <screenshots>
+ <screenshot type="default">
+ <image>https://arborito.org/demo-media/02-mapa-claro-en.png</image>
+ <caption>Interactive lesson map (light theme)</caption>
+ </screenshot>
+ <screenshot>
+ <image>https://arborito.org/demo-media/03-mapa-oscuro-en.png</image>
+ <caption>Lesson map in dark theme</caption>
+ </screenshot>
+ <screenshot>
+ <image>https://arborito.org/demo-media/05-leccion-en.png</image>
+ <caption>Lesson reader with outline and quizzes</caption>
+ </screenshot>
+ <screenshot>
+ <image>https://arborito.org/demo-media/12-construccion-en.png</image>
+ <caption>Construction mode to plant and edit courses</caption>
+ </screenshot>
+ <screenshot>
+ <image>https://arborito.org/demo-media/07-arcade-en.png</image>
+ <caption>Lesson Arcade minigames</caption>
+ </screenshot>
+ <screenshot>
+ <image>https://arborito.org/demo-media/08-alonso-en.png</image>
+ <caption>Alonso Duel minigame</caption>
+ </screenshot>
+ <screenshot>
+ <image>https://arborito.org/demo-media/11-jardin-en.png</image>
+ <caption>Memory Garden spaced repetition</caption>
+ </screenshot>
+ <screenshot>
+ <image>https://arborito.org/demo-media/01-sage-en.png</image>
+ <caption>Optional Sage AI assistant (desktop)</caption>
+ </screenshot>
+ </screenshots>
+
+ <url type="homepage">https://arborito.org</url>
+ <url type="bugtracker">https://github.com/treesys-org/arborito/issues</url>
+ <url type="vcs-browser">https://github.com/treesys-org/arborito</url>
+ <url type="contribute">https://github.com/treesys-org/arborito/blob/main/CONTRIBUTING.md</url>
+ <url type="help">https://github.com/treesys-org/arborito/blob/main/README.md</url>
+ <url type="faq">https://treesys.org#faq</url>
+ <url type="contact">https://treesys.org</url>
+ <url type="donation">https://treesys.org#support</url>
+ <update_contact>support@treesys.org</update_contact>
+
+ <content_rating type="oars-1.1">
+ <content_attribute id="social-chat">moderate</content_attribute>
+ </content_rating>
+
+ <keywords>
+ <keyword>education</keyword>
+ <keyword>learning</keyword>
+ <keyword>lessons</keyword>
+ <keyword>curriculum</keyword>
+ <keyword>open source</keyword>
+ <keyword>local-first</keyword>
+ <keyword>spaced repetition</keyword>
+ <keyword>quiz</keyword>
+ </keywords>
+
+ <releases>
+ <release version="0.1.0-alpha" date="2026-07-16">
+ <description>
+ <p>Public alpha: interactive lesson maps, Memory Garden, optional Arcade and Sage AI on desktop.</p>
+ </description>
+ </release>
+ </releases>
+</component>
