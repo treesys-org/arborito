@@ -35,6 +35,10 @@ import { branchShareCode, hydratePublishedShareCode } from './published-share-co
 import { getPanelRef } from '../../../app/panel-refs.js';
 import { confirmConstructionTreeLoadIfNeeded } from '../../editor/api/construction-enter-flow.js';
 import { resetSageChatForSourceChange } from '../../../stores/learning-store-actions.js';
+import {
+    ensureDemoProgressSyncOnline,
+    isArboritoDemoTree,
+} from '../../publishing/api/demo-tree-guard.js';
 
 function nostrConnectTimeoutMs() {
     return shouldShowMobileUI() ? 20000 : 12000;
@@ -420,9 +424,6 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
             store.syncNostrPresenceFromActiveSource(finalSource);
         }
         try {
-            const { ensureDemoProgressSyncOnline, isArboritoDemoTree } = await import(
-                '../../publishing/api/demo-tree-guard.js'
-            );
             if (isArboritoDemoTree(store) && ensureDemoProgressSyncOnline(store)) {
                 void store.reconcileNetworkProgress?.();
             }
