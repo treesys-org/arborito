@@ -78,43 +78,56 @@
     margin: 0;
 }
 
+/*
+ * `.prose p` uses 1.25em top+bottom — between sized blocks that reads like an
+ * extra blank line. Keep construct rhythm tighter than readme/prose.
+ */
+.arborito-lesson-editor--wysiwyg p {
+    margin: 0.35em 0;
+    line-height: 1.55;
+}
+
+.arborito-lesson-editor--wysiwyg > :first-child {
+    margin-top: 0;
+}
+
 .arborito-lesson-editor--wysiwyg h1 {
     font-size: 2rem;
     font-weight: 800;
-    margin: 0 0 1rem;
+    margin: 0 0 0.5rem;
     line-height: 1.15;
 }
 
 .arborito-lesson-editor--wysiwyg h2 {
     font-size: 1.5rem;
     font-weight: 700;
-    margin: 1.25rem 0 0.75rem;
+    margin: 0.85rem 0 0.4rem;
     line-height: 1.25;
 }
 
 .arborito-lesson-editor--wysiwyg h3 {
     font-size: 1.25rem;
     font-weight: 600;
-    margin: 1rem 0 0.5rem;
+    margin: 0.7rem 0 0.35rem;
     line-height: 1.3;
 }
 
 .arborito-lesson-editor--wysiwyg h4 {
     font-size: 1.125rem;
     font-weight: 600;
-    margin: 0.85rem 0 0.45rem;
+    margin: 0.65rem 0 0.3rem;
 }
 
 .arborito-lesson-editor--wysiwyg h5 {
     font-size: 1rem;
     font-weight: 600;
-    margin: 0.75rem 0 0.35rem;
+    margin: 0.55rem 0 0.25rem;
 }
 
 .arborito-lesson-editor--wysiwyg h6 {
     font-size: 0.9375rem;
     font-weight: 600;
-    margin: 0.65rem 0 0.3rem;
+    margin: 0.5rem 0 0.25rem;
     color: var(--arborito-theme-muted-fg, rgb(71 85 105));
 }
 
