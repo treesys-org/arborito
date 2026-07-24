@@ -104,6 +104,18 @@ export async function _loadSyncLoginRecordReliableAction(username, signerPub, op
 
 }
 
+async function _confirmOwnSyncLoginHash(store, payload, budgetMs) {
+    const name = normalizeUsername(payload?.username);
+    const want = String(payload?.hash || '');
+    const signerPub = payload?.signerPair?.pub;
+    if (!name || !want) return false;
+    const confirmed = await store._loadSyncLoginRecordReliable(name, signerPub, {
+        confirm: true,
+        budgetMs: Math.max(1_500, Number(budgetMs) || 6_000),
+    });
+    return !!(confirmed?.hash && confirmed.hash === want);
+}
+
 export async function _putSyncLoginHashWithTimeoutAction(payload) {
     const store = shell();
     if (!store) return undefined;
@@ -115,17 +127,30 @@ export async function _putSyncLoginHashWithTimeoutAction(payload) {
                 'No relay accepted your account in time. Your name was NOT reserved online.';
             const started = Date.now();
             let lastErr = null;
+            /*
+             * publishWithTimeout cannot abort the in-flight put. PoW (~20 bits)
+             * plus relay ACK often exceeds a short race, so the publish may still
+             * land after we reject. Confirm before retrying / throwing so we do
+             * not spawn parallel puts or lie that the name was free.
+             */
             while (Date.now() - started < SYNC_LOGIN_NETWORK_BUDGET_MS) {
                 const remaining = SYNC_LOGIN_NETWORK_BUDGET_MS - (Date.now() - started);
                 try {
                     await publishWithTimeout(
                         net.putSyncLoginHash(payload),
-                        Math.max(2_500, Math.min(12_000, remaining)),
+                        Math.max(8_000, Math.min(22_000, remaining)),
                         failMsg
                     );
                     return;
                 } catch (e) {
                     lastErr = e;
+                    const confirmBudget = Math.min(
+                        8_000,
+                        Math.max(1_500, SYNC_LOGIN_NETWORK_BUDGET_MS - (Date.now() - started))
+                    );
+                    if (await _confirmOwnSyncLoginHash(store, payload, confirmBudget)) {
+                        return;
+                    }
                     const gap = Math.min(
                         SYNC_LOGIN_RETRY_GAP_MS,
                         SYNC_LOGIN_NETWORK_BUDGET_MS - (Date.now() - started)
@@ -133,6 +158,9 @@ export async function _putSyncLoginHashWithTimeoutAction(payload) {
                     if (gap <= 0) break;
                     await sleep(gap);
                 }
+            }
+            if (await _confirmOwnSyncLoginHash(store, payload, 8_000)) {
+                return;
             }
             throw lastErr || new Error(failMsg);
 
@@ -177,7 +205,7 @@ export function _describeSyncLoginPublishFailureAction(err) {
             const tpl = String(ui[tplKey] || '').trim();
             const fallback = looksForbidden
                 ? 'No relay accepted your account: every configured relay refused your key (blocked / restricted / not authorized). Your name was NOT reserved online. Change servers in Privacy & data and try again.'
-                : 'No relay accepted your account in time. Your name was NOT reserved online. Check your connection or change servers in Privacy & data and try again.';
+                : 'We could not confirm your account on the network in time. If you just tried, wait a moment and try again with the same password. Check your connection or change servers in Privacy & data if it keeps failing.';
             const body = tpl || fallback;
             return body.includes('{detail}')
                 ? body.replace(/\{detail\}/g, raw || ': ')
@@ -210,17 +238,6 @@ export async function registerSyncLoginAccountAction(username, options = {}) {
                 );
             }
             await requireConnectedNostr(store);
-            /* UI already probed availability — one short first-hit check, not 4×6s. */
-            const existing = await store._loadSyncLoginRecordReliable(name, undefined, {
-                quick: true,
-                queryMs: 1_800,
-            });
-            if (existing?.hash) {
-                throw new Error(
-                    ui.syncLoginUsernameTaken ||
-                        'That username is already taken. Choose another or sign in with your password.'
-                );
-            }
             const plain = normalizeUserPassword(passwordRaw);
             const recoveryKeyPlain = generateRecoveryKey();
             const hash = await hashSyncSecret(plain, credentialKind);
@@ -228,15 +245,34 @@ export async function registerSyncLoginAccountAction(username, options = {}) {
             if (!signer) {
                 throw new Error(ui.nostrIdentityUnavailable || 'Could not derive your account key.');
             }
-            try {
-                await store._putSyncLoginHashWithTimeout({
-                    username: name,
-                    hash,
-                    signerPair: signer,
-                    credential: credentialKind
-                });
-            } catch (e) {
-                throw new Error(store._describeSyncLoginPublishFailure(e));
+            /* UI already probed availability — one short first-hit check, not 4×6s. */
+            const existing = await store._loadSyncLoginRecordReliable(name, undefined, {
+                quick: true,
+                queryMs: 1_800,
+            });
+            if (existing?.hash && existing.hash !== hash) {
+                throw new Error(
+                    ui.syncLoginUsernameTaken ||
+                        'That username is already taken. Choose another or sign in with your password.'
+                );
+            }
+            /*
+             * Same hash already on the network = our earlier publish (often after a
+             * timed-out attempt). Finish the local session instead of "taken".
+             */
+            if (!(existing?.hash === hash)) {
+                try {
+                    await store._putSyncLoginHashWithTimeout({
+                        username: name,
+                        hash,
+                        signerPair: signer,
+                        credential: credentialKind
+                    });
+                } catch (e) {
+                    if (!(await _confirmOwnSyncLoginHash(store, { username: name, hash, signerPair: signer }, 12_000))) {
+                        throw new Error(store._describeSyncLoginPublishFailure(e));
+                    }
+                }
             }
             const published = await store._loadSyncLoginRecordReliable(name, signer.pub, {
                 confirm: true,

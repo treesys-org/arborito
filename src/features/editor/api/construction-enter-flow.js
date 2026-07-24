@@ -321,6 +321,8 @@ export function maybeRepromptConstructionBranchAfterHubDismiss(prevModalType) {
 
 /**
  * Warn before replacing the graph while construction mode is active.
+ * Intentional mounts (fork to My garden, plant branch, create composed tree)
+ * pass `skipConstructionLoadConfirm` into `mountCurriculum` / `loadComposedTree`.
  * @param {string} [nextComposedTreeId]
  * @returns {Promise<boolean>}
  */

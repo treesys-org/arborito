@@ -17,10 +17,10 @@ export function commitSourcesState(partial) {
     store.update(partial);
 }
 
-export async function loadDataAction(source, forceRefresh = true) {
+export async function loadDataAction(source, forceRefresh = true, opts = {}) {
     const store = shell();
     if (!store) return undefined;
-    return mountCurriculum(store, source, forceRefresh);
+    return mountCurriculum(store, source, forceRefresh, opts);
 }
 
 export async function clearCanvasAndShowLoadTreeWelcomeAction() {

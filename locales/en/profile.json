@@ -125,7 +125,7 @@
   "syncLoginQrPairHint": "Open Arborito on the other device, choose “Scan QR from my signed-in device”, and aim its camera at this QR.",
   "syncLoginQrUnreadable": "That QR is not a credentials code. Make sure the other device shows its access-key QR.",
   "syncLoginRegisterForbiddenBody": "No relay accepted your account: every configured relay refused your key (typical messages: “blocked”, “restricted”, “not authorized”, “does not have permission”). Your name was NOT reserved on the network, so anyone else could still claim it. Change servers in Privacy & data or ask whoever maintains this Arborito copy to adjust DEFAULT_NOSTR_RELAYS (docs/NETWORK.md).\n\nTechnical detail: {detail}",
-  "syncLoginRegisterPublishFailedBody": "No relay accepted your account before the timeout. Your name was NOT reserved on the network, so anyone else could still claim it. Check your connection or change servers in Privacy & data and try again.\n\nTechnical detail: {detail}",
+  "syncLoginRegisterPublishFailedBody": "We could not confirm your account on the network in time. If you just tried, wait a moment and try again with the same password (registration sometimes lands late). If it keeps failing, check your connection or change servers in Privacy & data.\n\nTechnical detail: {detail}",
   "syncLoginRenameCta": "Change online username",
   "syncLoginRenameConfirmBody": "Only the name you type to sign in changes; the secret stays the same. Other devices use the new name when signing in.",
   "syncLoginRenameConfirmTitle": "Change username?",

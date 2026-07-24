@@ -6,8 +6,8 @@
  * relay is unreachable a publish can resolve only after each per-relay
  * timeout elapses (30+s). `publishWithTimeout` lets the caller surface an
  * actionable error after a configurable budget while the underlying
- * publish keeps running in the background, if it eventually succeeds the
- * record is still written.
+ * publish keeps running in the background; callers must confirm the write
+ * (or reclaim by hash) before telling the user the name is free.
  *
  * Pure utility: no DOM, no `store`, no side effects.
  *

@@ -74,14 +74,16 @@ export async function runPlantNewTree(store, name, modal, skeleton = null) {
     }
 
     const hadCurriculumBeforeLoad = captureHadCurriculumBeforeLoad();
-    store.update({ treeHydrating: true, constructionMode: true });
+    /* Hydrate first; enter construction only after the new branch mounts.
+     * Setting constructionMode before mount used to trigger “load while editing?”. */
+    store.update({ treeHydrating: true });
 
     let newTree;
     try {
         newTree = store.userStore.plantBranch(trimmed, skeleton);
     } catch (e) {
         console.error('runPlantNewTree plantBranch', e);
-        store.update({ constructionMode: false, treeHydrating: false });
+        store.update({ treeHydrating: false });
         store.notify(String((e && e.message) || e), true);
         return;
     }
@@ -94,9 +96,11 @@ export async function runPlantNewTree(store, name, modal, skeleton = null) {
         isTrusted: true
     };
 
-    const mounted = await mountCurriculum(store, source, true);
+    const mounted = await mountCurriculum(store, source, true, {
+        skipConstructionLoadConfirm: true,
+    });
     if (!mounted) {
-        store.update({ constructionMode: false, treeHydrating: false });
+        store.update({ treeHydrating: false });
         const reason = (store.state.error && String(store.state.error).trim()) || '';
         const ui = store.ui;
         const msg = reason
@@ -104,6 +108,9 @@ export async function runPlantNewTree(store, name, modal, skeleton = null) {
             : (ui.plantBranchOpenFailed || 'Could not open your new branch.');
         store.notify(msg, true);
         return;
+    }
+    if (!store.state.constructionMode) {
+        store.update({ constructionMode: true });
     }
 
     const finish = () => {

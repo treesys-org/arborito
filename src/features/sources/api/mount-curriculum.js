@@ -49,9 +49,10 @@ function isSourcesModalOpen(store) {
  * @param {import('../../../core/store.js' ).Store} store
  * @param {object|null} source
  * @param {boolean} [forceRefresh=true] same meaning as before: open readme/versions on “full” load
+ * @param {{ skipConstructionLoadConfirm?: boolean }} [opts]
  * @returns {Promise<boolean>} true if the graph mounted (`DataProcessor.process` succeeded)
  */
-export async function mountCurriculum(store, source, forceRefresh = true) {
+export async function mountCurriculum(store, source, forceRefresh = true, opts = {}) {
     await store.ensureCoreReady();
     /*
      * If post–sign-in autoload is waiting and this mount is not that autoload,
@@ -108,7 +109,9 @@ export async function mountCurriculum(store, source, forceRefresh = true) {
             const ok = await contentApi.confirmLeaveIfNeeded();
             if (!ok) return false;
         }
-        if (store.state.constructionMode) {
+        /* Fork / plant / create-tree already chose to switch — do not ask
+         * “load while editing?” for that intentional mount. */
+        if (store.state.constructionMode && !opts?.skipConstructionLoadConfirm) {
             try {
                 const proceed = await confirmConstructionTreeLoadIfNeeded(
                     source?.type === 'composed-tree' ? String(source.treeId || source.id || '') : ''

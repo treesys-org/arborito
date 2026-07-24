@@ -212,8 +212,10 @@ export function ProfileSignIn({
     };
 
     useEffect(() => {
-        if (!signedIn && modeCr) scheduleUsernameCheck();
-    }, [tempUsername, signedIn, modeCr]);
+        /* Once past the username gate, stop probing — a late "taken" must not
+         * overwrite a register timeout while the background publish lands. */
+        if (!signedIn && modeCr && !registerPasswordStep) scheduleUsernameCheck();
+    }, [tempUsername, signedIn, modeCr, registerPasswordStep]);
 
     const tryTypedLogin = async () => {
         const u = requireUsername(ui, tempUsername, onAuthError, onUsernameAttention);
