@@ -438,9 +438,24 @@ body,
 .arborito-emoji-img,
 .arborito-emoji-inline {
     display: inline-block;
-    vertical-align: -0.15em;
+    vertical-align: -0.2em;
+    width: 1em;
+    height: 1em;
     object-fit: contain;
     pointer-events: none;
+}
+
+/* Lesson prose / reader: keep mid-text Twemoji on the text baseline. */
+.prose .arborito-emoji-img,
+.prose .arborito-emoji-inline,
+.arborito-lesson-prose-frame .arborito-emoji-img,
+.arborito-lesson-prose-frame .arborito-emoji-inline,
+.arborito-lesson-body .arborito-emoji-img,
+.arborito-lesson-body .arborito-emoji-inline {
+    vertical-align: -0.2em;
+    width: 1em;
+    height: 1em;
+    margin-inline: 0.05em;
 }
 
 html.arborito-emoji-images .arborito-emoji-glyph:not(.arborito-emoji-img):not(.arborito-emoji-native) {

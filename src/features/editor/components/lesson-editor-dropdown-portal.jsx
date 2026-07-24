@@ -62,7 +62,7 @@ export function useLessonEditorDropdownPortal(open, onClose, toggleRef, { varian
             if (
                 t instanceof Element &&
                 t.closest(
-                    '.lesson-editor-insert-panel__opt, .lesson-editor-math-symbol, #btn-insert-quiz, .lesson-editor-format-panel, .lesson-editor-insert-panel'
+                    '.lesson-editor-insert-panel__opt, .lesson-editor-math-symbol, .lesson-editor-emoji-symbol, #btn-insert-quiz, .lesson-editor-format-panel, .lesson-editor-insert-panel'
                 )
             ) {
                 return;

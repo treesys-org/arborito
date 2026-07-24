@@ -123,6 +123,19 @@
   border-color: rgba(16, 185, 129, 0.35);
 }
 
+.arborito-tree-switcher-pill--by-arborito {
+  border-color: rgba(245, 158, 11, 0.45);
+  color: rgb(146, 64, 14);
+  background: rgba(254, 243, 199, 0.85);
+}
+
+html.dark .arborito-tree-switcher-pill--by-arborito,
+:root.dark .arborito-tree-switcher-pill--by-arborito {
+  color: rgb(253, 230, 138);
+  background: rgba(120, 53, 15, 0.45);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
 .arborito-tree-switcher-pill--installed {
   border-color: rgba(59, 130, 246, 0.35);
 }

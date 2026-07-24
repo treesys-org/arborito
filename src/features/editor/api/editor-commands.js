@@ -727,7 +727,14 @@ export function insertMathSymbolInEditor(editorEl, symbol) {
         return;
     }
 
-    editorEl.focus();
+    insertPlainTextInEditor(editorEl, ch);
+}
+
+/** Insert Unicode text (emoji, etc.) at the caret — never into a math LaTeX field. */
+export function insertPlainTextInEditor(editorEl, text) {
+    const ch = String(text || '');
+    if (!(editorEl instanceof HTMLElement) || !ch) return;
+    editorEl.focus({ preventScroll: true });
     const range = resolveEditorInsertRange(editorEl);
     const sel = window.getSelection();
     sel?.removeAllRanges();

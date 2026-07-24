@@ -21,7 +21,7 @@
   "certBody": "Se certifica que el estudiante ha completado con éxito el módulo:",
   "certDate": "Fecha",
   "certShareButton": "Compartir",
-  "certShareCopied": "Texto del certificado copiado al portapapeles.",
+  "certShareCopied": "Enlace del certificado copiado al portapapeles.",
   "certShareText": "¡{student} completó {module} en Arborito!",
   "certShareTitle": "Certificado: {module}",
   "certSign": "Certificación Treesys",

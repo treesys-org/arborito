@@ -258,6 +258,10 @@ export const bundlesMixin = {
             if (hdrCode && !String(bundle.meta.shareCode || '').trim()) {
                 bundle.meta.shareCode = hdrCode;
             }
+            /* Header updatedAt is the republish clock; keep it on meta so SWR
+             * stamps change even when slim JSON omitted the field. */
+            const hdrUpdated = String(meta?.updatedAt || '').trim();
+            if (hdrUpdated) bundle.meta.updatedAt = hdrUpdated;
             this._bundleLoadCache = { key: cacheKey, stamp: cacheStamp, bundle };
         }
         return { revoked: false, bundle: bundle && typeof bundle === 'object' ? bundle : null };

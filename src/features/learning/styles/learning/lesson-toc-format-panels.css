@@ -454,6 +454,39 @@ html:not(.arborito-desktop) .lesson-editor-insert-panel__opt.block-btn {
     background: rgb(49 46 129 / 0.75);
 }
 
+.lesson-editor-insert-panel__emoji-grid {
+    max-height: 9.5rem;
+    overflow-y: auto;
+    padding-right: 0.1rem;
+}
+
+.lesson-editor-emoji-symbol {
+    min-width: 2rem;
+    min-height: 2rem;
+    padding: 0.2rem;
+    border-radius: 0.45rem;
+    border: 1px solid rgb(226 232 240 / 0.95);
+    background: rgb(248 250 252 / 0.95);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.dark .lesson-editor-emoji-symbol {
+    border-color: rgb(51 65 85 / 0.9);
+    background: rgb(30 41 59 / 0.75);
+}
+
+.lesson-editor-emoji-symbol:hover {
+    background: rgb(241 245 249);
+}
+
+.dark .lesson-editor-emoji-symbol:hover {
+    background: rgb(51 65 85 / 0.95);
+}
+
 .arborito-math {
     font-family: 'Cambria Math', 'Latin Modern Math', Georgia, 'Times New Roman', serif;
     font-variant-numeric: lining-nums;

@@ -1,6 +1,6 @@
 @info
 icon: ⚔️
-description: Final review of the whole course, one attempt
+description: Final review, one attempt
 exam: yes
 @/info
 
@@ -9,57 +9,36 @@ index: 1
 title: Final exam
 @/section
 
-This is an **exam**: it reviews everything you saw in the demo. In the normal reader **you cannot pause and resume** the same attempt later.
-
-@section
-index: 2
-title: Before you start
-@/section
-
-Breathe, read each question calmly, and trust what you practiced. The exam outline stays locked until you tap **Start evaluation**.
-
-@section
-index: 3
-title: Map, Forest, and lessons
-@/section
-
-Review mentally: branch, map, Forest, lesson outline, and quizzes with several questions.
-
-@section
-index: 4
-title: Games, points, and construction
-@/section
-
-Arcade, trophies, Copy to My garden, and exporting `.arborito`.
+A review of the whole demo. In an exam you **cannot leave mid-way** and continue the same attempt later. Read carefully, then tap **Start assessment**.
 
 @quiz
 concept: Arborito demo review
 items:
-  - question: Who is Arborito's assistant who wrote this demo branch?
+  - question: Who is the assistant in this demo?
     answer: Sage
     traps:
       - Classroom
       - Hacky Terminal
       - Forest
-  - question: What do you call a full course with folders and lessons?
+  - question: What do we call a full course?
     answer: Branch
     traps:
       - Arcade
       - Exam
       - Streak
-  - question: Where do you import a .arborito file?
+  - question: Where do you import a .arborito?
     answer: Forest
     traps:
       - Map
       - Sage
       - Garden
-  - question: Where do you play mini-games with your lesson content?
+  - question: Where do you play with lesson questions?
     answer: Arcade
     traps:
       - Construction mode
-      - Exams only
+      - Exam only
       - Forum
-  - question: What goes up when you study and pass questions?
+  - question: What goes up when you study and get answers right?
     answer: XP points
     traps:
       - Course price
@@ -71,28 +50,28 @@ items:
       - Play only
       - Reset Sage
       - Watch videos
-  - question: How do you start a lesson in static Hacky Terminal?
-    answer: Menu and play lesson number
+  - question: How do you start a lesson in Hacky Terminal?
+    answer: play and the lesson number
     traps:
       - Dynamic AI only
-      - Delete branch
-      - No lessons
-  - question: Where is your progress saved by default?
+      - Delete the branch
+      - Without lessons
+  - question: Where is progress saved?
     answer: On this device
     traps:
       - In the .arborito
       - Cloud only
       - In Arcade
-  - question: Can one quiz group several questions as a single outline step?
+  - question: Can one quiz hold several questions?
     answer: Yes
     traps:
       - No
       - Short lessons only
       - Sage only
-  - question: How do you edit the Arborito demo?
-    answer: Copy to My garden
+  - question: How do you edit the demo?
+    answer: Copy to My garden and edit the copy
     traps:
       - Edit directly
-      - Exams only
+      - Exam only
       - Delete Forest
 @/quiz

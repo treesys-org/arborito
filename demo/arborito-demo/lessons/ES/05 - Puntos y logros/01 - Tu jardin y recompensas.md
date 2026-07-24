@@ -1,51 +1,47 @@
 @info
 icon: ⭐
-description: Puntos, racha, trofeos de rama/árbol y logros opcionales
+description: Puntos, racha, trofeos y jardín
 @/info
 
 @section
 index: 1
-title: Puntos y recompensas
+title: Tu progreso
 @/section
 
-Arborito **gamifica** tu estudio para que sea más fácil volver cada día. No es un videojuego competitivo: es **tu progreso personal**.
+Arborito te da puntos para que sea más fácil volver. Es **tu** avance, no un ranking.
 
 @image
 url: ./media/11-jardin-es.png
-caption: Tu jardín de memoria: semillas y progreso que se ven al estudiar.
+caption: Jardín de memoria: semillas al estudiar.
 @/image
 
 @section
 index: 2
-title: XP, racha y jardín
+title: XP, racha y paraguas
 @/section
 
-- **Puntos (XP / lúmenes)** al completar lecciones y acertar preguntas.
-- **Racha** si estudias varios días seguidos.
-- **Paraguas:** cada 3 días de racha ganas uno (máximo 3). Si un día no estudias, gasta un paraguas y **no pierdes la racha**. También puedes comprar más en la **Tienda del jardín** (mochila / Progreso).
-- **Semillas** en tu jardín cuando terminas módulos (mira **Progreso** o la mochila).
-
-Cuando ganas un paraguas o lo usas, Arborito te lo muestra con un aviso y un destello breve.
-
-Cada cuestionario del índice suma sensación de avance: por eso las lecciones de esta demo llevan varias preguntas por bloque.
+- **Puntos (XP)** al completar lecciones y acertar.
+- **Racha:** días seguidos estudiando.
+- **Paraguas:** cada 3 días de racha ganas uno (máx. 3). Si un día fallas, gasta un paraguas y no pierdes la racha. También en la Tienda del jardín.
+- **Semillas** al terminar módulos (Progreso o mochila).
 
 @quiz
 concept: Progreso diario
 items:
-  - question: ¿Qué sube cuando completas lecciones y preguntas?
+  - question: ¿Qué sube al estudiar y acertar?
     answer: Puntos XP
     modes: multiple,recall
     traps:
-      - Solo el volumen del móvil
+      - El volumen del móvil
       - El precio del curso
       - Los archivos .arborito
-  - question: ¿Qué es la racha en Arborito?
+  - question: ¿Qué es la racha?
     answer: Días seguidos estudiando
     modes: recall,multiple
     traps:
       - Número de exámenes
-      - Cantidad de ramas importadas
-      - Puntos de Arcade solamente
+      - Ramas importadas
+      - Solo puntos de Arcade
   - question: ¿Para qué sirve el paraguas?
     answer: Protege un día sin estudiar
     modes: multiple,recall
@@ -53,83 +49,41 @@ items:
       - Sube el volumen
       - Abre el Bosque
       - Borra el progreso
-  - question: ¿Dónde ves semillas y resumen de progreso?
-    answer: Progreso o mochila
-    modes: multiple,recall
-    traps:
-      - Solo examen
-      - Solo Bosque
-      - Solo construcción
 @/quiz
 
 @section
 index: 3
-title: Trofeos de rama y árbol
+title: Trofeos
 @/section
 
-En la mochila **Logros** verás tres tipos:
+En **Logros** (mochila):
 
-1. **Rama:** completas **toda** una rama del Bosque (como esta demo).
-2. **Árbol:** completas **todas** las ramas de un árbol (varios cursos agrupados).
-3. **Logro opcional:** el autor lo activa en una carpeta concreta del mapa (construcción, menú de la carpeta, Activar logro).
-
-Los trofeos de rama y árbol cuentan **aunque estés dentro de una carpeta** del mapa.
+1. **Rama:** terminas todo un curso.
+2. **Árbol:** terminas todas las ramas de un árbol.
+3. **Logro opcional:** el autor lo pone en una carpeta (modo construcción).
 
 @quiz
 concept: Trofeos principales
 items:
-  - question: ¿Qué trofeo ganas al terminar una rama entera como esta demo?
+  - question: ¿Qué trofeo ganas al terminar esta demo entera?
     answer: Trofeo de rama
     modes: multiple,recall
     traps:
       - Solo un examen
-      - Un logro opcional de carpeta
-      - Puntos de Arcade solamente
-  - question: ¿Qué trofeo requiere completar todas las ramas de un árbol?
+      - Un logro de carpeta
+      - Solo puntos de Arcade
+  - question: ¿Qué trofeo pide todas las ramas de un árbol?
     answer: Trofeo de árbol
     modes: multiple,recall
     traps:
       - Trofeo de rama
       - Solo racha
       - Solo Classroom
-  - question: ¿Dónde activas un logro opcional en una carpeta?
-    answer: Modo construcción menú de carpeta
-    modes: multiple,recall
-    traps:
-      - Solo examen
-      - Solo Sage
-      - No se puede
-@/quiz
-
-@section
-index: 4
-title: Motivación sin presión
-@/section
-
-Los puntos y trofeos están para **celebrar**, no para castigar. Puedes estudiar a tu ritmo, repetir cuestionarios y jugar Arcade sin perder lo aprendido.
-
-@quiz
-concept: Filosofía de logros
-items:
-  - question: ¿Los trofeos de rama exigen volver al mapa raíz?
+  - question: ¿Los trofeos son para competir con otros?
     answer: No
     modes: multiple,recall
     traps:
-      - Sí, siempre
-      - Solo en inglés
-      - Solo con IA
-  - question: ¿Completar un cuestionario con varias preguntas da más sensación de avance que una sola?
-    answer: Sí
-    modes: multiple,recall
-    traps:
-      - No
-      - Solo en examen
-      - No hay índice
-  - question: ¿El progreso es personal y no competitivo entre usuarios?
-    answer: Sí
-    modes: multiple,recall
-    traps:
-      - No, hay ranking global
+      - Sí, hay ranking global
       - Solo en Arcade
       - Solo en demo
 @/quiz

@@ -185,9 +185,10 @@ function makeTwemojiImgEl(ch) {
     img.setAttribute('data-emoji-fallback', ch);
     img.setAttribute('data-emoji-candidates', candidates.join(','));
     img.setAttribute('data-emoji-candidate-idx', '0');
-    /* Scale with surrounding text instead of a fixed px size. */
-    img.style.width = '1.2em';
-    img.style.height = '1.2em';
+    /* Match surrounding text metrics so mid-sentence glyphs do not float above the line. */
+    img.style.width = '1em';
+    img.style.height = '1em';
+    img.style.verticalAlign = '-0.2em';
     return img;
 }
 

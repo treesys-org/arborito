@@ -183,6 +183,7 @@
   "sourcesPillInternet": "Internet",
   "sourcesPillLocal": "On device",
   "sourcesPillOffline": "Offline",
+  "sourcesPillByArborito": "Arborito",
   "sourcesPillOwner": "Owner",
   "sourcesPillPublished": "Published",
   "sourcesPillSaved": "Saved",

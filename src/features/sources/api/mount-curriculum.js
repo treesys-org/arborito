@@ -264,44 +264,28 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
                     };
                 }
 
-                const skipNetwork = !!graphJson && (!forceRefresh || cacheFresh);
-                if (!skipNetwork) {
-                    const connectPromise =
-                        earlyConnectPromise ||
-                        ensureConnectedNostr(store, { timeoutMs: nostrConnectTimeoutMs() });
-                    if (graphJson) {
-                        /* Stale cache: paint now, refresh in background while Nostr connects. */
-                        swrRefresh = { source, connectPromise };
-                    } else {
-                        const ticket = ++store._networkLoadTicket;
-                        let out;
-                        try {
-                            await connectPromise;
-                            out = await store.sourceManager.loadData(
-                                source,
-                                store.state.lang,
-                                forceRefresh,
-                                store.state.rawGraphData
-                            );
-                        } catch (e) {
-                            if (ticket !== store._networkLoadTicket) {
-                                const ui = store.ui || {};
-                                queueMicrotask(() =>
-                                    store.notify(
-                                        ui.curriculumLoadSuperseded ||
-                                            'Tree load was cancelled (a newer load started).',
-                                        false
-                                    )
-                                );
-                                return false;
-                            }
-                            store.update({
-                                error: String((e && e.message) || e),
-                                loading: false,
-                            });
-                            queueMicrotask(() => store.maybePromptNoTree());
-                            return false;
-                        }
+                /* Fresh cache may skip a blocking fetch, but always SWR in the
+                 * background so republishes (icons, lesson bodies) replace the
+                 * painted copy once the stamp differs. */
+                const skipBlockingNetwork = !!graphJson && (!forceRefresh || cacheFresh);
+                const connectPromise =
+                    earlyConnectPromise ||
+                    ensureConnectedNostr(store, { timeoutMs: nostrConnectTimeoutMs() });
+                if (graphJson) {
+                    swrRefresh = { source, connectPromise };
+                }
+                if (!skipBlockingNetwork && !graphJson) {
+                    const ticket = ++store._networkLoadTicket;
+                    let out;
+                    try {
+                        await connectPromise;
+                        out = await store.sourceManager.loadData(
+                            source,
+                            store.state.lang,
+                            forceRefresh,
+                            store.state.rawGraphData
+                        );
+                    } catch (e) {
                         if (ticket !== store._networkLoadTicket) {
                             const ui = store.ui || {};
                             queueMicrotask(() =>
@@ -313,15 +297,32 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
                             );
                             return false;
                         }
-                        graphJson = out.json;
-                        finalSource = out.finalSource;
-                        if (
-                            forceRefresh &&
-                            (finalSource && finalSource.origin) === 'nostr' &&
-                            parseNostrTreeUrl(String(finalSource.url || ''))
-                        ) {
-                            store._treeForumHydratedForSourceId = null;
-                        }
+                        store.update({
+                            error: String((e && e.message) || e),
+                            loading: false,
+                        });
+                        queueMicrotask(() => store.maybePromptNoTree());
+                        return false;
+                    }
+                    if (ticket !== store._networkLoadTicket) {
+                        const ui = store.ui || {};
+                        queueMicrotask(() =>
+                            store.notify(
+                                ui.curriculumLoadSuperseded ||
+                                    'Tree load was cancelled (a newer load started).',
+                                false
+                            )
+                        );
+                        return false;
+                    }
+                    graphJson = out.json;
+                    finalSource = out.finalSource;
+                    if (
+                        forceRefresh &&
+                        (finalSource && finalSource.origin) === 'nostr' &&
+                        parseNostrTreeUrl(String(finalSource.url || ''))
+                    ) {
+                        store._treeForumHydratedForSourceId = null;
                     }
                 }
             }
@@ -483,6 +484,17 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
         if (typeof store.maybeScheduleShellProductTourAfterTree === 'function') {
             queueMicrotask(() => store.maybeScheduleShellProductTourAfterTree());
         }
+        queueMicrotask(() => {
+            void import('../../garden-progress/api/share-certificate.js')
+                .then((m) => {
+                    try {
+                        m.consumeCertificateShareParam?.(store);
+                    } catch {
+                        /* ignore */
+                    }
+                })
+                .catch(() => {});
+        });
         queueMicrotask(() => {
             try {
                 store.dispatchEvent(new CustomEvent('graph-update'));

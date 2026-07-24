@@ -87,7 +87,7 @@ export function buildDemoBranchData() {
     });
     tree.universeId = DEMO_BRANCH_UNIVERSE;
     tree.universeName = primaryTitle;
-    tree.meta = { arboritoBundled: true, demo: true };
+    tree.meta = { arboritoBundled: true, demo: true, official: true };
     tree.translationIndex = buildTranslationIndex(tree);
     return tree;
 }
@@ -105,6 +105,6 @@ export function buildDemoBranchEntry() {
         updated: Date.UTC(2026, 6, 23),
         data: buildDemoBranchData(),
         icon: String(meta.icon || '🌳').trim().slice(0, 32) || '🌳',
-        meta: { arboritoBundled: true, demo: true },
+        meta: { arboritoBundled: true, demo: true, official: true },
     };
 }

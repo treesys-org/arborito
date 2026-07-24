@@ -1,31 +1,32 @@
 @info
 icon: 🧩
-description: Five ways to practice in lessons
+description: Five ways to practise
 tags: classroom, memory
 @/info
 
 @section
 index: 1
-title: Five question types
+title: Five types
 @/section
 
-In lessons you'll see questions that change shape. This lesson shows them **one by one** on purpose: elsewhere in the course we group them into quizzes with several questions.
+Here you see them **one by one**. Elsewhere they often sit together in one quiz.
 
 @image
 url: ./media/06-quiz-en.png
-caption: A lesson question ready to practice.
+caption: A question ready to practise.
 @/image
+
 @section
 index: 2
 title: Multiple choice
 @/section
 
-You're shown **several options** and pick one. Great for recognizing new concepts.
+Several options; you pick one.
 
 @quiz
-concept: Choose an answer
-definition: You're shown {several options} and pick one
-question: Which question type gives you options to choose from?
+concept: Choose answer
+definition: You see {several options} and pick one
+question: Which type gives you options to choose?
 answer: Multiple choice
 modes: multiple,recall
 traps:
@@ -36,29 +37,29 @@ traps:
 
 @section
 index: 3
-title: Fill in the blanks
+title: Fill the blank
 @/section
 
-A sentence with a **hidden** word you must get right. Great for vocabulary and short definitions.
+A sentence with a **hidden** word.
 
 @quiz
-concept: Fill in the blanks
+concept: Fill blanks
 definition: A sentence with a {hidden} word you must get right
-answer: Fill in the blanks
+answer: Fill the blank
 modes: cloze
 @/quiz
 
 @section
 index: 4
-title: Recall without options
+title: Recall
 @/section
 
-**Recall** mode: you type or pick the answer without a long trap list. It strengthens active memory.
+You type or pick the answer **without** a long trap list.
 
 @quiz
 concept: Recall
 definition: An answer you must {recall} with few distractors
-question: Which mode asks you to recall the answer with concept and definition?
+question: Which mode asks you to recall the answer?
 answer: Recall
 modes: recall
 traps:
@@ -68,14 +69,14 @@ traps:
 
 @section
 index: 5
-title: Order the words
+title: Order words
 @/section
 
-You drag or order **words** to form the correct phrase. Useful for formulas, greetings, or short sequences.
+Arrange words into the right phrase.
 
 @quiz
 concept: Order words
-definition: Drag or order {words} to form the answer
+definition: Drag or order {words} to build the answer
 question: Order: with · Learn · Arborito
 answer: Learn with Arborito
 modes: chips
@@ -83,10 +84,10 @@ modes: chips
 
 @section
 index: 6
-title: Order the steps
+title: Order steps
 @/section
 
-You put actions in the **correct order**. Perfect for procedures: open map, folder, lesson…
+Put actions in the **right order**.
 
 @quiz
 concept: Order steps

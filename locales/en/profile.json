@@ -19,7 +19,7 @@
   "certTitle": "CERTIFICATE OF COMPLETION",
   "certVersion": "Version",
   "certShareButton": "Share",
-  "certShareCopied": "Certificate text copied to clipboard.",
+  "certShareCopied": "Certificate link copied to clipboard.",
   "certShareText": "{student} completed {module} on Arborito!",
   "certShareTitle": "Certificate: {module}",
   "certificatesTagline": "Achievements & Diplomas",

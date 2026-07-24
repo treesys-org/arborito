@@ -5,7 +5,7 @@ export const LESSON_EDITOR_TOOLBAR_SELECTOR =
 export function isLessonEditorInsertControl(target) {
     if (!(target instanceof Element)) return false;
     return !!target.closest(
-        '#btn-insert-quiz, #lesson-editor-insert-panel, .lesson-editor-insert-toggle, .lesson-editor-insert-panel__opt, .lesson-editor-toolbar-quiz, .lesson-editor-quiz-wrap'
+        '#btn-insert-quiz, #lesson-editor-insert-panel, .lesson-editor-insert-toggle, .lesson-editor-insert-panel__opt, .lesson-editor-math-symbol, .lesson-editor-emoji-symbol, .lesson-editor-toolbar-quiz, .lesson-editor-quiz-wrap'
     );
 }
 

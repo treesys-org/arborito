@@ -129,6 +129,19 @@ arborito-modal-search #modal-backdrop.arborito-modal-search-dock {
     background: var(--arborito-theme-surface-bg) !important;
 }
 
+/* Sage from a lesson: bareBackdrop (no inner card) — paint the sheet itself opaque
+ * so the forest / lesson chrome never shows through the top safe-area strip. */
+#sage-lesson-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--mobile-fullbleed,
+#sage-settings-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--mobile-fullbleed {
+    background: var(--arborito-theme-modal-dock-panel-background, var(--arborito-theme-surface-bg)) !important;
+}
+
+#sage-lesson-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--mobile-fullbleed > .arborito-dock-hub-shell,
+#sage-lesson-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--mobile-fullbleed > div:first-child,
+#sage-settings-backdrop.arborito-modal-root.arborito-modal--mobile.arborito-modal--mobile-fullbleed > div:first-child {
+    background: var(--arborito-theme-modal-dock-panel-background, var(--arborito-theme-surface-bg)) !important;
+}
+
 /* Alt backdrop: construction rename bottom-sheet (portaled) */
 #arborito-construction-rename-backdrop.arborito-modal-root.arborito-modal--mobile {
     position: fixed !important;

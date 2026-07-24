@@ -1,6 +1,7 @@
 import { getArboritoStore as store } from '../../../../core/store-singleton.js';
 import { formatBranchNamesSummary, resolveBranchRefDisplayNames } from '../../../forest/api/tree-branch-labels.js';
 import { canonicalNetworkTreeUrlString, resolveActiveBranchId } from '../../../sources/api/modals/logic/sources-helpers.js';
+import { isBundledArboritoDemoBranch } from '../../../../core/demo/arborito-demo-ids.js';
 
 export const TREE_SWITCHER_LIST_CAP = 80;
 
@@ -242,22 +243,25 @@ export function treeSwitcherItemMeta(ui, item) {
         item.id &&
         typeof store.userStore?.isTreeFrozen === 'function' &&
         store.userStore.isTreeFrozen(item.id);
-    const pill =
-        item.kind === 'branch'
-            ? ui.sourcesPillBranch || 'Branch'
-            : item.kind === 'composed-tree'
-              ? ui.sourcesPillComposedTree || 'Tree'
-              : isFrozen
-                ? ui.freezeToggleOn || ui.sourcesPillOffline || 'Offline'
-                : ui.sourcesPillInstalled || 'Installed';
-    const pillCls =
-        item.kind === 'branch'
-            ? 'arborito-tree-switcher-pill arborito-tree-switcher-pill--local'
-            : item.kind === 'composed-tree'
-              ? 'arborito-tree-switcher-pill arborito-tree-switcher-pill--composed'
-              : isFrozen
-                ? 'arborito-tree-switcher-pill arborito-tree-switcher-pill--frozen'
-                : 'arborito-tree-switcher-pill arborito-tree-switcher-pill--installed';
+    const isArboritoDemo = item.kind === 'branch' && isBundledArboritoDemoBranch(item.id);
+    const pill = isArboritoDemo
+        ? ui.sourcesPillByArborito || 'Arborito'
+        : item.kind === 'branch'
+          ? ui.sourcesPillBranch || 'Branch'
+          : item.kind === 'composed-tree'
+            ? ui.sourcesPillComposedTree || 'Tree'
+            : isFrozen
+              ? ui.freezeToggleOn || ui.sourcesPillOffline || 'Offline'
+              : ui.sourcesPillInstalled || 'Installed';
+    const pillCls = isArboritoDemo
+        ? 'arborito-tree-switcher-pill arborito-tree-switcher-pill--by-arborito'
+        : item.kind === 'branch'
+          ? 'arborito-tree-switcher-pill arborito-tree-switcher-pill--local'
+          : item.kind === 'composed-tree'
+            ? 'arborito-tree-switcher-pill arborito-tree-switcher-pill--composed'
+            : isFrozen
+              ? 'arborito-tree-switcher-pill arborito-tree-switcher-pill--frozen'
+              : 'arborito-tree-switcher-pill arborito-tree-switcher-pill--installed';
     const emoji =
         item.kind === 'branch' ? '🌿' : item.kind === 'composed-tree' ? '🌳' : isFrozen ? '❄️' : '🌐';
     const avatarCls =

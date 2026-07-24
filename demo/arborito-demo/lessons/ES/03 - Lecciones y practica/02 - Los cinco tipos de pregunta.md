@@ -1,31 +1,32 @@
 @info
 icon: 🧩
-description: Cinco formas de practicar en las lecciones
+description: Cinco formas de practicar
 tags: classroom, memory
 @/info
 
 @section
 index: 1
-title: Cinco tipos de pregunta
+title: Cinco tipos
 @/section
 
-En las lecciones verás preguntas que cambian de forma. Esta lección las muestra **una por una** a propósito: en el resto del curso las agrupamos en cuestionarios con varias preguntas.
+Aquí las ves **una por una**. En el resto del curso suelen ir juntas en un cuestionario.
 
 @image
 url: ./media/06-quiz-es.png
-caption: Una pregunta del temario, lista para practicar.
+caption: Una pregunta lista para practicar.
 @/image
+
 @section
 index: 2
 title: Opción múltiple
 @/section
 
-Te muestran **varias opciones** y eliges una. Es ideal para reconocer conceptos nuevos.
+Varias opciones; eliges una.
 
 @quiz
 concept: Elegir respuesta
 definition: Te muestran {varias opciones} y eliges una
-question: ¿Qué tipo de pregunta te da opciones para elegir?
+question: ¿Qué tipo te da opciones para elegir?
 answer: Opción múltiple
 modes: multiple,recall
 traps:
@@ -39,7 +40,7 @@ index: 3
 title: Completar huecos
 @/section
 
-Una frase con una palabra **oculta** que debes acertar. Ideal para vocabulario y definiciones cortas.
+Una frase con una palabra **oculta**.
 
 @quiz
 concept: Completar huecos
@@ -50,15 +51,15 @@ modes: cloze
 
 @section
 index: 4
-title: Recordar sin opciones
+title: Recordar
 @/section
 
-Modo **recordar**: escribes o eliges la respuesta sin una lista larga de trampas. Refuerza memoria activa.
+Escribes o eliges la respuesta **sin** una lista larga de trampas.
 
 @quiz
 concept: Recordar
 definition: Respuesta que debes {recordar} con pocos distractores
-question: ¿Qué modo pide recordar la respuesta con concepto y definición?
+question: ¿Qué modo pide recordar la respuesta?
 answer: Recordar
 modes: recall
 traps:
@@ -71,7 +72,7 @@ index: 5
 title: Ordenar palabras
 @/section
 
-Arrastras o ordenas **palabras** para formar la frase correcta. Útil para fórmulas, saludos o secuencias cortas.
+Ordenas palabras para armar la frase.
 
 @quiz
 concept: Ordenar palabras
@@ -86,7 +87,7 @@ index: 6
 title: Ordenar pasos
 @/section
 
-Pones acciones en el **orden correcto**. Perfecto para procedimientos: abrir mapa, carpeta, lección…
+Pones las acciones en el **orden correcto**.
 
 @quiz
 concept: Ordenar pasos

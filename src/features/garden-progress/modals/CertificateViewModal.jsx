@@ -33,7 +33,11 @@ export function ModalCertificateView() {
         : null;
     const bookmark = node ? getBookmark(node.id, node.content) : null;
     const versionId = bookmark ? bookmark.hash.substring(0, 8).toUpperCase() : 'UNVERSIONED';
-    const studentName = String(gamification?.username || '').trim() || ui.certStudentFallback || 'Student';
+    const studentName =
+        String(modal?.sharedStudentName || '').trim() ||
+        String(gamification?.username || '').trim() ||
+        ui.certStudentFallback ||
+        'Student';
 
     let authorityName = ui.certSign || 'Treesys Certification';
     const rawGraphData = store?.state?.rawGraphData;
@@ -75,7 +79,11 @@ export function ModalCertificateView() {
     };
     const onShare = () => {
         if (!node) return;
-        void shareCertificate({ moduleName: node.name, studentName });
+        void shareCertificate({
+            moduleId: node.id,
+            moduleName: node.name,
+            studentName,
+        });
     };
 
     if (!node) return null;

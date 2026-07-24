@@ -171,6 +171,7 @@ export function buildArboritoBundle({
             locale: typeof navigator !== 'undefined' ? navigator.language : '',
             createdAt: new Date().toISOString(),
             exportedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             instanceId: id,
             sourceUrl: (activeSource && activeSource.url) || null,
             description: typeof up.description === 'string' ? up.description : '',

@@ -208,10 +208,12 @@ export function SageOverlay() {
                 mobile
                 skipBodyWrap
                 shellOpts={{
-                    rootFlags: 'arborito-modal--sage-lesson',
+                    /* Same takeover family as Biblioteca: edge-to-edge, dock hidden. */
+                    rootFlags: 'arborito-modal--sage-lesson arborito-modal--mobile-fullbleed',
                     backdropId: 'sage-lesson-backdrop',
                     z: 235,
                     bareBackdrop: true,
+                    scrim: 'none',
                 }}
                 onBackdropClick={close}
             >

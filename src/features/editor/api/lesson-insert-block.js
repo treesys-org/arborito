@@ -1,4 +1,4 @@
-import { insertBlockInEditor, insertMathSymbolInEditor, rememberMathLatexInput } from './editor-commands.js';
+import { insertBlockInEditor, insertMathSymbolInEditor, insertPlainTextInEditor, rememberMathLatexInput } from './editor-commands.js';
 import { restoreEditorSelection } from './editor-selection.js';
 import { markConstructBodyEdited } from './logic/lesson-construct-capture.js';
 
@@ -33,6 +33,8 @@ export function resolveLessonEditorEl(editorRef) {
 function insertTypeFromButton(btn) {
     if (!(btn instanceof Element)) return '';
     if (btn.id === 'btn-insert-quiz') return 'quiz';
+    const emoji = btn.getAttribute('data-emoji-char');
+    if (emoji) return `emoji:${emoji}`;
     const sym = btn.getAttribute('data-math-char');
     if (sym) return `math-symbol:${sym}`;
     return String(btn.getAttribute('data-type') || '').trim();
@@ -40,7 +42,9 @@ function insertTypeFromButton(btn) {
 
 export function isLessonInsertToolbarButton(target) {
     if (!(target instanceof Element)) return null;
-    return target.closest('.lesson-editor-insert-panel__opt, .lesson-editor-math-symbol, #btn-insert-quiz');
+    return target.closest(
+        '.lesson-editor-insert-panel__opt, .lesson-editor-math-symbol, .lesson-editor-emoji-symbol, #btn-insert-quiz'
+    );
 }
 
 /** @param {string} type @param {object} ctx */
@@ -54,6 +58,17 @@ export function performLessonInsertBlock(type, ctx) {
         markConstructBodyEdited(editorEl, {
             markUserEdited: () => lessonEditor?.markUserEdited?.(),
         });
+
+    if (t.startsWith('emoji:')) {
+        const emoji = t.slice('emoji:'.length);
+        lessonEditor?.pushHistory?.(editorEl);
+        restoreEditorSelection(editorEl, lessonEditor?.savedRangeRef);
+        editorEl.focus({ preventScroll: true });
+        restoreEditorSelection(editorEl, lessonEditor?.savedRangeRef);
+        insertPlainTextInEditor(editorEl, emoji);
+        markEdited();
+        return true;
+    }
 
     if (t.startsWith('math-symbol:')) {
         const symbol = t.slice('math-symbol:'.length);

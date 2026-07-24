@@ -20,11 +20,16 @@ export function treeBundleRoughStamp(json) {
     const m = json.meta && typeof json.meta === 'object' ? json.meta : {};
     const nodes = Array.isArray(json.nodes) ? json.nodes.length : 0;
     const branches = Array.isArray(json.branches) ? json.branches.length : 0;
+    /* Prefer updatedAt; fall back to export/create times so republishes that only
+     * change node icons (or lesson counts) still remount. Flat nodes/branches
+     * are usually 0 for arborito-bundle trees (structure lives under tree.languages). */
     return [
-        String(m.updatedAt || ''),
+        String(m.updatedAt || m.exportedAt || m.createdAt || ''),
         String(m.publishedAt || ''),
         String(m.shareCode || ''),
         String(m.nostrBundleFormat || ''),
+        String(m.nostrLessonChunksCount ?? ''),
+        String(m.icon || ''),
         String(json.format || ''),
         String(nodes),
         String(branches),

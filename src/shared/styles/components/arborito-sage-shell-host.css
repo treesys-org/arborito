@@ -416,6 +416,8 @@ arborito-sage.arborito-sage--open.arborito-sage-mob-frame {
     min-height: 100dvh !important;
     height: 100dvh !important;
     max-height: 100dvh !important;
+    /* Opaque takeover: consolidación fullbleed (no translucent forest scrim). */
+    background: var(--arborito-theme-modal-dock-panel-background, var(--arborito-theme-surface-bg)) !important;
 }
 
 :is(
@@ -429,6 +431,7 @@ arborito-sage.arborito-sage--open.arborito-sage-mob-frame {
     height: 100% !important;
     min-height: 0 !important;
     flex: 1 1 auto !important;
+    background: var(--arborito-theme-modal-dock-panel-background, var(--arborito-theme-surface-bg)) !important;
 }
 
 :is(

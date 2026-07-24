@@ -1,6 +1,6 @@
 @info
 icon: 📖
-description: Lecciones, temario e preguntas integradas
+description: Lecciones, temario y preguntas integradas
 @/info
 
 @section

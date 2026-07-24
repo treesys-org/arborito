@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { DEMO_BRANCH_ID } from '../../../../core/demo/arborito-demo-ids.js';
+import { isBundledArboritoDemoBranch } from '../../../../core/demo/arborito-demo-ids.js';
 import { metricsForPublishedUrl } from '../../api/modals/logic/sources-directory-fetch.js';
 import { SourcesPill } from './SourcesPill.jsx';
 import { LanguagePills } from './LanguagePills.jsx';
@@ -56,7 +56,7 @@ export function SourcesBranchRow({
             ? new Date(updatedTs).toLocaleDateString()
             : '—';
     const branchIcon = resolveBranchCatalogIcon(branch);
-    const isDemoBranch = String(branch?.id || '') === DEMO_BRANCH_ID;
+    const isDemoBranch = isBundledArboritoDemoBranch(branch);
     const activeCls = isActive ? ' arborito-sources-row--active' : '';
     const accountSynced = !!(branch?.privateSyncedFromAccount);
     const signedIn = !!store?.isSignedIn?.();
@@ -95,6 +95,11 @@ export function SourcesBranchRow({
                         </p>
                     ) : null}
                     <div className="arborito-sources-row-meta">
+                        {isDemoBranch ? (
+                            <SourcesPill className="arborito-pill--amber arborito-pill--bordered">
+                                {ui.sourcesPillByArborito || 'Arborito'}
+                            </SourcesPill>
+                        ) : null}
                         <SourcesPill className="arborito-pill--emerald arborito-pill--bordered">
                             {ui.sourcesPillBranch || 'Branch'}
                         </SourcesPill>
