@@ -16,7 +16,11 @@ import {
     isLessonEditTourContextReady,
     stepHasTarget,
 } from '../api/product-tour-targets.js';
-import { flushPendingTourStarts } from '../api/product-tour-start-bridge.js';
+import {
+    clearPendingConstructionTour,
+    flushPendingTourStarts,
+    noteConstructionTourStartBlocked,
+} from '../api/product-tour-start-bridge.js';
 import { ensureDeferredProductTourStyles } from '../../../shared/lib/lazy-stylesheet.js';
 import {
     TOUR_DONE_KEY,
@@ -167,6 +171,7 @@ const [active, setActive] = useState(false);
                 } catch {
                     /* ignore */
                 }
+                clearPendingConstructionTour();
             } else if (finishingMode === 'lesson-edit') {
                 try {
                     localStorage.setItem(TOUR_DONE_KEY_LESSON_EDIT, 'true');
@@ -271,7 +276,14 @@ const [active, setActive] = useState(false);
 
             const modal0 = store.value.modal;
             const modalType0 = typeof modal0 === 'string' ? modal0 : modal0?.type;
-            const overlayBlocking = !!(store.value.previewNode || store.state.modalOverlay);
+            const overlayBlocking = !!(
+                store.value.previewNode ||
+                store.state.modalOverlay ||
+                store.state.treeGrowingOverlay
+            );
+            const uiBlocking =
+                !!(store.value.modal || store.value.previewNode || store.state.modalOverlay) ||
+                !!(store.state.treeGrowingOverlay || store.state.treeHydrating);
 
             if (skipDock) {
                 if (!force) {
@@ -297,14 +309,19 @@ const [active, setActive] = useState(false);
                     }
                     return;
                 }
-            } else if (store.value.modal || store.value.previewNode || store.state.modalOverlay) {
-                if ((m === 'construction' || m === 'lesson-edit') && modalWaitRetryRef.current < 40) {
+            } else if (uiBlocking) {
+                if (m === 'construction' || m === 'lesson-edit') {
                     if (m === 'lesson-edit' && !isLessonEditTourContextReady()) {
                         modalWaitRetryRef.current = 0;
                         return;
                     }
-                    modalWaitRetryRef.current += 1;
-                    scheduleTryStart({ force, mode: m }, 120);
+                    noteConstructionTourStartBlocked({ force, mode: m });
+                    /* Plant/fork sync dialogs can stay open >5s — keep retrying longer. */
+                    if (modalWaitRetryRef.current < 100) {
+                        modalWaitRetryRef.current += 1;
+                        const delay = Math.min(120 + modalWaitRetryRef.current * 15, 400);
+                        scheduleTryStart({ force, mode: m }, delay);
+                    }
                     return;
                 }
                 return;
@@ -317,7 +334,10 @@ const [active, setActive] = useState(false);
                 : TOUR_DONE_KEY;
             if (!force) {
                 try {
-                    if (localStorage.getItem(doneKey)) return;
+                    if (localStorage.getItem(doneKey)) {
+                        if (m === 'construction') clearPendingConstructionTour();
+                        return;
+                    }
                 } catch {
                     return;
                 }
@@ -398,11 +418,12 @@ const [active, setActive] = useState(false);
                     const failsafe = setTimeout(cleanup, 15000);
                     return;
                 }
-                if ((m === 'construction' || m === 'lesson-edit') && anchorWaitRetryRef.current < 30) {
+                if ((m === 'construction' || m === 'lesson-edit') && anchorWaitRetryRef.current < 40) {
                     if (m === 'lesson-edit' && !isLessonEditTourContextReady()) {
                         anchorWaitRetryRef.current = 0;
                         return;
                     }
+                    noteConstructionTourStartBlocked({ force, mode: m });
                     anchorWaitRetryRef.current += 1;
                     scheduleTryStart({ force, mode: m }, 100);
                     return;
@@ -412,6 +433,7 @@ const [active, setActive] = useState(false);
             }
             anchorWaitRetryRef.current = 0;
             modalWaitRetryRef.current = 0;
+            clearPendingConstructionTour();
             startTour({ tourSteps, tourMode: m, force, pickerOnly: false });
         },
         [scheduleTryStart, startTour]

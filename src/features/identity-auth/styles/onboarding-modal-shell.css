@@ -519,8 +519,8 @@
 }
 
 .arborito-modal--onboarding .btn-onb-skip:hover:not(:disabled) {
-    border-color: rgb(52 211 153 / 0.55);
-    background: rgb(236 253 245 / 0.9);
+    border-color: var(--arborito-theme-auth-alt-hover-border, rgb(52 211 153));
+    background: var(--arborito-theme-auth-alt-hover-bg, rgb(236 253 245 / 0.9));
     transform: translateY(-1px);
 }
 

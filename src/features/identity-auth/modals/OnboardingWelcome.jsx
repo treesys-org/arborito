@@ -26,9 +26,16 @@ export function OnboardingWelcome({
         ui.onboardingPrivacyShortLink || ui.onboardingPrivacyHeading || ui.privacyTitle || 'Privacy'
     ).trim();
     const accountLbl = String(
-        ui.onboardingOnlineAccountCta || ui.onboardingSessionRegister || 'Online account'
+        ui.onboardingOnlineAccountCta || ui.onboardingSessionRegister || 'Sign in or Register'
     ).trim();
-    const exploreLbl = String(ui.onboardingJustExploreCta || ui.onboardingLaterCta || 'Just explore').trim();
+    const exploreLbl = String(
+        ui.onboardingJustExploreCta || ui.onboardingLaterCta || 'Continue without an account'
+    ).trim();
+    const exploreHint = String(
+        ui.onboardingContinueWithoutAccountHint ||
+            ui.onboardingSessionSkipLaterHint ||
+            'You can create an account later from Profile.'
+    ).trim();
     const a11yLbl = String(ui.onboardingAccessibilityButton || ui.a11yPrefsTitle || 'Accessibility').trim();
     const appLinkLbl = String(
         ui.onboardingAppFootLink || ui.onboardingOptionalAppLink || ui.downloadAppOptionalLink || 'App'
@@ -73,6 +80,11 @@ export function OnboardingWelcome({
                 >
                     {stepAdvancing ? loadingLbl : exploreLbl}
                 </button>
+                {exploreHint && !stepAdvancing ? (
+                    <p className="arborito-onboarding-skip-hint m-0 text-[11px] leading-snug text-slate-600 dark:text-slate-400 text-center">
+                        {exploreHint}
+                    </p>
+                ) : null}
                 {networkNote ? (
                     <p className="arborito-onboarding-legal-note m-0 text-[11px] leading-snug text-slate-600 dark:text-slate-400 text-center">
                         {networkNote}

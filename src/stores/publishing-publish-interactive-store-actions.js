@@ -347,17 +347,11 @@ export async function offerLocalCopyFromNetworkTreeForEditingAction({ enterConst
                 store.update({ constructionMode: true });
             }
             /* Same path as toggleConstructionMode — copy used to skip the tour event. */
-            queueMicrotask(() => {
-                try {
-                    if (localStorage.getItem('arborito-ui-tour-done-construction')) return;
-                } catch {
-                    /* ignore */
-                }
-                window.dispatchEvent(
-                    new CustomEvent('arborito-start-tour', {
-                        detail: { source: 'fork-local-copy', mode: 'construction' },
-                    })
+            queueMicrotask(async () => {
+                const { requestConstructionTourOnce } = await import(
+                    '../features/tour/api/product-tour-start-bridge.js'
                 );
+                requestConstructionTourOnce({ source: 'fork-local-copy' });
             });
         } else if (!onCopy) {
             /* Never leave construction mode on the read-only demo after a failed switch. */

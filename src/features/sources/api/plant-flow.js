@@ -4,6 +4,7 @@
 
 import { mountCurriculum } from './mount-curriculum.js';
 import { finishSourcesLoadSession, captureHadCurriculumBeforeLoad } from './sources-session.js';
+import { requestConstructionTourOnce } from '../../tour/api/product-tour-start-bridge.js';
 
 /**
  * After planting: if signed in, ask whether to sync an encrypted draft to the account
@@ -137,5 +138,11 @@ export async function runPlantNewTree(store, name, modal, skeleton = null) {
         await offerPlantBranchAccountSync(store, newTree);
     } catch (e) {
         console.warn('[Arborito] plant branch sync offer failed', e);
+    }
+
+    /* Plant sets constructionMode directly (not toggleConstructionMode) — fire tour after
+     * the sync dialog so acknowledge/modals do not swallow the one-time start. */
+    if (store.state.constructionMode) {
+        requestConstructionTourOnce({ source: 'plant-branch' });
     }
 }

@@ -444,16 +444,11 @@ export async function toggleConstructionModeAction() {
                         });
                     }
                     // Start construction tour once (separate from the default UI tour).
-                    // Always dispatch: tryStart retries while a modal/overlay is open.
-                    queueMicrotask(() => {
-                        try {
-                            if (localStorage.getItem('arborito-ui-tour-done-construction')) return;
-                        } catch {
-                            /* ignore */
-                        }
-                        window.dispatchEvent(
-                            new CustomEvent('arborito-start-tour', { detail: { source: 'construction-enter', mode: 'construction' } })
+                    queueMicrotask(async () => {
+                        const { requestConstructionTourOnce } = await import(
+                            '../features/tour/api/product-tour-start-bridge.js'
                         );
+                        requestConstructionTourOnce({ source: 'construction-enter' });
                     });
                 }
             } catch (e) {

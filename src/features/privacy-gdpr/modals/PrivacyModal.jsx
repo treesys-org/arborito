@@ -166,7 +166,7 @@ export function ModalPrivacy() {
                                             <LocaleRichText
                                                 html={
                                                     ui.privacyOnboardingNetworkPreviewBody ||
-                                                    'Online is not active yet. <strong>Online account</strong> or <strong>Later</strong> on the welcome screen enables the recommended public network. Use the button below to stay without network features.'
+                                                    'Online is not active yet. <strong>Sign in or Register</strong> or <strong>Continue without an account</strong> on the welcome screen enables the recommended public network. Use the button below to stay without network features.'
                                                 }
                                             />
                                         </p>

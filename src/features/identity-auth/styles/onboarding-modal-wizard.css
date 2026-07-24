@@ -431,6 +431,13 @@
     margin-right: auto;
 }
 
+.arborito-modal--onboarding .arborito-onboarding-skip-hint {
+    max-width: 20rem;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: -0.15rem;
+}
+
 .arborito-modal--onboarding .arborito-onboarding-actions {
     gap: 0.5rem;
 }
