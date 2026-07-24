@@ -11,6 +11,7 @@ export function ArcadeCard({
     game,
     index,
     ui,
+    lang,
     wateringTargetId,
     offlineOn,
     cacheReady,
@@ -34,7 +35,7 @@ export function ArcadeCard({
         ? ui.arcadeOfflineDownloading || '…'
         : ui.arcadeOfflineToggle || 'Offline';
     const displayName = localizedArcadeGameName(ui, game);
-    const displayDescription = localizedArcadeGameDescription(ui, game);
+    const displayDescription = localizedArcadeGameDescription(ui, game, lang);
 
     return (
         <div

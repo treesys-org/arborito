@@ -6,7 +6,6 @@
   "arcadeGameMemory": "Memory Garden",
   "arcadeGameStarship": "Starship Learner",
   "arcadeGameWrongFruit": "Wrong Fruit",
-  "arcadeGameWrongFruitDesc": "Guía un gusano del jardín por sesiones cortas. Come las frutas con las respuestas correctas; esquiva setos, rocas y gnomos hostiles.",
   "gameActivityDefaultLabel": "Actividad interactiva",
   "gameAiErrorBrowser": "El asistente de estudio aún no está listo. Activa el modo dinámico en Sage (escritorio o modo experto con API).",
   "gameAiWebUnavailable": "El modo dinámico en la web requiere modo experto con API o la app de escritorio.",

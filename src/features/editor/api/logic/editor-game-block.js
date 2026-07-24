@@ -2,6 +2,10 @@ import { getArboritoStore as store } from '../../../../core/store-singleton.js';
 import { loadArcadeGamesCatalog } from '../../../arcade/api/arcade-games-loader.js';
 import { sortArcadeGamesForDiscovery } from '../../../arcade/api/arcade-game-discovery.js';
 import {
+    localizedArcadeGameDescription,
+    localizedArcadeGameName,
+} from '../../../arcade/api/arcade-game-display.js';
+import {
     getCurrentLessonTopicItems,
     resolveTopicLabels,
 } from './editor-game-topics.js';
@@ -116,10 +120,13 @@ function renderGamePickerResults(block, games, filterText = '') {
     const results = block.querySelector('.game-picker-results');
     const emptyEl = block.querySelector('.game-picker-empty');
     if (!results) return;
+    const ui = store.ui || {};
+    const lang = store.lang || store.state?.lang || 'EN';
     const q = String(filterText || '').trim().toLowerCase();
     const filtered = q
         ? games.filter((g) => {
-              const hay = `${g.name || ''} ${g.description || ''}`.toLowerCase();
+              const hay =
+                  `${localizedArcadeGameName(ui, g)} ${localizedArcadeGameDescription(ui, g, lang)} ${g.name || ''} ${g.description || ''}`.toLowerCase();
               return hay.includes(q);
           })
         : games;
@@ -137,10 +144,15 @@ function renderGamePickerResults(block, games, filterText = '') {
         row.type = 'button';
         row.className = 'game-picker-row arborito-picker-row';
         row.dataset.gamePath = String(game.path || '');
-        row.dataset.gameName = String(game.name || '');
+        const displayName = localizedArcadeGameName(ui, game);
+        row.dataset.gameName = displayName;
         if (String(game.path || '') === currentUrl) row.classList.add('game-picker-row--active');
         const icon = game.icon ? String(game.icon) : '🎮';
-        row.innerHTML = `<span class="game-picker-row__icon" aria-hidden="true">${icon}</span><span class="game-picker-row__body"><span class="game-picker-row__name">${escapeHtml(game.name || game.id || '')}</span></span>`;
+        const desc = localizedArcadeGameDescription(ui, game, lang);
+        const descHtml = desc
+            ? `<span class="game-picker-row__desc">${escapeHtml(desc)}</span>`
+            : '';
+        row.innerHTML = `<span class="game-picker-row__icon" aria-hidden="true">${icon}</span><span class="game-picker-row__body"><span class="game-picker-row__name">${escapeHtml(displayName)}</span>${descHtml}</span>`;
         results.appendChild(row);
     }
 }

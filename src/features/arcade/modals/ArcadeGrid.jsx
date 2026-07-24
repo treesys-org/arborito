@@ -20,7 +20,7 @@ export function ArcadeGrid({
     onRemoveGame,
     onAction,
 }) {
-    const { userStore, arcadeActions } = useArcade();
+    const { userStore, arcadeActions, lang } = useArcade();
     const { findNode, getNetworkUserPair } = arcadeActions;
 
     if (isLoading) {
@@ -100,6 +100,7 @@ export function ArcadeGrid({
                             game={g}
                             index={idx}
                             ui={ui}
+                            lang={lang}
                             wateringTargetId={wateringTargetId}
                             offlineOn={userStore.isGameOffline(gId)}
                             cacheReady={!!offlineCacheReady[gId]}

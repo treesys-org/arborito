@@ -6,7 +6,6 @@
   "arcadeGameMemory": "Memory Garden",
   "arcadeGameStarship": "Starship Learner",
   "arcadeGameWrongFruit": "Wrong Fruit",
-  "arcadeGameWrongFruitDesc": "Guide a hungry garden worm through short garden sessions. Eat fruits with the right answers; dodge hedges, rocks, and hostile garden gnomes.",
   "gameActivityDefaultLabel": "Interactive activity",
   "gameAiErrorBrowser": "The learning helper isn’t ready yet. Turn on dynamic mode in Sage (desktop or expert API mode).",
   "gameAiWebUnavailable": "Dynamic mode on the web requires expert mode with an API or the desktop app.",

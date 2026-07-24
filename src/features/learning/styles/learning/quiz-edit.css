@@ -655,6 +655,23 @@ html.arborito-desktop .arborito-quiz-edit .quiz-drag-handle__emoji {
     color: rgb(241 245 249);
 }
 
+.arborito-game-edit .game-picker-row__desc {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    margin: 0;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: rgb(100 116 139);
+}
+
+.dark .arborito-game-edit .game-picker-row__desc {
+    color: rgb(148 163 184);
+}
+
 .arborito-game-edit .game-picker-row__repo {
     font-size: 0.625rem;
     font-weight: 700;
