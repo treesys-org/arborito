@@ -152,6 +152,27 @@ export const branchNodesMixin = {
             }
         }
         if (found) {
+            /* Renaming the curriculum root updates the garden catalog label too. */
+            if (newMeta?.title) {
+                for (const lang of langKeys) {
+                    const root = target.languages[lang];
+                    if (root && String(root.id) === String(nodeId)) {
+                        treeEntry.name = String(newMeta.title).trim() || treeEntry.name;
+                        target.universeName = treeEntry.name;
+                        if (!target.meta || typeof target.meta !== 'object') target.meta = {};
+                        const titles =
+                            target.meta.titles && typeof target.meta.titles === 'object'
+                                ? { ...target.meta.titles }
+                                : {};
+                        const titleKey = String(lang || '')
+                            .trim()
+                            .toUpperCase();
+                        if (titleKey) titles[titleKey] = treeEntry.name;
+                        target.meta.titles = titles;
+                        break;
+                    }
+                }
+            }
             treeEntry.updated = Date.now();
             this.state.branches = [...this.state.branches];
             this.markBranchDirty(treeId);

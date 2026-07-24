@@ -419,6 +419,16 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
         if (typeof store.syncNostrPresenceFromActiveSource === 'function') {
             store.syncNostrPresenceFromActiveSource(finalSource);
         }
+        try {
+            const { ensureDemoProgressSyncOnline, isArboritoDemoTree } = await import(
+                '../../publishing/api/demo-tree-guard.js'
+            );
+            if (isArboritoDemoTree(store) && ensureDemoProgressSyncOnline(store)) {
+                void store.reconcileNetworkProgress?.();
+            }
+        } catch {
+            /* ignore */
+        }
         if (typeof store.maybeShowCloudSyncBannerForSource === 'function') {
             store.maybeShowCloudSyncBannerForSource(finalSource);
         }

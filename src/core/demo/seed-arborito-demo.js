@@ -22,6 +22,17 @@ function writeSeedVersion() {
     }
 }
 
+function entrySeedVersion(entry) {
+    if (!entry || typeof entry !== 'object') return '';
+    const top = String(entry.demoSeedVersion || '').trim();
+    if (top) return top;
+    const meta = entry.meta && typeof entry.meta === 'object' ? entry.meta : null;
+    if (meta?.demoSeedVersion) return String(meta.demoSeedVersion).trim();
+    const dataMeta =
+        entry.data?.meta && typeof entry.data.meta === 'object' ? entry.data.meta : null;
+    return String(dataMeta?.demoSeedVersion || '').trim();
+}
+
 /**
  * @param {import('../user-store/index.js').UserStore} userStore
  * @returns {boolean}
@@ -32,7 +43,10 @@ export function maybeSeedArboritoDemo(userStore) {
     const branches = userStore.state.branches || [];
     const idx = branches.findIndex((b) => String(b.id) === DEMO_BRANCH_ID);
     const missing = idx < 0;
-    const outdated = readSeedVersion() !== DEMO_SEED_VERSION;
+    const existing = idx >= 0 ? branches[idx] : null;
+    const lsOutdated = readSeedVersion() !== DEMO_SEED_VERSION;
+    const entryOutdated = !missing && entrySeedVersion(existing) !== DEMO_SEED_VERSION;
+    const outdated = lsOutdated || entryOutdated;
 
     if (!missing && !outdated) return false;
 
@@ -44,6 +58,7 @@ export function maybeSeedArboritoDemo(userStore) {
     }
     userStore.markBranchDirty?.(DEMO_BRANCH_ID);
     userStore.state.branches = [...userStore.state.branches];
+    userStore._demoReseededAt = Date.now();
     userStore.notifyCatalogChanged?.();
     userStore.persist?.();
     writeSeedVersion();

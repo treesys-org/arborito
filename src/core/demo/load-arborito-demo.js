@@ -8,7 +8,7 @@
 
 import manifest from '../../../demo/arborito-demo/manifest.json' with { type: 'json' };
 import { buildTreeFromFlatLessonFiles, buildTranslationIndex } from '../../shared/lib/arborito-archive.js';
-import { DEMO_BRANCH_ID, DEMO_BRANCH_UNIVERSE } from './arborito-demo-ids.js';
+import { DEMO_BRANCH_ID, DEMO_BRANCH_UNIVERSE, DEMO_SEED_VERSION } from './arborito-demo-ids.js';
 
 /** Vite rewrites glob to a module map; Node CI has no glob — empty map is fine for store smoke. */
 const lessonModules = (() => {
@@ -87,7 +87,12 @@ export function buildDemoBranchData() {
     });
     tree.universeId = DEMO_BRANCH_UNIVERSE;
     tree.universeName = primaryTitle;
-    tree.meta = { arboritoBundled: true, demo: true, official: true };
+    tree.meta = {
+        arboritoBundled: true,
+        demo: true,
+        official: true,
+        demoSeedVersion: DEMO_SEED_VERSION,
+    };
     tree.translationIndex = buildTranslationIndex(tree);
     return tree;
 }
@@ -101,10 +106,11 @@ export function buildDemoBranchEntry() {
     return {
         id: DEMO_BRANCH_ID,
         name: primaryTitle,
+        demoSeedVersion: DEMO_SEED_VERSION,
         /* Fixed publish/seed stamp for the bundled demo (23 Jul 2026). */
         updated: Date.UTC(2026, 6, 23),
         data: buildDemoBranchData(),
         icon: String(meta.icon || '🌳').trim().slice(0, 32) || '🌳',
-        meta: { arboritoBundled: true, demo: true, official: true },
+        meta: { arboritoBundled: true, demo: true, official: true, demoSeedVersion: DEMO_SEED_VERSION },
     };
 }

@@ -220,6 +220,17 @@ export const branchesMixin = {
         const data = JSON.parse(JSON.stringify(rawGraph));
         data.universeId = id;
         data.universeName = name;
+        /* Language roots + catalog titles drive the UI title — leave them as the
+         * source tree and the copy still looks like “Arborito demo” after rename. */
+        const titleMap = {};
+        for (const [lang, root] of Object.entries(data.languages || {})) {
+            if (!root || typeof root !== 'object') continue;
+            root.name = name;
+            const key = String(lang || '')
+                .trim()
+                .toUpperCase();
+            if (key) titleMap[key] = name;
+        }
         if (data.meta && typeof data.meta === 'object') {
             const m = { ...data.meta };
             delete m.publishedNetworkUrl;
@@ -227,10 +238,14 @@ export const branchesMixin = {
             delete m.demo;
             delete m.arboritoBundled;
             delete m.arboritoDemo;
+            delete m.official;
             delete m.universeId;
             delete m.shareCode;
+            m.titles = Object.keys(titleMap).length ? titleMap : { ES: name, EN: name };
             if (Object.keys(m).length) data.meta = m;
             else delete data.meta;
+        } else if (Object.keys(titleMap).length) {
+            data.meta = { titles: titleMap };
         }
         const src = String(sourceUrl || '').trim();
         if (src) {

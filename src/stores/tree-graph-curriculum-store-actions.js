@@ -27,6 +27,29 @@ function shell() {
     return getArboritoStore();
 }
 
+/** Keep Bosque / activeSource label in sync when the curriculum root is renamed. */
+function syncLocalBranchCatalogName(store, title) {
+    const name = String(title || '').trim();
+    if (!store || !name) return;
+    const src = store.state?.activeSource;
+    const url = String(src?.url || '');
+    if (!url.startsWith('branch://')) return;
+    const id = branchIdFromBranchUrl(url);
+    if (!id) return;
+    const entry = store.userStore?.state?.branches?.find((t) => t && t.id === id);
+    if (entry) {
+        entry.name = name;
+        if (entry.data && typeof entry.data === 'object') entry.data.universeName = name;
+        store.userStore.state.branches = [...store.userStore.state.branches];
+        store.userStore.markBranchDirty?.(id);
+        store.userStore.notifyCatalogChanged?.();
+        store.userStore.persist?.();
+    }
+    if (src && typeof src === 'object') {
+        store.update({ activeSource: { ...src, name } });
+    }
+}
+
 /** Mixin applied to `Store.prototype`, public graph under construction, curriculum, and user SEA keypair. */
 
 export function canOfferCurriculumLanguageAddAction() {
@@ -114,6 +137,17 @@ export function applyNodeContentToRawGraphAction(nodeId, rawFileContent, metaFro
                     /* Catalog fallback title follows the curriculum language being edited. */
                     if (hit.type === 'root' && structuralMeta.title && lang === preferred) {
                         raw.universeName = structuralMeta.title;
+                        if (!raw.meta || typeof raw.meta !== 'object') raw.meta = {};
+                        const titles =
+                            raw.meta.titles && typeof raw.meta.titles === 'object' && !Array.isArray(raw.meta.titles)
+                                ? { ...raw.meta.titles }
+                                : {};
+                        const titleKey = String(lang || '')
+                            .trim()
+                            .toUpperCase();
+                        if (titleKey) titles[titleKey] = structuralMeta.title;
+                        raw.meta.titles = titles;
+                        syncLocalBranchCatalogName(store, structuralMeta.title);
                     }
                 }
             }

@@ -30,6 +30,9 @@ import { mergeRemoteGamification } from '../core/user-store/gamification-merge.j
 import { notifyUserProgressChanged, notifyIdentityChanged } from './store-notify.js';
 import { storageManager } from '../features/backup-export/api/storage-manager.js';
 import { resolveAccountCareTreeRef } from '../features/garden-progress/api/account-care-progress.js';
+import {
+    shouldSyncNetworkProgress,
+} from '../features/publishing/api/demo-tree-guard.js';
 
 const PROGRESS_PULL_RETRIES = 3;
 const PROGRESS_PULL_RETRY_MS = 450;
@@ -55,6 +58,29 @@ export function getProgressSyncTreeRefAction() {
     if (publicRef?.pub && publicRef?.universeId) return publicRef;
     const pair = store.getNetworkUserPair?.();
     return resolveAccountCareTreeRef(pair?.pub);
+}
+
+/**
+ * Always include account-care so demo / local-branch progress stays in sync
+ * even while a public tree is open (public channel alone would orphan it).
+ * @returns {Array<{ pub: string, universeId: string }>}
+ */
+export function listProgressSyncTreeRefsAction() {
+    const store = shell();
+    if (!store) return [];
+    const refs = [];
+    const seen = new Set();
+    const push = (ref) => {
+        if (!ref?.pub || !ref?.universeId) return;
+        const key = progressTreeKey(ref);
+        if (!key || seen.has(key)) return;
+        seen.add(key);
+        refs.push(ref);
+    };
+    const pair = store.getNetworkUserPair?.();
+    push(resolveAccountCareTreeRef(pair?.pub));
+    push(store.getActivePublicTreeRef?.());
+    return refs;
 }
 
 function sleep(ms) {
@@ -451,7 +477,7 @@ async function fetchBestRemoteProgressData(store, treeRef, pair, net) {
  */
 export async function loadNetworkProgressIntoUserStoreAction(treeRef) {
     const store = shell();
-    if (!store?.userStore?.state?.cloudProgressSync || !isNostrNetworkAvailable()) return false;
+    if (!shouldSyncNetworkProgress(store) || !isNostrNetworkAvailable()) return false;
     if (!treeRef?.pub || !treeRef?.universeId) return false;
     const ownsPullGate = !store._nostrProgressPullInFlight;
     if (ownsPullGate) store._nostrProgressPullInFlight = true;
@@ -506,50 +532,53 @@ export async function loadNetworkProgressIntoUserStoreAction(treeRef) {
 
 export function maybeSyncNetworkProgressAction(_persistencePayload) {
     const store = shell();
-    if (!store?.userStore?.state?.cloudProgressSync) return;
+    if (!shouldSyncNetworkProgress(store)) return;
     if (store._nostrProgressPullInFlight) return;
     if (!isNostrNetworkAvailable()) return;
-    const treeRef = getProgressSyncTreeRefAction();
-    if (!treeRef) return;
-    const key = progressTreeKey(treeRef);
+    const refs = listProgressSyncTreeRefsAction();
+    if (!refs.length) return;
     const payload = getProgressPayloadForSyncAction();
     /* Never upload an empty snapshot (that was the multi-device wipe vector). */
     if (isProgressPayloadEmpty(payload)) return;
-    const pullOk = !!(store._progressPullOkByTree && store._progressPullOkByTree[key]);
-    /* Never publish before a successful pull for this tree — reconcile first. */
-    if (!pullOk) {
-        void reconcileNetworkProgressAction(treeRef);
+
+    let needsReconcile = false;
+    let needsPublish = false;
+    for (const treeRef of refs) {
+        const key = progressTreeKey(treeRef);
+        const pullOk = !!(store._progressPullOkByTree && store._progressPullOkByTree[key]);
+        if (!pullOk) {
+            needsReconcile = true;
+            continue;
+        }
+        if (
+            store._progressRemoteFingerprintByTree &&
+            Object.prototype.hasOwnProperty.call(store._progressRemoteFingerprintByTree, key) &&
+            fingerprintProgressPayload(payload) === store._progressRemoteFingerprintByTree[key]
+        ) {
+            continue;
+        }
+        needsPublish = true;
+    }
+    /* Never publish before a successful pull for a channel — reconcile first. */
+    if (needsReconcile) {
+        void reconcileNetworkProgressAction();
         return;
     }
-    if (
-        store._progressRemoteFingerprintByTree &&
-        Object.prototype.hasOwnProperty.call(store._progressRemoteFingerprintByTree, key) &&
-        fingerprintProgressPayload(payload) === store._progressRemoteFingerprintByTree[key]
-    ) {
-        return;
-    }
+    if (!needsPublish) return;
     clearTimeout(store._nostrProgressSyncTimer);
     /* Always re-read local state when the timer fires — never publish a stale
      * snapshot captured 800ms earlier (that was overwriting newer progress). */
     store._nostrProgressSyncTimer = setTimeout(() => {
-        void syncNetworkProgressNowAction(null, treeRef);
+        void syncNetworkProgressNowAction();
     }, 800);
 }
 
 export async function syncNetworkProgressNowAction(persistencePayloadOrTreeRef, maybeTreeRef) {
     const store = shell();
     if (!store || !isNostrNetworkAvailable()) return;
-    if (!store.userStore?.state?.cloudProgressSync) return;
-    if (!store.isSignedIn?.()) return;
-    try {
-        if (typeof store.hasGdprNetworkConsent === 'function' && !store.hasGdprNetworkConsent()) {
-            return;
-        }
-    } catch {
-        /* ignore */
-    }
+    if (!shouldSyncNetworkProgress(store)) return;
     if (store._nostrProgressPullInFlight) return;
-    let treeRef = null;
+    let singleRef = null;
     let persistencePayload = null;
     if (
         persistencePayloadOrTreeRef &&
@@ -558,28 +587,18 @@ export async function syncNetworkProgressNowAction(persistencePayloadOrTreeRef, 
         persistencePayloadOrTreeRef.universeId &&
         !Array.isArray(persistencePayloadOrTreeRef.progress)
     ) {
-        treeRef = persistencePayloadOrTreeRef;
+        singleRef = persistencePayloadOrTreeRef;
     } else {
         persistencePayload = persistencePayloadOrTreeRef;
-        treeRef = maybeTreeRef || getProgressSyncTreeRefAction();
+        singleRef = maybeTreeRef || null;
     }
-    if (!treeRef) treeRef = getProgressSyncTreeRefAction();
-    if (!treeRef || store._nostrProgressSyncInFlight) return;
-    const key = progressTreeKey(treeRef);
+    const refs = singleRef ? [singleRef] : listProgressSyncTreeRefsAction();
+    if (!refs.length || store._nostrProgressSyncInFlight) return;
     const payload = persistencePayload
         ? getProgressPayloadForSyncAction(persistencePayload)
         : getProgressPayloadForSyncAction();
     if (isProgressPayloadEmpty(payload)) return;
-    const pullOk = !!(store._progressPullOkByTree && store._progressPullOkByTree[key]);
-    /* Refuse blind publish when we have never successfully pulled this tree. */
-    if (!pullOk) return;
-    if (
-        store._progressRemoteFingerprintByTree &&
-        Object.prototype.hasOwnProperty.call(store._progressRemoteFingerprintByTree, key) &&
-        fingerprintProgressPayload(payload) === store._progressRemoteFingerprintByTree[key]
-    ) {
-        return;
-    }
+
     store._nostrProgressSyncInFlight = true;
     try {
         const pair = await store.ensureNetworkUserPair?.();
@@ -590,16 +609,29 @@ export async function syncNetworkProgressNowAction(persistencePayloadOrTreeRef, 
         if (typeof net.putUserProgressPacked !== 'function') {
             throw new Error('putUserProgressPacked required for network progress sync');
         }
-        /* Publish to every configured relay so another device with a different
-         * subset still finds the same progress record. */
-        await net.putUserProgressPacked({
-            ...treeRef,
-            userPub: pair.pub,
-            pair,
-            data: payload,
-            peers: peers.length ? peers : null,
-        });
-        markProgressPullResult(store, treeRef, true, payload);
+        for (const treeRef of refs) {
+            const key = progressTreeKey(treeRef);
+            const pullOk = !!(store._progressPullOkByTree && store._progressPullOkByTree[key]);
+            /* Refuse blind publish when we have never successfully pulled this tree. */
+            if (!pullOk) continue;
+            if (
+                store._progressRemoteFingerprintByTree &&
+                Object.prototype.hasOwnProperty.call(store._progressRemoteFingerprintByTree, key) &&
+                fingerprintProgressPayload(payload) === store._progressRemoteFingerprintByTree[key]
+            ) {
+                continue;
+            }
+            /* Publish to every configured relay so another device with a different
+             * subset still finds the same progress record. */
+            await net.putUserProgressPacked({
+                ...treeRef,
+                userPub: pair.pub,
+                pair,
+                data: payload,
+                peers: peers.length ? peers : null,
+            });
+            markProgressPullResult(store, treeRef, true, payload);
+        }
     } catch (e) {
         console.warn('Network progress sync failed', e);
     } finally {
@@ -609,34 +641,37 @@ export async function syncNetworkProgressNowAction(persistencePayloadOrTreeRef, 
 
 /**
  * Rsync-style reconcile: pull → merge → publish only if local content differs.
+ * When no explicit ref is passed, reconciles account-care (demo/local) and the
+ * active public tree when open.
  * @param {{ pub: string, universeId: string }|null} [treeRef]
  */
 export async function reconcileNetworkProgressAction(treeRef = null) {
     const store = shell();
-    if (!store?.userStore?.state?.cloudProgressSync || !isNostrNetworkAvailable()) return false;
-    const ref = treeRef || getProgressSyncTreeRefAction();
-    if (!ref?.pub || !ref?.universeId) return false;
+    if (!shouldSyncNetworkProgress(store) || !isNostrNetworkAvailable()) return false;
+    const refs = treeRef?.pub && treeRef?.universeId ? [treeRef] : listProgressSyncTreeRefsAction();
+    if (!refs.length) return false;
     if (store._nostrProgressReconcileInFlight) {
         store._nostrProgressReconcileAgain = true;
         return false;
     }
     store._nostrProgressReconcileInFlight = true;
     try {
+        let anyOk = false;
         do {
             store._nostrProgressReconcileAgain = false;
-            const pullOk = await loadNetworkProgressIntoUserStoreAction(ref);
-            if (!pullOk) {
-                if (store._nostrProgressReconcileAgain) continue;
-                return false;
-            }
-            const key = progressTreeKey(ref);
-            const remote = store._lastPulledProgressByTree?.[key] ?? null;
-            const merged = getProgressPayloadForSyncAction();
-            if (shouldPublishMergedProgress({ remote, merged })) {
-                await syncNetworkProgressNowAction(null, ref);
+            for (const ref of refs) {
+                const pullOk = await loadNetworkProgressIntoUserStoreAction(ref);
+                if (!pullOk) continue;
+                anyOk = true;
+                const key = progressTreeKey(ref);
+                const remote = store._lastPulledProgressByTree?.[key] ?? null;
+                const merged = getProgressPayloadForSyncAction();
+                if (shouldPublishMergedProgress({ remote, merged })) {
+                    await syncNetworkProgressNowAction(null, ref);
+                }
             }
         } while (store._nostrProgressReconcileAgain);
-        return true;
+        return anyOk;
     } catch (e) {
         console.warn('Network progress reconcile failed', e);
         return false;
@@ -648,11 +683,11 @@ export async function reconcileNetworkProgressAction(treeRef = null) {
 /** Pull+conditional-push when the app returns to foreground or network recovers. */
 export function maybeReconcileNetworkProgressOnResumeAction() {
     const store = shell();
-    if (!store?.userStore?.state?.cloudProgressSync) return;
+    if (!shouldSyncNetworkProgress(store)) return;
     if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
     if (!isNostrNetworkAvailable()) return;
-    const treeRef = getProgressSyncTreeRefAction();
-    if (!treeRef) return;
+    const refs = listProgressSyncTreeRefsAction();
+    if (!refs.length) return;
     const now = Date.now();
     if (
         store._progressResumeReconcileAt &&
@@ -661,7 +696,7 @@ export function maybeReconcileNetworkProgressOnResumeAction() {
         return;
     }
     store._progressResumeReconcileAt = now;
-    void reconcileNetworkProgressAction(treeRef);
+    void reconcileNetworkProgressAction();
 }
 
 export function maybeShowCloudSyncBannerForSourceAction(_source) {
@@ -720,6 +755,7 @@ export const storeProgressCertificatesMethods = {
 /** Store.prototype, encrypted Nostr progress sync. */
 export const storeNostrSyncProgressMethods = {
     getProgressSyncTreeRef: getProgressSyncTreeRefAction,
+    listProgressSyncTreeRefs: listProgressSyncTreeRefsAction,
     getProgressPayloadForSync: getProgressPayloadForSyncAction,
     maybeSyncNetworkProgress: maybeSyncNetworkProgressAction,
     syncNetworkProgressNow: syncNetworkProgressNowAction,

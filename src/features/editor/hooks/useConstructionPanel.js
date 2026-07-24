@@ -237,14 +237,7 @@ export function useConstructionPanel() {
         }
 
         if (ctx.isComposed || (srcUrl.startsWith('branch://') && localId)) {
-            if (
-                modal &&
-                typeof modal === 'object' &&
-                modal.type === 'construction-about' &&
-                modal.publishIntent
-            ) {
-                return;
-            }
+            /* Hub already open for publish — do not swallow the click; openPublishHub is idempotent. */
             setOpeningPublishHub(true);
             try {
                 await openPublishHub(getArboritoStore(), { branchId: localId || '' });
@@ -261,7 +254,6 @@ export function useConstructionPanel() {
         getNostrPublisherPair,
         handleMakeTreePublic,
         handleRetractPublicTree,
-        modal,
         offerLocalCopyFromNetworkTreeForEditing,
         ui,
         userStore,

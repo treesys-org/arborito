@@ -11,6 +11,12 @@
     border-radius: 0 !important;
 }
 
+/* Full-bleed on phone: left border/shadow read as a white vertical hairline. */
+html:not(.arborito-desktop) .arborito-lesson-sheet.arborito-lesson-aside {
+    border-left: none !important;
+    box-shadow: none !important;
+}
+
 .arborito-lesson-mobile-head {
     flex-shrink: 0;
     position: sticky;
