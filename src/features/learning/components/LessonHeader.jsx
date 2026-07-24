@@ -212,12 +212,19 @@ function ConstructTitleBlock({
 
     useEffect(() => {
         if (!pickerOpen) return undefined;
+        let attached = false;
         const onDoc = (e) => {
             if (pickerRef.current?.contains(e.target)) return;
             setPickerOpen(false);
         };
-        setTimeout(() => document.addEventListener('click', onDoc), 0);
-        return () => document.removeEventListener('click', onDoc);
+        const timer = setTimeout(() => {
+            document.addEventListener('click', onDoc);
+            attached = true;
+        }, 0);
+        return () => {
+            clearTimeout(timer);
+            if (attached) document.removeEventListener('click', onDoc);
+        };
     }, [pickerOpen]);
 
     return (

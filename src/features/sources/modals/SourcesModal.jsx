@@ -139,7 +139,7 @@ export function ModalSources({ embed = false }) {
                         />
                     )}
                 </div>
-                <div id="sources-tab-foot" className="arborito-sources-tab-foot shrink-0 px-4 pb-4 pt-2">
+                <div id="sources-tab-foot" className="arborito-sources-tab-foot shrink-0">
                     <SourcesTabFooter
                         ui={ui}
                         mainTab={mainTab}

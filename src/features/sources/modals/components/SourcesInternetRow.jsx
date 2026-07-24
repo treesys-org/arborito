@@ -178,7 +178,7 @@ export function SourcesInternetRow({
             className={`p-4 bg-white dark:bg-slate-900 border ${kindBorder} rounded-2xl shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors arborito-kind-card arborito-kind-card--${rowKind === 'composed-tree' ? 'composed' : 'branch'}`}
         >
             <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                     <div className="arborito-sources-row-title flex items-start gap-2 min-w-0">
                         <CatalogRowEmoji emoji={titleEmoji} size={22} className="mt-0.5" />
                         <button

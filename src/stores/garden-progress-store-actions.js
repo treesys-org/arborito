@@ -479,8 +479,9 @@ export async function loadNetworkProgressIntoUserStoreAction(treeRef) {
     const store = shell();
     if (!shouldSyncNetworkProgress(store) || !isNostrNetworkAvailable()) return false;
     if (!treeRef?.pub || !treeRef?.universeId) return false;
-    const ownsPullGate = !store._nostrProgressPullInFlight;
-    if (ownsPullGate) store._nostrProgressPullInFlight = true;
+    /* Second caller must not run a parallel pull (race + double relay load). */
+    if (store._nostrProgressPullInFlight) return false;
+    store._nostrProgressPullInFlight = true;
     try {
         const pair = await store.ensureNetworkUserPair?.();
         if (!pair?.pub) {
@@ -526,7 +527,7 @@ export async function loadNetworkProgressIntoUserStoreAction(treeRef) {
         markProgressPullResult(store, treeRef, false);
         return false;
     } finally {
-        if (ownsPullGate) store._nostrProgressPullInFlight = false;
+        store._nostrProgressPullInFlight = false;
     }
 }
 
@@ -537,37 +538,27 @@ export function maybeSyncNetworkProgressAction(_persistencePayload) {
     if (!isNostrNetworkAvailable()) return;
     const refs = listProgressSyncTreeRefsAction();
     if (!refs.length) return;
-    const payload = getProgressPayloadForSyncAction();
-    /* Never upload an empty snapshot (that was the multi-device wipe vector). */
-    if (isProgressPayloadEmpty(payload)) return;
 
     let needsReconcile = false;
-    let needsPublish = false;
     for (const treeRef of refs) {
         const key = progressTreeKey(treeRef);
         const pullOk = !!(store._progressPullOkByTree && store._progressPullOkByTree[key]);
         if (!pullOk) {
             needsReconcile = true;
-            continue;
+            break;
         }
-        if (
-            store._progressRemoteFingerprintByTree &&
-            Object.prototype.hasOwnProperty.call(store._progressRemoteFingerprintByTree, key) &&
-            fingerprintProgressPayload(payload) === store._progressRemoteFingerprintByTree[key]
-        ) {
-            continue;
-        }
-        needsPublish = true;
     }
     /* Never publish before a successful pull for a channel — reconcile first. */
     if (needsReconcile) {
         void reconcileNetworkProgressAction();
         return;
     }
-    if (!needsPublish) return;
+
+    /*
+     * Debounce only — do not fingerprint / export arcade saves on every persist
+     * (that hitch blocked lesson UX). Heavy work runs when the timer fires.
+     */
     clearTimeout(store._nostrProgressSyncTimer);
-    /* Always re-read local state when the timer fires — never publish a stale
-     * snapshot captured 800ms earlier (that was overwriting newer progress). */
     store._nostrProgressSyncTimer = setTimeout(() => {
         void syncNetworkProgressNowAction();
     }, 800);

@@ -128,9 +128,9 @@ export function SourcesBranchesPanel({
     return (
         <div className="pt-0 pb-1">
             <div className="sticky top-0 z-20 px-4 pt-0 pb-3 arborito-sources-sticky-head">
-                <div className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/30">
+                <div className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/30 arborito-sources-sticky-card">
                     <div className="flex flex-col gap-2">
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch sm:gap-2 min-w-0">
+                        <div className="arborito-sources-search-bar">
                             <input
                                 id="inp-sources-search"
                                 type="search"
@@ -141,17 +141,22 @@ export function SourcesBranchesPanel({
                                     ui.sourcesUnifiedSearchPlaceholder ||
                                     'Search branches…'
                                 }
-                                className="arborito-input min-w-0 sm:flex-1 min-h-[44px]"
+                                className="arborito-input arborito-sources-search-bar__input"
                                 onChange={(e) => setSourcesQ(e.target.value)}
                             />
                             <button
                                 type="button"
-                                className="arborito-sources-action-chip flex-1 sm:flex-initial whitespace-nowrap"
+                                className={`arborito-sources-action-chip arborito-sources-search-bar__filters${advancedOpen ? ' is-active' : ''}`}
+                                aria-expanded={advancedOpen}
                                 onClick={() => setSourcesAdvancedOpen(!advancedOpen)}
                             >
                                 {advancedOpen
-                                    ? ui.sourcesFiltersHide || 'Hide filters'
-                                    : ui.sourcesFiltersShow || 'Filters'}
+                                    ? ui.sourcesFiltersHideShort ||
+                                      ui.sourcesFiltersHide ||
+                                      'Hide'
+                                    : ui.sourcesFiltersShowShort ||
+                                      ui.sourcesFiltersShow ||
+                                      'Filters'}
                             </button>
                         </div>
                         {advancedOpen ? (
@@ -195,7 +200,7 @@ export function SourcesBranchesPanel({
                     </div>
                 </div>
             </div>
-            <div className="mt-4 space-y-3 px-4">
+            <div className="mt-4 space-y-3 px-4 arborito-sources-list">
                 <CrossTabActiveBanner
                     ui={ui}
                     state={state}

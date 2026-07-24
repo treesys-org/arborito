@@ -136,22 +136,44 @@ export function syncNostrPresenceFromActiveSourceAction(source) {
         return;
     }
     const url = String(source.url);
+    const gen = (store._nostrPresenceGen = (store._nostrPresenceGen || 0) + 1);
     void (async () => {
         const net = await getConnectedNostr(store);
+        if (gen !== store._nostrPresenceGen) return;
         if (!net) {
-            store.update({ nostrLiveSeeds: null });
+            if (gen === store._nostrPresenceGen) store.update({ nostrLiveSeeds: null });
             return;
         }
-        store._nostrPresenceSession = net.startUniversePresence({
+        if (gen !== store._nostrPresenceGen) return;
+        if (store._nostrPresenceSession) {
+            try {
+                store._nostrPresenceSession.stop();
+            } catch {
+                /* ignore */
+            }
+            store._nostrPresenceSession = null;
+        }
+        if (gen !== store._nostrPresenceGen) return;
+        const session = net.startUniversePresence({
             pub: ref.pub,
             universeId: ref.universeId,
             onCount: (total) => {
+                if (gen !== store._nostrPresenceGen) return;
                 if (String(store.state.activeSource?.url || '') !== url) return;
                 const t = typeof total === 'number' && total >= 0 ? total : 0;
                 if (store.state.nostrLiveSeeds === t) return;
                 store.update({ nostrLiveSeeds: t });
             },
         });
+        if (gen !== store._nostrPresenceGen) {
+            try {
+                session?.stop?.();
+            } catch {
+                /* ignore */
+            }
+            return;
+        }
+        store._nostrPresenceSession = session;
     })();
 }
 

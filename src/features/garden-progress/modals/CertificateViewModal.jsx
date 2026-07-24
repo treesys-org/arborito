@@ -4,11 +4,13 @@ import { DockModalShell } from '../../../app/components/ModalShell.jsx';
 import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import { Callout } from '../../../shared/ui/Callout.jsx';
-import { shareCertificate } from '../api/share-certificate.js';
+import { shareCertificate, dismissSharedCertificate } from '../api/share-certificate.js';
 import { printCertificate } from '../api/print-certificate.js';
 import { resolveCertificateDisplayNode } from '../api/certificate-entries.js';
 import { resolvePdfSourceMeta } from '../../backup-export/api/export/resolve-pdf-source-meta.js';
 import { sanitizeLocaleRichHtml } from '../../../shared/lib/locale-rich-html.js';
+import { modalCtaConfirmFull } from '../../../shared/ui/modal-action-chrome.js';
+import { isOnboardingWizardIncomplete } from '../../../shared/lib/onboarding-boot-gate.js';
 
 function formatCertDate(lang) {
     try {
@@ -25,30 +27,50 @@ function formatCertDate(lang) {
 export function ModalCertificateView() {
     const garden = useGardenProgress();
     const mobile = shouldShowMobileUI();
-    const { ui, dismissModal, findNode, getBookmark, modal, store, lang, gamification } = garden;
+    const { ui, dismissModal, findNode, getBookmark, modal, store, lang, gamification, setModal } =
+        garden;
 
+    const fromShare = !!(modal && typeof modal === 'object' && modal.fromShare);
+    const shared = modal?.sharedCert && typeof modal.sharedCert === 'object' ? modal.sharedCert : null;
     const moduleId = modal?.moduleId;
     const node = moduleId
         ? resolveCertificateDisplayNode(garden.store, String(moduleId), findNode)
         : null;
+
+    const moduleName =
+        String(node?.name || shared?.moduleName || '').trim() ||
+        ui.certStudentFallback ||
+        'Module';
+    const moduleIcon = String(node?.icon || shared?.icon || '🎓').trim() || '🎓';
+    const isTreeCertificate = !!(node?.isTreeCertificate || shared?.isTreeCertificate);
+
     const bookmark = node ? getBookmark(node.id, node.content) : null;
-    const versionId = bookmark ? bookmark.hash.substring(0, 8).toUpperCase() : 'UNVERSIONED';
+    const versionId =
+        String(shared?.versionId || '').trim() ||
+        (bookmark ? bookmark.hash.substring(0, 8).toUpperCase() : '') ||
+        (fromShare ? '—' : 'UNVERSIONED');
+
     const studentName =
         String(modal?.sharedStudentName || '').trim() ||
         String(gamification?.username || '').trim() ||
         ui.certStudentFallback ||
         'Student';
 
+    const dateText = String(shared?.dateText || '').trim() || formatCertDate(lang);
+
     let authorityName = ui.certSign || 'Treesys Certification';
     const rawGraphData = store?.state?.rawGraphData;
     const activeSource = store?.state?.activeSource;
-    if (rawGraphData?.universeName) {
+    if (String(shared?.treeName || '').trim()) {
+        authorityName = String(shared.treeName).trim();
+    } else if (rawGraphData?.universeName) {
         authorityName = rawGraphData.universeName;
     } else if (activeSource?.name) {
         authorityName = activeSource.name;
     }
 
-    const meta = store ? resolvePdfSourceMeta(store, ui) : null;
+    const meta = !fromShare && store ? resolvePdfSourceMeta(store, ui) : null;
+    const sharedMetaLine = [shared?.treeName, shared?.author].filter(Boolean).join(' · ');
     const disclaimerHtml =
         meta &&
         sanitizeLocaleRichHtml(
@@ -58,14 +80,26 @@ export function ModalCertificateView() {
                 .replaceAll('{source}', meta.source)
         );
 
-    const close = () => dismissModal();
+    const close = () => {
+        if (fromShare) dismissSharedCertificate(garden.store);
+        else dismissModal();
+    };
+
+    const onInvite = () => {
+        dismissModal();
+        if (isOnboardingWizardIncomplete()) {
+            setModal?.({ type: 'onboarding' });
+            return;
+        }
+        setModal?.({ type: 'about' });
+    };
+
     const onPrint = () => {
-        if (!node) return;
         void printCertificate({
             studentName,
-            moduleName: node.name,
-            moduleIcon: node.icon || '🎓',
-            isTreeCertificate: !!node.isTreeCertificate,
+            moduleName,
+            moduleIcon,
+            isTreeCertificate,
             certTitle: ui.certTitle,
             certBody: ui.certBody,
             certTreeBody: ui.certTreeBody,
@@ -73,29 +107,35 @@ export function ModalCertificateView() {
             certVersionLabel: ui.certVersion,
             certAuthorityLabel: ui.certAuthority,
             authorityName,
-            dateText: formatCertDate(lang),
+            dateText,
             versionId,
         });
     };
     const onShare = () => {
-        if (!node) return;
         void shareCertificate({
-            moduleId: node.id,
-            moduleName: node.name,
+            moduleId: node?.id || moduleId,
+            moduleName,
             studentName,
+            icon: moduleIcon,
+            treeName: shared?.treeName || rawGraphData?.universeName || activeSource?.name || '',
+            author: shared?.author || meta?.authorPlain || '',
+            dateText,
+            versionId: versionId === '—' || versionId === 'UNVERSIONED' ? '' : versionId,
+            isTreeCertificate,
         });
     };
 
-    if (!node) return null;
+    if (!node && !shared?.moduleName && !fromShare) return null;
+    if (!moduleName) return null;
 
     const hero = (
         <ModalHubHero
             ui={ui}
             mobile={mobile}
-            title={node.name}
+            title={moduleName}
             titleId="modal-title-text"
             subtitle={ui.certTitle || 'Certificate of completion'}
-            leadingIcon={node.icon || '🎓'}
+            leadingIcon={moduleIcon}
             tagClass="btn-close-cert-view"
             onClose={close}
         />
@@ -105,14 +145,16 @@ export function ModalCertificateView() {
         <div
             className={`shrink-0 ${mobile ? 'px-3' : 'px-4'} pb-2 flex items-center justify-end gap-2`}
         >
-            <button
-                type="button"
-                className="arborito-cert-view__share px-4 py-2.5 rounded-xl text-xs font-black tracking-wide border-2 border-yellow-500/50 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors"
-                onClick={onShare}
-                aria-label={ui.certShareButton || 'Share certificate'}
-            >
-                {ui.certShareButton || 'Share'}
-            </button>
+            {!fromShare ? (
+                <button
+                    type="button"
+                    className="arborito-cert-view__share px-4 py-2.5 rounded-xl text-xs font-black tracking-wide border-2 border-yellow-500/50 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors"
+                    onClick={onShare}
+                    aria-label={ui.certShareButton || 'Share certificate'}
+                >
+                    {ui.certShareButton || 'Share'}
+                </button>
+            ) : null}
             <button
                 type="button"
                 className="arborito-cert-view__print arborito-cta-blue px-5 py-2.5 rounded-xl text-xs font-black tracking-wide"
@@ -140,11 +182,11 @@ export function ModalCertificateView() {
                 </p>
 
                 <div className="arborito-cert-view__medallion w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-yellow-400 text-3xl sm:text-4xl flex items-center justify-center mx-auto mb-5">
-                    <ChromeEmoji emoji={node.icon || '🎓'} />
+                    <ChromeEmoji emoji={moduleIcon} />
                 </div>
 
                 <p className="text-center text-sm text-slate-600 dark:text-slate-300 mb-2">
-                    {node.isTreeCertificate
+                    {isTreeCertificate
                         ? ui.certTreeBody || 'This certifies that the student has successfully completed:'
                         : ui.certBody || 'This certifies that the student has successfully completed the module:'}
                 </p>
@@ -154,19 +196,23 @@ export function ModalCertificateView() {
                 </h2>
 
                 <h3 className="text-center text-lg sm:text-2xl font-bold text-yellow-700 dark:text-yellow-300 mb-4">
-                    {node.name}
+                    {moduleName}
                 </h3>
 
                 {meta ? (
                     <p className="text-center text-xs text-slate-500 dark:text-slate-400 mb-4">
                         {meta.treeNamePlain} · {meta.authorPlain} · {meta.sourcePlain}
                     </p>
+                ) : sharedMetaLine ? (
+                    <p className="text-center text-xs text-slate-500 dark:text-slate-400 mb-4">
+                        {sharedMetaLine}
+                    </p>
                 ) : null}
 
                 <div className="mt-auto grid grid-cols-1 sm:grid-cols-2 gap-4 text-center text-xs text-slate-500 dark:text-slate-400">
                     <div>
                         <p className="font-bold uppercase tracking-wide mb-1">{ui.certDate || 'Date'}</p>
-                        <p>{formatCertDate(lang)}</p>
+                        <p>{dateText}</p>
                     </div>
                     <div>
                         <p className="font-bold uppercase tracking-wide mb-1">
@@ -180,6 +226,29 @@ export function ModalCertificateView() {
                     {ui.certAuthority || 'Issued by'}: {authorityName}
                 </p>
             </div>
+
+            {fromShare ? (
+                <div className="mt-3 shrink-0 space-y-2">
+                    <Callout
+                        tone="emerald"
+                        size="sm"
+                        title={ui.certShareInviteTitle || 'Learn with Arborito'}
+                        body={
+                            ui.certShareInviteBody ||
+                            'This diploma was earned on Arborito — free maps of knowledge you can explore on your own device.'
+                        }
+                        bodyClass="text-[11px] leading-snug"
+                    />
+                    <button
+                        type="button"
+                        className={`${modalCtaConfirmFull('emerald')} inline-flex items-center justify-center gap-2`}
+                        onClick={onInvite}
+                    >
+                        <ChromeEmoji emoji="🌳" className="text-sm leading-none" />
+                        <span>{ui.certShareInviteCta || 'Explore Arborito'}</span>
+                    </button>
+                </div>
+            ) : null}
 
             {disclaimerHtml ? (
                 <Callout

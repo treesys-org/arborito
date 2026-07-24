@@ -17,16 +17,19 @@ export async function ensureConnectedNostr(storeRef = defaultStore(), { timeoutM
     const init = storeRef.ensureNostrReady?.();
     if (!init) return null;
     if (timeoutMs > 0) {
+        let timer = 0;
         try {
             return await Promise.race([
                 init,
-                new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('nostr-init-timeout')), timeoutMs)
-                ),
+                new Promise((_, reject) => {
+                    timer = setTimeout(() => reject(new Error('nostr-init-timeout')), timeoutMs);
+                }),
             ]);
         } catch (e) {
             console.warn('[Arborito] nostr not ready', e);
             return null;
+        } finally {
+            if (timer) clearTimeout(timer);
         }
     }
     return init;

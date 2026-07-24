@@ -141,28 +141,31 @@ export function SourcesForestTab({
     return (
         <div className="pt-0 pb-1" data-arbor-tour="sources-trees-panel">
             <div className="sticky top-0 z-20 px-4 pt-0 pb-3 arborito-sources-sticky-head">
-                <div
-                    className="p-3 rounded-2xl border border-violet-200/60 dark:border-violet-900/40 bg-white dark:bg-slate-950/30"
-                >
+                <div className="p-3 rounded-2xl border border-violet-200/60 dark:border-violet-900/40 bg-white dark:bg-slate-950/30 arborito-sources-sticky-card">
                     <div className="flex flex-col gap-2">
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch sm:gap-2 min-w-0">
+                        <div className="arborito-sources-search-bar">
                             <input
                                 id="inp-trees-search"
                                 type="search"
                                 autoComplete="off"
                                 value={treesQ}
                                 placeholder={ui.sourcesTreesSearchPlaceholder || 'Search trees…'}
-                                className="arborito-input min-w-0 sm:flex-1 min-h-[44px]"
+                                className="arborito-input arborito-sources-search-bar__input"
                                 onChange={(e) => setTreesQ(e.target.value)}
                             />
                             <button
                                 type="button"
-                                className="arborito-sources-action-chip flex-1 sm:flex-initial whitespace-nowrap"
+                                className={`arborito-sources-action-chip arborito-sources-search-bar__filters${treesAdvancedOpen ? ' is-active' : ''}`}
+                                aria-expanded={treesAdvancedOpen}
                                 onClick={() => setTreesAdvancedOpen(!treesAdvancedOpen)}
                             >
                                 {treesAdvancedOpen
-                                    ? ui.sourcesFiltersHide || 'Hide filters'
-                                    : ui.sourcesFiltersShow || 'Filters'}
+                                    ? ui.sourcesFiltersHideShort ||
+                                      ui.sourcesFiltersHide ||
+                                      'Hide'
+                                    : ui.sourcesFiltersShowShort ||
+                                      ui.sourcesFiltersShow ||
+                                      'Filters'}
                             </button>
                         </div>
                         {treesAdvancedOpen ? (
@@ -195,7 +198,7 @@ export function SourcesForestTab({
                     </div>
                 </div>
             </div>
-            <div className="mt-4 space-y-3 px-4">
+            <div className="mt-4 space-y-3 px-4 arborito-sources-list">
                 <CrossTabActiveBanner
                     ui={ui}
                     state={state}

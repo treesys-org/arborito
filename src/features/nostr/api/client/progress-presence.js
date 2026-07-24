@@ -300,12 +300,15 @@ export const progressPresenceMixin = {
         const hb = setInterval(ping, 60000);
         const runPoll = async () => {
             try {
+                if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+                    return;
+                }
                 const since = Math.floor(Date.now() / 1000) - 180;
                 const evs = await this._query(
                     {
                         kinds: [KIND_PRESENCE_PING],
                         since,
-                        limit: 2000
+                        limit: 400
                     },
                     4000
                 );

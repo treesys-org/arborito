@@ -299,26 +299,14 @@ html.arborito-product-tour-sources-picker
 }
 
 @media (max-width: 767px) {
-  .arborito-sources-row-layout {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-  }
-
-  .arborito-sources-row-aside {
-    flex: 1 1 auto;
-    width: 100%;
-    min-width: 0;
-    max-width: none;
-  }
-
-  .arborito-sources-cta-row {
-    flex-wrap: nowrap;
-  }
-
+  /*
+   * Same side-by-side row as Internet (fixed 8.75rem aside).
+   * Do not stack to column — that inflates local cards and breaks size consolidation.
+   */
   .arborito-sources-row-cta {
-    min-height: 2.75rem;
-    font-size: 0.8125rem;
+    min-height: 2.25rem;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.6875rem;
   }
 }
 
@@ -494,6 +482,85 @@ html.dark .arborito-sources-export-scope__option {
 .arborito-tree-editor-footer {
     box-shadow: var(--arborito-theme-sources-sticky-foot-shadow);
     background: var(--arborito-theme-surface-bg);
+}
+
+/* Search + filters: always one row — filters stay compact, search takes the rest. */
+.arborito-sources-search-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.arborito-sources-search-bar__input {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 2.75rem;
+}
+
+.arborito-sources-search-bar__filters {
+    flex: 0 0 auto;
+    max-width: 9.5rem;
+    white-space: nowrap;
+}
+
+.arborito-sources-search-bar__filters.is-active {
+    border-color: var(--arborito-theme-sources-action-chip-accent-border);
+    background: var(--arborito-theme-sources-action-chip-accent-bg);
+    color: var(--arborito-theme-sources-action-chip-accent-fg);
+}
+
+/* Footer CTAs: bare button row (no card chrome behind Import / New branch). */
+.arborito-sources-tab-foot {
+    padding: 0.35rem 1rem 0.75rem;
+    border-top: 1px solid rgb(226 232 240 / 0.45);
+    background: transparent;
+}
+
+html.dark .arborito-sources-tab-foot {
+    border-top-color: rgb(51 65 85 / 0.4);
+}
+
+.arborito-sources-cta-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.arborito-sources-cta-bar__label {
+    display: none;
+}
+
+.arborito-sources-cta-bar__actions {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    align-items: stretch;
+    width: 100%;
+}
+
+.arborito-sources-cta-bar__btn {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 2.35rem;
+    padding: 0.35rem 0.55rem;
+    border-radius: 0.65rem;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.025em;
+}
+
+.arborito-sources-cta-bar__btn--create {
+    box-shadow: none;
 }
 
 .arborito-sources-loading-slot {
@@ -740,8 +807,118 @@ button.arborito-sources-row-title--button {
     .arborito-sources-sticky-head {
     margin-top: -1px;
     padding-top: 1px;
+    padding-bottom: 0.5rem !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
     width: 100% !important;
     max-width: none !important;
     box-sizing: border-box !important;
     background: var(--arborito-theme-surface-bg) !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-sticky-card {
+    padding: 0.5rem !important;
+    border-radius: 0.85rem !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-search-bar__filters {
+    max-width: 5.75rem;
+    padding-left: 0.55rem;
+    padding-right: 0.55rem;
+    font-size: 0.625rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-search-bar__input {
+    min-height: 2.5rem;
+    font-size: 0.875rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    #sources-tab-foot,
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-tab-foot {
+    padding: 0.2rem 0.65rem max(0.25rem, env(safe-area-inset-bottom, 0px)) !important;
+    border-top-width: 1px !important;
+    border-top-style: solid !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-cta-bar__btn {
+    min-height: 2.2rem !important;
+    padding: 0.3rem 0.4rem !important;
+}
+
+/* Keep Load / Install inside the fixed action column (never full-bleed). */
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-row-aside {
+    flex: 0 0 8.75rem !important;
+    width: 8.75rem !important;
+    min-width: 8.75rem !important;
+    max-width: 8.75rem !important;
+    align-items: stretch !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-row-layout {
+    flex-direction: row !important;
+    align-items: flex-start !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-row-cta {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    flex: 1 1 auto !important;
+    min-height: 2.2rem !important;
+    padding: 0.3rem 0.45rem !important;
+    font-size: 0.6875rem !important;
+    border-radius: 0.65rem !important;
+    box-shadow: none !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-action-chip {
+    min-height: 2.2rem;
+    padding: 0.3rem 0.55rem;
+    font-size: 0.6875rem;
+    border-radius: 0.65rem;
+}
+
+/* Tighter card chrome — same density for local + online. */
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-list
+    .rounded-2xl.shadow-sm,
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-list
+    .arborito-kind-card {
+    padding: 0.75rem 0.85rem !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-list {
+    margin-top: 0.5rem !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
 }

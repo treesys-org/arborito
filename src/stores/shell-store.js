@@ -319,10 +319,18 @@ export class ShellStore extends EventTarget {
                   : 3000;
         if (isError) {
             this.update({ lastErrorMessage: msg });
-            setTimeout(() => this.update({ lastErrorMessage: null }), ms);
+            clearTimeout(this._notifyErrorClearTimer);
+            this._notifyErrorClearTimer = setTimeout(() => {
+                this._notifyErrorClearTimer = null;
+                this.update({ lastErrorMessage: null });
+            }, ms);
         } else {
             this.update({ lastActionMessage: msg });
-            setTimeout(() => this.update({ lastActionMessage: null }), ms);
+            clearTimeout(this._notifyActionClearTimer);
+            this._notifyActionClearTimer = setTimeout(() => {
+                this._notifyActionClearTimer = null;
+                this.update({ lastActionMessage: null });
+            }, ms);
         }
     }
 

@@ -1,6 +1,16 @@
 import { bootStubForLang } from '../stores/shell-store.js';
 import { loadPersistedAuthSession } from '../features/identity-auth/api/auth-session-persist.js';
 
+function hasCertificateShareInUrl() {
+    if (typeof window === 'undefined') return false;
+    try {
+        const params = new URLSearchParams(window.location.search);
+        return params.has('cert') || params.has('certModule');
+    } catch {
+        return false;
+    }
+}
+
 /** Onboarding + returning-user wizard routing at cold start. */
 export const storeOnboardingInitMethods = {
     async initialize() {
@@ -11,7 +21,13 @@ export const storeOnboardingInitMethods = {
             /* ignore */
         }
 
-        if (!this.state.modal && !seen) {
+        /*
+         * Shared diploma links: skip auto-opening onboarding so the certificate
+         * can show first. Closing the diploma restores onboarding when needed.
+         */
+        const deferOnboardingForCertShare = !seen && hasCertificateShareInUrl();
+
+        if (!this.state.modal && !seen && !deferOnboardingForCertShare) {
             if (typeof document !== 'undefined') {
                 document.documentElement.classList.add('arborito-onboarding-boot');
             }

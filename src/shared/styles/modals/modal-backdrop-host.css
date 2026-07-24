@@ -291,12 +291,12 @@ html.dark .arborito-sources-sticky-foot {
 }
 
 .arborito-sources-tab-foot {
-    border-top: 1px solid rgb(226 232 240 / 0.65);
-    background: var(--arborito-theme-surface-bg);
+    border-top: 1px solid rgb(226 232 240 / 0.45);
+    background: transparent;
 }
 
 .dark .arborito-sources-tab-foot {
-    border-top-color: rgb(51 65 85 / 0.55);
+    border-top-color: rgb(51 65 85 / 0.4);
 }
 
 /* Base contrast on modal cards (text without explicit class) */

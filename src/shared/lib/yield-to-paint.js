@@ -22,30 +22,37 @@ export function runAfterPaint(fn) {
     });
 }
 
-/** Low-priority background work, never gate core app features on this. */
+/** Low-priority background work, never gate core app features on this.
+ * @returns {() => void} cancel handle
+ */
 export function scheduleIdle(fn, timeoutMs = 4000) {
     if (typeof window === 'undefined') {
         fn();
-        return;
+        return () => {};
     }
+    let cancelled = false;
+    let idleId = 0;
+    let timerId = 0;
+    const run = () => {
+        if (cancelled) return;
+        try {
+            fn();
+        } catch (e) {
+            console.warn('[Arborito] scheduleIdle', e);
+        }
+    };
     if (typeof window.requestIdleCallback === 'function') {
-        window.requestIdleCallback(
-            () => {
-                try {
-                    fn();
-                } catch (e) {
-                    console.warn('[Arborito] scheduleIdle', e);
-                }
-            },
-            { timeout: timeoutMs }
-        );
-    } else {
-        setTimeout(() => {
-            try {
-                fn();
-            } catch (e) {
-                console.warn('[Arborito] scheduleIdle', e);
+        idleId = window.requestIdleCallback(run, { timeout: timeoutMs });
+        return () => {
+            cancelled = true;
+            if (idleId && typeof window.cancelIdleCallback === 'function') {
+                window.cancelIdleCallback(idleId);
             }
-        }, Math.min(timeoutMs, 1500));
+        };
     }
+    timerId = setTimeout(run, Math.min(timeoutMs, 1500));
+    return () => {
+        cancelled = true;
+        clearTimeout(timerId);
+    };
 }

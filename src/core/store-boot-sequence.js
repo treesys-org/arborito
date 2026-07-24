@@ -12,24 +12,52 @@ import { ensureAppCoreReady, shouldDeferHeavyBoot } from './store-lazy-modules.j
 const BOOT_SOURCE_INIT_MS = 30000;
 const BOOT_TREE_SLOW_MS = 60000;
 
+function tryOpenSharedCertificate(store) {
+    try {
+        void import('../features/garden-progress/api/share-certificate.js')
+            .then((m) => {
+                try {
+                    m.consumeCertificateShareParam?.(store);
+                } catch {
+                    /* ignore */
+                }
+            })
+            .catch(() => {});
+    } catch {
+        /* ignore */
+    }
+}
+
 /**
  * @param {import('./store.js').Store} store
  */
 async function runSourceBoot(store) {
+    if (store._sourceBootStarted) return;
+    store._sourceBootStarted = true;
     await ensureAppCoreReady();
     store._restorePersistedAuthSession?.();
     store.checkStreak?.();
+    /* Diploma share links open immediately — visitors should not wait for onboarding/tree. */
+    tryOpenSharedCertificate(store);
     try {
         await store.userStore.ensureBranchesHydrated();
         await store.ensureNostrReady();
         let source = null;
         try {
-            source = await Promise.race([
-                store.sourceManager.init(),
-                new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error('Source boot timed out')), BOOT_SOURCE_INIT_MS);
-                }),
-            ]);
+            let bootTimer = 0;
+            try {
+                source = await Promise.race([
+                    store.sourceManager.init(),
+                    new Promise((_, reject) => {
+                        bootTimer = setTimeout(
+                            () => reject(new Error('Source boot timed out')),
+                            BOOT_SOURCE_INIT_MS
+                        );
+                    }),
+                ]);
+            } finally {
+                if (bootTimer) clearTimeout(bootTimer);
+            }
         } catch (e) {
             console.warn('[Arborito] source boot failed', e);
             hideInitialLoader();
@@ -134,6 +162,8 @@ export function scheduleStoreSourceBoot(store, clearBootSafetyTimer) {
                 store.update({ loading: false });
                 hideInitialLoader();
                 if (isOnboardingWizardIncomplete()) {
+                    /* Shared diploma first; onboarding resumes when they close it. */
+                    void ensureAppCoreReady().then(() => tryOpenSharedCertificate(store));
                     prewarmNostrDuringOnboarding();
                     if (typeof window !== 'undefined') {
                         window.addEventListener('arborito-onboarding-complete', scheduleBoot, {
@@ -153,9 +183,7 @@ export function scheduleStoreSourceBoot(store, clearBootSafetyTimer) {
                     }, 400);
                 };
                 if (isOnboardingWizardIncomplete()) {
-                    scheduleIdle(() => {
-                        void ensureAppCoreReady();
-                    }, 1200);
+                    void ensureAppCoreReady().then(() => tryOpenSharedCertificate(store));
                     if (typeof window !== 'undefined') {
                         window.addEventListener('arborito-onboarding-complete', scheduleLocalBoot, {
                             once: true,
@@ -169,7 +197,7 @@ export function scheduleStoreSourceBoot(store, clearBootSafetyTimer) {
                         prewarmNostrDuringOnboarding();
                         return;
                     }
-                    if (!store._sourceBootFinished) {
+                    if (!store._sourceBootFinished && !store._sourceBootStarted) {
                         scheduleLocalBoot();
                     }
                 });
