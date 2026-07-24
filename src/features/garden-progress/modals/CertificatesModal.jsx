@@ -7,6 +7,7 @@ import { DockModalShell } from '../../../app/components/ModalShell.jsx';
 import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
 import { DockHubPanelEmbed } from '../../../shared/ui/DockHubPanelEmbed.jsx';
 import { useDockHubEmbedClose } from '../../../shared/ui/DockHubEmbedContext.jsx';
+import { ModalHtml } from '../../../app/components/ModalShell.jsx';
 import { chromeEmojiHtml } from '../../../shared/lib/emoji-display.js';
 import { LoadingBrand } from '../../../shared/ui/Loading.jsx';
 import {
@@ -18,14 +19,15 @@ import { yieldToPaint } from '../../../shared/lib/yield-to-paint.js';
 
 const EMPTY_SECTIONS = { trees: [], branches: [], diplomas: [] };
 
-/** Twemoji trophy without per-row useEffect (ChromeEmoji would thrash long lists). */
+/** Twemoji trophy via ModalHtml — avoids per-row ChromeEmoji useEffect thrash. */
 function AchievementTrophy({ earned, size = 20, className = '' }) {
     const tone = achievementTrophyToneClass(earned);
     return (
-        <span
+        <ModalHtml
+            as="span"
             className={`${tone}${className ? ` ${className}` : ''}`}
+            html={chromeEmojiHtml(ACHIEVEMENT_TROPHY_EMOJI, size)}
             aria-hidden="true"
-            dangerouslySetInnerHTML={{ __html: chromeEmojiHtml(ACHIEVEMENT_TROPHY_EMOJI, size) }}
         />
     );
 }

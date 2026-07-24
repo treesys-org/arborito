@@ -4,13 +4,16 @@
  *   - build/arborito-app-logo.png (source PNG for desktop / store icons)
  *   - build/icon.png (512×512, generated)
  *   - build/installerSidebar.bmp / installerHeader.bmp (NSIS)
+ *
+ * Sharp is loaded only when assets need regenerating so CI/`npm run build`
+ * succeeds when committed icons are already up to date (sharp's platform
+ * optional binary is often missing after `npm ci` cache quirks).
  */
 import { mkdirSync, existsSync, statSync, writeFileSync, copyFileSync, readFileSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
-import sharp from 'sharp';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const LOGO_PNG = join(ROOT, 'build', 'arborito-app-logo.png');
@@ -24,6 +27,22 @@ const LINUX_ICON_ID = 'org.treesys.arborito';
 const HICOLOR_SIZES = [512, 256, 128, 64, 48];
 
 const OUTPUTS = [OUT_ICON, OUT_SIDEBAR, OUT_HEADER, OUT_FAVICON];
+
+/** @type {typeof import('sharp').default | null} */
+let sharp = null;
+
+async function loadSharp() {
+    if (sharp) return sharp;
+    try {
+        sharp = (await import('sharp')).default;
+        return sharp;
+    } catch (err) {
+        console.error('[ensure-build-icon] sharp is required to regenerate icons.');
+        console.error('  npm install --include=optional sharp');
+        console.error('  or: npm install --os=linux --cpu=x64 sharp');
+        throw err;
+    }
+}
 
 function logoSource() {
     if (existsSync(LOGO_PNG)) return { path: LOGO_PNG, kind: 'png' };
@@ -144,32 +163,33 @@ function installLinuxDevShell(iconPath) {
     if (process.platform !== 'linux' || process.env.ARBORITO_SKIP_DEV_ICON === '1') return;
     if (!existsSync(iconPath)) return;
 
-    const sizes = [512, 256, 128];
-    const hicolorRoot = join(os.homedir(), '.local/share/icons/hicolor');
-    for (const size of sizes) {
-        const dir = join(hicolorRoot, `${size}x${size}`, 'apps');
-        mkdirSync(dir, { recursive: true });
-        copyFileSync(iconPath, join(dir, `${LINUX_ICON_ID}.png`));
-    }
-
-    const desktopDir = join(os.homedir(), '.local/share/applications');
-    mkdirSync(desktopDir, { recursive: true });
-
-    // Remove obsolete Flatpak-id .desktop if it sets NoDisplay=true (hides Activities).
-    const legacyFlatpakIdDesktop = join(desktopDir, `${LINUX_ICON_ID}.desktop`);
-    if (existsSync(legacyFlatpakIdDesktop)) {
-        try {
-            const legacy = readFileSync(legacyFlatpakIdDesktop, 'utf8');
-            if (/^NoDisplay=true/m.test(legacy)) {
-                rmSync(legacyFlatpakIdDesktop, { force: true });
-            }
-        } catch {
-            /* ignore */
+    try {
+        const sizes = [512, 256, 128];
+        const hicolorRoot = join(os.homedir(), '.local/share/icons/hicolor');
+        for (const size of sizes) {
+            const dir = join(hicolorRoot, `${size}x${size}`, 'apps');
+            mkdirSync(dir, { recursive: true });
+            copyFileSync(iconPath, join(dir, `${LINUX_ICON_ID}.png`));
         }
-    }
 
-    const desktopPath = join(desktopDir, 'arborito-dev.desktop');
-    const desktopBody = `[Desktop Entry]
+        const desktopDir = join(os.homedir(), '.local/share/applications');
+        mkdirSync(desktopDir, { recursive: true });
+
+        // Remove obsolete Flatpak-id .desktop if it sets NoDisplay=true (hides Activities).
+        const legacyFlatpakIdDesktop = join(desktopDir, `${LINUX_ICON_ID}.desktop`);
+        if (existsSync(legacyFlatpakIdDesktop)) {
+            try {
+                const legacy = readFileSync(legacyFlatpakIdDesktop, 'utf8');
+                if (/^NoDisplay=true/m.test(legacy)) {
+                    rmSync(legacyFlatpakIdDesktop, { force: true });
+                }
+            } catch {
+                /* ignore */
+            }
+        }
+
+        const desktopPath = join(desktopDir, 'arborito-dev.desktop');
+        const desktopBody = `[Desktop Entry]
 Type=Application
 Name=Arborito (dev)
 GenericName=Visual Knowledge Explorer
@@ -180,11 +200,15 @@ Categories=Education;
 Terminal=false
 NoDisplay=true
 `;
-    writeFileSync(desktopPath, desktopBody, 'utf8');
+        writeFileSync(desktopPath, desktopBody, 'utf8');
 
-    spawnSync('gtk-update-icon-cache', ['-f', '-t', hicolorRoot], { stdio: 'ignore' });
+        spawnSync('gtk-update-icon-cache', ['-f', '-t', hicolorRoot], { stdio: 'ignore' });
 
-    console.log(`[ensure-build-icon] Linux dev shell → ${desktopPath}`);
+        console.log(`[ensure-build-icon] Linux dev shell → ${desktopPath}`);
+    } catch (err) {
+        /* CI / sandboxed homes often cannot write ~/.local — packaging icons are enough. */
+        console.warn('[ensure-build-icon] skip Linux dev shell:', err?.code || err?.message || err);
+    }
 }
 
 mkdirSync(join(ROOT, 'build'), { recursive: true });
@@ -194,6 +218,8 @@ if (!needsRegenerate() && hicolorIconsComplete()) {
     console.log('[ensure-build-icon] assets OK : update build/arborito-app-logo.png to regenerate');
     process.exit(0);
 }
+
+await loadSharp();
 
 if (!needsRegenerate()) {
     await writeHicolorIcons();
