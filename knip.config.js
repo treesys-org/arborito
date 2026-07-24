@@ -70,7 +70,13 @@ const config = {
         '@noble/hashes',
         'nostr-tools'
     ],
-    ignore: ['vendor/**', '**/*.min.js', 'src/shared/styles/main.css'],
+    ignore: [
+        'vendor/**',
+        '**/*.min.js',
+        'src/shared/styles/main.css',
+        /* Uses require('rollup/dist/native.js') to probe optional natives — not an app import. */
+        'scripts/ci-ensure-native-deps.mjs'
+    ],
     ignoreBinaries: ['python3'],
     /*
      * Store *Action / feature barrels / UI helpers are wired by attach-action-bundles,

@@ -33,6 +33,7 @@
  "sync:flatpak-metainfo": "npm run flatpak:sync",
  "knip": "knip --no-config-hints",
  "check:quality": "node ./scripts/check-quality.mjs",
+ "ci:ensure-native": "node ./scripts/ci-ensure-native-deps.mjs",
  "check:max-lines": "node ./scripts/check-quality.mjs -- --only max-lines",
  "check:css-conventions": "node ./scripts/check-quality.mjs -- --only css-conventions",
  "check:modal-compliance": "node ./scripts/check-quality.mjs -- --only modal-compliance",

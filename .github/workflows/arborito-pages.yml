@@ -39,6 +39,9 @@ jobs:
             || (echo "::warning::package-lock.json drift detected; falling back to 'npm install'. Run 'npm install' locally and commit the updated lock to restore reproducible builds." \
                 && npm install --no-audit --no-fund --prefer-offline)
 
+      - name: Ensure Rollup/sharp native bindings
+        run: npm run ci:ensure-native
+
       - name: Vendor emoji assets (Noto + Twemoji offline)
         run: npm run vendor:emoji
 

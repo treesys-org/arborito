@@ -42,6 +42,8 @@ jobs:
           npm ci --no-audit --no-fund --prefer-offline \
             || (echo "::warning::package-lock.json drift; falling back to npm install" \
                 && npm install --no-audit --no-fund --prefer-offline)
+      - name: Ensure Rollup/sharp native bindings
+        run: npm run ci:ensure-native
       - name: Vendor emoji
         run: npm run vendor:emoji
       - name: Vite build

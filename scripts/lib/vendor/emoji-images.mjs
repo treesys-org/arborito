@@ -254,6 +254,15 @@ async function main() {
     console.log('=== vendor:emoji-images (Twemoji full 72x72) ===\n');
     await writeTwemojiLicense();
     console.log('OK Twemoji attribution written →', join(emojiVendorDir, 'LICENSE.txt'));
+
+    /* Repo already vendors ~4k PNGs — CI checkout has them. Do not re-clone. */
+    if (await exists(join(destDir, '1f333.png'))) {
+        console.log('OK existing Twemoji set at', destDir);
+        await writeDataUriModule();
+        console.log('RESULT: PASS (cached vendor/)');
+        return;
+    }
+
     if (await exists(npmSrc)) {
         await copyFrom(npmSrc);
         console.log('OK copied from node_modules/twemoji/assets/72x72 →', destDir);

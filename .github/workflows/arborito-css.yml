@@ -30,14 +30,15 @@ jobs:
           node-version: "22"
           cache: npm
           cache-dependency-path: package-lock.json
-      # See detailed rationale in arborito-pages.yml: "ci-or-install" strategy
-      # with `--omit=optional` so lock drift surfaces as a CI warning instead of
-      # a silent hard failure.
+      # Optional platform natives (Rollup/sharp) are required for `vite build`.
+      # Do not use --omit=optional here — npm may skip @rollup/rollup-linux-x64-gnu.
       - name: Install (auto-recover from lock drift)
         run: |
-          npm ci --omit=optional --no-audit --no-fund --prefer-offline \
+          npm ci --no-audit --no-fund --prefer-offline \
             || (echo "::warning::package-lock.json drift detected; falling back to 'npm install'. Run 'npm install' locally and commit the updated lock to restore reproducible builds." \
-                && npm install --omit=optional --no-audit --no-fund --prefer-offline)
+                && npm install --no-audit --no-fund --prefer-offline)
+      - name: Ensure Rollup/sharp native bindings
+        run: npm run ci:ensure-native
       - name: Vite build (Tailwind via PostCSS)
         run: npm run build
       - name: CSS conventions

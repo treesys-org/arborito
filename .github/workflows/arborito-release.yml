@@ -47,6 +47,8 @@ jobs:
           npm ci --no-audit --no-fund --prefer-offline \
             || (echo "::warning::package-lock.json drift; falling back to npm install" \
                 && npm install --no-audit --no-fund --prefer-offline)
+      - name: Ensure Rollup/sharp native bindings
+        run: npm run ci:ensure-native
       - run: npm run release:build -- --flatpak
       - uses: actions/upload-artifact@v4
         with:
@@ -73,6 +75,8 @@ jobs:
             npm install --no-audit --no-fund --prefer-offline
           }
         shell: pwsh
+      - name: Ensure Rollup/sharp native bindings
+        run: npm run ci:ensure-native
       - run: npm run release:build -- --win
       - uses: actions/upload-artifact@v4
         with:
@@ -128,6 +132,8 @@ jobs:
           npm ci --no-audit --no-fund --prefer-offline \
             || (echo "::warning::package-lock.json drift; falling back to npm install" \
                 && npm install --no-audit --no-fund --prefer-offline)
+      - name: Ensure Rollup/sharp native bindings
+        run: npm run ci:ensure-native
       - name: Build signed APK
         env:
           ANDROID_REQUIRE_SIGN: '1'
