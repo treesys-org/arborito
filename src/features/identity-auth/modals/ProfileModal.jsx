@@ -112,19 +112,11 @@ export function ModalProfile({ embed = false }) {
     const syncAccount = isSyncAccount();
     const accountUsername = (authSession && authSession.username) || '';
     const cloudProgressOn = !!(userStore && userStore.state)?.cloudProgressSync;
-    const collectedItems = g.seeds || g.fruits || [];
-    const seedsCount = collectedItems.length;
     const hasSavedProfile = !!String(g.username || '').trim();
     const profileDirty =
         hasSavedProfile &&
         (String(tempUsername || '').trim() !== String(g.username || '').trim() ||
             String(tempAvatar || '') !== String(g.avatar || ''));
-
-    const seedsBadgeTitle =
-        seedsCount === 0
-            ? String(ui.gardenEmpty || '').trim() || String(ui.gardenTitle || '').trim()
-            : String(ui.gardenTitle || 'Seeds').trim();
-    const seedsBadgeAria = `${seedsCount}. ${seedsBadgeTitle}`;
 
     const sheetClass = [
         'profile-sheet',
@@ -146,11 +138,6 @@ export function ModalProfile({ embed = false }) {
             tempUsername={tempUsername}
             showEmojiPicker={showEmojiPicker}
             profileDirty={profileDirty}
-            streak={g.streak}
-            xp={g.xp}
-            seedsCount={seedsCount}
-            seedsBadgeTitle={seedsBadgeTitle}
-            seedsBadgeAria={seedsBadgeAria}
             guestMode={!signedIn}
             usernameAttention={usernameAttention}
             onToggleEmojiPicker={setShowEmojiPicker}

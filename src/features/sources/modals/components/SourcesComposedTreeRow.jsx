@@ -51,11 +51,15 @@ export function SourcesComposedTreeRow({
         >
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap gap-1.5 items-center min-w-0">
-                        <p className="arborito-sources-row-title truncate min-w-0 inline-flex items-center gap-1.5 min-w-0">
-                            <ChromeEmoji emoji="🌳" size={16} className="arborito-emoji-glyph shrink-0" />
-                            <span className="truncate">{tree.name}</span>
-                        </p>
+                    <p className="arborito-sources-row-title truncate min-w-0 inline-flex items-center gap-2">
+                        <ChromeEmoji
+                            emoji="🌳"
+                            size={22}
+                            className="arborito-sources-row-title__emoji arborito-emoji-glyph shrink-0"
+                        />
+                        <span className="truncate">{tree.name}</span>
+                    </p>
+                    <div className="arborito-sources-row-meta">
                         <SourcesPill className="bg-violet-50 dark:bg-violet-950/25 text-violet-900 dark:text-violet-200 border-violet-200/70 dark:border-violet-800/60">
                             {ui.sourcesPillComposedTree || 'Tree'}
                         </SourcesPill>
@@ -69,7 +73,7 @@ export function SourcesComposedTreeRow({
                             </SourcesPill>
                         )}
                         {isPublishedOwner ? (
-                            <SourcesPill className="bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-100 border-amber-200 dark:border-amber-800/60">
+                            <SourcesPill className="arborito-pill--amber arborito-pill--bordered">
                                 {ui.sourcesPillOwner || 'Owner'}
                             </SourcesPill>
                         ) : null}

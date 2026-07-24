@@ -12,15 +12,14 @@ import {
     tokenizeQuizAnswerChips,
     challengeForPlay,
 } from '../api/quiz-schema.js';
-import { getArboritoStore as store } from '../../../core/store-singleton.js';
 import { buildQuizMultipleOptions, filterQuizTraps } from '../api/quiz-trap-filter.js';
 import { quizPassTier, resolveQuizPassRate } from '../api/quiz-pass.js';
 import { normalizeClozeToken, splitClozeDisplayWord } from '../api/quiz-player.js';
 
-function orderingChipsPrompt(mainQuestion) {
+function orderingChipsPrompt(mainQuestion, langCode) {
     const mq = String(mainQuestion || '').trim();
     if (!mq) return '';
-    const lang = String(store.value.lang || 'ES').toUpperCase();
+    const lang = String(langCode || 'ES').toUpperCase();
     return lang === 'EN'
         ? `Order the words to answer: ${mq}`
         : `Ordena las palabras para responder: ${mq}`;
@@ -321,11 +320,12 @@ function QuizMultiple({ b, c, ui, blockId, state, onAnswer }) {
 }
 
 function QuizChips({ b, c, ui, state, blockId, onPick, onUnpick, onCheck }) {
+    const { lang } = useLearning();
     const words = tokenizeQuizAnswerChips(c.correct_answer);
     const shuffled = useMemo(() => shuffleOptions(`${blockId}-chips`, words), [blockId, words]);
     const picked = state.chipOrder || [];
     const pool = shuffled.filter((w) => picked.filter((p) => p === w).length < shuffled.filter((x) => x === w).length);
-    const prompt = orderingChipsPrompt(c.main_question || b.main_question);
+    const prompt = orderingChipsPrompt(c.main_question || b.main_question, lang);
     return (
         <div id={blockId} className="not-prose my-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border p-6 md:p-8" data-mode="chips">
             <p className="arborito-eyebrow text-amber-500 mb-2">{ui.quizModeChips || 'Ordenar respuesta'}</p>
@@ -403,7 +403,7 @@ function QuizSteps({ b, c, ui, state, blockId, onPickStep, onUnpickStep, onCheck
                             className="quiz-step-picked w-full text-left p-3 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 font-medium flex items-start gap-3"
                             onClick={() => onUnpickStep?.(blockId, i)}
                         >
-                            <span className="shrink-0 w-7 h-7 rounded-lg bg-emerald-600 text-white text-sm font-black flex items-center justify-center">
+                            <span className="shrink-0 w-7 h-7 rounded-lg arborito-cta-emerald text-sm font-black flex items-center justify-center">
                                 {i + 1}
                             </span>
                             <span className="min-w-0 pt-0.5">{step}</span>

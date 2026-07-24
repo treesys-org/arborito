@@ -51,7 +51,7 @@
   "privacyNetworkConsentMissingBody": "You have not accepted (or you withdrew) the privacy policy. Arborito will NOT contact any Nostr relay or WebTorrent peer until you accept.",
   "nostrRelaysRequired": "Enable the recommended network in Privacy & data (or save at least one relay) before registering.",
   "syncLoginRelaysRequired": "Enable the recommended network in Privacy & data (or save at least one relay) before registering.",
-  "privacyOnboardingNetworkPreviewBody": "Online is not active yet. <strong>Accept and continue</strong> on the welcome screen will enable the recommended public network. Choose <strong>Continue offline (local only)</strong> to stay without network features.",
+  "privacyOnboardingNetworkPreviewBody": "Online is not active yet. <strong>Online account</strong> or <strong>Just explore</strong> on the welcome screen turns on the recommended public network. Prefer no catalog, share codes, or sync? Choose <strong>Force offline mode</strong> below.",
   "privacyOnboardingNetworkPreviewSwitchAria": "Online (enabled when you accept and continue)",
   "privacyNetworkOnlineDisclaimer": "Treesys publishes client-side software that can connect to decentralised networks after you accept the privacy policy in <strong>Privacy &amp; data</strong>. We do not control, moderate, or host content transmitted through the relays you select. Responsibility for content and connectivity rests with you and the administrators of those external servers.",
   "privacyResetConsentButton": "Reset optional consents",
@@ -332,5 +332,6 @@
   "profileNetworkRelaysSaveOk": "Servers updated.",
   "profileNetworkRelaysEditorHint": "Operated by third parties; Arborito does not host your courses. You can add your own servers or restore the recommended bundle.",
   "profileNetworkRelaysAddInvalid": "Enter a valid server address (wss://…).",
-  "profileNetworkRelaysRemove": "Remove"
+  "profileNetworkRelaysRemove": "Remove",
+  "profileGuestLocalHint": "Progress stays on this device until you create an account."
 }

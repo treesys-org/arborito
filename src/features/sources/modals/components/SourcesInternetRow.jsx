@@ -17,7 +17,8 @@ import {
     sourcesVoteKeyFallback,
 } from '../../api/modals/logic/sources-local-storage.js';
 import { mergeDisplayedVotes } from '../../api/modals/logic/sources-vote-persist.js';
-import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
+import { CatalogRowEmoji } from './CatalogRowEmoji.jsx';
+import { Callout } from '../../../../shared/ui/Callout.jsx';
 import { resolveOnlineListingIcon } from '../../api/branch-catalog-icon.js';
 import { listingKind } from '../../api/sources-kind-ui.js';
 
@@ -143,6 +144,7 @@ export function SourcesInternetRow({
         icon: row?.icon || localInfo?.icon || communityEntry?.icon,
         contentKind: row?.contentKind,
         universeId,
+        ownerPub,
         localBranch,
         treeJson: activeMatches ? store.state?.rawGraphData : null,
     });
@@ -177,7 +179,34 @@ export function SourcesInternetRow({
         >
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                    <div className="flex flex-wrap gap-2 items-center mb-1">
+                    <div className="arborito-sources-row-title flex items-start gap-2 min-w-0">
+                        <CatalogRowEmoji emoji={titleEmoji} size={22} className="mt-0.5" />
+                        <button
+                            type="button"
+                            className="arborito-sources-row-title--button hover:underline min-w-0 flex-1 text-left leading-snug"
+                            onClick={() =>
+                                onAction?.('global-open', {
+                                    ownerPub,
+                                    universeId,
+                                    shareCode: row?.shareCode || '',
+                                    editOwn: isOwner ? '1' : undefined,
+                                })
+                            }
+                        >
+                            <span className="line-clamp-2">{displayTitle}</span>
+                        </button>
+                    </div>
+                    {author ? (
+                        <p className="m-0 mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
+                            {ui.sourcesGlobalBy || 'by'} {author}
+                        </p>
+                    ) : null}
+                    {desc ? (
+                        <p className="m-0 mt-2 text-[11px] text-slate-600 dark:text-slate-300 leading-snug line-clamp-3">
+                            {desc}
+                        </p>
+                    ) : null}
+                    <div className="arborito-sources-row-meta">
                         <SourcesPill
                             className={
                                 rowKind === 'composed-tree'
@@ -209,39 +238,8 @@ export function SourcesInternetRow({
                         ) : null}
                         <LanguagePills langCodes={internetLangs} />
                     </div>
-                    <button
-                        type="button"
-                        className="arborito-sources-row-title arborito-sources-row-title--button leading-snug line-clamp-2 hover:underline w-full text-left inline-flex items-start gap-1.5"
-                        onClick={() =>
-                            onAction?.('global-open', {
-                                ownerPub,
-                                universeId,
-                                shareCode: row?.shareCode || '',
-                                editOwn: isOwner ? '1' : undefined,
-                            })
-                        }
-                    >
-                        <ChromeEmoji
-                            emoji={titleEmoji}
-                            size={18}
-                            className="arborito-emoji-glyph shrink-0 mt-0.5"
-                        />
-                        <span className="min-w-0">{displayTitle}</span>
-                    </button>
-                    {author ? (
-                        <p className="m-0 mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
-                            {ui.sourcesGlobalBy || 'by'} {author}
-                        </p>
-                    ) : null}
-                    {desc ? (
-                        <p className="m-0 mt-2 text-[11px] text-slate-600 dark:text-slate-300 leading-snug line-clamp-3">
-                            {desc}
-                        </p>
-                    ) : null}
                     {ownerBanner ? (
-                        <p className="m-0 mt-2 text-[11px] text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 rounded-xl px-3 py-2 leading-snug">
-                            {ownerBanner}
-                        </p>
+                        <Callout tone="amber" size="sm" extraClass="mt-2" body={ownerBanner} />
                     ) : null}
                 </div>
                 <aside className="arborito-sources-row-aside">

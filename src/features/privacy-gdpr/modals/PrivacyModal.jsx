@@ -7,6 +7,8 @@ import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
 import { MODAL_CTA_CANCEL, modalCtaConfirmFull } from '../../../shared/ui/modal-action-chrome.js';
 import { ProfileNetworkRelays } from '../../identity-auth/modals/ProfileNetworkRelays.jsx';
 import { PrivacyPolicyBody } from '../components/PrivacyPolicyBody.jsx';
+import { confirmAndEnterLocalOnlyOnboarding } from '../../identity-auth/api/onboarding-local-only.js';
+import { useCallback, useState } from 'react';
 
 export function ModalPrivacy() {
     const {
@@ -19,6 +21,9 @@ export function ModalPrivacy() {
         grantGdprNetworkConsent,
         resetOptionalConsentsInteractive,
         wipeAllLocalDataOnThisDeviceInteractive,
+        cancelPendingAccountSyncTimers,
+        loadLanguage,
+        lang,
     } = usePrivacyGdpr();
     const m = modal;
     const readonly = !!(m && typeof m === 'object' && m.readonly);
@@ -27,8 +32,34 @@ export function ModalPrivacy() {
     const onboardingNetworkPreview = readonly && fromOnboardingStep1;
     const showNetworkControls = !readonly || onboardingNetworkPreview;
     const mobile = shouldShowMobileUI();
+    const [localOnlyBusy, setLocalOnlyBusy] = useState(false);
 
     const hasNetCons = hasGdprNetworkConsent();
+
+    const runOnboardingLocalOnly = useCallback(async () => {
+        if (localOnlyBusy) return;
+        setLocalOnlyBusy(true);
+        try {
+            await confirmAndEnterLocalOnlyOnboarding({
+                ui,
+                notify,
+                setModal,
+                cancelPendingAccountSyncTimers,
+                loadLanguage,
+                lang,
+            });
+        } finally {
+            setLocalOnlyBusy(false);
+        }
+    }, [
+        localOnlyBusy,
+        ui,
+        notify,
+        setModal,
+        cancelPendingAccountSyncTimers,
+        loadLanguage,
+        lang,
+    ]);
 
     const close = () => dismissModal();
     const openImpressum = () => {
@@ -135,10 +166,20 @@ export function ModalPrivacy() {
                                             <LocaleRichText
                                                 html={
                                                     ui.privacyOnboardingNetworkPreviewBody ||
-                                                    'Online is not active yet. <strong>Accept and continue</strong> on the welcome screen will enable the recommended public network. Choose <strong>Continue offline (local only)</strong> to stay without network features.'
+                                                    'Online is not active yet. <strong>Online account</strong> or <strong>Later</strong> on the welcome screen enables the recommended public network. Use the button below to stay without network features.'
                                                 }
                                             />
                                         </p>
+                                        <button
+                                            type="button"
+                                            className="mt-3 min-h-10 px-3 py-2 rounded-xl text-xs font-extrabold arborito-cta-amber"
+                                            disabled={localOnlyBusy}
+                                            onClick={() => void runOnboardingLocalOnly()}
+                                        >
+                                            {ui.onboardingLocalOnlyQuietLink ||
+                                                ui.onboardingLocalOnlyLink ||
+                                                'Force offline mode'}
+                                        </button>
                                     </Callout>
                                 </>
                             ) : null}

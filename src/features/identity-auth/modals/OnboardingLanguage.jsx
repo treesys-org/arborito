@@ -8,8 +8,7 @@ export function OnboardingLanguage({ lang, onPick }) {
     const langs = Array.isArray(availableLanguages) ? availableLanguages : [];
 
     return (
-        <div className="arborito-onboarding-lang">
-            <p className="arborito-onboarding-lang-label">{langLbl}</p>
+        <div className="arborito-onboarding-lang" role="group" aria-label={langLbl}>
             <div className="arborito-onboarding-lang-grid arborito-no-emojify">
                 {langs.map((l) => {
                     const active = lang === l.code;

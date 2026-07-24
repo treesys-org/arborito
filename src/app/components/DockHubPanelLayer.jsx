@@ -68,6 +68,7 @@ function BrowseDockHubPanel({ activeType, ui }) {
     const { ready, chunkType } = useModalChunk(activeType, activeType);
     const cachedTypes = useMemo(() => getDockHubCachedTypes(activeType), [activeType]);
     const cacheable = isDockHubCacheableType(activeType);
+    const instantReveal = activeType === 'certificates';
 
     useEffect(() => {
         closeRef.current = () => dismissModal();
@@ -86,6 +87,7 @@ function BrowseDockHubPanel({ activeType, ui }) {
                 sheetId={BROWSE_DOCK_HUB_SHEET_ID}
                 ariaLabel={dockHubAriaLabel(activeType, ui)}
                 onBackdropClose={onBackdropClose}
+                instantReveal={instantReveal}
             >
                 <DockHubEmbedCloseProvider closeRef={closeRef} fallbackClose={dismissModal}>
                     <DockHubEmbedMount type={activeType} active />
@@ -100,6 +102,7 @@ function BrowseDockHubPanel({ activeType, ui }) {
             sheetId={BROWSE_DOCK_HUB_SHEET_ID}
             ariaLabel={dockHubAriaLabel(activeType, ui)}
             onBackdropClose={onBackdropClose}
+            instantReveal={instantReveal}
         >
             <DockHubEmbedCloseProvider closeRef={closeRef} fallbackClose={dismissModal}>
                 {cachedTypes.map((type) => (

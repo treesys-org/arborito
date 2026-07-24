@@ -10,7 +10,7 @@
  * - Not automatic moderation. Relays may still hold the events.
  */
 
-import blocklistJson from './maintainer-nostr-tree-blocklist.json';
+import blocklistJson from './maintainer-nostr-tree-blocklist.json' with { type: 'json' };
 import {
     hasGdprNetworkConsent,
     onGdprNetworkConsentGranted,

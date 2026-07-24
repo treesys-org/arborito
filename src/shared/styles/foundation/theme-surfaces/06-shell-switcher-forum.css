@@ -9,6 +9,8 @@
         --arborito-theme-mobile-panel-cta-forum-border: rgb(14 116 144 / 0.42);
         --arborito-theme-mobile-panel-cta-forum-bg: rgb(14 116 144 / 0.10);
         --arborito-theme-mobile-panel-cta-forum-fg: rgb(12 74 110);
+        --arborito-theme-mobile-panel-cta-forum-hover-bg: rgb(14 116 144 / 0.16);
+        --arborito-theme-mobile-panel-cta-forum-hover-border: rgb(14 116 144 / 0.55);
         --arborito-theme-mobile-panel-cta-arcade-border: rgb(234 88 12 / 0.65);
         --arborito-theme-mobile-panel-cta-arcade-bg: rgb(255 237 213);
         --arborito-theme-mobile-panel-cta-arcade-fg: rgb(124 45 18);
@@ -183,6 +185,9 @@
         --arborito-theme-switcher-is-active-box-shadow: 0 8px 20px rgba(2, 6, 23, 0.08);
         --arborito-theme-switcher-is-active-color-2: rgba(15, 23, 42, 0.95);
         --arborito-theme-switcher-is-active-color: white;
+        --arborito-theme-shell-arborito-desktop-nav-btn-is-active-border-color: rgb(45 212 191 / 0.55);
+        --arborito-theme-shell-arborito-desktop-nav-btn-is-active-box-shadow: 0 0 0 3px rgb(45 212 191 / 0.18),
+    0 10px 26px -24px rgb(45 212 191 / 0.65);
         --arborito-theme-shell-arborito-desktop-nav-btn-construct-on-is-active-border-color: rgb(249 115 22 / 0.58);
         --arborito-theme-shell-arborito-desktop-nav-btn-construct-on-is-active-box-shadow: 0 0 0 3px rgb(249 115 22 / 0.22),
     0 10px 26px -24px rgb(249 115 22 / 0.5);
@@ -197,6 +202,8 @@ html.dark {
         --arborito-theme-mobile-panel-cta-forum-border: rgb(56 189 248 / 0.55);
         --arborito-theme-mobile-panel-cta-forum-bg: rgb(56 189 248 / 0.12);
         --arborito-theme-mobile-panel-cta-forum-fg: rgb(224 242 254);
+        --arborito-theme-mobile-panel-cta-forum-hover-bg: rgb(56 189 248 / 0.2);
+        --arborito-theme-mobile-panel-cta-forum-hover-border: rgb(56 189 248 / 0.65);
         --arborito-theme-mobile-panel-cta-arcade-border: rgb(249 115 22 / 0.55);
         --arborito-theme-mobile-panel-cta-arcade-bg: rgb(249 115 22 / 0.14);
         --arborito-theme-mobile-panel-cta-arcade-fg: rgb(254 215 170);
@@ -372,6 +379,9 @@ html.dark {
         --arborito-theme-switcher-is-active-box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
         --arborito-theme-switcher-is-active-color-2: rgba(248, 250, 252, 0.98);
         --arborito-theme-switcher-is-active-color: rgb(15 23 42);
+        --arborito-theme-shell-arborito-desktop-nav-btn-is-active-border-color: rgb(94 234 212 / 0.45);
+        --arborito-theme-shell-arborito-desktop-nav-btn-is-active-box-shadow: 0 0 0 3px rgb(94 234 212 / 0.12),
+    0 10px 26px -24px rgb(0 0 0 / 0.45);
         --arborito-theme-shell-arborito-desktop-nav-btn-construct-on-is-active-border-color: rgb(251 146 60 / 0.5);
         --arborito-theme-shell-arborito-desktop-nav-btn-construct-on-is-active-box-shadow: 0 0 0 3px rgb(251 146 60 / 0.2),
     0 10px 26px -24px rgb(251 146 60 / 0.4);

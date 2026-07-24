@@ -1,6 +1,9 @@
 import { EAGER_MODALS } from '../../../../app/components/eager-modals.js';
 import { PanelEmbedHost } from '../../../../app/components/PanelEmbedHost.jsx';
 import { useModalChunk } from '../../../../app/hooks/useModalChunk.js';
+import { LoadingBrand } from '../../../../shared/ui/Loading.jsx';
+import { useStore } from 'zustand';
+import { reactStateStore } from '../../../../stores/react-state.js';
 
 const EAGER_EMBED_MAP = {
     about: EAGER_MODALS.about,
@@ -30,7 +33,25 @@ const HOST_CLASS = {
 
 function LazyEmbedContent({ type, className }) {
     const { ready, Component } = useModalChunk(type, type);
-    if (!ready || !Component) return null;
+    const ui = useStore(reactStateStore, (s) => s.ui);
+    if (!ready || !Component) {
+        return (
+            <div
+                className={`${className} flex flex-col flex-1 items-center justify-center min-h-[12rem]`}
+                role="status"
+                aria-busy="true"
+            >
+                <div className="arborito-loading-panel arborito-loading-panel--sky">
+                    <LoadingBrand
+                        label={ui?.loading || 'Loading…'}
+                        size="lg"
+                        tone="sky"
+                        extraClass="arborito-loading-brand--panel"
+                    />
+                </div>
+            </div>
+        );
+    }
     return <PanelEmbedHost component={Component} embed className={className} />;
 }
 

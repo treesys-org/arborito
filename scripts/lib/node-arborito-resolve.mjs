@@ -7,7 +7,7 @@ import { resolve as pathResolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { VENDOR_IMPORT_ALIASES } from '../vendor-import-aliases.mjs';
 
-const ROOT = pathResolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+const ROOT = pathResolve(dirname(fileURLToPath(import.meta.url)), '../..');
 
 const ALIAS_URLS = Object.fromEntries(
     Object.entries(VENDOR_IMPORT_ALIASES).map(([specifier, rel]) => [

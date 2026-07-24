@@ -47,7 +47,7 @@ function printAlignAttr(b) {
 const PRINT_HEADING_TYPES = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'section', 'subsection']);
 const PRINT_MERGE_AFTER = new Set(['p', 'list', 'blockquote']);
 
-function renderPrintOneBlock(b, skipped) {
+function renderPrintOneBlock(b) {
     const al = printAlignAttr(b);
     switch (b.type) {
         case 'h1':
@@ -80,20 +80,20 @@ function renderPrintOneBlock(b, skipped) {
         case 'game':
         case 'video':
         case 'audio':
-            return `<p class="print-skipped"><em>${skipped}</em></p>`;
+            /* Skip silently — placeholder copy was forcing an empty/extra print page. */
+            return '';
         default:
             return '';
     }
 }
 
 /** Semantic HTML for PDF/print, mirrors student-view blocks without app chrome classes. */
-export function renderPrintBlocks(blocks, ui = {}) {
-    const skipped = escHtml(ui.pdfSkippedBlock || '[Interactive content omitted from print]');
+export function renderPrintBlocks(blocks, _ui = {}) {
     const parts = [];
     const list = blocks || [];
     for (let i = 0; i < list.length; i++) {
         const b = list[i];
-        const html = renderPrintOneBlock(b, skipped);
+        const html = renderPrintOneBlock(b);
         if (!html) continue;
         if (PRINT_HEADING_TYPES.has(b.type)) {
             const group = [html];
@@ -102,7 +102,7 @@ export function renderPrintBlocks(blocks, ui = {}) {
                 const nb = list[j];
                 if (PRINT_HEADING_TYPES.has(nb.type)) break;
                 if (!PRINT_MERGE_AFTER.has(nb.type)) break;
-                const nh = renderPrintOneBlock(nb, skipped);
+                const nh = renderPrintOneBlock(nb);
                 if (!nh) {
                     j++;
                     continue;

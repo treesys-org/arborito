@@ -414,16 +414,13 @@ body,
     transform: translateX(-50%) translateY(0);
 }
 
-html.arborito-shell-mobile [data-arbor-tip]::after,
-html.force-mobile [data-arbor-tip]::after,
-html.arborito-shell-mobile .arborito-chrome-tip[data-arbor-tip]::after,
-html.force-mobile .arborito-chrome-tip[data-arbor-tip]::after {
+:is(html.arborito-shell-mobile, html.force-mobile) [data-arbor-tip]::after,
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-chrome-tip[data-arbor-tip]::after {
     content: none !important;
     display: none !important;
 }
 
-html.arborito-shell-mobile .arborito-tip-float,
-html.force-mobile .arborito-tip-float {
+:is(html.arborito-shell-mobile, html.force-mobile) .arborito-tip-float {
     display: none !important;
 }
 

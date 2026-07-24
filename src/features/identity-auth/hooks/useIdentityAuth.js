@@ -9,6 +9,8 @@ import {
     getUserStoreAction,
     getAvailableLanguagesAction,
 } from '../../../stores/identity-store-actions.js';
+import { cancelPendingAccountSyncTimersAction } from '../../../stores/identity-account-restore-store-actions.js';
+import { warmNostrRelayConnections } from '../../../shared/lib/connected-services/index.js';
 
 /** Onboarding, perfil, sync login, única puerta al store para `.jsx`. */
 export function useIdentityAuth() {
@@ -28,6 +30,17 @@ export function useIdentityAuth() {
     const isSignedIn = useCallback(() => shellUiActions.isSignedIn(), []);
     const isSyncAccount = useCallback(() => identityActions.isSyncAccount(), []);
     const toggleTheme = useCallback(() => shellUiActions.toggleTheme(), []);
+    const warmNostrRelays = useCallback(
+        (opts) => warmNostrRelayConnections(getArboritoStore(), opts),
+        []
+    );
+    const cancelPendingAccountSyncTimers = useCallback(() => {
+        try {
+            cancelPendingAccountSyncTimersAction();
+        } catch {
+            /* ignore */
+        }
+    }, []);
 
     return {
         ui,
@@ -47,6 +60,8 @@ export function useIdentityAuth() {
         isSignedIn,
         isSyncAccount,
         toggleTheme,
+        warmNostrRelays,
+        cancelPendingAccountSyncTimers,
         dismissModal,
         setModal,
         notify,

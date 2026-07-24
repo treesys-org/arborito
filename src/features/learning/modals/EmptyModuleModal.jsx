@@ -1,7 +1,6 @@
 import { useLearning } from '../hooks/useLearning.js';
 import { parseNostrTreeUrl } from '../../nostr/api/nostr-refs.js';
 import { fileSystem } from '../../backup-export/api/filesystem.js';
-import { getArboritoStore } from '../../../core/store-singleton.js';
 import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 import { DockModalShell, ModalCenteredShell } from '../../../app/components/ModalShell.jsx';
 import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
@@ -24,7 +23,7 @@ function canShowCreateLesson(learning) {
 
 export function ModalEmptyModule() {
     const learning = useLearning();
-    const { ui, dismissModal, setModal, modal } = learning;
+    const { ui, dismissModal, setModal, modal, selectMobileNode, handleGraphDockAction, alert } = learning;
     const mobile = shouldShowMobileUI();
 
     const node = modal?.node;
@@ -39,12 +38,11 @@ export function ModalEmptyModule() {
     const createLesson = async () => {
         if (!node?.id) return;
         close();
-        const store = getArboritoStore();
-        store.selectMobileNode?.(node.id);
+        selectMobileNode?.(node.id);
         try {
-            await store.handleGraphDockAction?.('new-file', { skipPrompt: true });
+            await handleGraphDockAction?.('new-file', { skipPrompt: true });
         } catch (e) {
-            store.alert?.(
+            alert?.(
                 (ui.graphErrorWithMessage || 'Error: {message}').replace(
                     '{message}',
                     e?.message || 'Could not create lesson.'

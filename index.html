@@ -33,7 +33,7 @@
   }
   </script>
   <!-- CSP: lesson media (img/video/audio) and embeds need https + frame hosts; scripts stay first-party. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; script-src 'self' file: 'unsafe-inline' blob:; worker-src 'self' file: blob:; style-src 'self' file: 'unsafe-inline'; font-src 'self' file: data:; img-src 'self' file: data: https: http: blob:; media-src 'self' file: data: https: http: blob: mediastream:; frame-src 'self' blob: https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' file: https: http: wss: ws: blob: data:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; script-src 'self' file: 'unsafe-inline' blob:; worker-src 'self' file: blob:; style-src 'self' file: 'unsafe-inline' data:; font-src 'self' file: data:; img-src 'self' file: data: https: http: blob:; media-src 'self' file: data: https: http: blob: mediastream:; frame-src 'self' blob: https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com; connect-src 'self' file: https: http: wss: ws: blob: data:;">
   
   <title>Arborito: Free interactive lesson maps</title>
   <meta name="description" content="Learn any subject as a visual tree of lessons. Free and open source from Treesys: quizzes, Memory Garden, optional Arcade. No ads, no subscription.">

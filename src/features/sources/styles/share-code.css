@@ -1,4 +1,23 @@
 /* Share code — compact row (Biblioteca rows + mobile curriculum chip). Eager bundle. */
+
+:root {
+    --arborito-theme-share-code-violet-value-color: rgb(109 40 217);
+    --arborito-theme-share-code-violet-action-color: rgb(109 40 217);
+    --arborito-theme-share-code-emerald-hover-border: rgb(52 211 153);
+    --arborito-theme-share-code-emerald-hover-bg: rgb(236 253 245);
+    --arborito-theme-share-code-violet-hover-border: rgb(167 139 250);
+    --arborito-theme-share-code-violet-hover-bg: rgb(245 243 255);
+}
+
+html.dark {
+    --arborito-theme-share-code-violet-value-color: rgb(196 181 253);
+    --arborito-theme-share-code-violet-action-color: rgb(167 139 250);
+    --arborito-theme-share-code-emerald-hover-border: rgb(16 185 129);
+    --arborito-theme-share-code-emerald-hover-bg: rgb(6 78 59 / 0.3);
+    --arborito-theme-share-code-violet-hover-border: rgb(139 92 246);
+    --arborito-theme-share-code-violet-hover-bg: rgb(76 29 149 / 0.25);
+}
+
 button.arborito-share-code {
     font: inherit;
     appearance: none;
@@ -58,11 +77,7 @@ html.dark .arborito-share-code__value {
 }
 
 .arborito-share-code--violet .arborito-share-code__value {
-    color: rgb(109 40 217);
-}
-
-html.dark .arborito-share-code--violet .arborito-share-code__value {
-    color: rgb(196 181 253);
+    color: var(--arborito-theme-share-code-violet-value-color);
 }
 
 .arborito-share-code__action {
@@ -78,29 +93,15 @@ html.dark .arborito-share-code__action {
 }
 
 .arborito-share-code--violet .arborito-share-code__action {
-    color: rgb(109 40 217);
-}
-
-html.dark .arborito-share-code--violet .arborito-share-code__action {
-    color: rgb(167 139 250);
+    color: var(--arborito-theme-share-code-violet-action-color);
 }
 
 .arborito-share-code--emerald:hover {
-    border-color: rgb(52 211 153);
-    background: rgb(236 253 245);
-}
-
-html.dark .arborito-share-code--emerald:hover {
-    border-color: rgb(16 185 129);
-    background: rgb(6 78 59 / 0.3);
+    border-color: var(--arborito-theme-share-code-emerald-hover-border);
+    background: var(--arborito-theme-share-code-emerald-hover-bg);
 }
 
 .arborito-share-code--violet:hover {
-    border-color: rgb(167 139 250);
-    background: rgb(245 243 255);
-}
-
-html.dark .arborito-share-code--violet:hover {
-    border-color: rgb(139 92 246);
-    background: rgb(76 29 149 / 0.25);
+    border-color: var(--arborito-theme-share-code-violet-hover-border);
+    background: var(--arborito-theme-share-code-violet-hover-bg);
 }

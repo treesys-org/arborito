@@ -32,42 +32,69 @@ export function enrichDirectoryRowsWithKnownIcons(rows, storeRef = store) {
 
     /** @type {Map<string, string>} */
     const byCanon = new Map();
+    /** @type {Map<string, string>} */
+    const byShare = new Map();
     const branches = storeRef.userStore?.state?.branches || [];
     for (const t of branches) {
         const pubUrlRaw = String(t?.publishedNetworkUrl || '').trim();
-        if (!pubUrlRaw) continue;
-        const canon = canonicalNetworkTreeUrlString(pubUrlRaw) || pubUrlRaw;
-        if (byCanon.has(canon)) continue;
-        const ic = resolveBranchCatalogIcon(t);
-        const norm = normalizeDirectoryCatalogIcon(ic);
-        if (norm && norm !== BRANCH_CHIP_ICON) byCanon.set(canon, norm);
+        if (pubUrlRaw) {
+            const canon = canonicalNetworkTreeUrlString(pubUrlRaw) || pubUrlRaw;
+            if (!byCanon.has(canon)) {
+                const ic = resolveBranchCatalogIcon(t);
+                const norm = normalizeDirectoryCatalogIcon(ic);
+                if (norm && norm !== BRANCH_CHIP_ICON) byCanon.set(canon, norm);
+            }
+        }
+        const sc = String(t?.shareCode || t?.publishedShareCode || t?.data?.meta?.shareCode || '')
+            .trim()
+            .toUpperCase();
+        if (sc) {
+            const ic = resolveBranchCatalogIcon(t);
+            const norm = normalizeDirectoryCatalogIcon(ic);
+            if (norm && norm !== BRANCH_CHIP_ICON) byShare.set(sc, norm);
+        }
     }
     const community =
         storeRef.state?.communitySources || storeRef.value?.communitySources || [];
     for (const s of community) {
         const u = String(s?.url || '').trim();
-        if (!u) continue;
-        const canon = canonicalNetworkTreeUrlString(u) || u;
-        if (byCanon.has(canon)) continue;
-        const norm = normalizeDirectoryCatalogIcon(s?.icon);
-        if (norm) byCanon.set(canon, norm);
+        if (u) {
+            const canon = canonicalNetworkTreeUrlString(u) || u;
+            if (!byCanon.has(canon)) {
+                const norm = normalizeDirectoryCatalogIcon(s?.icon);
+                if (norm) byCanon.set(canon, norm);
+            }
+        }
+        const sc = String(s?.shareCode || '')
+            .trim()
+            .toUpperCase();
+        if (sc) {
+            const norm = normalizeDirectoryCatalogIcon(s?.icon);
+            if (norm) byShare.set(sc, norm);
+        }
     }
-    if (!byCanon.size) return list;
+    if (!byCanon.size && !byShare.size) return list;
 
     return list.map((row) => {
         if (!row || typeof row !== 'object') return row;
         if (normalizeDirectoryCatalogIcon(row.icon)) return row;
         const ownerPub = String(row.ownerPub || '').trim();
         const universeId = String(row.universeId || '').trim();
-        if (!ownerPub || !universeId) return row;
-        let canon = '';
-        try {
-            canon = canonicalNetworkTreeUrlString(formatNostrTreeUrl(ownerPub, universeId)) || '';
-        } catch {
-            return row;
+        if (ownerPub && universeId) {
+            let canon = '';
+            try {
+                canon = canonicalNetworkTreeUrlString(formatNostrTreeUrl(ownerPub, universeId)) || '';
+            } catch {
+                canon = '';
+            }
+            const known = canon ? byCanon.get(canon) : '';
+            if (known) return { ...row, icon: known };
         }
-        const known = canon ? byCanon.get(canon) : '';
-        return known ? { ...row, icon: known } : row;
+        const sc = String(row.shareCode || '')
+            .trim()
+            .toUpperCase();
+        const byCode = sc ? byShare.get(sc) : '';
+        return byCode ? { ...row, icon: byCode } : row;
     });
 }
 
@@ -408,7 +435,7 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate } = {})
                                         (r) => String(r.ownerPub) === canonPub && String(r.universeId) === canonUid
                                     );
                                     if (!exists) {
-                                        const codeRow = {
+                                        let codeRow = {
                                             ownerPub: canonPub,
                                             universeId: canonUid,
                                             title: `Code #${qNorm}`,
@@ -418,7 +445,56 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate } = {})
                                         if (Array.isArray(ref.recommendedRelays) && ref.recommendedRelays.length) {
                                             codeRow.recommendedRelays = ref.recommendedRelays;
                                         }
+                                        /* Share-code resolve only returns pub/uid — pull the
+                                         * signed directory row so title + catalog icon show. */
+                                        try {
+                                            if (typeof net.loadGlobalTreeDirectoryEntryOnce === 'function') {
+                                                const full = await net.loadGlobalTreeDirectoryEntryOnce({
+                                                    pub: canonPub,
+                                                    universeId: canonUid,
+                                                });
+                                                if (full && typeof full === 'object') {
+                                                    codeRow = {
+                                                        ...codeRow,
+                                                        ...full,
+                                                        ownerPub: canonPub,
+                                                        universeId: canonUid,
+                                                        shareCode: String(full.shareCode || qNorm),
+                                                    };
+                                                }
+                                            }
+                                        } catch {
+                                            /* keep stub */
+                                        }
                                         rows = [codeRow, ...rows];
+                                    } else if (typeof net.loadGlobalTreeDirectoryEntryOnce === 'function') {
+                                        /* List hit may omit `icon` (older publishes). Refresh that row. */
+                                        const idx = rows.findIndex(
+                                            (r) =>
+                                                String(r.ownerPub) === canonPub &&
+                                                String(r.universeId) === canonUid
+                                        );
+                                        if (idx >= 0 && !normalizeDirectoryCatalogIcon(rows[idx]?.icon)) {
+                                            try {
+                                                const full = await net.loadGlobalTreeDirectoryEntryOnce({
+                                                    pub: canonPub,
+                                                    universeId: canonUid,
+                                                });
+                                                if (full && typeof full === 'object') {
+                                                    rows[idx] = {
+                                                        ...rows[idx],
+                                                        ...full,
+                                                        ownerPub: canonPub,
+                                                        universeId: canonUid,
+                                                        shareCode: String(
+                                                            full.shareCode || rows[idx].shareCode || qNorm
+                                                        ),
+                                                    };
+                                                }
+                                            } catch {
+                                                /* keep list row */
+                                            }
+                                        }
                                     }
                                 }
                             }

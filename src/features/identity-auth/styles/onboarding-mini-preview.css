@@ -1,0 +1,458 @@
+/* Compact first-run preview: root clover at bottom, curved trunk up (real Arborito orientation). */
+
+.arborito-onb-mini {
+    --onb-mini-h: 8.35rem;
+    --onb-trunk: #5b4636;
+    --onb-forest-bg: linear-gradient(0deg, rgb(220 252 231 / 0.55) 0%, rgb(241 245 249 / 0.92) 48%, rgb(248 250 252) 100%);
+    width: 100%;
+    max-width: 18.5rem;
+    margin: 0.35rem auto 0.15rem;
+    border-radius: 0.95rem;
+    border: 1px solid var(--arborito-theme-surface-border, rgb(226 232 240));
+    background: var(--onb-forest-bg);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.arborito-onb-mini__stage {
+    position: relative;
+    height: var(--onb-mini-h);
+    width: 100%;
+}
+
+.arborito-onb-mini__map,
+.arborito-onb-mini__lesson {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.arborito-onb-mini__map--lang {
+    animation: arborito-onb-mini-slot-a 8s linear infinite;
+    padding: 0.35rem 0.45rem 0.3rem;
+}
+
+.arborito-onb-mini__lesson--lang {
+    animation: arborito-onb-mini-slot-b 8s linear infinite;
+    padding: 0.4rem 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.arborito-onb-mini__map--py {
+    animation: arborito-onb-mini-slot-c 8s linear infinite;
+    padding: 0.35rem 0.45rem 0.3rem;
+}
+
+.arborito-onb-mini__lesson--py {
+    animation: arborito-onb-mini-slot-d 8s linear infinite;
+    padding: 0.4rem 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.arborito-onb-mini__forest {
+    display: flex;
+    align-items: stretch;
+    gap: 0.4rem;
+    height: 100%;
+}
+
+.arborito-onb-mini__trunk-col {
+    position: relative;
+    width: 2rem;
+    flex-shrink: 0;
+}
+
+.arborito-onb-mini__trunk-svg {
+    position: absolute;
+    left: 50%;
+    top: 0.35rem;
+    bottom: 0.85rem;
+    width: 1.35rem;
+    height: calc(100% - 1.15rem);
+    margin-left: -0.675rem;
+    overflow: visible;
+}
+
+.arborito-onb-mini__trunk-path {
+    fill: none;
+    stroke: var(--onb-trunk);
+    stroke-width: 5.2;
+    stroke-linecap: round;
+}
+
+.arborito-onb-mini__knot {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: rgb(255 255 255 / 0.92);
+    border: 1.5px solid rgb(226 232 240);
+    box-shadow: 0 2px 6px rgb(15 23 42 / 0.12);
+    z-index: 1;
+}
+
+.arborito-onb-mini__knot--root {
+    bottom: 0.05rem;
+    width: 1.65rem;
+    height: 1.65rem;
+    border-color: rgb(52 211 153 / 0.55);
+    background: rgb(236 253 245);
+    overflow: hidden;
+}
+
+.arborito-onb-mini__root-img {
+    width: 1.35rem;
+    height: 1.35rem;
+    object-fit: contain;
+    display: block;
+}
+
+.arborito-onb-mini__knot--mid {
+    bottom: 3.05rem;
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.arborito-onb-mini__knot--leaf {
+    bottom: 5.45rem;
+    width: 1.15rem;
+    height: 1.15rem;
+}
+
+.arborito-onb-mini__knot--pulse {
+    animation: arborito-onb-mini-pulse 8s linear infinite;
+}
+
+.arborito-onb-mini__labels {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.05rem 0 0.1rem;
+    gap: 0.22rem;
+}
+
+.arborito-onb-mini__course-chip {
+    align-self: flex-start;
+    margin: 0;
+    padding: 0.12rem 0.45rem;
+    border-radius: 9999px;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: rgb(6 95 70);
+    background: rgb(167 243 208 / 0.65);
+    border: 1px solid rgb(52 211 153 / 0.45);
+    line-height: 1.2;
+}
+
+.arborito-onb-mini__vineta {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.05rem;
+    min-height: 1.55rem;
+    padding: 0.28rem 0.45rem;
+    border-radius: 0.65rem;
+    background: rgb(255 255 255 / 0.88);
+    border: 1px solid rgb(226 232 240 / 0.95);
+    box-shadow: 0 1px 4px rgb(15 23 42 / 0.06);
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: rgb(51 65 85);
+    line-height: 1.15;
+}
+
+.arborito-onb-mini__vineta--active {
+    border-color: rgb(52 211 153 / 0.55);
+    background: rgb(236 253 245 / 0.95);
+    box-shadow: 0 0 0 2px rgb(52 211 153 / 0.18);
+}
+
+.arborito-onb-mini__vineta-name {
+    font-weight: 800;
+    color: rgb(15 23 42);
+}
+
+.arborito-onb-mini__vineta-meta {
+    font-size: 0.52rem;
+    font-weight: 600;
+    color: rgb(100 116 139);
+}
+
+.arborito-onb-mini__lesson-sheet {
+    width: 100%;
+    max-width: 13.5rem;
+    border-radius: 0.85rem;
+    overflow: hidden;
+    background: var(--arborito-theme-modal-footer-flat-bg, rgb(255 255 255));
+    border: 1px solid var(--arborito-theme-surface-border, rgb(226 232 240));
+    box-shadow: 0 10px 24px -14px rgb(15 23 42 / 0.4);
+}
+
+.arborito-onb-mini__lesson-head {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid var(--arborito-theme-surface-border, rgb(241 245 249));
+    background: rgb(248 250 252 / 0.95);
+}
+
+.arborito-onb-mini__lesson-emoji {
+    display: inline-flex;
+    flex-shrink: 0;
+}
+
+.arborito-onb-mini__lesson-title {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--arborito-theme-form-fg, rgb(15 23 42));
+    line-height: 1.2;
+}
+
+.arborito-onb-mini__lesson-body {
+    padding: 0.4rem 0.5rem 0.45rem;
+}
+
+.arborito-onb-mini__prose {
+    margin: 0;
+    padding: 0.35rem 0.45rem;
+    border-radius: 0.45rem;
+    font-size: 0.68rem;
+    line-height: 1.4;
+    font-weight: 600;
+    color: var(--arborito-theme-form-fg, rgb(30 41 59));
+    background: rgb(241 245 249 / 0.9);
+}
+
+.arborito-onb-mini__prose--code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.62rem;
+    font-weight: 500;
+    background: rgb(15 23 42 / 0.92);
+    color: rgb(167 243 208);
+}
+
+.arborito-onb-mini__quiz-row {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.4rem;
+}
+
+.arborito-onb-mini__quiz-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 9999px;
+    background: rgb(52 211 153);
+    flex-shrink: 0;
+}
+
+.arborito-onb-mini__quiz-bar {
+    flex: 1;
+    height: 0.45rem;
+    border-radius: 9999px;
+    background: rgb(52 211 153 / 0.28);
+}
+
+/* 8s loop: lang map → lang lesson → py map → py lesson; ~3% crossfades, no dead air. */
+@keyframes arborito-onb-mini-slot-a {
+    0%,
+    20% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    23%,
+    100% {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+}
+
+@keyframes arborito-onb-mini-slot-b {
+    0%,
+    20% {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    23%,
+    45% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    48%,
+    100% {
+        opacity: 0;
+        transform: translateY(-3px);
+    }
+}
+
+@keyframes arborito-onb-mini-slot-c {
+    0%,
+    45% {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+    48%,
+    70% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    73%,
+    100% {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+}
+
+@keyframes arborito-onb-mini-slot-d {
+    0%,
+    70% {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    73%,
+    97% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-3px);
+    }
+}
+
+@keyframes arborito-onb-mini-pulse {
+    0%,
+    20%,
+    48%,
+    70%,
+    100% {
+        box-shadow: 0 2px 6px rgb(15 23 42 / 0.12);
+        transform: translateX(-50%) scale(1);
+    }
+    8%,
+    56% {
+        box-shadow: 0 0 0 4px rgb(52 211 153 / 0.35);
+        transform: translateX(-50%) scale(1.08);
+    }
+}
+
+@media (min-width: 768px) {
+    .arborito-onb-mini {
+        --onb-mini-h: 8.85rem;
+        max-width: 19.5rem;
+    }
+}
+
+/* Dark: keep readable surfaces (theme fg is light — hard-coded light chips would wash out). */
+html.dark .arborito-onb-mini {
+    --onb-trunk: #a78b6d;
+    --onb-forest-bg: linear-gradient(
+        0deg,
+        rgb(6 78 59 / 0.45) 0%,
+        rgb(15 23 42 / 0.96) 48%,
+        rgb(15 23 42) 100%
+    );
+    border-color: rgb(51 65 85);
+}
+
+html.dark .arborito-onb-mini__knot {
+    background: rgb(30 41 59 / 0.95);
+    border-color: rgb(71 85 105);
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.35);
+}
+
+html.dark .arborito-onb-mini__knot--root {
+    border-color: rgb(52 211 153 / 0.45);
+    background: rgb(6 78 59 / 0.55);
+}
+
+html.dark .arborito-onb-mini__course-chip {
+    color: rgb(167 243 208);
+    background: rgb(6 78 59 / 0.55);
+    border-color: rgb(52 211 153 / 0.4);
+}
+
+html.dark .arborito-onb-mini__vineta {
+    background: rgb(30 41 59 / 0.92);
+    border-color: rgb(71 85 105);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.25);
+    color: rgb(203 213 225);
+}
+
+html.dark .arborito-onb-mini__vineta--active {
+    border-color: rgb(52 211 153 / 0.5);
+    background: rgb(6 78 59 / 0.45);
+    box-shadow: 0 0 0 2px rgb(52 211 153 / 0.2);
+}
+
+html.dark .arborito-onb-mini__vineta-name {
+    color: rgb(248 250 252);
+}
+
+html.dark .arborito-onb-mini__vineta-meta {
+    color: rgb(148 163 184);
+}
+
+html.dark .arborito-onb-mini__lesson-sheet {
+    background: rgb(30 41 59);
+    border-color: rgb(71 85 105);
+    box-shadow: 0 10px 24px -14px rgb(0 0 0 / 0.65);
+}
+
+html.dark .arborito-onb-mini__lesson-head {
+    border-bottom-color: rgb(51 65 85);
+    background: rgb(15 23 42 / 0.85);
+}
+
+html.dark .arborito-onb-mini__lesson-title {
+    color: rgb(248 250 252);
+}
+
+html.dark .arborito-onb-mini__prose {
+    color: rgb(226 232 240);
+    background: rgb(15 23 42 / 0.75);
+}
+
+html.dark .arborito-onb-mini__prose--code {
+    background: rgb(2 6 23 / 0.95);
+    color: rgb(167 243 208);
+}
+
+html.dark .arborito-onb-mini__quiz-bar {
+    background: rgb(52 211 153 / 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .arborito-onb-mini__map--lang,
+    .arborito-onb-mini__lesson--lang,
+    .arborito-onb-mini__map--py,
+    .arborito-onb-mini__lesson--py,
+    .arborito-onb-mini__knot--pulse {
+        animation: none !important;
+    }
+
+    .arborito-onb-mini__map--lang {
+        opacity: 1;
+    }
+
+    .arborito-onb-mini__lesson--lang,
+    .arborito-onb-mini__map--py,
+    .arborito-onb-mini__lesson--py {
+        display: none;
+    }
+}

@@ -6,21 +6,34 @@
  * branch-arborito-demo — same resolution path as any imported .arborito.
  */
 
-import manifest from '../../../demo/arborito-demo/manifest.json';
+import manifest from '../../../demo/arborito-demo/manifest.json' with { type: 'json' };
 import { buildTreeFromFlatLessonFiles, buildTranslationIndex } from '../../shared/lib/arborito-archive.js';
 import { DEMO_BRANCH_ID, DEMO_BRANCH_UNIVERSE } from './arborito-demo-ids.js';
 
-const lessonModules = import.meta.glob('../../../demo/arborito-demo/lessons/**/*.md', {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-});
+/** Vite rewrites glob to a module map; Node CI has no glob — empty map is fine for store smoke. */
+const lessonModules = (() => {
+    try {
+        return import.meta.glob('../../../demo/arborito-demo/lessons/**/*.md', {
+            query: '?raw',
+            import: 'default',
+            eager: true,
+        });
+    } catch (_) {
+        return {};
+    }
+})();
 
-const fileModules = import.meta.glob('../../../demo/arborito-demo/files/**/*.md', {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-});
+const fileModules = (() => {
+    try {
+        return import.meta.glob('../../../demo/arborito-demo/files/**/*.md', {
+            query: '?raw',
+            import: 'default',
+            eager: true,
+        });
+    } catch (_) {
+        return {};
+    }
+})();
 
 /** Legacy authoring shorthand → ./media/ (ES default; EN lessons already use -en names). */
 const DEMO_SCREENSHOT_RE = /demo:\/\/screenshot\/([A-Za-z0-9._-]+)/g;
@@ -91,6 +104,7 @@ export function buildDemoBranchEntry() {
         /* Fixed publish/seed stamp for the bundled demo (23 Jul 2026). */
         updated: Date.UTC(2026, 6, 23),
         data: buildDemoBranchData(),
+        icon: String(meta.icon || '🌳').trim().slice(0, 32) || '🌳',
         meta: { arboritoBundled: true, demo: true },
     };
 }

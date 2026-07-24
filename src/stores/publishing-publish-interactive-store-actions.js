@@ -30,6 +30,12 @@ export async function publishTreePublicInteractiveAction(opts = {}) {
         return;
     }
 
+    /* Bundled demo / other read-only trees: never attempt a live publish. */
+    if (isArboritoDemoTree(store) || !fileSystem.features.canWrite) {
+        await offerLocalCopyFromNetworkTreeForEditingAction({ enterConstruction: true });
+        return;
+    }
+
     if (!hubConfirm) {
         if (!(await requireSignInForPublish(store))) return;
         await openPublishHub(store);
@@ -264,10 +270,6 @@ export async function offerLocalCopyFromNetworkTreeForEditingAction({ enterConst
         store.notify(ui.forkNetworkTreeInvalidData || ui.forumNoTree || 'No tree loaded.', true);
         return;
     }
-    if (!store.state.rawGraphData) {
-        store.notify(ui.forkNetworkTreeInvalidData || ui.forumNoTree || 'No tree loaded.', true);
-        return;
-    }
     const defaultName = String(
         isDemo
             ? ui.forkDemoTreeDefaultName || 'My Arborito copy'
@@ -302,23 +304,47 @@ export async function offerLocalCopyFromNetworkTreeForEditingAction({ enterConst
         : ui.forkNetworkTreeBusy || ui.treeGrowingShort || 'Creating your editable copy…';
     store.update({ treeHydrating: true, treeGrowingOverlay: true, treeGrowingHint: busyHint });
     await yieldToPaint();
+    let entry = null;
     try {
+        await store.userStore?.ensureBranchesHydrated?.();
         if (typeof store.graphLogic?.materializeAllLazyLessonBodiesIntoRaw === 'function') {
             await store.graphLogic.materializeAllLazyLessonBodiesIntoRaw();
         }
-        const entry = store.userStore.plantBranchFromCurriculumClone(name, store.state.rawGraphData, {
+        entry = store.userStore.plantBranchFromCurriculumClone(name, store.state.rawGraphData, {
             sourceUrl: isDemo
                 ? `branch://${DEMO_BRANCH_ID}`
                 : String(store.state.activeSource?.url || '').trim(),
         });
-        await store.loadData(
+        /* Await durable catalog write — fire-and-forget persist can lose the fork. */
+        if (typeof store.userStore?.flushBranchEntry === 'function') {
+            await store.userStore.flushBranchEntry(entry.id);
+        } else {
+            const { persistBranchEntry } = await import('../shared/lib/arborito-catalog-store.js');
+            await persistBranchEntry(entry);
+        }
+        if (isDemo) {
+            void import('../core/demo/import-demo-media.js')
+                .then((m) => m.importBundledDemoMedia(entry.id))
+                .catch((e) => console.warn('[Arborito] demo media copy for fork failed', e));
+        }
+        const mounted = await store.loadData(
             { id: entry.id, name: entry.name, url: `branch://${entry.id}`, type: 'branch', isTrusted: true },
             true
         );
-        if (enterConstruction && !store.state.constructionMode) {
-            store.update({ constructionMode: true });
-        }
-        if (enterConstruction && store.state.constructionMode) {
+        const activeUrl = String(store.state.activeSource?.url || '');
+        const activeId = activeUrl.startsWith('branch://')
+            ? activeUrl.slice('branch://'.length).split('/')[0]
+            : '';
+        const onCopy =
+            mounted !== false &&
+            activeId === entry.id &&
+            !!store.state.rawGraphData &&
+            !!fileSystem.features.canWrite;
+
+        if (enterConstruction && onCopy) {
+            if (!store.state.constructionMode) {
+                store.update({ constructionMode: true });
+            }
             /* Same path as toggleConstructionMode — copy used to skip the tour event. */
             queueMicrotask(() => {
                 try {
@@ -332,9 +358,23 @@ export async function offerLocalCopyFromNetworkTreeForEditingAction({ enterConst
                     })
                 );
             });
+        } else if (!onCopy) {
+            /* Never leave construction mode on the read-only demo after a failed switch. */
+            if (store.state.constructionMode) {
+                store.update({ constructionMode: false });
+            }
+            store.notify(
+                ui.forkNetworkTreeLoadFailed ||
+                    ui.forkNetworkTreeError ||
+                    'Could not open your copy. Find it in My garden (Bosque) or try again.',
+                true
+            );
         }
     } catch (e) {
         console.warn('offerLocalCopyFromNetworkTreeForEditing', e);
+        if (store.state.constructionMode) {
+            store.update({ constructionMode: false });
+        }
         store.notify(
             String(ui.forkNetworkTreeError || 'Could not create copy: {message}').replace(
                 '{message}',

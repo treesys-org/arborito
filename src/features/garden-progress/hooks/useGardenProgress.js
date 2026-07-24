@@ -9,6 +9,7 @@ import { gardenProgressActions } from '../../../stores/garden-progress-store-act
 import { arcadeActions } from '../../../stores/arcade-store-actions.js';
 import { identityActions, getGamificationAction, getUserStoreAction } from '../../../stores/identity-store-actions.js';
 import { treeGraphActions } from '../../../stores/tree-graph-store.js';
+import { prepareShellForMochilaOpen } from '../../../stores/shell-overlay-coordinator.js';
 import { countCareDue, openArcadeCare } from '../api/care-reminders.js';
 import { computeCareStats } from '../api/study-stats.js';
 
@@ -32,6 +33,14 @@ export function useGardenProgress() {
     const getCareDueCount = useCallback(() => countCareDue(singleton), [singleton]);
     const getCareStats = useCallback(() => computeCareStats(singleton), [singleton]);
     const openArcadeCarePanel = useCallback(() => openArcadeCare(singleton), [singleton]);
+    const prepareForMochilaOpen = useCallback(() => prepareShellForMochilaOpen(singleton), [singleton]);
+    const subscribeGraphUpdate = useCallback(
+        (handler) => {
+            singleton?.addEventListener?.('graph-update', handler);
+            return () => singleton?.removeEventListener?.('graph-update', handler);
+        },
+        [singleton]
+    );
 
     return {
         ui,
@@ -62,6 +71,8 @@ export function useGardenProgress() {
         getCareDueCount,
         getCareStats,
         openArcadeCare: openArcadeCarePanel,
+        prepareForMochilaOpen,
+        subscribeGraphUpdate,
         dailyXpGoal: singleton?.dailyXpGoal,
         store: singleton,
     };

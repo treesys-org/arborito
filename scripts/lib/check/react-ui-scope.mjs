@@ -159,6 +159,13 @@ function usesBareActionCall(body, name) {
     return new RegExp(`(?<![.\\w])${name}\\s*\\(`).test(body);
 }
 
+/** Map an index inside `body` to a 1-based file line given the function's start line. */
+function lineOf(body, idxInBody, startLine) {
+    if (idxInBody == null || idxInBody < 0) return startLine;
+    const before = String(body || '').slice(0, idxInBody);
+    return startLine + before.split('\n').length - 1;
+}
+
 function usesBareStoreRef(body) {
     const re = /(?<![.\w])store\b/g;
     let m;
@@ -262,12 +269,13 @@ for (const file of walkFiles(SRC)) {
     }
 
     for (const fn of extractFunctions(source)) {
-        if (!/\bstore\./.test(fn.body)) continue;
+        const body = stripStrings(fn.body);
+        if (!/\bstore\./.test(body)) continue;
         if (hasStoreBinding(fn)) continue;
         if (/this\.store\./.test(fn.body)) continue;
-        const idx = fn.body.search(/\bstore\./);
+        const idx = body.search(/\bstore\./);
         errors.push(
-            `${rel}:${lineOf(fn.body, idx, fn.startLine)}: ${fn.name}() uses store.* without store in scope`
+            `${rel}:${lineOf(body, idx, fn.startLine)}: ${fn.name}() uses store.* without store in scope`
         );
         failed = true;
     }

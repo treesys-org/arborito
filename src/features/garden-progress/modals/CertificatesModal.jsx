@@ -1,5 +1,5 @@
 import { useGardenProgress } from '../hooks/useGardenProgress.js';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 import { DOCK_HUB_TOOLBAR } from '../../../shared/ui/dock-sheet-chrome.js';
 import { getPanelRef } from '../../../app/panel-refs.js';
@@ -7,11 +7,28 @@ import { DockModalShell } from '../../../app/components/ModalShell.jsx';
 import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
 import { DockHubPanelEmbed } from '../../../shared/ui/DockHubPanelEmbed.jsx';
 import { useDockHubEmbedClose } from '../../../shared/ui/DockHubEmbedContext.jsx';
-import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
+import { chromeEmojiHtml } from '../../../shared/lib/emoji-display.js';
+import { LoadingBrand } from '../../../shared/ui/Loading.jsx';
 import {
     ACHIEVEMENT_TROPHY_EMOJI,
     achievementTrophyToneClass,
 } from '../api/achievement-trophy.js';
+import { peekAchievementSectionsCache } from '../api/achievement-sections-cache.js';
+import { yieldToPaint } from '../../../shared/lib/yield-to-paint.js';
+
+const EMPTY_SECTIONS = { trees: [], branches: [], diplomas: [] };
+
+/** Twemoji trophy without per-row useEffect (ChromeEmoji would thrash long lists). */
+function AchievementTrophy({ earned, size = 20, className = '' }) {
+    const tone = achievementTrophyToneClass(earned);
+    return (
+        <span
+            className={`${tone}${className ? ` ${className}` : ''}`}
+            aria-hidden="true"
+            dangerouslySetInnerHTML={{ __html: chromeEmojiHtml(ACHIEVEMENT_TROPHY_EMOJI, size) }}
+        />
+    );
+}
 
 function matchesQuery(item, query) {
     return String(item?.name || '')
@@ -29,23 +46,16 @@ function filterSection(items, query, earnedOnly) {
 function CompletionRow({ item, ui, onView }) {
     const done = !!item.isComplete;
     const tone = item.scope === 'tree' ? 'emerald' : 'green';
-    const borderCls = done
-        ? tone === 'emerald'
-            ? 'border-emerald-400/40 bg-emerald-50/80 dark:bg-emerald-950/20'
-            : 'border-green-400/35 bg-green-50/80 dark:bg-green-950/15'
-        : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/40';
+    const rowCls = done
+        ? `arborito-callout arborito-callout--${tone} arborito-callout--sm items-center gap-3 transition-colors`
+        : 'flex items-center gap-3 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/40 transition-colors';
 
     return (
-        <div
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border ${borderCls} transition-colors`}
-        >
+        <div className={`${rowCls} arborito-achievement-row`}>
             <span
                 className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-xl border bg-white dark:bg-slate-800 ${done ? 'border-yellow-300/70' : 'border-slate-300 dark:border-slate-600'}`}
             >
-                <ChromeEmoji
-                    emoji={ACHIEVEMENT_TROPHY_EMOJI}
-                    className={achievementTrophyToneClass(done)}
-                />
+                <AchievementTrophy earned={done} size={22} />
             </span>
             <div className="flex-1 min-w-0">
                 <p
@@ -88,7 +98,7 @@ function CertCard({ module: m, mob, ui, onView }) {
 
     return (
         <div
-            className={`border-2 ${isLocked ? 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/50' : 'border-yellow-400/30 bg-yellow-50 dark:bg-yellow-900/10'} ${cardPad} rounded-2xl flex ${mob ? 'flex-row items-center' : 'flex-col'} ${cardGap} relative overflow-hidden group transition-all ${mob ? '' : 'hover:scale-[1.02] hover:shadow-lg'} h-full`}
+            className={`border-2 ${isLocked ? 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/50' : 'border-yellow-400/30 bg-yellow-50 dark:bg-yellow-900/10'} ${cardPad} rounded-2xl flex ${mob ? 'flex-row items-center' : 'flex-col'} ${cardGap} relative overflow-hidden group transition-all ${mob ? '' : 'hover:scale-[1.02] hover:shadow-lg'} h-full arborito-achievement-row`}
         >
             <div
                 className={`absolute -right-6 -bottom-6 text-9xl opacity-5 rotate-12 pointer-events-none select-none ${isLocked ? 'grayscale' : ''}`}
@@ -101,10 +111,7 @@ function CertCard({ module: m, mob, ui, onView }) {
                 <div
                     className={`${iconBox} bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-sm border shrink-0 ${isLocked ? 'border-slate-300 dark:border-slate-600' : 'border-yellow-200 dark:border-yellow-700/50'}`}
                 >
-                    <ChromeEmoji
-                        emoji={ACHIEVEMENT_TROPHY_EMOJI}
-                        className={`text-3xl ${achievementTrophyToneClass(!isLocked)}`}
-                    />
+                    <AchievementTrophy earned={!isLocked} size={mob ? 28 : 32} className="text-3xl" />
                 </div>
                 <div className={`flex-1 min-w-0 ${mob ? 'flex flex-col gap-1' : ''}`}>
                     <span
@@ -247,18 +254,67 @@ function AchievementsBody({ tab, sections, earnedOnly, query, mob, ui, onView })
 
 
 export function ModalCertificates({ embed = false, dockEmbed = false, dockEmbedActive = false }) {
-    const { ui, setModal, gardenProgressActions } = useGardenProgress();
+    const { ui, setModal, gardenProgressActions, data, userStore, activeSource, store } =
+        useGardenProgress();
     const { getAchievementSections, leaveCertificatesView } = gardenProgressActions;
     const mob = embed ? true : shouldShowMobileUI();
     const [searchQuery, setSearchQuery] = useState('');
     const [showAll, setShowAll] = useState(true);
     const [tab, setTab] = useState('all');
 
-    const sections = getAchievementSections();
+    const completedNodes = userStore?.state?.completedNodes;
+    const warm = peekAchievementSectionsCache(store);
+    const [sections, setSections] = useState(() => warm || EMPTY_SECTIONS);
+    const [listReady, setListReady] = useState(() => !!warm);
+
+    useEffect(() => {
+        if (!embed) return undefined;
+        try {
+            document
+                .querySelector('[data-arborito-embed-host="certificates"]')
+                ?.style.removeProperty('display');
+        } catch {
+            /* ignore */
+        }
+        return undefined;
+    }, [embed]);
+
+    useEffect(() => {
+        let cancelled = false;
+        const warmNow = peekAchievementSectionsCache(store);
+        if (warmNow) {
+            setSections(warmNow);
+            setListReady(true);
+            return undefined;
+        }
+
+        setListReady(false);
+        setSections(EMPTY_SECTIONS);
+
+        void (async () => {
+            /* Let shell + spinner paint before walking the tree. */
+            await yieldToPaint();
+            if (cancelled) return;
+            try {
+                const next = getAchievementSections() || EMPTY_SECTIONS;
+                if (cancelled) return;
+                setSections(next);
+                setListReady(true);
+            } catch {
+                if (!cancelled) setListReady(true);
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [data, completedNodes, activeSource, getAchievementSections, store]);
+
     const query = searchQuery.toLowerCase().trim();
     const earnedOnly = !showAll;
 
     const tabCounts = useMemo(() => {
+        if (!listReady) return { all: 0, completions: 0, diplomas: 0 };
         const trees = filterSection(sections.trees, query, earnedOnly).length;
         const branches = filterSection(sections.branches, query, earnedOnly).length;
         const diplomas = filterSection(sections.diplomas, query, earnedOnly).length;
@@ -267,7 +323,7 @@ export function ModalCertificates({ embed = false, dockEmbed = false, dockEmbedA
             completions: trees + branches,
             diplomas,
         };
-    }, [sections, query, earnedOnly]);
+    }, [listReady, sections, query, earnedOnly]);
 
     const toggleBtnLabel = showAll ? ui.showEarned || 'Mis logros' : ui.showAll || 'Ver todos';
     const toggleBtnClass = showAll
@@ -276,7 +332,17 @@ export function ModalCertificates({ embed = false, dockEmbed = false, dockEmbedA
 
     const close = () => {
         if (embed) {
-            getPanelRef('sidebar')?.closeMobileMenuIfOpen?.();
+            /* Hide embed before More/stack teardown so close feels instant. */
+            try {
+                document
+                    .querySelector('[data-arborito-embed-host="certificates"]')
+                    ?.style.setProperty('display', 'none');
+            } catch {
+                /* ignore */
+            }
+            const sb = getPanelRef('sidebar');
+            if (typeof sb?.mobileMenuGoBack === 'function') sb.mobileMenuGoBack();
+            else sb?.closeMobileMenuIfOpen?.();
             return;
         }
         leaveCertificatesView();
@@ -286,7 +352,7 @@ export function ModalCertificates({ embed = false, dockEmbed = false, dockEmbedA
 
     const onView = (id) => setModal({ type: 'certificate', moduleId: String(id) });
 
-    const listContent = (
+    const listContent = listReady ? (
         <AchievementsBody
             tab={tab}
             sections={sections}
@@ -296,6 +362,22 @@ export function ModalCertificates({ embed = false, dockEmbed = false, dockEmbedA
             ui={ui}
             onView={onView}
         />
+    ) : (
+        <div
+            className="flex flex-col flex-1 items-center justify-center min-h-[12rem] py-10"
+            role="status"
+            aria-live="polite"
+            aria-busy="true"
+        >
+            <div className="arborito-loading-panel arborito-loading-panel--sky">
+                <LoadingBrand
+                    label={ui.loading || 'Loading…'}
+                    size="lg"
+                    tone="sky"
+                    extraClass="arborito-loading-brand--panel"
+                />
+            </div>
+        </div>
     );
 
     const toolbar = (
@@ -416,7 +498,11 @@ export function ModalCertificates({ embed = false, dockEmbed = false, dockEmbedA
                 hero={hero}
                 toolbar={toolbar}
                 skipBodyWrap
-                shellOpts={{ rootFlags: 'arborito-modal--certificates-hub' }}
+                shellOpts={{
+                    rootFlags: 'arborito-modal--certificates-hub',
+                    instantOpen: true,
+                    enter: 'instant',
+                }}
                 onBackdropClick={close}
             >
                 <div

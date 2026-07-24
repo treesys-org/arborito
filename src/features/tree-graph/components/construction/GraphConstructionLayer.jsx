@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
 import { useTreeGraph } from '../../hooks/useTreeGraph.js';
 import { createPortal } from 'react-dom';
-import { getArboritoStore } from '../../../../core/store-singleton.js';
-import { schedulePersistTreeUiState } from '../../api/tree-ui-persist.js';
 import { NodeEmojiPickerGrid } from '../shared/NodeEmojiPickerGrid.jsx';
 import { ModalCenteredShell } from '../../../../app/components/ModalShell.jsx';
 import { shouldShowMobileUI } from '../../../../shared/ui/breakpoints.js';
@@ -12,7 +10,7 @@ import { ModalBinaryFooter } from '../../../../shared/ui/ModalBinaryFooter.jsx';
 
 function ConstructionEmojiPicker({ state }) {
     const tree = useTreeGraph();
-    const { ui, findNode } = tree;
+    const { ui, findNode, schedulePersistTreeUiState } = tree;
 
     useEffect(() => {
         let cancelled = false;
@@ -51,7 +49,7 @@ function ConstructionEmojiPicker({ state }) {
                     if (!node) return;
                     await tree.applyGraphConstructionNodeIcon(node, emoji);
                     tree.bumpGraphUiRevision();
-                    schedulePersistTreeUiState(getArboritoStore());
+                    schedulePersistTreeUiState();
                 }}
             />
         </div>,
@@ -61,7 +59,7 @@ function ConstructionEmojiPicker({ state }) {
 
 function MobileRenameSheet({ state }) {
     const tree = useTreeGraph();
-    const { ui, findNode } = tree;
+    const { ui, findNode, schedulePersistTreeUiState, notify } = tree;
     const label = ui.graphEdit || ui.graphRename || 'Rename';
     const mobile = shouldShowMobileUI();
 
@@ -97,7 +95,7 @@ function MobileRenameSheet({ state }) {
                     if (!ok) {
                         const ui = tree.ui || {};
                         const trimmed = String(name || '').trim();
-                        getArboritoStore()?.notify?.(
+                        notify?.(
                             !trimmed
                                 ? ui.graphRenameEmpty || 'Enter a name to rename.'
                                 : ui.nodePropertiesSaveError ||
@@ -108,7 +106,7 @@ function MobileRenameSheet({ state }) {
                         return;
                     }
                     tree.bumpGraphUiRevision();
-                    schedulePersistTreeUiState(getArboritoStore());
+                    schedulePersistTreeUiState();
                     clearConstructionUI();
                 }}
             >

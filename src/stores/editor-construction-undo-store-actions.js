@@ -389,6 +389,10 @@ export async function toggleConstructionModeAction() {
                     if (!fileSystem.features.canWrite && networkRole !== 'proposer') {
                         /* Read-only trees (incl. bundled demo): prompt to copy into My garden. */
                         await offerLocalCopyFromNetworkTreeForEditingAction({ enterConstruction: true });
+                        /* Failed / cancelled fork must never leave construction on the demo. */
+                        if (!fileSystem.features.canWrite && store.state.constructionMode) {
+                            store.update({ constructionMode: false });
+                        }
                         return;
                     }
                 }

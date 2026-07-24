@@ -12,6 +12,7 @@ import { getArboritoStore } from '../../../core/store-singleton.js';
 import { openPublishHub } from '../../publishing/api/account-hub-gate.js';
 import { syncMobileTreeShellClass } from '../../../shared/ui/mobile-tree-shell-class.js';
 import { branchIdFromBranchUrl } from '../../../shared/lib/branch-id.js';
+import { isArboritoDemoTree } from '../../publishing/api/demo-tree-guard.js';
 
 function notifyScopeChromeRefresh() {
     if (typeof window !== 'undefined') {
@@ -201,6 +202,13 @@ export function useConstructionPanel() {
         const ctx = getActivePublishContext(activeSource);
         const localId = ctx.localId || branchIdFromBranchUrl(srcUrl) || null;
 
+        if (isArboritoDemoTree(getArboritoStore()) || !fileSystem.features.canWrite) {
+            if (typeof offerLocalCopyFromNetworkTreeForEditing === 'function') {
+                await offerLocalCopyFromNetworkTreeForEditing({ enterConstruction: true });
+            }
+            return;
+        }
+
         const actsAsUnpublish =
             typeof canRetractActivePublicUniverse === 'function' &&
             canRetractActivePublicUniverse() &&
@@ -238,8 +246,11 @@ export function useConstructionPanel() {
                 return;
             }
             setOpeningPublishHub(true);
-            const opened = await openPublishHub(getArboritoStore(), { branchId: localId || '' });
-            if (!opened) setOpeningPublishHub(false);
+            try {
+                await openPublishHub(getArboritoStore(), { branchId: localId || '' });
+            } finally {
+                setOpeningPublishHub(false);
+            }
             return;
         }
         return handleMakeTreePublic();
@@ -251,6 +262,7 @@ export function useConstructionPanel() {
         handleMakeTreePublic,
         handleRetractPublicTree,
         modal,
+        offerLocalCopyFromNetworkTreeForEditing,
         ui,
         userStore,
     ]);
@@ -328,17 +340,6 @@ export function useConstructionPanel() {
         ui,
         userStore,
     ]);
-
-    useEffect(() => {
-        if (
-            modal &&
-            typeof modal === 'object' &&
-            modal.type === 'construction-about' &&
-            modal.publishIntent
-        ) {
-            setOpeningPublishHub(false);
-        }
-    }, [modal]);
 
     useEffect(() => {
         if (constructionMode) syncConstructionAboutFromFocus();

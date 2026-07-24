@@ -5,7 +5,7 @@ import {
     collectVisibleRowRects,
     syncTocTreeStemLifts,
     tocDropNestAccentVar,
-} from './lesson-toc-row-utils.js';
+} from '../api/lesson-toc-row-utils.js';
 
 const DRAG_ACTIVATE_PX = 6;
 

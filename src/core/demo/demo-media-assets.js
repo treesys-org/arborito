@@ -3,11 +3,18 @@
  * Seed still copies them into IDB so export/.arborito packing works like any local branch.
  */
 
-const mediaUrlModules = import.meta.glob('../../../demo/arborito-demo/media/*.png', {
-    query: '?url',
-    import: 'default',
-    eager: true,
-});
+/** Vite rewrites glob to a module map; Node CI has no glob — empty map is fine for store smoke. */
+const mediaUrlModules = (() => {
+    try {
+        return import.meta.glob('../../../demo/arborito-demo/media/*.png', {
+            query: '?url',
+            import: 'default',
+            eager: true,
+        });
+    } catch (_) {
+        return {};
+    }
+})();
 
 /** @type {Map<string, string>} */
 const BY_FILENAME = new Map();

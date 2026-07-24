@@ -39,16 +39,27 @@ const EMOJI_DATA = {
     ],
 };
 
+function GuestLocalHintIcon() {
+    return (
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" className="profile-guest-device-hint__svg">
+            <path
+                d="M8 1.2 14.8 13.5H1.2L8 1.2Z"
+                fill="#facc15"
+                stroke="#a16207"
+                strokeWidth="1.1"
+                strokeLinejoin="round"
+            />
+            <path d="M8 5.4v3.4" stroke="#713f12" strokeWidth="1.35" strokeLinecap="round" />
+            <circle cx="8" cy="11.1" r="0.75" fill="#713f12" />
+        </svg>
+    );
+}
+
 export function ProfileIdentity({
     tempAvatar,
     tempUsername,
     showEmojiPicker,
     profileDirty,
-    streak,
-    xp,
-    seedsCount,
-    seedsBadgeTitle,
-    seedsBadgeAria,
     guestMode = false,
     usernameAttention = false,
     onToggleEmojiPicker,
@@ -183,24 +194,18 @@ export function ProfileIdentity({
                                 'This name is your online account. Pick one before registering or signing in.'}
                         </p>
                     ) : null}
-                    <div className="profile-identity__stats">
-                        <span className="profile-identity__stat">
-                            <ChromeEmoji emoji="💧" size={16} className="profile-identity__stat-ic" /> {streak}{' '}
-                            {ui.days}
-                        </span>
-                        <span className="profile-identity__stat">
-                            <ChromeEmoji emoji="☀️" size={16} className="profile-identity__stat-ic" /> {xp}{' '}
-                            {ui.xpUnit || ui.lumens || 'Lumens'}
-                        </span>
-                        <span
-                            id="profile-seeds-badge"
-                            className="profile-identity__stat"
-                            title={seedsBadgeTitle}
-                            aria-label={seedsBadgeAria}
-                        >
-                            <ChromeEmoji emoji="🌰" size={16} className="profile-identity__stat-ic" /> {seedsCount}
-                        </span>
-                    </div>
+                    {guestMode ? (
+                        <p className="profile-guest-device-hint" role="status">
+                            <span className="profile-guest-device-hint__ic" aria-hidden="true">
+                                <GuestLocalHintIcon />
+                            </span>
+                            <span>
+                                {ui.profileGuestLocalHint ||
+                                    ui.guestAccountHintTip ||
+                                    'Progress stays on this device until you create an account.'}
+                            </span>
+                        </p>
+                    ) : null}
                 </div>
             </div>
             {profileDirty ? (

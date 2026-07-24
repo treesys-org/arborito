@@ -232,12 +232,13 @@
 }
 
 .arborito-modal--onboarding .arborito-onboarding-lang-label {
-    margin: 0 0 0.5rem;
+    margin: 0 0 0.4rem;
     font-size: 0.625rem;
-    font-weight: 900;
-    letter-spacing: 0.16em;
+    font-weight: 800;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--arborito-theme-eyebrow-fg);
+    opacity: 0.85;
 }
 
 .arborito-modal--onboarding .arborito-onboarding-lang-grid {
@@ -305,6 +306,35 @@
     cursor: pointer;
 }
 
+.arborito-modal--onboarding .arborito-onboarding-account-link {
+    align-self: center;
+    margin-top: 0.05rem;
+    padding: 0.2rem 0.35rem;
+    border: none;
+    background: transparent;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    font-weight: 600;
+    color: var(--arborito-theme-muted-fg, rgba(100, 116, 139, 0.95));
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-account-link:hover:not(:disabled) {
+    color: var(--arborito-theme-form-fg, inherit);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-account-link:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-privacy__link--quiet {
+    opacity: 0.72;
+    font-weight: 500;
+}
+
 .arborito-modal--onboarding .arborito-onboarding-local-only:hover:not(:disabled) {
     color: var(--arborito-theme-fg, inherit);
 }
@@ -334,38 +364,39 @@
         overflow-y: visible;
     }
 
-    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-hero {
-        padding: 0.65rem 1.5rem 0.65rem;
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-hero--quiet {
+        padding: 0.65rem 1.5rem 0.35rem;
     }
 
-    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-mascot {
-        width: 4.75rem;
-        height: 4.75rem;
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-hero--quiet .arborito-onboarding-mascot {
+        width: 4.25rem;
+        height: 4.25rem;
     }
 
-    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-welcome {
-        font-size: 1.65rem;
-        margin-top: 0.55rem;
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-hero--quiet .arborito-onboarding-mascot svg,
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-hero--quiet .arborito-onboarding-logo {
+        width: 2.15rem !important;
+        height: 2.15rem !important;
     }
 
-    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-body {
-        font-size: 0.9375rem;
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-hero--quiet .arborito-onboarding-welcome {
+        font-size: 1.55rem;
         margin-top: 0.5rem;
-        line-height: 1.5;
-        max-width: 26rem;
     }
 
-    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-alpha {
-        margin-top: 0.55rem;
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-hero--quiet .arborito-onboarding-tagline {
+        margin-top: 0.45rem;
+        font-size: 0.75rem;
+        padding: 0.3rem 0.8rem;
     }
 
     .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-lang {
-        padding-bottom: 0.65rem;
+        padding-bottom: 0.55rem;
     }
 
-    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-privacy {
+    .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-actions {
         padding-top: 0.55rem;
-        padding-bottom: 0.55rem;
+        padding-bottom: 1.15rem;
     }
 
     .arborito-modal--onboarding .arborito-onboarding-inner--step1 .btn-onb-lang {
@@ -467,6 +498,41 @@
 
 .arborito-modal--onboarding .btn-onb-start--busy {
     box-shadow: 0 8px 20px rgb(16 185 129 / 0.22);
+}
+
+.arborito-modal--onboarding .btn-onb-skip {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    width: 100%;
+    min-height: 2.85rem;
+    border-radius: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    border: 1.5px solid var(--arborito-theme-surface-border, rgb(203 213 225));
+    background: var(--arborito-theme-tile-bg, rgb(248 250 252));
+    color: var(--arborito-theme-form-fg, rgb(30 41 59));
+    box-shadow: none;
+    transition:
+        transform 0.15s ease,
+        border-color 0.15s ease,
+        background 0.15s ease;
+}
+
+.arborito-modal--onboarding .btn-onb-skip:hover:not(:disabled) {
+    border-color: rgb(52 211 153 / 0.55);
+    background: rgb(236 253 245 / 0.9);
+    transform: translateY(-1px);
+}
+
+.arborito-modal--onboarding .btn-onb-skip:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.arborito-modal--onboarding .btn-onb-skip--busy,
+.arborito-modal--onboarding .btn-onb-skip:disabled {
+    opacity: 0.72;
+    pointer-events: none;
+    cursor: wait;
 }
 
 :is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-steps__dots {
@@ -857,3 +923,105 @@
     height: 1px;
     background: var(--arborito-theme-auth-alt-divider);
 }
+
+/* Quiet welcome: classic logo + tagline + preview; muted foot links below CTAs. */
+.arborito-modal--onboarding .arborito-onboarding-hero--quiet {
+    padding: 0.45rem 1.25rem 0.2rem;
+    text-align: center;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-hero--quiet .arborito-onboarding-mascot {
+    width: 3.5rem;
+    height: 3.5rem;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-hero--quiet .arborito-onboarding-mascot svg,
+.arborito-modal--onboarding .arborito-onboarding-hero--quiet .arborito-onboarding-logo {
+    width: 1.85rem !important;
+    height: 1.85rem !important;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-hero--quiet .arborito-onboarding-welcome {
+    margin: 0.4rem 0 0;
+    font-size: 1.35rem;
+    line-height: 1.2;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--arborito-theme-sheet-text);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-hero--quiet .arborito-onboarding-tagline {
+    margin-top: 0.4rem;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.7rem;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-lang {
+    padding: 0.35rem 1.25rem 0.55rem;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-legal-note {
+    max-width: 22rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-actions {
+    gap: 0.5rem;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-foot-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem 0.35rem;
+    margin-top: 0.15rem;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-foot-link {
+    margin: 0;
+    padding: 0.15rem 0.1rem;
+    border: 0;
+    background: transparent;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--arborito-theme-auth-body-fg);
+    opacity: 0.72;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+.arborito-modal--onboarding a.arborito-onboarding-foot-link {
+    display: inline;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-foot-link--version {
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    opacity: 0.55;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-foot-link--version:hover {
+    opacity: 0.9;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+}
+
+.arborito-modal--onboarding .arborito-onboarding-foot-link:hover {
+    opacity: 1;
+    color: var(--arborito-theme-sheet-text);
+}
+
+.arborito-modal--onboarding .arborito-onboarding-foot-sep {
+    font-size: 0.6875rem;
+    line-height: 1;
+    color: var(--arborito-theme-auth-body-fg);
+    opacity: 0.4;
+    user-select: none;
+}
+

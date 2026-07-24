@@ -2,8 +2,6 @@ import { useGardenProgress } from '../hooks/useGardenProgress.js';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRegisterPanel } from '../../../app/hooks/useRegisterPanel.js';
 import { useViewportShell } from '../../../shared/ui/breakpoints.js';
-import { getArboritoStore } from '../../../core/store-singleton.js';
-import { prepareShellForMochilaOpen } from '../../../stores/shell-overlay-coordinator.js';
 import { DockHubShell } from '../../../app/components/DockHubShell.jsx';
 import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
 import { DockHubSheet } from '../../../shared/ui/DockHubSheet.jsx';
@@ -31,6 +29,8 @@ export function ProgressWidget() {
         gamification,
         userStore,
         gardenProgressActions,
+        prepareForMochilaOpen,
+        subscribeGraphUpdate,
     } = garden;
 
     const { getAllAchievements } = gardenProgressActions;
@@ -68,14 +68,14 @@ export function ProgressWidget() {
         setIsOpen((open) => {
             const next = !open;
             if (next) {
-                prepareShellForMochilaOpen(getArboritoStore());
+                prepareForMochilaOpen();
                 setInstantOpen(true);
             }
             panelApiRef.current.isOpen = next;
             return next;
         });
         scheduleRender();
-    }, [scheduleRender]);
+    }, [scheduleRender, prepareForMochilaOpen]);
 
     useEffect(() => {
         if (prevMobRef.current === mob) return;
@@ -115,20 +115,19 @@ export function ProgressWidget() {
         const onViewport = () => scheduleRender();
         const onProgress = () => scheduleRender();
         const onGraph = () => scheduleRender();
-        const store = getArboritoStore();
         window.addEventListener('arborito-viewport', onViewport);
         window.addEventListener('arborito-emoji-ready', onViewport);
         window.addEventListener('arborito-user-progress-changed', onProgress);
         window.addEventListener('graph-update', onGraph);
-        store?.addEventListener('graph-update', onGraph);
+        const unsubGraph = subscribeGraphUpdate(onGraph);
         return () => {
             window.removeEventListener('arborito-viewport', onViewport);
             window.removeEventListener('arborito-emoji-ready', onViewport);
             window.removeEventListener('arborito-user-progress-changed', onProgress);
             window.removeEventListener('graph-update', onGraph);
-            store?.removeEventListener('graph-update', onGraph);
+            unsubGraph?.();
         };
-    }, [scheduleRender]);
+    }, [scheduleRender, subscribeGraphUpdate]);
 
     if (constructionMode || !data) {
         return null;

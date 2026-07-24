@@ -6,6 +6,7 @@ import { useNostrSlice, nostrActions } from '../../../stores/nostr-store.js';
 import { useTreeGraphSlice } from '../../../stores/tree-graph-store.js';
 import { useSourcesSlice } from '../../../stores/sources-store.js';
 import { getUserStoreAction } from '../../../stores/identity-store-actions.js';
+import { openPublishHub } from '../../publishing/api/account-hub-gate.js';
 
 /** Nostr admin, governance, publicación en red. */
 export function useNostr() {
@@ -29,6 +30,7 @@ export function useNostr() {
     );
     const inviteNostrCollaborator = useCallback((opts) => nostrActions.inviteNostrCollaborator(opts), []);
     const removeNostrCollaborator = useCallback((pub) => nostrActions.removeNostrCollaborator(pub), []);
+    const openPublishHubFromTeam = useCallback((payload) => openPublishHub(store, payload), []);
 
     return {
         ui,
@@ -45,6 +47,7 @@ export function useNostr() {
         publishTreePublicInteractive,
         inviteNostrCollaborator,
         removeNostrCollaborator,
+        openPublishHub: openPublishHubFromTeam,
         dismissModal,
         setModal,
         notify,

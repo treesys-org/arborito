@@ -205,28 +205,15 @@ html.arborito-desktop .arborito-desktop-community-wrap:focus-within .arborito-co
 }
 
 .arborito-community-menu-item[data-brand='github'] .arborito-brand-icon,
-.arborito-community-menu-item[data-brand='github'] .arborito-community-brand-icon {
-    color: var(--arborito-theme-fg, #0f172a);
-}
-
-html.dark .arborito-community-menu-item[data-brand='github'] .arborito-brand-icon,
-html.dark .arborito-community-menu-item[data-brand='github'] .arborito-community-brand-icon {
-    color: #f8fafc;
+.arborito-community-menu-item[data-brand='github'] .arborito-community-brand-icon,
+.arborito-community-menu-item[data-brand='matrix'] .arborito-brand-icon,
+.arborito-community-menu-item[data-brand='matrix'] .arborito-community-brand-icon {
+    color: var(--arborito-theme-mobile-panel-cta-fg, #0f172a);
 }
 
 .arborito-community-menu-item[data-brand='mastodon'] .arborito-brand-icon,
 .arborito-community-menu-item[data-brand='mastodon'] .arborito-community-brand-icon {
     color: #6364ff;
-}
-
-.arborito-community-menu-item[data-brand='matrix'] .arborito-brand-icon,
-.arborito-community-menu-item[data-brand='matrix'] .arborito-community-brand-icon {
-    color: var(--arborito-theme-fg, #0f172a);
-}
-
-html.dark .arborito-community-menu-item[data-brand='matrix'] .arborito-brand-icon,
-html.dark .arborito-community-menu-item[data-brand='matrix'] .arborito-community-brand-icon {
-    color: #f8fafc;
 }
 
 .arborito-community-menu-item__body {

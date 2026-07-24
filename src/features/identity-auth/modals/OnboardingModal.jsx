@@ -6,7 +6,6 @@ import { DockModalShell, ModalCenteredShell } from '../../../app/components/Moda
 import {
     hasGdprNetworkConsent,
     grantGdprNetworkConsent,
-    warmNostrRelayConnections,
 } from '../../../shared/lib/connected-services/index.js';
 import { normalizeUsername } from '../api/sync-login-secret.js';
 import { humanizeAuthError } from '../api/sync-login-error-humanize.js';
@@ -25,12 +24,8 @@ import { ensureModalChunk } from '../../../app/modal-chunk-loaders.js';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import { isOnboardingWizardIncomplete } from '../../../shared/lib/onboarding-boot-gate.js';
 import { persistUserNostrRelays, SUGGESTED_NOSTR_RELAYS } from '../../nostr/api/nostr-relays-runtime.js';
-import { withdrawGdprNetworkConsent } from '../../../shared/lib/connected-services/index.js';
-import { showDialogAction } from '../../../stores/shell-ui-store-actions.js';
-import { getArboritoStore } from '../../../core/store-singleton.js';
-import { pickHostUi } from '../../learning/api/electron-bridge.js';
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 2;
 
 /** True when the modal payload explicitly encodes wizard step (return from sub-modal / cold start). */
 function modalHasExplicitOnboardingStep(modal) {
@@ -137,13 +132,12 @@ export function ModalOnboarding() {
         lang,
         theme,
         toggleTheme,
-        confirm,
-        acknowledge,
         gamification,
         modal,
         authSession,
         identityActions,
         isSignedIn,
+        warmNostrRelays,
     } = auth;
 
     const {
@@ -243,7 +237,7 @@ export function ModalOnboarding() {
     }, []);
 
     useEffect(() => {
-        if (step === 2) void ensureModalChunk('sources');
+        if (step === 1) void ensureModalChunk('sources');
     }, [step]);
 
     const complete = useCallback(() => {
@@ -251,7 +245,10 @@ export function ModalOnboarding() {
         completedRef.current = true;
         completeOnboardingWizard(
             { setModal },
-            { guest: !(typeof isSignedIn === 'function' ? isSignedIn() : false) }
+            {
+                guest: !(typeof isSignedIn === 'function' ? isSignedIn() : false),
+                returnStep: 2,
+            }
         );
     }, [setModal, isSignedIn]);
 
@@ -307,55 +304,16 @@ export function ModalOnboarding() {
         setStepAdvancing(true);
         persistUserNostrRelays(SUGGESTED_NOSTR_RELAYS);
         if (!hasGdprNetworkConsent()) grantGdprNetworkConsent();
-        /* Warm relay sockets while the user finishes step 2 — Forest loads otherwise stay cold. */
-        void warmNostrRelayConnections(getArboritoStore(), { probe: true }).catch((e) => {
+        /* Warm relays while Biblioteca opens — Forest stays cold otherwise. */
+        void warmNostrRelays({ probe: true }).catch((e) => {
             console.warn('[Arborito] onboarding accept nostr prewarm', e);
         });
         void loadLanguage(lang);
-        runAfterPaint(() => goToStep(2));
-    }, [stepAdvancing, busy, goToStep, loadLanguage, lang]);
-
-    const localOnlyAndComplete = useCallback(async () => {
-        if (stepAdvancing || busy) return false;
-        const word = String(ui.onboardingLocalOnlyPromptWord || 'localonly')
-            .normalize('NFKC')
-            .replace(/\s+/g, '')
-            .toLowerCase();
-        const typed = await showDialogAction({
-            type: 'prompt',
-            title: ui.onboardingLocalOnlyConfirmTitle || 'Local-only mode?',
-            body:
-                ui.onboardingLocalOnlyPromptBody ||
-                ui.onboardingLocalOnlyConfirmBody ||
-                'Arborito will be very limited. Type the keyword to continue offline.',
-            placeholder: ui.onboardingLocalOnlyPromptPlaceholder || word,
-            danger: true,
-            confirmText: ui.onboardingLocalOnlyConfirmButton || 'Yes, local only',
-            cancelText: ui.cancel || 'Cancel',
-        });
-        if (typed == null) return false;
-        if (
-            String(typed || '')
-                .normalize('NFKC')
-                .replace(/\s+/g, '')
-                .toLowerCase() !== word
-        ) {
-            notify(ui.onboardingLocalOnlyPromptMismatch || ui.privacyWipeLocalPromptMismatch || 'Confirmation did not match.', true);
-            return false;
-        }
-        withdrawGdprNetworkConsent();
-        persistUserNostrRelays([]);
-        try {
-            getArboritoStore()?.cancelPendingAccountSyncTimers?.();
-        } catch {
-            /* ignore */
-        }
-        setStepAdvancing(true);
-        void loadLanguage(lang);
         completedRef.current = true;
-        completeOnboardingWizard({ setModal }, { guest: true, localOnly: true });
-        return true;
-    }, [stepAdvancing, busy, ui, notify, loadLanguage, lang, setModal]);
+        runAfterPaint(() => {
+            completeOnboardingWizard({ setModal }, { guest: true, returnStep: 1 });
+        });
+    }, [stepAdvancing, busy, loadLanguage, lang, warmNostrRelays, setModal]);
 
     const scheduleUsernameCheck = useCallback(() => {
         scheduleUsernameAvailabilityCheck(suggestHostRef.current, {
@@ -376,36 +334,6 @@ export function ModalOnboarding() {
     useEffect(() => {
         if (sessionView === 'start') scheduleUsernameCheck();
     }, [sessionUsername, sessionView, scheduleUsernameCheck]);
-
-    const skipWithConfirm = useCallback(async () => {
-        if (sessionBusy || stepAdvancing) return;
-        const ok = await acknowledge({
-            title: ui.onboardingSkipConfirmTitle || ui.onboardingSessionSkip || 'Continue without an account?',
-            body: pickHostUi(
-                ui,
-                'onboardingSkipConfirmBody',
-                'onboardingSkipConfirmBodyApp',
-                pickHostUi(
-                    ui,
-                    'onboardingSessionSkipSub',
-                    'onboardingSessionSkipSubApp',
-                    'This browser only, back up in Profile so clearing site data does not erase your progress. You can create a free account later from Profile.'
-                )
-            ),
-            dialogIcon: '❓',
-            dialogSpotlight: {
-                emoji: '💻',
-                label: pickHostUi(
-                    ui,
-                    'onboardingSkipConfirmSpotlight',
-                    'onboardingSkipConfirmSpotlightApp',
-                    'This browser only'
-                ),
-            },
-        });
-        if (!ok) return;
-        complete();
-    }, [sessionBusy, stepAdvancing, acknowledge, ui, complete]);
 
     useEffect(() => {
         if (step === 1 && !shellPaintedRef.current) {
@@ -621,7 +549,6 @@ export function ModalOnboarding() {
                 onUsernameContinue={continueFromStart}
                 onRegister={() => void registerFromPasswordStep()}
                 onSignIn={() => setSessionViewSafe('login')}
-                onSkip={() => void skipWithConfirm()}
                 onPickSuggestion={(name) => {
                     setSessionUsername(name);
                     setUsernameSuggestions([]);
@@ -650,7 +577,18 @@ export function ModalOnboarding() {
                             stepAdvancing={stepAdvancing}
                             onPickLanguage={(code) => void pickOnboardingLanguage(code)}
                             onAcceptAndContinue={acceptAndAdvance}
-                            onLocalOnlyIntent={localOnlyAndComplete}
+                            onAccountIntent={() => {
+                                if (stepAdvancing || busy) return;
+                                persistUserNostrRelays(SUGGESTED_NOSTR_RELAYS);
+                                if (!hasGdprNetworkConsent()) grantGdprNetworkConsent();
+                                void warmNostrRelays({ probe: true }).catch((e) => {
+                                    console.warn('[Arborito] onboarding account nostr prewarm', e);
+                                });
+                                setError('');
+                                setSessionView('start');
+                                setStep(2);
+                                setModal({ type: 'onboarding', step: 2, view: 'start' });
+                            }}
                             onOpenPrivacy={() =>
                                 openSubModalAndReturn({
                                     type: 'privacy',

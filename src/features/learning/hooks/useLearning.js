@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useHookUi, useShellModalActions, useShellModalLang } from '../../../app/hooks/useHookShell.js';
 import { getArboritoStore as store } from '../../../core/store-singleton.js';
 import { useLearningSlice, learningActions } from '../../../stores/learning-store.js';
-import { useTreeGraphSlice } from '../../../stores/tree-graph-store.js';
+import { useTreeGraphSlice, treeGraphActions } from '../../../stores/tree-graph-store.js';
 import { useSourcesSlice } from '../../../stores/sources-store.js';
 import { getUserStoreAction } from '../../../stores/identity-store-actions.js';
 import { shellUiActions } from '../../../stores/shell-ui-store-actions.js';
@@ -11,7 +11,7 @@ import { shellUiActions } from '../../../stores/shell-ui-store-actions.js';
 /** Lecciones, contenido, quiz, Sage. */
 export function useLearning() {
     const ui = useHookUi();
-    const { modal } = useShellModalLang();
+    const { modal, lang } = useShellModalLang();
     const { dismissModal, setModal, notify, update } = useShellModalActions();
     const { selectedNode, previewNode, path, lessonOpenHint } = useLearningSlice(
         useShallow((s) => ({
@@ -51,10 +51,13 @@ export function useLearning() {
     const nostrCreateChild = useCallback((...a) => learningActions.nostrCreateChild(...a), []);
     const requestGoHome = useCallback(() => learningActions.requestGoHome(), []);
     const toggleConstructionMode = useCallback(() => learningActions.toggleConstructionMode(), []);
+    const selectMobileNode = useCallback((id) => treeGraphActions.selectMobileNode(id), []);
+    const handleGraphDockAction = useCallback((...a) => treeGraphActions.handleGraphDockAction(...a), []);
 
     return {
         ui,
         modal,
+        lang,
         userStore: getUserStoreAction(),
         data,
         rawGraphData,
@@ -85,6 +88,8 @@ export function useLearning() {
         nostrCreateChild,
         requestGoHome,
         toggleConstructionMode,
+        selectMobileNode,
+        handleGraphDockAction,
         dismissModal,
         setModal,
         notify,

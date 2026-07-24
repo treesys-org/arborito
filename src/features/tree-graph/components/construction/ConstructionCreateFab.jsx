@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTreeGraph } from '../../hooks/useTreeGraph.js';
 import { fileSystem } from '../../../backup-export/api/filesystem.js';
-import { getArboritoStore } from '../../../../core/store-singleton.js';
-import { schedulePersistTreeUiState } from '../../api/tree-ui-persist.js';
 import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
 import { clearConstructionUI } from '../../api/logic/construction-ui-bridge.js';
 import { graphPanelRootEl } from '../../api/graph-panel-api.js';
@@ -10,7 +8,7 @@ import { graphPanelRootEl } from '../../api/graph-panel-api.js';
 /** Floating + FAB with create menu (construction mode). */
 export function ConstructionCreateFab({ folderNode }) {
     const tree = useTreeGraph();
-    const { ui, constructionMode } = tree;
+    const { ui, constructionMode, schedulePersistTreeUiState } = tree;
     const [open, setOpen] = useState(false);
     const rootRef = useRef(null);
     const fabRef = useRef(null);
@@ -52,7 +50,7 @@ export function ConstructionCreateFab({ folderNode }) {
         else if (act === 'new-file') await tree.handleGraphDockAction('new-file', { skipPrompt: true }, root);
         else if (act === 'new-exam') await tree.handleGraphDockAction('new-exam', { skipPrompt: true }, root);
         tree.bumpGraphUiRevision();
-        schedulePersistTreeUiState(getArboritoStore());
+        schedulePersistTreeUiState();
     };
 
     return (

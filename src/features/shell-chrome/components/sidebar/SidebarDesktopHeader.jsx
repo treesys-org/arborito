@@ -6,12 +6,15 @@ import {
     prefetchConstructionShellOnIntent,
 } from '../../../../app/modal-open-bridge.js';
 import { prefetchModal } from '../../../../app/modal-open.js';
+import { getAchievementSectionsAction } from '../../../../stores/garden-progress-store-actions.js';
+import { scheduleIdle } from '../../../../shared/lib/yield-to-paint.js';
 import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
 import { shouldBlockSageChromeToggle } from '../../../learning/api/sage-pointer-guard.js';
 import { ArboritoLogoMark, LanguageIcon } from './SidebarMobileMoreMenu.jsx';
 import { SidebarDesktopSearch } from './SidebarDesktopSearch.jsx';
 import { CreatorModerationBell } from './CreatorModerationBell.jsx';
 import { CommunityChromeButton } from '../CommunityChromeButton.jsx';
+import { GuestAccountHintBadge } from './GuestAccountHintBadge.jsx';
 
 function DesktopMenuItem({ icon, label, onClick, prefetchType }) {
     return (
@@ -19,7 +22,19 @@ function DesktopMenuItem({ icon, label, onClick, prefetchType }) {
             type="button"
             className="arborito-desktop-menu-item"
             role="menuitem"
-            onPointerEnter={() => prefetchType && prefetchModal(prefetchType)}
+            onPointerEnter={() => {
+                if (!prefetchType) return;
+                prefetchModal(prefetchType);
+                if (prefetchType === 'certificates') {
+                    scheduleIdle(() => {
+                        try {
+                            getAchievementSectionsAction();
+                        } catch {
+                            /* ignore */
+                        }
+                    }, 2500);
+                }
+            }}
             onClick={onClick}
         >
             <span className="arborito-desktop-menu-item__ic" aria-hidden="true">
@@ -236,7 +251,7 @@ export function SidebarDesktopHeader({
                     </button>
                     <CreatorModerationBell className="arborito-desktop-action arborito-desktop-hit" />
                     <div
-                        className="arborito-desktop-profile-wrap arborito-desktop-hit"
+                        className="arborito-desktop-profile-wrap arborito-desktop-hit arborito-guest-account-hint-host"
                         aria-haspopup="menu"
                         onPointerEnter={() => prefetchProfileMenuOnIntent()}
                         ref={(el) => {
@@ -256,6 +271,7 @@ export function SidebarDesktopHeader({
                                 <ChromeEmoji emoji={g.avatar || '👤'} size={22} />
                             </span>
                         </button>
+                        <GuestAccountHintBadge />
                         <div className="arborito-desktop-profile-popover" role="menu" aria-label={ui.navMore || 'Menu'}>
                             <DesktopMenuItem
                                 icon={<ChromeEmoji emoji="👤" size={18} />}

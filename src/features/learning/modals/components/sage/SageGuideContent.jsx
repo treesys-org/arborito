@@ -156,63 +156,38 @@ function buildLessonHub(ui, learning, node) {
     const typeLbl = nodeTypeLabel(node, ui);
     const inConstruct = !!learning.constructionMode;
 
+    /* Fixed 2×2 like tree/construction hubs: Where · Continue · (context) · Guide. */
     const cards = [
         <SageGuideCard
             key="where"
             icon="📍"
             title={ui.sageBtnWhereAmI || 'Where am I?'}
-            hint={ui.sageLessonWhereHint || 'Your place in the tree and this lesson'}
             action="open-topic"
             topic="lesson-where"
             tone="amber"
+            compact
         />,
         <SageGuideCard
             key="continue"
             icon="➡️"
             title={ui.sageBtnHowContinue || 'What should I do next?'}
-            hint={ui.sageLessonContinueHint || 'What to do now in this lesson'}
             action="open-topic"
             topic="lesson-continue"
             tone="emerald"
+            compact
         />,
     ];
 
-    if (fields.hasDescription) {
-        cards.push(
-            <SageGuideCard
-                key="summary"
-                icon="📄"
-                title={ui.sageBtnSummary || 'View summary'}
-                hint={ui.sageLessonSummaryHint || 'Author summary for this lesson'}
-                action="open-topic"
-                topic="lesson-summary"
-                tone="sky"
-            />
-        );
-    }
-    if (fields.hasNotes) {
-        cards.push(
-            <SageGuideCard
-                key="notes"
-                icon="💬"
-                title={ui.sageBtnExtraInfo || 'Extra notes'}
-                hint={ui.sageLessonNotesHint || 'Extra context from the author'}
-                action="open-topic"
-                topic="lesson-notes"
-                tone="indigo"
-            />
-        );
-    }
     if (inConstruct) {
         cards.push(
             <SageGuideCard
                 key="quiz-exam-author"
                 icon="🎯"
                 title={ui.sageBtnQuizExamAuthor || 'Quizzes & exams'}
-                hint={ui.sageLessonQuizAuthorHint || 'Authoring quizzes and exams'}
                 action="open-topic"
                 topic="lesson-quiz-author"
                 tone="rose"
+                compact
             />
         );
     } else if (node.type === 'exam') {
@@ -221,13 +196,61 @@ function buildLessonHub(ui, learning, node) {
                 key="exam-student"
                 icon="⚔️"
                 title={ui.sageBtnExamHelp || 'How does this exam work?'}
-                hint={ui.sageLessonExamHint || 'Rules and how to pass'}
                 action="open-topic"
                 topic="lesson-exam"
                 tone="rose"
+                compact
+            />
+        );
+    } else if (fields.hasDescription) {
+        cards.push(
+            <SageGuideCard
+                key="summary"
+                icon="📄"
+                title={ui.sageBtnSummary || 'View summary'}
+                action="open-topic"
+                topic="lesson-summary"
+                tone="sky"
+                compact
+            />
+        );
+    } else if (fields.hasNotes) {
+        cards.push(
+            <SageGuideCard
+                key="notes"
+                icon="💬"
+                title={ui.sageBtnExtraInfo || 'Extra notes'}
+                action="open-topic"
+                topic="lesson-notes"
+                tone="indigo"
+                compact
+            />
+        );
+    } else {
+        cards.push(
+            <SageGuideCard
+                key="summary"
+                icon="📄"
+                title={ui.sageBtnSummary || 'View summary'}
+                action="open-topic"
+                topic="lesson-summary"
+                tone="sky"
+                compact
             />
         );
     }
+
+    cards.push(
+        <SageGuideCard
+            key="guide"
+            icon="📗"
+            title={ui.sageGuideActDiscoverShort || ui.sageGuideActDiscover || 'Guide'}
+            action="open-topic"
+            topic="discover"
+            tone="indigo"
+            compact
+        />
+    );
 
     return (
         <div className="sage-guide-screen sage-guide-screen--hub">

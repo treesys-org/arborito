@@ -181,6 +181,19 @@ html.arborito-viewport-resizing #arborito-initial-loader {
 
 /* --- loading.js panel / brand / inline row --- */
 
+
+:root {
+    --arborito-theme-loading-panel-slate-border: rgb(148 163 184 / 0.55);
+    --arborito-theme-loading-panel-slate-bg: rgb(248 250 252 / 0.85);
+    --arborito-theme-loading-panel-slate-fg: rgb(71 85 105);
+}
+
+html.dark {
+    --arborito-theme-loading-panel-slate-border: rgb(51 65 85 / 0.65);
+    --arborito-theme-loading-panel-slate-bg: rgb(15 23 42 / 0.45);
+    --arborito-theme-loading-panel-slate-fg: rgb(203 213 225);
+}
+
 .arborito-loading-panel {
     display: flex;
     flex-direction: column;
@@ -212,15 +225,9 @@ html.dark .arborito-loading-panel--sage {
 }
 
 .arborito-loading-panel--slate {
-    --arborito-theme-loading-panel-border: rgb(148 163 184 / 0.55);
-    --arborito-theme-loading-panel-bg: rgb(248 250 252 / 0.85);
-    --arborito-theme-loading-panel-fg: rgb(71 85 105);
-}
-
-html.dark .arborito-loading-panel--slate {
-    --arborito-theme-loading-panel-border: rgb(51 65 85 / 0.65);
-    --arborito-theme-loading-panel-bg: rgb(15 23 42 / 0.45);
-    --arborito-theme-loading-panel-fg: rgb(203 213 225);
+    --arborito-theme-loading-panel-border: var(--arborito-theme-loading-panel-slate-border);
+    --arborito-theme-loading-panel-bg: var(--arborito-theme-loading-panel-slate-bg);
+    --arborito-theme-loading-panel-fg: var(--arborito-theme-loading-panel-slate-fg);
 }
 
 .arborito-loading-panel__label {

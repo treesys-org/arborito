@@ -2,19 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { resolveUnpublishDialogCopy } from '../api/resolve-publish-content-copy.js';
 import { getActivePublishContext } from '../../editor/api/construction-scope-publish.js';
 import { usePublishDiffState } from '../hooks/usePublishDiffState.js';
+import { usePublishing } from '../hooks/usePublishing.js';
 import { useShellUiSlice } from '../../../stores/shell-ui-store.js';
 import { SwitchRow } from '../../../shared/ui/SwitchRow.jsx';
 import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
-import {
-    buildPublishHubConfirmBody,
-    defaultIncludeForumForPublish,
-    defaultListInDiscoverForPublish,
-    isRepublishForActiveSource,
-} from '../api/publish-hub-confirm.js';
 import { resolvePublishHubFooterLabel } from '../api/publish-hub-chrome.js';
-import { getArboritoStore } from '../../../core/store-singleton.js';
 import { MODAL_CTA_CANCEL, modalCtaConfirm } from '../../../shared/ui/modal-action-chrome.js';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
+import { Callout } from '../../../shared/ui/Callout.jsx';
 
 /** Outline danger — same size as Close, sits with the action row without stealing Publish. */
 const RETRACT_OUTLINE =
@@ -42,29 +37,23 @@ export function BranchPublishFooter({
     const publishCtx = useMemo(() => getActivePublishContext(activeSource), [activeSource]);
     const publishLocked = publishingBusy || retractingBusy || !!publishingTree;
     const { noChanges } = usePublishDiffState(modal, activeSource, rawGraphData, userStore);
+    const {
+        republish,
+        confirmCopy,
+        defaultIncludeForum,
+        defaultListInDiscover,
+    } = usePublishing();
 
-    const store = getArboritoStore();
-    const republish = useMemo(() => isRepublishForActiveSource(store), [store, rawGraphData, activeSource]);
-    const confirmCopy = useMemo(
-        () => (store ? buildPublishHubConfirmBody(store, { republish }) : { body: '' }),
-        [store, republish, ui]
-    );
-
-    const [includeForum, setIncludeForum] = useState(() =>
-        store ? defaultIncludeForumForPublish(store, republish) : false
-    );
-    const [listInDiscover, setListInDiscover] = useState(() =>
-        store ? defaultListInDiscoverForPublish(store, republish) : true
-    );
+    const [includeForum, setIncludeForum] = useState(() => defaultIncludeForum);
+    const [listInDiscover, setListInDiscover] = useState(() => defaultListInDiscover);
 
     useEffect(() => {
-        if (!store) return;
-        setIncludeForum(defaultIncludeForumForPublish(store, republish));
-    }, [store, republish, rawGraphData?.meta?.forumEnabled]);
+        setIncludeForum(defaultIncludeForum);
+    }, [defaultIncludeForum]);
 
     useEffect(() => {
         setListInDiscover(true);
-    }, [store, republish]);
+    }, [defaultListInDiscover, republish]);
 
     const isFirstPublish = !publishCtx.hasPublishedBaseline;
     const canPublish = isFirstPublish || !noChanges;
@@ -129,10 +118,14 @@ export function BranchPublishFooter({
                     <p className="m-0 text-xs leading-snug text-slate-600 dark:text-slate-300 whitespace-pre-line">
                         {confirmCopy.body}
                     </p>
-                    <p className="m-0 text-xs leading-snug text-amber-900/90 dark:text-amber-100/90 rounded-lg border border-amber-200/80 dark:border-amber-800/50 bg-amber-50/80 dark:bg-amber-950/25 px-3 py-2">
-                        {ui.publishHubInactivityNote ||
-                            'Public copies auto-retract after about 12 months without use (GDPR). Active learners pause the timer.'}
-                    </p>
+                    <Callout
+                        tone="amber"
+                        size="sm"
+                        body={
+                            ui.publishHubInactivityNote ||
+                            'Public copies auto-retract after about 12 months without use (GDPR). Active learners pause the timer.'
+                        }
+                    />
                     <SwitchRow
                         id="publish-hub-list-in-discover"
                         label={ui.publicTreeListInDiscoverLabel || 'List in Discover'}

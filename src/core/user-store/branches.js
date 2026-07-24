@@ -220,6 +220,18 @@ export const branchesMixin = {
         const data = JSON.parse(JSON.stringify(rawGraph));
         data.universeId = id;
         data.universeName = name;
+        if (data.meta && typeof data.meta === 'object') {
+            const m = { ...data.meta };
+            delete m.publishedNetworkUrl;
+            delete m.nostrBundleFormat;
+            delete m.demo;
+            delete m.arboritoBundled;
+            delete m.arboritoDemo;
+            delete m.universeId;
+            delete m.shareCode;
+            if (Object.keys(m).length) data.meta = m;
+            else delete data.meta;
+        }
         const src = String(sourceUrl || '').trim();
         if (src) {
             const pres =
@@ -235,17 +247,6 @@ export const branchesMixin = {
                 license: pres.license || 'CC-BY-SA-4.0',
                 licenseUrl: pres.licenseUrl || 'https://creativecommons.org/licenses/by-sa/4.0/',
             };
-        }
-        if (data.meta && typeof data.meta === 'object') {
-            const m = { ...data.meta };
-            delete m.publishedNetworkUrl;
-            delete m.nostrBundleFormat;
-            delete m.demo;
-            delete m.arboritoBundled;
-            delete m.universeId;
-            delete m.shareCode;
-            if (Object.keys(m).length) data.meta = m;
-            else delete data.meta;
         }
         /* Local gardens are not Nostr-lazy: drop network chunk markers only when content exists. */
         const clearLazy = (node) => {
@@ -305,7 +306,9 @@ export const branchesMixin = {
 
         const id = 'branch-' + randomUUIDSafe();
 
+        const catalogIcon = String(treeData.icon || '').trim().slice(0, 32);
         const newTree = { id, name: treeData.universeName, updated: Date.now(), data: treeData };
+        if (catalogIcon) newTree.icon = catalogIcon;
         if (contentHash) newTree.contentHash = contentHash;
         if (!treeData.translationIndex) {
             treeData.translationIndex = buildTranslationIndex(treeData);

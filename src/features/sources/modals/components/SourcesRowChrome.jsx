@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
-import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
 import {
     clearVoteUiOverrideIfMatched,
     getVoteUiOverride,
@@ -120,7 +119,16 @@ export function SourcesShareButton({ ui, shareOpts, onShare }) {
                 onShare?.(shareOpts);
             }}
         >
-            <ChromeEmoji emoji="🔗" size={18} />
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" className="block">
+                <path
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 3v11M8.5 6.5 12 3l3.5 3.5M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"
+                />
+            </svg>
         </button>
     );
 }

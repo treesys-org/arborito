@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, normalize, relative } from 'node:path';
-import { VENDOR_IMPORT_ALIASES } from '../../vendor-import-aliases.mjs';
+import { VENDOR_IMPORT_ALIASES } from '../vendor-import-aliases.mjs';
 
 const STORE_GRAPH_ENTRY = 'src/stores/attach-action-bundles.js';
 

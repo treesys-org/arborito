@@ -3,6 +3,11 @@ import { useHookUi, useShellModalActions, useShellModalLang } from '../../../app
 import { useSourcesSlice, sourcesActions } from '../../../stores/sources-store.js';
 import { getUserStoreAction } from '../../../stores/identity-store-actions.js';
 import { getArboritoStore as store } from '../../../core/store-singleton.js';
+import {
+    collectBranchExportOptions,
+    collectComposedTreeExportOptions,
+    collectNetworkSourceExportOptions,
+} from '../../backup-export/api/export-curriculum-archive.js';
 
 /** Fuentes / biblioteca de árboles. */
 export function useSources() {
@@ -29,6 +34,12 @@ export function useSources() {
         (res) => sourcesActions.maybeAutoLoadCommunityAfterAdd(res),
         []
     );
+    const getExportCurriculumOptions = useCallback((target) => {
+        if (!target?.id) return null;
+        if (target.kind === 'tree') return collectComposedTreeExportOptions(store, target.id);
+        if (target.kind === 'network') return collectNetworkSourceExportOptions(store, target.id);
+        return collectBranchExportOptions(store, target.id);
+    }, []);
 
     return {
         ui,
@@ -54,6 +65,7 @@ export function useSources() {
         addCommunitySource,
         notifyCommunityAddResult,
         maybeAutoLoadCommunityAfterAdd,
+        getExportCurriculumOptions,
         dismissModal,
         setModal,
         notify,

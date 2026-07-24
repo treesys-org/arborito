@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useIdentityAuth } from '../hooks/useIdentityAuth.js';
 import { LoadingBrandRing } from '../../../shared/ui/Loading.jsx';
 import { LoginPasswordRegisterFields } from '../components/LoginPasswordRegisterFields.jsx';
-import { pickHostUi } from '../../learning/api/electron-bridge.js';
 
 function UsernameSuggestions({ ui, suggestions, busy, onPick }) {
     if (!suggestions?.length || busy) return null;
@@ -40,7 +39,6 @@ export function OnboardingAccountEntry({
     onUsernameContinue,
     onRegister,
     onSignIn,
-    onSkip,
     onPickSuggestion,
 }) {
     const { ui } = useIdentityAuth();
@@ -59,13 +57,6 @@ export function OnboardingAccountEntry({
           : ui.syncLoginSubmitRegister || 'Create account';
     const haveAccountLbl = ui.onboardingSessionHaveAccount || 'Already have an account?';
     const signInLbl = ui.onboardingSessionSignIn || 'Sign in';
-    const skipLbl = ui.onboardingSessionSkipLater || 'Later';
-    const skipHint = pickHostUi(
-        ui,
-        'onboardingSessionSkipLaterHint',
-        'onboardingSessionSkipLaterHintApp',
-        'No account for now, progress stays in this browser only.'
-    );
     const consentInfo = ui.networkSocialConsentInfo || '';
     const actionBusy = busy || checking;
     const passwordHint =
@@ -164,18 +155,6 @@ export function OnboardingAccountEntry({
             >
                 {signInLbl}
             </button>
-
-            <div className="arborito-onb-entry-skip">
-                <button
-                    type="button"
-                    className="arborito-onb-entry-skip__btn"
-                    disabled={actionBusy}
-                    onClick={onSkip}
-                >
-                    {skipLbl}
-                </button>
-                <p className="arborito-onb-entry-skip__hint">{skipHint}</p>
-            </div>
         </div>
     );
 }

@@ -124,7 +124,34 @@ async function collectUsedEmoji() {
         if (extname(p)) files.push(p);
         else await walkFiles(p, files);
     }
-    const found = new Set();
+    const found = new Set([
+        /* Course / catalog icons often live only in .arborito manifests — seed common ones. */
+        '🐧',
+        '🍳',
+        '💻',
+        '🇬🇧',
+        '🇪🇸',
+        '♟️',
+        '🌿',
+        '🗣️',
+        '🍃',
+        '📗',
+        '🐍',
+        '☕',
+        '🧩',
+        '🔬',
+        '🧪',
+        '🧮',
+        '🎨',
+        '🎵',
+        '🛡️',
+        '🧰',
+        '🔧',
+        '🖥️',
+        '📦',
+        '🐛',
+        '🗂️',
+    ]);
     for (const f of files) {
         let txt;
         try {

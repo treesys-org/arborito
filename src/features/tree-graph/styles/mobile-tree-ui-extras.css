@@ -94,13 +94,8 @@ html:not(.dark) .arborito-mobile-path.mobile-tree-ui:not(.mobile-tree-ui--constr
 }
 .mobile-panel-cta--forum:hover,
 .mobile-path-cta--forum:hover {
-    background: rgb(14 116 144 / 0.16);
-    border-color: rgb(14 116 144 / 0.55);
-}
-html.dark .mobile-panel-cta--forum:hover,
-html.dark .mobile-path-cta--forum:hover {
-    background: rgb(56 189 248 / 0.2);
-    border-color: rgb(56 189 248 / 0.65);
+    background: var(--arborito-theme-mobile-panel-cta-forum-hover-bg);
+    border-color: var(--arborito-theme-mobile-panel-cta-forum-hover-border);
 }
 .mobile-panel-cta--arcade,
 .mobile-path-cta--arcade {

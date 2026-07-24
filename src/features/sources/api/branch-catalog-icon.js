@@ -2,6 +2,11 @@ import { parseFolderReadme } from '../../../shared/lib/arborito-archive.js';
 import { BRANCH_CHIP_ICON } from '../../tree-graph/api/node-property-emojis.js';
 import { kindEmoji, listingKind } from './sources-kind-ui.js';
 
+/** Session sticky: once we resolve a real catalog emoji for a branch, keep it
+ * even if a later catalog pass temporarily lacks `data` (avoids 🐧 → 🌿 flash). */
+const BRANCH_ICON_STICKY = new Map();
+const ONLINE_ICON_STICKY = new Map();
+
 function iconFromRootNode(root) {
     if (!root || typeof root !== 'object') return '';
     const direct = root.icon;
@@ -27,22 +32,70 @@ export function normalizeDirectoryCatalogIcon(raw) {
     return s.slice(0, 32);
 }
 
-/**
- * Icon for a library branch row in Bosque (catalog), not folder nodes inside the map.
- * @param {{ data?: { languages?: Record<string, { icon?: string, content?: string } }, universePresentation?: { icon?: string } } } | null | undefined} branch
- */
-export function resolveBranchCatalogIcon(branch) {
+function isGenericCatalogIcon(icon) {
+    const s = String(icon || '').trim();
+    return !s || s === BRANCH_CHIP_ICON || s === '🌳';
+}
+
+function resolveBranchCatalogIconFresh(branch) {
+    const fromEntry = normalizeDirectoryCatalogIcon(branch?.icon);
+    if (fromEntry && !isGenericCatalogIcon(fromEntry)) return fromEntry;
+
+    const fromData = normalizeDirectoryCatalogIcon(branch?.data?.icon);
+    if (fromData && !isGenericCatalogIcon(fromData)) return fromData;
+
     const fromPres = normalizeDirectoryCatalogIcon(branch?.data?.universePresentation?.icon);
-    if (fromPres) return fromPres;
+    if (fromPres && !isGenericCatalogIcon(fromPres)) return fromPres;
 
     const langs = branch?.data?.languages;
     if (langs && typeof langs === 'object') {
         for (const key of Object.keys(langs)) {
             const ic = normalizeDirectoryCatalogIcon(iconFromRootNode(langs[key]));
-            if (ic) return ic;
+            if (ic && !isGenericCatalogIcon(ic)) return ic;
         }
     }
-    return BRANCH_CHIP_ICON;
+
+    if (fromEntry) return fromEntry;
+    if (fromData) return fromData;
+    if (fromPres) return fromPres;
+    return '';
+}
+
+/**
+ * Icon for a library branch row in Bosque (catalog), not folder nodes inside the map.
+ * @param {{ id?: string, icon?: string, data?: { icon?: string, languages?: Record<string, { icon?: string, content?: string } }, universePresentation?: { icon?: string } } } | null | undefined} branch
+ */
+export function resolveBranchCatalogIcon(branch) {
+    const id = String(branch?.id || '').trim();
+    const fresh = resolveBranchCatalogIconFresh(branch);
+    if (fresh && !isGenericCatalogIcon(fresh)) {
+        if (id) BRANCH_ICON_STICKY.set(id, fresh);
+        return fresh;
+    }
+    if (id && BRANCH_ICON_STICKY.has(id)) return BRANCH_ICON_STICKY.get(id);
+    return fresh || BRANCH_CHIP_ICON;
+}
+
+/**
+ * Persist a resolved non-generic catalog icon onto the branch meta (quiet).
+ * Stops future list passes from falling back to 🌿 when `data` is briefly absent.
+ * @param {{ state?: { branches?: object[] }, markBranchDirty?: Function } | null | undefined} userStore
+ * @param {object | null | undefined} branch
+ */
+export function backfillBranchCatalogIcon(userStore, branch) {
+    const id = String(branch?.id || '').trim();
+    if (!id || !userStore) return;
+    const ic = resolveBranchCatalogIcon(branch);
+    if (!ic || isGenericCatalogIcon(ic)) return;
+    const entry = (userStore.state?.branches || []).find((b) => String(b?.id) === id) || branch;
+    if (!entry) return;
+    if (String(entry.icon || '').trim() === ic) return;
+    entry.icon = ic;
+    try {
+        userStore.markBranchDirty?.(id, { skipAccountSync: true });
+    } catch {
+        /* ignore */
+    }
 }
 
 /**
@@ -73,24 +126,39 @@ export function resolveDirectoryIconForPublish(bundle, extra = null) {
 
 /**
  * Forest emoji for Discover / Saved online rows (directory meta may omit `icon`).
- * Prefer wire icon → local twin / loaded tree → kind glyph.
+ * Prefer wire icon → local twin / loaded tree → sticky → kind glyph.
  *
  * @param {{
  *   icon?: string,
  *   contentKind?: string,
  *   universeId?: string,
+ *   ownerPub?: string,
  *   localBranch?: object|null,
  *   treeJson?: object|null,
  * }} opts
  */
 export function resolveOnlineListingIcon(opts = {}) {
+    const stickyKey = `${String(opts.ownerPub || '').trim()}/${String(opts.universeId || '').trim()}`;
     const wire = normalizeDirectoryCatalogIcon(opts.icon);
-    if (wire) return wire;
+    if (wire && !isGenericCatalogIcon(wire)) {
+        if (stickyKey !== '/') ONLINE_ICON_STICKY.set(stickyKey, wire);
+        return wire;
+    }
     if (opts.localBranch) {
         const fromLocal = resolveBranchCatalogIcon(opts.localBranch);
-        if (fromLocal) return fromLocal;
+        if (fromLocal && !isGenericCatalogIcon(fromLocal)) {
+            if (stickyKey !== '/') ONLINE_ICON_STICKY.set(stickyKey, fromLocal);
+            return fromLocal;
+        }
     }
     const fromTree = resolveDirectoryIconForPublish(opts.treeJson ? { tree: opts.treeJson } : null);
-    if (fromTree) return fromTree;
+    if (fromTree && !isGenericCatalogIcon(fromTree)) {
+        if (stickyKey !== '/') ONLINE_ICON_STICKY.set(stickyKey, fromTree);
+        return fromTree;
+    }
+    if (stickyKey !== '/' && ONLINE_ICON_STICKY.has(stickyKey)) {
+        return ONLINE_ICON_STICKY.get(stickyKey);
+    }
+    if (wire) return wire;
     return kindEmoji(listingKind(opts.contentKind, opts.universeId));
 }

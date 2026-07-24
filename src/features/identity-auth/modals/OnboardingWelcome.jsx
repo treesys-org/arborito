@@ -1,9 +1,9 @@
 import { useIdentityAuth } from '../hooks/useIdentityAuth.js';
 import { ArboritoLogoMark } from '../../shell-chrome/components/sidebar/SidebarMobileMoreMenu.jsx';
 import { shouldShowWebDownloadUi } from '../../../shared/ui/download-app-panel.js';
-import { pickHostUi } from '../../learning/api/electron-bridge.js';
 import { GITHUB_REPO } from '../../../shared/lib/release-downloads.js';
 import { OnboardingLanguage } from './OnboardingLanguage.jsx';
+import { OnboardingMiniPreview } from './OnboardingMiniPreview.jsx';
 
 export function OnboardingWelcome({
     lang,
@@ -13,128 +13,113 @@ export function OnboardingWelcome({
     onOpenPrivacy,
     onOpenAccessibility,
     onOpenDownload,
-    onLocalOnlyIntent,
+    onAccountIntent,
 }) {
     const { ui } = useIdentityAuth();
     const welcome = String(ui.onboardingWelcome || 'Welcome to Arborito').trim() || 'Welcome to Arborito';
-    const tagline = ui.onboardingTagline || 'Learn for free';
-    const body =
-        ui.onboardingBody ||
-        'Learn with knowledge maps (trees). Pick a language and accept the privacy policy to start.';
-    const alphaLbl = String(ui.onboardingBetaWarningHead || 'Alpha 0.1').trim();
-    const githubLbl = String(
-        ui.onboardingGithubCollab || ui.aboutCommunityGithub || 'Contribute on GitHub'
-    ).trim();
-    const privacyHeading = String(ui.onboardingPrivacyHeading || 'Privacy').trim();
-    const privacyText = pickHostUi(
-        ui,
-        'onboardingPrivacyText',
-        'onboardingPrivacyTextApp',
-        'Your progress is saved in this browser. A free account backs it up and syncs it (encrypted).'
-    );
+    const tagline = String(ui.onboardingTagline || 'Learn for free').trim();
     const networkNote = String(
         ui.onboardingNetworkAcceptNote ||
             'By continuing you accept the privacy policy and enable the public network. You can change this later in Privacy & data.'
     ).trim();
-    const privacyReadLbl = String(
-        ui.onboardingPrivacyReadButton || ui.privacyTitle || 'Read privacy policy'
+    const privacyLbl = String(
+        ui.onboardingPrivacyShortLink || ui.onboardingPrivacyHeading || ui.privacyTitle || 'Privacy'
     ).trim();
-    const continueLbl = String(
-        ui.onboardingAcceptAndContinue || ui.onboardingStart || 'Accept and continue'
+    const accountLbl = String(
+        ui.onboardingOnlineAccountCta || ui.onboardingSessionRegister || 'Online account'
     ).trim();
+    const exploreLbl = String(ui.onboardingJustExploreCta || ui.onboardingLaterCta || 'Just explore').trim();
     const a11yLbl = String(ui.onboardingAccessibilityButton || ui.a11yPrefsTitle || 'Accessibility').trim();
-    const appLinkLbl = String(ui.onboardingOptionalAppLink || ui.downloadAppOptionalLink || '').trim();
-    const localOnlyLbl = String(ui.onboardingLocalOnlyLink || 'Continue offline (local only)').trim();
+    const appLinkLbl = String(
+        ui.onboardingAppFootLink || ui.onboardingOptionalAppLink || ui.downloadAppOptionalLink || 'App'
+    )
+        .trim()
+        .replace(/\s*›\s*$/u, '');
+    const alphaLbl = String(ui.onboardingBetaWarningHead || 'Alpha 0.1').trim();
+    const githubTip = String(ui.onboardingGithubCollab || 'Contribute on GitHub').trim();
     const loadingLbl = String(ui.onboardingAdvancing || ui.loading || 'Loading…').trim();
     const showDownload = shouldShowWebDownloadUi();
 
     return (
         <>
-            <div className="arborito-onboarding-hero">
+            <div className="arborito-onboarding-hero arborito-onboarding-hero--quiet">
                 <div className="arborito-onboarding-mascot" aria-hidden="true">
-                    <ArboritoLogoMark size={44} className="arborito-onboarding-logo" />
+                    <ArboritoLogoMark size={36} className="arborito-onboarding-logo" />
                 </div>
                 <h1 className="arborito-onboarding-welcome">{welcome}</h1>
-                <p className="arborito-onboarding-tagline">{tagline}</p>
-                <p className="arborito-onboarding-body">{body}</p>
-                {alphaLbl ? (
-                    <p className="arborito-onboarding-alpha">
-                        <span className="arborito-onboarding-alpha__label">{alphaLbl}</span>
-                        {githubLbl ? (
-                            <a
-                                className="arborito-onboarding-alpha__link"
-                                href={GITHUB_REPO}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                {githubLbl}
-                            </a>
-                        ) : null}
-                    </p>
-                ) : null}
+                {tagline ? <p className="arborito-onboarding-tagline">{tagline}</p> : null}
+                <OnboardingMiniPreview ui={ui} lang={lang} />
             </div>
 
             <OnboardingLanguage lang={lang} onPick={onPickLanguage} />
 
-            {privacyHeading && privacyText ? (
-                <div className="arborito-onboarding-privacy">
-                    <p className="arborito-onboarding-privacy__head">{privacyHeading}</p>
-                    <p className="arborito-onboarding-privacy__text">{privacyText}</p>
-                    {networkNote ? (
-                        <p className="arborito-onboarding-privacy__network m-0 mt-2 text-[11px] leading-snug text-slate-600 dark:text-slate-400">
-                            {networkNote}
-                        </p>
-                    ) : null}
-                    <div className="arborito-onboarding-privacy__links">
-                        <button
-                            type="button"
-                            className="arborito-onboarding-privacy__link"
-                            aria-label={privacyReadLbl}
-                            onClick={onOpenPrivacy}
-                        >
-                            {privacyReadLbl} ›
-                        </button>
-                        <button
-                            type="button"
-                            className="arborito-onboarding-privacy__link"
-                            aria-label={a11yLbl}
-                            onClick={onOpenAccessibility}
-                        >
-                            {a11yLbl} ›
-                        </button>
-                        {showDownload ? (
-                            <button
-                                type="button"
-                                className="arborito-onboarding-privacy__link js-open-download-app"
-                                onClick={onOpenDownload}
-                            >
-                                {appLinkLbl || ui.downloadAppOptionalLink || 'Desktop app (optional) ›'}
-                            </button>
-                        ) : null}
-                    </div>
-                </div>
-            ) : null}
-
             <div className="arborito-onboarding-actions">
+                {onAccountIntent ? (
+                    <button
+                        type="button"
+                        className="btn-onb-start text-sm text-white"
+                        disabled={stepAdvancing}
+                        onClick={() => onAccountIntent()}
+                    >
+                        {accountLbl}
+                    </button>
+                ) : null}
                 <button
                     type="button"
-                    className={`btn-onb-start text-sm text-white${stepAdvancing ? ' btn-onb-start--busy' : ''}`}
+                    className={`btn-onb-skip text-sm${stepAdvancing ? ' btn-onb-skip--busy' : ''}`}
                     disabled={stepAdvancing}
                     aria-busy={stepAdvancing ? 'true' : undefined}
                     onClick={onAcceptAndContinue}
                 >
-                    {stepAdvancing ? loadingLbl : continueLbl}
+                    {stepAdvancing ? loadingLbl : exploreLbl}
                 </button>
-                {onLocalOnlyIntent ? (
-                    <button
-                        type="button"
-                        className="arborito-onboarding-local-only"
-                        disabled={stepAdvancing}
-                        onClick={() => void onLocalOnlyIntent()}
-                    >
-                        {localOnlyLbl}
-                    </button>
+                {networkNote ? (
+                    <p className="arborito-onboarding-legal-note m-0 text-[11px] leading-snug text-slate-600 dark:text-slate-400 text-center">
+                        {networkNote}
+                    </p>
                 ) : null}
+                <div className="arborito-onboarding-foot-links" role="group">
+                    {alphaLbl ? (
+                        <>
+                            <a
+                                className="arborito-onboarding-foot-link arborito-onboarding-foot-link--version"
+                                href={GITHUB_REPO}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title={githubTip}
+                                aria-label={githubTip}
+                            >
+                                {alphaLbl}
+                            </a>
+                            <span className="arborito-onboarding-foot-sep" aria-hidden="true">
+                                ·
+                            </span>
+                        </>
+                    ) : null}
+                    <button type="button" className="arborito-onboarding-foot-link" onClick={onOpenPrivacy}>
+                        {privacyLbl}
+                    </button>
+                    <span className="arborito-onboarding-foot-sep" aria-hidden="true">
+                        ·
+                    </span>
+                    <button type="button" className="arborito-onboarding-foot-link" onClick={onOpenAccessibility}>
+                        {a11yLbl}
+                    </button>
+                    {showDownload ? (
+                        <>
+                            <span className="arborito-onboarding-foot-sep" aria-hidden="true">
+                                ·
+                            </span>
+                            <button
+                                type="button"
+                                className="arborito-onboarding-foot-link js-open-download-app"
+                                onClick={onOpenDownload}
+                            >
+                                {appLinkLbl || 'App'}
+                            </button>
+                        </>
+                    ) : null}
+                </div>
             </div>
         </>
     );

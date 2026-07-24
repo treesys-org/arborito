@@ -1,12 +1,7 @@
 import { useMemo, useState } from 'react';
 import { FormNestedSheet } from '../../../../shared/ui/FormNestedSheet.jsx';
 import { LoadingBrand } from '../../../../shared/ui/Loading.jsx';
-import { getArboritoStore } from '../../../../core/store-singleton.js';
-import {
-    collectBranchExportOptions,
-    collectComposedTreeExportOptions,
-    collectNetworkSourceExportOptions,
-} from '../../../backup-export/api/export-curriculum-archive.js';
+import { useSources } from '../../hooks/useSources.js';
 import { CurriculumLangPicker } from '../../components/CurriculumLangPicker.jsx';
 
 function exportSheetHint(ui, name, multiLang, hasVersions) {
@@ -31,13 +26,8 @@ function exportSheetHint(ui, name, multiLang, hasVersions) {
  * @param {{ ui: Record<string, string>, target: { kind: 'branch'|'tree'|'network', id: string, name?: string }, onCancel: () => void, onConfirm: (opts: { lang: string, scope: 'current'|'all' }) => void, busy?: boolean }} props
  */
 export function ExportCurriculumSheet({ ui, target, onCancel, onConfirm, busy = false }) {
-    const store = getArboritoStore();
-    const options = useMemo(() => {
-        if (!target?.id) return null;
-        if (target.kind === 'tree') return collectComposedTreeExportOptions(store, target.id);
-        if (target.kind === 'network') return collectNetworkSourceExportOptions(store, target.id);
-        return collectBranchExportOptions(store, target.id);
-    }, [store, target]);
+    const { getExportCurriculumOptions } = useSources();
+    const options = useMemo(() => getExportCurriculumOptions(target), [getExportCurriculumOptions, target]);
 
     const langs = options?.languages?.length ? options.languages : ['EN'];
     const multiLang = langs.length > 1;

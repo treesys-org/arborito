@@ -5,7 +5,6 @@ import { EAGER_MODAL_TYPE_KEYS, EAGER_MODAL_TYPE_SET } from './components/eager-
 export const MODAL_EXPORT_NAMES = {
     sources: 'ModalSources',
     search: 'ModalSearch',
-    certificates: 'ModalCertificates',
     'export-pdf': 'ModalExportPdf',
     backup: 'ModalBackup',
     arcade: 'ModalArcade',
@@ -16,6 +15,7 @@ export const MODAL_EXPORT_NAMES = {
     'construction-history': 'ModalConstructionHistory',
     'construction-edit-pick': 'ModalConstructionEditPick',
     contributor: 'ModalContributor',
+    certificates: 'ModalCertificates',
 };
 
 /** @type {Record<string, () => Promise<Record<string, unknown>>>} */
@@ -25,7 +25,6 @@ export const MODAL_CHUNK_LOADERS = {
         return import('../features/sources/modals/SourcesModal.jsx');
     },
     search: () => import('../features/search/modals/SearchModal.jsx'),
-    certificates: () => import('../features/garden-progress/modals/CertificatesModal.jsx'),
     'export-pdf': () => import('../features/backup-export/modals/ExportPdfModal.jsx'),
     backup: () => import('../features/backup-export/modals/BackupModal.jsx'),
     arcade: () => import('../features/arcade/modals/ArcadeModal.jsx'),
@@ -40,6 +39,7 @@ export const MODAL_CHUNK_LOADERS = {
         void import('../features/sources/styles/share-code.css');
         return import('../features/nostr/modals/ContributorModal.jsx');
     },
+    certificates: () => import('../features/garden-progress/modals/CertificatesModal.jsx'),
 };
 
 /** Modals bundled with the shell (see `components/eager-modals.js`). */

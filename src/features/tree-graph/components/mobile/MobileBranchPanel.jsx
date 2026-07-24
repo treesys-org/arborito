@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useTreeGraph } from '../../hooks/useTreeGraph.js';
-import { getArboritoStore } from '../../../../core/store-singleton.js';
 import { fileSystem } from '../../../backup-export/api/filesystem.js';
 import { LoadingBrand } from '../../../../shared/ui/Loading.jsx';
 import { MobilePanelHead } from './MobilePanelHead.jsx';
@@ -11,7 +10,7 @@ import { useVirtualChildWindow } from '../../hooks/useVirtualChildWindow.jsx';
 /** Active branch children panel (right column). */
 export function MobileBranchPanel({ current, harvested, directChildSelected, panelRef, scrollRootRef }) {
     const tree = useTreeGraph();
-    const { ui, graphUi, constructionMode } = tree;
+    const { ui, graphUi, constructionMode, subscribeUserProgressChanged } = tree;
     const children = Array.isArray(current.children) ? current.children : [];
     const isConstruct = !!constructionMode;
     const canWrite = fileSystem.features.canWrite;
@@ -20,12 +19,8 @@ export function MobileBranchPanel({ current, harvested, directChildSelected, pan
     const [recentEpoch, setRecentEpoch] = useState(0);
 
     useEffect(() => {
-        const store = getArboritoStore();
-        if (!store?.addEventListener) return undefined;
-        const onProgress = () => setRecentEpoch((n) => n + 1);
-        store.addEventListener('arborito-user-progress-changed', onProgress);
-        return () => store.removeEventListener('arborito-user-progress-changed', onProgress);
-    }, []);
+        return subscribeUserProgressChanged(() => setRecentEpoch((n) => n + 1));
+    }, [subscribeUserProgressChanged]);
 
     useEffect(() => {
         if (!current?.id) return undefined;

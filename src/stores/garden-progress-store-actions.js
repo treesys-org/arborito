@@ -16,6 +16,7 @@ import {
     buildDiplomaEntries,
     flattenAchievements,
 } from '../features/garden-progress/api/achievement-sections.js';
+import { getAchievementSectionsCached } from '../features/garden-progress/api/achievement-sections-cache.js';
 import { isNostrNetworkAvailable } from '../features/nostr/api/nostr-refs.js';
 import {
     fingerprintProgressPayload,
@@ -163,7 +164,9 @@ export function getAvailableCertificatesAction() {
 export function getAchievementSectionsAction() {
     const store = shell();
     if (!store) return { diplomas: [], trees: [], branches: [] };
-    return buildAchievementSections(store, getModulesStatusAction());
+    return getAchievementSectionsCached(store, () =>
+        buildAchievementSections(store, getModulesStatusAction())
+    );
 }
 
 export function getAllAchievementsAction() {

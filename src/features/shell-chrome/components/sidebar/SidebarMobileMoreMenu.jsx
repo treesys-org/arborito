@@ -3,6 +3,8 @@ import {
     prefetchConstructionShellOnIntent,
 } from '../../../../app/modal-open-bridge.js';
 import { prefetchModal } from '../../../../app/modal-open.js';
+import { getAchievementSectionsAction } from '../../../../stores/garden-progress-store-actions.js';
+import { scheduleIdle } from '../../../../shared/lib/yield-to-paint.js';
 import { LanguageIcon } from '../../../../shared/ui/ArboritoIcons.jsx';
 import { MmenuDrillRow } from '../../../../shared/ui/MmenuChrome.jsx';
 import { MobMoreSheet } from '../../../../shared/ui/MobMoreSheet.jsx';
@@ -153,7 +155,16 @@ export function SidebarMobileMoreMenu({
                             icon="🏆"
                             label={ui.moreMenuRowCertificates || ui.navCertificates}
                             onClick={() => onPushPane('certs')}
-                            onPointerEnter={() => prefetchModal('certificates')}
+                            onPointerEnter={() => {
+                                prefetchModal('certificates');
+                                scheduleIdle(() => {
+                                    try {
+                                        getAchievementSectionsAction();
+                                    } catch {
+                                        /* ignore */
+                                    }
+                                }, 2500);
+                            }}
                             className={certsMoreActive ? 'ring-2 ring-amber-400/45 dark:ring-amber-500/35' : ''}
                         />
                         <hr className="arborito-mmenu-divider" aria-hidden="true" />

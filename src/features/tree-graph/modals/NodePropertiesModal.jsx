@@ -2,7 +2,7 @@ import { useTreeGraph } from '../hooks/useTreeGraph.js';
 import { useEffect, useState } from 'react';
 import { fileSystem } from '../../backup-export/api/filesystem.js';
 import { parseArboritoFile } from '../../editor/api/editor-engine.js';
-import { getNodeMetaTargetPath, persistNodeMetaProperties } from '../api/node-meta-persist.js';
+import { getNodeMetaTargetPath } from '../api/node-meta-persist.js';
 import { canIssueOptionalFolderAchievement } from '../api/logic/graph-node-actions.js';
 import { NodeEmojiPickerGrid } from '../components/shared/NodeEmojiPickerGrid.jsx';
 import { folderDisplayIcon } from '../api/node-property-emojis.js';
@@ -12,22 +12,24 @@ import { ModalCenteredShell, DockModalShell } from '../../../app/components/Moda
 import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
 import { LoadingBrand, LoadingButtonContent } from '../../../shared/ui/Loading.jsx';
 import { resolveLessonBodyForMetaPersist } from '../../learning/api/live-lesson-body.js';
-import { getArboritoStore } from '../../../core/store-singleton.js';
 import { ModalBinaryFooter } from '../../../shared/ui/ModalBinaryFooter.jsx';
 import { MODAL_CTA_CANCEL, modalCtaConfirm } from '../../../shared/ui/modal-action-chrome.js';
 
 export function ModalNodeProperties() {
     const tree = useTreeGraph();
-    const { ui, dismissModal, notify, alert, curriculumEditLang, modal } = tree;
+    const {
+        ui,
+        dismissModal,
+        notify,
+        alert,
+        curriculumEditLang,
+        modal,
+        getCurrentContentLangKey,
+        persistNodeMetaProperties,
+    } = tree;
     const mobile = shouldShowMobileUI();
     const node = modal?.node;
-    const arborito = getArboritoStore();
-    const contentLang =
-        (typeof arborito?.getCurrentContentLangKey === 'function' &&
-            arborito.getCurrentContentLangKey()) ||
-        curriculumEditLang ||
-        arborito?.value?.lang ||
-        'EN';
+    const contentLang = getCurrentContentLangKey() || curriculumEditLang || 'EN';
     const [name, setName] = useState(node?.name ?? '');
     const [icon, setIcon] = useState(node?.icon || '📄');
     const [description, setDescription] = useState(node?.description || '');
@@ -130,19 +132,16 @@ export function ModalNodeProperties() {
                 node.type === 'leaf' || node.type === 'exam'
                     ? resolveLessonBodyForMetaPersist(node) || originalBody
                     : originalBody;
-            await persistNodeMetaProperties(
-                { fileSystem, store: arborito },
-                {
-                    node,
-                    name: trimmed,
-                    icon,
-                    description,
-                    originalMeta,
-                    originalBody: bodyForSave,
-                    isCertifiable: node.type === 'branch' || node.type === 'root' ? isCertifiable : undefined,
-                    skipReload: true,
-                }
-            );
+            await persistNodeMetaProperties({
+                node,
+                name: trimmed,
+                icon,
+                description,
+                originalMeta,
+                originalBody: bodyForSave,
+                isCertifiable: node.type === 'branch' || node.type === 'root' ? isCertifiable : undefined,
+                skipReload: true,
+            });
             setSaving(false);
             setSaved(true);
             setTimeout(() => close(), 800);

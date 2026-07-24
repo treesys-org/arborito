@@ -339,17 +339,8 @@ html.arborito-desktop .arborito-desktop-nav__ic--construct-exit-blink {
 
 html.arborito-desktop .arborito-desktop-nav__btn.is-active,
 html.arborito-desktop .arborito-desktop-nav__btn[aria-current="page"] {
-    border-color: rgb(45 212 191 / 0.55);
-    box-shadow:
-        0 0 0 3px rgb(45 212 191 / 0.18),
-        0 10px 26px -24px rgb(45 212 191 / 0.65);
-}
-html.dark html.arborito-desktop .arborito-desktop-nav__btn.is-active,
-html.dark html.arborito-desktop .arborito-desktop-nav__btn[aria-current="page"] {
-    border-color: rgb(94 234 212 / 0.45);
-    box-shadow:
-        0 0 0 3px rgb(94 234 212 / 0.12),
-        0 10px 26px -24px rgb(0 0 0 / 0.45);
+    border-color: var(--arborito-theme-shell-arborito-desktop-nav-btn-is-active-border-color);
+    box-shadow: var(--arborito-theme-shell-arborito-desktop-nav-btn-is-active-box-shadow);
 }
 
 html.arborito-desktop .arborito-desktop-nav__btn--construct-on.is-active {

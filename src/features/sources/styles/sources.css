@@ -558,17 +558,67 @@ html.dark .arborito-sources-export-scope__option {
     background: var(--arborito-theme-sources-arborito-sources-tree-active-inner-background);
 }
 
-/* Row title — tree/branch name (not section headings) */
+/* Row title — course/branch name leads; tags sit below, quieter. */
 .arborito-sources-row-title {
     margin: 0;
-    font-size: 0.8125rem;
-    line-height: 1.35;
-    font-weight: 600;
+    font-size: 1.05rem;
+    line-height: 1.3;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     color: rgb(30 41 59);
 }
 
 html.dark .arborito-sources-row-title {
     color: rgb(241 245 249);
+}
+
+/* Catalog glyphs — beat foundation `img { max-width:100%; height:auto }` and
+ * any flex/line-clamp crush on the title row. */
+.arborito-sources-row-title__emoji,
+img.arborito-sources-row-title__emoji-img {
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+    width: 1.375rem !important;
+    height: 1.375rem !important;
+    min-width: 1.375rem !important;
+    min-height: 1.375rem !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: contain !important;
+    vertical-align: -0.15em;
+    visibility: visible !important;
+    opacity: 1 !important;
+    overflow: visible;
+    line-height: 0;
+    pointer-events: none;
+}
+
+.arborito-sources-row-title__emoji .arborito-emoji-img,
+.arborito-sources-row-title__emoji img {
+    width: 1.375rem !important;
+    height: 1.375rem !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: contain !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.arborito-sources-row-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.4rem;
+}
+
+.arborito-sources-row-meta .arborito-pill,
+.arborito-sources-row-meta .arborito-pill--chip {
+    font-size: 9px;
+    padding: 0.1rem 0.4rem;
+    line-height: 1.25;
+    font-weight: 700;
 }
 
 button.arborito-sources-row-title--button {
@@ -579,6 +629,10 @@ button.arborito-sources-row-title--button {
     cursor: pointer;
     text-align: left;
     width: 100%;
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+    font-weight: inherit;
 }
 
 #modal-backdrop.arborito-modal-root.arborito-modal--sources.arborito-modal--mobile-fullbleed

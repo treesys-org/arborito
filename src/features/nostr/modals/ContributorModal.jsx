@@ -8,8 +8,6 @@ import { resolveContributorHubViewFromSource } from '../api/contributor-hub-view
 import { isConstructionHubCompact } from '../../editor/api/construction-hub-sheet.js';
 import { fileSystem } from '../../backup-export/api/filesystem.js';
 import { getAuthSessionAction } from '../../../stores/identity-store-actions.js';
-import { getArboritoStore } from '../../../core/store-singleton.js';
-import { openPublishHub } from '../../publishing/api/account-hub-gate.js';
 
 /** Team / governance hub, collaborators, links, publish CTA. */
 export function ModalContributor({ dockHost = false, instantReveal = false }) {
@@ -27,6 +25,7 @@ export function ModalContributor({ dockHost = false, instantReveal = false }) {
         getMyTreeNetworkRole,
         inviteNostrCollaborator,
         removeNostrCollaborator,
+        openPublishHub,
     } = nostr;
     const accountUsername = String(getAuthSessionAction()?.username || '').trim();
     const mobile = shouldShowMobileUI();
@@ -52,7 +51,7 @@ export function ModalContributor({ dockHost = false, instantReveal = false }) {
 
     const openPublishFromTeam = () => {
         dismissModal();
-        void openPublishHub(getArboritoStore());
+        void openPublishHub();
     };
 
     const footer =

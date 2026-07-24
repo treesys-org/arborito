@@ -4,6 +4,7 @@ import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 import { DockModalShell, ModalCenteredShell } from '../../../app/components/ModalShell.jsx';
 import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
 import { MODAL_CTA_CANCEL, modalCtaConfirmFull } from '../../../shared/ui/modal-action-chrome.js';
+import { Callout } from '../../../shared/ui/Callout.jsx';
 
 function alertSummary(ui, alert) {
     const title = String(alert?.title || '').trim() || ui.creatorModerationAlertUntitled || 'Published tree';
@@ -94,23 +95,17 @@ export function ModalCreatorModerationAlerts() {
             ) : (
                 <ul className="list-none m-0 p-0 flex flex-col gap-3">
                     {items.map(({ alert, title, body: itemBody }) => (
-                        <li
-                            key={alert.id}
-                            className={`rounded-2xl border px-3 py-3 ${
-                                alert.read
-                                    ? 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900'
-                                    : 'border-amber-200 dark:border-amber-800 bg-amber-50/80 dark:bg-amber-950/30'
-                            }`}
-                        >
-                            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 m-0 mb-1">{title}</p>
-                            <p className="text-xs text-slate-600 dark:text-slate-300 m-0 mb-2 leading-relaxed">
-                                {itemBody}
-                            </p>
-                            {alert.shareCode ? (
-                                <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400 m-0">
-                                    #{alert.shareCode}
-                                </p>
-                            ) : null}
+                        <li key={alert.id} className="list-none m-0 p-0">
+                            <Callout
+                                tone={alert.read ? 'slate' : 'amber'}
+                                title={title}
+                                extraClass="rounded-2xl"
+                            >
+                                <p className="arborito-callout__body m-0 mb-2 leading-relaxed">{itemBody}</p>
+                                {alert.shareCode ? (
+                                    <p className="text-[11px] font-mono opacity-80 m-0">#{alert.shareCode}</p>
+                                ) : null}
+                            </Callout>
                         </li>
                     ))}
                 </ul>

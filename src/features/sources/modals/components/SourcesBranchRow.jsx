@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { DEMO_BRANCH_ID } from '../../../../core/demo/arborito-demo-ids.js';
 import { metricsForPublishedUrl } from '../../api/modals/logic/sources-directory-fetch.js';
 import { SourcesPill } from './SourcesPill.jsx';
@@ -6,13 +7,16 @@ import { SourcesMoreButton } from './SourcesRowChrome.jsx';
 import { SourcesShareCodeField } from './SourcesShareCodeField.jsx';
 import { SourcesSocialMetrics } from './SourcesSocialMetrics.jsx';
 import { usePublishedShareCode } from '../../hooks/usePublishedShareCode.js';
-import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
-import { resolveBranchCatalogIcon } from '../../api/branch-catalog-icon.js';
+import {
+    backfillBranchCatalogIcon,
+    resolveBranchCatalogIcon,
+} from '../../api/branch-catalog-icon.js';
+import { CatalogRowEmoji } from './CatalogRowEmoji.jsx';
 import { SwitchRow } from '../../../../shared/ui/SwitchRow.jsx';
 import { useSourcesStore, useSources } from '../../hooks/useSources.js';
 import { hasGdprNetworkConsent } from '../../../../shared/lib/connected-services/index.js';
 import { SourcesMenuPrefs } from './SourcesMenuPrefs.jsx';
-import { pickTitleForLang, titlesFromTreeLanguages } from '../../../../shared/lib/catalog-titles.js';
+import { pickTitleForLang, titlesFromTreeLanguages, descriptionsFromTreeLanguages } from '../../../../shared/lib/catalog-titles.js';
 
 export function SourcesBranchRow({
     branch,
@@ -62,6 +66,17 @@ export function SourcesBranchRow({
         pickTitleForLang(titlesFromTreeLanguages(branch?.data), lang, '') ||
         String(branch?.name || '').trim() ||
         '—';
+    const displayDesc =
+        pickTitleForLang(descriptionsFromTreeLanguages(branch?.data), lang, '') ||
+        String(branch?.data?.description || '').trim();
+
+    useEffect(() => {
+        try {
+            backfillBranchCatalogIcon(store?.userStore, branch);
+        } catch {
+            /* ignore */
+        }
+    }, [store, branch]);
 
     return (
         <div
@@ -70,15 +85,16 @@ export function SourcesBranchRow({
         >
             <div className="arborito-sources-row-layout flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap gap-2 items-center">
-                        <p className="arborito-sources-row-title truncate flex items-center gap-1.5 min-w-0">
-                            <ChromeEmoji
-                                emoji={branchIcon}
-                                size={18}
-                                className="arborito-emoji-glyph shrink-0"
-                            />
-                            <span className="truncate">{displayName}</span>
+                    <p className="arborito-sources-row-title flex items-center gap-2 min-w-0">
+                        <CatalogRowEmoji emoji={branchIcon} size={22} />
+                        <span className="truncate">{displayName}</span>
+                    </p>
+                    {displayDesc ? (
+                        <p className="m-0 mt-1.5 text-[11px] text-slate-600 dark:text-slate-300 leading-snug line-clamp-3">
+                            {displayDesc}
                         </p>
+                    ) : null}
+                    <div className="arborito-sources-row-meta">
                         <SourcesPill className="arborito-pill--emerald arborito-pill--bordered">
                             {ui.sourcesPillBranch || 'Branch'}
                         </SourcesPill>
@@ -93,7 +109,7 @@ export function SourcesBranchRow({
                             </SourcesPill>
                         ) : null}
                         {isPublishedOwner ? (
-                            <SourcesPill className="bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-100 border-amber-200 dark:border-amber-800/60">
+                            <SourcesPill className="arborito-pill--amber arborito-pill--bordered">
                                 {ui.sourcesPillOwner || 'Owner'}
                             </SourcesPill>
                         ) : null}

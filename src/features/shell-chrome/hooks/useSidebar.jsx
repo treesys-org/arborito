@@ -1,31 +1,62 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useShellChrome } from '../../hooks/useShellChrome.js';
-import { useShellMobileChromeSync } from '../../hooks/useShellMobileChromeSync.js';
-import { useRegisterPanel } from '../../../../app/hooks/useRegisterPanel.js';
-import { getPanelRef } from '../../../../app/panel-refs.js';
-import { curriculumBaseName } from '../../../version-updates/api/version-switch-logic.js';
+import { useShellChrome } from './useShellChrome.js';
+import { useShellMobileChromeSync } from './useShellMobileChromeSync.js';
+import { useRegisterPanel } from '../../../app/hooks/useRegisterPanel.js';
+import { getPanelRef } from '../../../app/panel-refs.js';
+import { curriculumBaseName } from '../../version-updates/api/version-switch-logic.js';
 import {
     initMobileDetection,
     useDockModalChrome,
     useViewportShell,
-} from '../../../../shared/ui/breakpoints.js';
-import { closeProgressWidgetIfOpenOnStore } from '../../../../stores/shell-sage-lifecycle.js';
-import { getArboritoStore } from '../../../../core/store-singleton.js';
+} from '../../../shared/ui/breakpoints.js';
+import { closeProgressWidgetIfOpenOnStore } from '../../../stores/shell-sage-lifecycle.js';
+import { getArboritoStore } from '../../../core/store-singleton.js';
 import {
     prefetchAboutModalChunk,
     prefetchCertificatesModalChunk,
-    ensureCertificatesModalChunk,
-} from '../../../../shared/lib/lazy-stylesheet.js';
+} from '../../../shared/lib/lazy-stylesheet.js';
 import {
     prefetchProfileMenuOnIntent,
     prefetchConstructionShellOnIntent,
     prefetchMobileMenuModalChunks,
-} from '../../../../app/modal-open-bridge.js';
-import { prefetchModal } from '../../../../app/modal-open.js';
-import { shouldShowWebDownloadUi } from '../../../../shared/ui/download-app-panel.js';
-import { countCareDue } from '../../../garden-progress/api/care-reminders.js';
+} from '../../../app/modal-open-bridge.js';
+import { prefetchModal } from '../../../app/modal-open.js';
+import { shouldShowWebDownloadUi } from '../../../shared/ui/download-app-panel.js';
+import { countCareDue } from '../../garden-progress/api/care-reminders.js';
+import { getAchievementSectionsAction } from '../../../stores/garden-progress-store-actions.js';
+import { scheduleIdle } from '../../../shared/lib/yield-to-paint.js';
 
 initMobileDetection();
+
+function warmCertificatesListIdle() {
+    scheduleIdle(() => {
+        try {
+            getAchievementSectionsAction();
+        } catch {
+            /* ignore */
+        }
+    }, 2500);
+}
+
+function hideCertificatesEmbedNow() {
+    try {
+        document
+            .querySelector('[data-arborito-embed-host="certificates"]')
+            ?.style.setProperty('display', 'none');
+    } catch {
+        /* ignore */
+    }
+}
+
+function clearCertificatesEmbedHide() {
+    try {
+        document
+            .querySelector('[data-arborito-embed-host="certificates"]')
+            ?.style.removeProperty('display');
+    } catch {
+        /* ignore */
+    }
+}
 
 const DRILL_PANES = new Set(['language', 'about', 'sources', 'certs', 'community']);
 
@@ -88,6 +119,7 @@ export function useSidebar() {
 
     const openMobileMoreMenu = useCallback(() => {
         prefetchMobileMenuModalChunks();
+        warmCertificatesListIdle();
         setMobileMenuOpen(true);
         setMobileMenuStack([]);
         setMmenuFreshEnter(false);
@@ -101,6 +133,7 @@ export function useSidebar() {
     }, []);
 
     const pushMmenuPaneRef = useRef(async () => {});
+    const mobileMenuGoBackRef = useRef(() => {});
 
     const panelApi = useMemo(
         () => ({
@@ -110,6 +143,7 @@ export function useSidebar() {
             closeMobileMenuIfOpen,
             openMobileMoreMenu,
             pushMmenuPane: (pane) => void pushMmenuPaneRef.current?.(pane),
+            mobileMenuGoBack: () => mobileMenuGoBackRef.current?.(),
             setForumEmbedSubNavOpen,
             requestRender,
             render() {
@@ -207,15 +241,18 @@ export function useSidebar() {
             const forum = getPanelRef('modal-forum');
             if (forum?.handleMoreBack?.()) return;
         }
+        if (pane === 'certs') hideCertificatesEmbedNow();
         setMobileMenuStack((s) => {
             if (s.length > 0) {
-                setMmenuPaneDir('back');
+                /* Achievements close must feel instant (no slide-back). */
+                setMmenuPaneDir(pane === 'certs' ? '' : 'back');
                 return s.slice(0, -1);
             }
             setMobileMenuOpen(false);
             return [];
         });
     }, []);
+    mobileMenuGoBackRef.current = mobileMenuGoBack;
 
     const pushMmenuPane = useCallback(async (pane) => {
         if (pane === 'sources') {
@@ -232,8 +269,12 @@ export function useSidebar() {
         }
         if (pane === 'about') prefetchAboutModalChunk();
         if (pane === 'certs') {
+            /* Open pane immediately; list fills after paint (spinner if cold). */
             prefetchCertificatesModalChunk();
-            await ensureCertificatesModalChunk();
+            clearCertificatesEmbedHide();
+            setMmenuPaneDir('');
+            setMobileMenuStack([pane]);
+            return;
         }
         if (pane === 'forum') prefetchModal('forum');
         if (pane === 'celebration') prefetchModal('celebration-prefs');

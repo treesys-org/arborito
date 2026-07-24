@@ -8,13 +8,11 @@ import {
     panelShowsBranchVersionChip,
     resolveActiveSourceVersionLabel,
 } from '../../../version-updates/api/version-switch-logic.js';
-import { resolveOpenTreeOwnerDisplay } from '../../api/tree-owner-display.js';
 import { resolveBranchPanelIcon } from '../../api/logic/graph-mobile-panel-helpers.js';
 import { resolveActiveShareContext } from '../../../sources/api/published-share-context.js';
 import { shareTreeLink } from '../../../sources/api/share-tree-link.js';
 import { SourcesShareCodeField } from '../../../sources/modals/components/SourcesShareCodeField.jsx';
 import { usePublishedShareCode } from '../../../sources/hooks/usePublishedShareCode.js';
-import { getArboritoStore } from '../../../../core/store-singleton.js';
 
 function resolvePanelVersionLabel(ui, current, tree) {
     const branchId = current?._composedBranchId ? String(current._composedBranchId) : '';
@@ -84,7 +82,7 @@ function PanelSwitcherChipInner({ ui, current, activeSource, availableReleases, 
     if (!vp.isLocal && src?.url) {
         try {
             const treeRef = parseNostrTreeUrl(String(src.url || ''));
-            const owner = resolveOpenTreeOwnerDisplay(getArboritoStore(), treeRef?.pub);
+            const owner = tree.resolveOpenTreeOwnerDisplay?.(treeRef?.pub);
             if (owner?.label) {
                 authorLine = `${ui.sourcesGlobalBy || 'by'} ${owner.label}`;
             }

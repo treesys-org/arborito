@@ -13,7 +13,7 @@ function stripHtml(html) {
     return htmlToPlainText(html).replace(/\n+/g, ' ').trim();
 }
 
-function plainBlockText(block, skippedLabel) {
+function plainBlockText(block) {
     switch (block?.type) {
         case 'h1':
         case 'section':
@@ -34,12 +34,13 @@ function plainBlockText(block, skippedLabel) {
         case 'code':
             return String(block.text || '').trim();
         case 'image':
-            return String(block.caption || '').trim() || `[${skippedLabel}]`;
+            /* Caption only — never invent a placeholder page of “omitted” text. */
+            return String(block.caption || '').trim();
         case 'quiz':
         case 'game':
         case 'video':
         case 'audio':
-            return skippedLabel;
+            return '';
         default:
             return '';
     }
@@ -122,7 +123,7 @@ function drawCover(doc, { title, lessonCount, treeMeta, disclaimerTitle, disclai
     doc.text(stripHtml(footerName), cx, PAGE_H - MARGIN - 8, { align: 'center' });
 }
 
-function drawLesson(doc, state, { lessonTitle, path, blocks, skippedLabel }) {
+function drawLesson(doc, state, { lessonTitle, path, blocks }) {
     ensureSpace(doc, state, 24);
     doc.setDrawColor(4, 120, 87);
     doc.setLineWidth(0.6);
@@ -144,7 +145,7 @@ function drawLesson(doc, state, { lessonTitle, path, blocks, skippedLabel }) {
     }
 
     for (const block of blocks || []) {
-        const text = plainBlockText(block, skippedLabel);
+        const text = plainBlockText(block);
         if (!text) continue;
         const style = blockStyle(block);
 
@@ -217,7 +218,6 @@ export async function generateLessonPdfBlob({
 }) {
     const jsPDF = await loadJsPdf();
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-    const skipped = String(ui.pdfSkippedBlock || '[Interactive content omitted from print]');
 
     drawCover(doc, {
         title: String(mainTitle || 'Export'),
@@ -240,7 +240,6 @@ export async function generateLessonPdfBlob({
             lessonTitle: String(node.name || 'Lesson'),
             path: node.path ? String(node.path) : '',
             blocks,
-            skippedLabel: skipped,
         });
     }
 

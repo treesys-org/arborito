@@ -16,6 +16,10 @@ import {
     resolveBranchPanelIcon,
     resolvePanelTreeIcon as resolvePanelTreeIconPure,
 } from '../api/logic/graph-mobile-panel-helpers.js';
+import { schedulePersistTreeUiState as schedulePersistTreeUiStatePure } from '../api/tree-ui-persist.js';
+import { resolveOpenTreeOwnerDisplay as resolveOpenTreeOwnerDisplayPure } from '../api/tree-owner-display.js';
+import { persistNodeMetaProperties as persistNodeMetaPropertiesPure } from '../api/node-meta-persist.js';
+import { fileSystem } from '../../backup-export/api/filesystem.js';
 
 /**
  * Árbol, grafo, curriculum, construcción.
@@ -140,6 +144,28 @@ export function useTreeGraph() {
     );
     const startPanelTitleRename = useCallback((...a) => treeGraphActions.startPanelTitleRename(...a), []);
     const wireInlineRenameInput = useCallback((...a) => treeGraphActions.wireInlineRenameInput(...a), []);
+    const schedulePersistTreeUiState = useCallback(() => schedulePersistTreeUiStatePure(store), []);
+    const resolveOpenTreeOwnerDisplay = useCallback(
+        (ownerPub) => resolveOpenTreeOwnerDisplayPure(store, ownerPub),
+        []
+    );
+    const getCurrentContentLangKey = useCallback(
+        () =>
+            (typeof store.getCurrentContentLangKey === 'function' && store.getCurrentContentLangKey()) ||
+            curriculumEditLang ||
+            store.value?.lang ||
+            'EN',
+        [curriculumEditLang]
+    );
+    const getNostrPublisherPair = useCallback((pub) => store.getNostrPublisherPair?.(pub), []);
+    const subscribeUserProgressChanged = useCallback((handler) => {
+        store?.addEventListener?.('arborito-user-progress-changed', handler);
+        return () => store?.removeEventListener?.('arborito-user-progress-changed', handler);
+    }, []);
+    const persistNodeMetaProperties = useCallback(
+        (opts) => persistNodeMetaPropertiesPure({ fileSystem, store }, opts),
+        []
+    );
 
     return {
         ui,
@@ -212,6 +238,12 @@ export function useTreeGraph() {
         startConstructionRename,
         startPanelTitleRename,
         wireInlineRenameInput,
+        schedulePersistTreeUiState,
+        resolveOpenTreeOwnerDisplay,
+        getCurrentContentLangKey,
+        getNostrPublisherPair,
+        subscribeUserProgressChanged,
+        persistNodeMetaProperties,
         dismissModal,
         setModal,
         notify,

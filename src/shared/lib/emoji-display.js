@@ -28,34 +28,28 @@
 import { escHtml, escAttr } from './html-escape.js';
 import { emojiToTwemojiCandidates, EMOJI_IN_TEXT_RE } from './emoji-twemoji.js';
 import { getPanelRef } from '../../app/panel-refs.js';
+import {
+    TWEMOJI_DATAURI as TWEMOJI_DATAURI_INLINE,
+    TWEMOJI_DATAURI_ALIAS as TWEMOJI_DATAURI_ALIAS_INLINE,
+} from './twemoji-datauri.js';
 
 const FONTS_BASE = new URL(/* @vite-ignore */ '../../../vendor/fonts/', import.meta.url);
 const TWEMOJI_BASE = new URL(/* @vite-ignore */ '../../../vendor/emoji/twemoji/72x72/', import.meta.url);
 const TWEMOJI_IMG_DIR = 'vendor/emoji/twemoji/72x72';
 const NOTO_TTF = 'NotoColorEmoji.ttf';
 
-/** @type {Record<string, string>|null} */
-let TWEMOJI_DATAURI = null;
-/** @type {Record<string, string>|null} */
-let TWEMOJI_DATAURI_ALIAS = null;
-/** @type {Promise<void>|null} */
-let twemojiBundlePromise = null;
+/**
+ * Inlined Twemoji from first paint (sync). Keep a single static import — a
+ * parallel dynamic import() only triggered Vite's dual-import warning and never
+ * moved the module to another chunk.
+ * @type {Record<string, string>}
+ */
+let TWEMOJI_DATAURI = TWEMOJI_DATAURI_INLINE || {};
+/** @type {Record<string, string>} */
+let TWEMOJI_DATAURI_ALIAS = TWEMOJI_DATAURI_ALIAS_INLINE || {};
 
 function ensureTwemojiBundle() {
-    if (TWEMOJI_DATAURI) return Promise.resolve();
-    if (!twemojiBundlePromise) {
-        twemojiBundlePromise = import('./twemoji-datauri.js')
-            .then((mod) => {
-                TWEMOJI_DATAURI = mod.TWEMOJI_DATAURI;
-                TWEMOJI_DATAURI_ALIAS = mod.TWEMOJI_DATAURI_ALIAS;
-            })
-            .catch((e) => {
-                console.warn('[Arborito] twemoji bundle load failed', e);
-                TWEMOJI_DATAURI = {};
-                TWEMOJI_DATAURI_ALIAS = {};
-            });
-    }
-    return twemojiBundlePromise;
+    return Promise.resolve();
 }
 
 let emojiInitDone = false;
@@ -91,13 +85,14 @@ function faceSrcUrl(file) {
 }
 
 function twemojiAssetUrl(file) {
-    if (TWEMOJI_DATAURI) {
-        const inline = TWEMOJI_DATAURI[file]
-            || (TWEMOJI_DATAURI_ALIAS && TWEMOJI_DATAURI_ALIAS[file]
-                ? TWEMOJI_DATAURI[TWEMOJI_DATAURI_ALIAS[file]]
-                : null);
-        if (inline) return inline;
-    }
+    const inline =
+        (TWEMOJI_DATAURI && TWEMOJI_DATAURI[file]) ||
+        (TWEMOJI_DATAURI_ALIAS &&
+            TWEMOJI_DATAURI_ALIAS[file] &&
+            TWEMOJI_DATAURI &&
+            TWEMOJI_DATAURI[TWEMOJI_DATAURI_ALIAS[file]]) ||
+        null;
+    if (inline) return inline;
     const resolveAsset = typeof window !== 'undefined' && window.arboritoElectron?.resolveAsset;
     if (resolveAsset) {
         const href = resolveAsset(`${TWEMOJI_IMG_DIR}/${file}`);

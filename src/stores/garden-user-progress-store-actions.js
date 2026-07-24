@@ -6,6 +6,7 @@ import { updateCareOnLessonCompleteFallback } from '../features/garden-progress/
 import { celebrate } from '../features/garden-progress/api/celebration.js';
 import { buildBranchExportAttribution } from '../shared/lib/arborito-attribution.js';
 import { notifyUserProgressChanged, notifyIdentityChanged } from './store-notify.js';
+import { maybeOfferGuestAccountAfterProgress } from '../features/identity-auth/api/guest-account-progress-offer.js';
 
 function shell() {
     return getArboritoStore();
@@ -122,6 +123,9 @@ export function markCompleteAction(nodeId, forceState = null, options = {}) {
     notifyUserProgressChanged(store);
     store.dispatchEvent(new CustomEvent('graph-update'));
     checkForModuleCompletionAction(nodeId);
+    if (xpResult && store.userStore.isCompleted(nodeId)) {
+        void maybeOfferGuestAccountAfterProgress(store);
+    }
 }
 
 export function markExamExemptSiblingLeavesAction(examNodeId) {

@@ -10,7 +10,6 @@ import {
     onGdprNetworkConsentChanged,
     withdrawGdprNetworkConsent,
 } from '../../../shared/lib/connected-services/index.js';
-import { getArboritoStore } from '../../../core/store-singleton.js';
 import { NostrRelayEditor } from '../../nostr/components/NostrRelayEditor.jsx';
 import { NetworkOnlineStatus } from '../components/NetworkOnlineStatus.jsx';
 
@@ -19,7 +18,7 @@ import { NetworkOnlineStatus } from '../components/NetworkOnlineStatus.jsx';
  *   previewPending — onboarding privacy read-only: show Online ON (frozen) before consent is granted.
  */
 export function ProfileNetworkRelays({ previewPending = false } = {}) {
-    const { ui, notify, identityActions, acknowledge } = useIdentityAuth();
+    const { ui, notify, identityActions, acknowledge, cancelPendingAccountSyncTimers } = useIdentityAuth();
     const [networkOn, setNetworkOn] = useState(() =>
         previewPending ? true : hasGdprNetworkConsent()
     );
@@ -90,11 +89,7 @@ export function ProfileNetworkRelays({ previewPending = false } = {}) {
         if (!ok) return;
         withdrawGdprNetworkConsent();
         identityActions?.setNostrRelayUrls?.([]);
-        try {
-            getArboritoStore()?.cancelPendingAccountSyncTimers?.();
-        } catch {
-            /* ignore */
-        }
+        cancelPendingAccountSyncTimers();
         setEditorOpen(false);
         setNetworkOn(false);
         refresh();

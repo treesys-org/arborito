@@ -10,7 +10,6 @@ import { shareTreeLink } from '../../sources/api/share-tree-link.js';
 import { buildPublicShareAppUrl } from '../../../shared/lib/public-app-url.js';
 import { SourcesShareCodeField } from '../../sources/modals/components/SourcesShareCodeField.jsx';
 import { resolveBranchRefDisplayNames } from '../../forest/api/tree-branch-labels.js';
-import { getArboritoStore } from '../../../core/store-singleton.js';
 
 function formatDate(ts) {
     if (!ts || !Number.isFinite(Number(ts))) return ': ';
@@ -23,8 +22,7 @@ function formatDate(ts) {
 
 /** Summary block: status, code, languages, forum, branches, above health metrics. */
 export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
-    const { ui, activeSource, rawGraphData, userStore } = useTreeGraph();
-    const store = getArboritoStore();
+    const { ui, activeSource, rawGraphData, userStore, getNostrPublisherPair } = useTreeGraph();
     const ctx = resolveActiveShareContext(activeSource, userStore, rawGraphData);
     const { shareOpts, localEntry, publishedNetworkUrl } = ctx;
     const [shareCode, setShareCode] = useState(() => String(ctx.shareCode || '').trim());
@@ -65,7 +63,7 @@ export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
         isPublished &&
         isPublishedResourceOwner(
             localEntry || { publishedNetworkUrl: publishedNetworkUrl || activeSource?.url },
-            store?.getNostrPublisherPair?.bind(store)
+            getNostrPublisherPair
         );
 
     const langs =

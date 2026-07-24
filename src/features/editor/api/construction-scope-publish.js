@@ -183,7 +183,8 @@ export function resolveScopePublishButton(ui, opts = {}) {
         note: pubNote,
         icon: pubIcon,
         busy: pubBusy,
-        disabled: pubBusy || isUpToDate,
+        /* Keep clickable when up to date so the hub still opens (share / unpublish). */
+        disabled: pubBusy,
         variant: pubActsAsUnpublish ? 'danger' : isUpdate ? 'update' : 'publish',
         actsAsUnpublish: pubActsAsUnpublish,
         isUpdate,

@@ -4,7 +4,7 @@ import { MmenuRootHero } from '../../../shared/ui/MmenuChrome.jsx';
 import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 import { LessonTocSheet } from './LessonTocSheet.jsx';
 import { TocReadRow, TocConstructRow } from './LessonTocRows.jsx';
-import { useLessonTocDrag } from './useLessonTocDrag.js';
+import { useLessonTocDrag } from '../hooks/useLessonTocDrag.js';
 import {
     isTocSectionAccessible,
     EXAM_FINAL_TOC_ID,
@@ -26,7 +26,7 @@ import {
     getTocRowStyle,
     getTocListDisplay,
     getTocPathBadge,
-} from './lesson-toc-row-utils.js';
+} from '../api/lesson-toc-row-utils.js';
 
 /** TOC sheet (filter + nav list). */
 export function LessonToc({

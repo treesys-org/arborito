@@ -9,9 +9,9 @@ import { SourcesShareCodeField } from './SourcesShareCodeField.jsx';
 import { SwitchRow } from '../../../../shared/ui/SwitchRow.jsx';
 import { isElectronDesktop } from '../../../learning/api/electron-bridge.js';
 import { SourcesMenuPrefs } from './SourcesMenuPrefs.jsx';
-import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
 import { listingKind } from '../../api/sources-kind-ui.js';
 import { resolveOnlineListingIcon } from '../../api/branch-catalog-icon.js';
+import { CatalogRowEmoji } from './CatalogRowEmoji.jsx';
 
 export function SourcesSavedRow({
     source,
@@ -75,6 +75,7 @@ export function SourcesSavedRow({
         icon: source?.icon,
         contentKind: source?.contentKind,
         universeId: treeRef?.universeId,
+        ownerPub: treeRef?.pub,
         treeJson: activeMatches ? store.state?.rawGraphData : null,
     });
     const showLoad = !(isActive || pinned);
@@ -146,15 +147,21 @@ export function SourcesSavedRow({
         >
             <div className="arborito-sources-row-layout flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap gap-2 items-center">
-                        <p className="arborito-sources-row-title leading-snug line-clamp-2 flex items-center gap-1.5 min-w-0">
-                            <ChromeEmoji
-                                emoji={rowEmoji}
-                                size={18}
-                                className="arborito-emoji-glyph shrink-0"
-                            />
-                            <span className="min-w-0">{title}</span>
+                    <p className="arborito-sources-row-title leading-snug flex items-center gap-2 min-w-0">
+                        <CatalogRowEmoji emoji={rowEmoji} size={22} />
+                        <span className="min-w-0 line-clamp-2">{title}</span>
+                    </p>
+                    {author ? (
+                        <p className="m-0 mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
+                            {ui.sourcesGlobalBy || 'by'} {author}
                         </p>
+                    ) : null}
+                    {desc ? (
+                        <p className="m-0 mt-2 text-[11px] text-slate-600 dark:text-slate-300 leading-snug line-clamp-3">
+                            {desc}
+                        </p>
+                    ) : null}
+                    <div className="arborito-sources-row-meta">
                         {!pinned ? (
                             <SourcesPill className="arborito-pill--purple arborito-pill--bordered">
                                 {ui.sourcesPillSaved || 'Guardado'}
@@ -193,16 +200,6 @@ export function SourcesSavedRow({
                                 })
                             }
                         />
-                    ) : null}
-                    {author ? (
-                        <p className="m-0 mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
-                            {ui.sourcesGlobalBy || 'by'} {author}
-                        </p>
-                    ) : null}
-                    {desc ? (
-                        <p className="m-0 mt-2 text-[11px] text-slate-600 dark:text-slate-300 leading-snug line-clamp-3">
-                            {desc}
-                        </p>
                     ) : null}
                 </div>
                 <aside className="arborito-sources-row-aside">

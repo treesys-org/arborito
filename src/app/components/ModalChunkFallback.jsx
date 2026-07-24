@@ -13,6 +13,7 @@ import { useSourcesSlice } from '../../stores/sources-store.js';
 import { getUserStoreAction } from '../../stores/identity-store-actions.js';
 import { nostrActions } from '../../stores/nostr-store.js';
 import { resolveContributorHubViewFromSource } from '../../features/nostr/api/contributor-hub-view.js';
+import { useShellModalActions } from '../hooks/useShell.js';
 
 function LoadingPanel({ label, tone = 'sky' }) {
     const toneCls =
@@ -107,6 +108,8 @@ function ForumChunkFallback({ ui, mobile }) {
 }
 
 function CertificatesChunkFallback({ ui, mobile }) {
+    const { leaveCertificatesView } = useShellModalActions();
+    const close = () => leaveCertificatesView();
     return (
         <DockModalShell
             mobile={mobile}
@@ -119,10 +122,19 @@ function CertificatesChunkFallback({ ui, mobile }) {
                     titleId="modal-title-text"
                     subtitle={ui.certificatesTagline || 'Logros y diplomas'}
                     leadingIcon="🏆"
+                    backTagClass="btn-close-certs-mob"
+                    closeTagClass="btn-close-certs"
+                    onClose={close}
                 />
             }
             skipBodyWrap
-            shellOpts={{ rootFlags: 'arborito-modal--certificates-hub', z: 200 }}
+            shellOpts={{
+                rootFlags: 'arborito-modal--certificates-hub',
+                z: 200,
+                instantOpen: true,
+                enter: 'instant',
+            }}
+            onBackdropClick={close}
         >
             <div className="flex flex-col min-h-0 flex-1">
                 <LoadingPanel label={ui.loading} tone="sky" />

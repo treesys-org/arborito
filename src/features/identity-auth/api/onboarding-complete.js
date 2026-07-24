@@ -32,7 +32,8 @@ export function completeOnboardingWizard(store, opts = {}) {
     const returnStep = Number(opts.returnStep) === 1 ? 1 : 2;
     const fromOnboarding = { step: returnStep, view: 'start' };
     if (opts.localOnly) fromOnboarding.showLocalModeBanner = true;
-    if (opts.guest) fromOnboarding.showGuestSyncHint = true;
+    /* Guest sync / account hint is deferred until first lesson progress (not at Biblioteca). */
+    if (opts.guest && opts.showGuestSyncHint) fromOnboarding.showGuestSyncHint = true;
     store.setModal({
         type: 'sources',
         instantOpen: true,

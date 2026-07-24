@@ -6,6 +6,7 @@ import { MobDockBar } from '../../../../shared/ui/MobDockBar.jsx';
 import { MobDockTab } from '../../../../shared/ui/MobDockTab.jsx';
 import { ArboritoLogoMark } from './SidebarMobileMoreMenu.jsx';
 import { CreatorModerationBell } from './CreatorModerationBell.jsx';
+import { GuestAccountHintBadge } from './GuestAccountHintBadge.jsx';
 
 export function SidebarMobileTopActions({ ui, chrome }) {
     const { setModal, toggleTheme, modal } = useShellChrome();
@@ -28,19 +29,22 @@ export function SidebarMobileTopActions({ ui, chrome }) {
             role="toolbar"
             aria-label={`${ui.navProfile || 'Profile'} · ${ui.progressTitle || 'Progress'} · ${ui.themeToggle || 'Theme'}`}
         >
-            <button
-                type="button"
-                className="arborito-mob-top-actions__btn arborito-mob-top-actions__btn--profile js-btn-mobile-profile"
-                data-arbor-tour="mob-profile"
-                aria-label={mobProfileChipLabel}
-                onPointerEnter={() => prefetchModal('profile')}
-                onClick={openProfile}
-            >
-                <span className="arborito-mob-top-actions__profile-ic" aria-hidden="true">
-                    <ChromeEmoji emoji={g.avatar || '👤'} size={20} />
-                </span>
-                <span className="arborito-mob-top-actions__profile-name">{mobProfileChipLabel}</span>
-            </button>
+            <div className="arborito-guest-account-hint-host">
+                <button
+                    type="button"
+                    className="arborito-mob-top-actions__btn arborito-mob-top-actions__btn--profile js-btn-mobile-profile"
+                    data-arbor-tour="mob-profile"
+                    aria-label={mobProfileChipLabel}
+                    onPointerEnter={() => prefetchModal('profile')}
+                    onClick={openProfile}
+                >
+                    <span className="arborito-mob-top-actions__profile-ic" aria-hidden="true">
+                        <ChromeEmoji emoji={g.avatar || '👤'} size={20} />
+                    </span>
+                    <span className="arborito-mob-top-actions__profile-name">{mobProfileChipLabel}</span>
+                </button>
+                <GuestAccountHintBadge />
+            </div>
             {!constructionMode ? (
                 <button
                     type="button"

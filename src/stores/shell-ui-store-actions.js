@@ -121,6 +121,11 @@ export async function requestGoHomeAction() {
         sb.closeMobileMenuIfOpen();
     }
 
+    /* Study map home — leave construction so Home matches the tour (“back to the map”). */
+    if (store.state.constructionMode && typeof store.toggleConstructionMode === 'function') {
+        await store.toggleConstructionMode();
+    }
+
     store.update({
         viewMode: 'explore',
         modal: null,
@@ -130,6 +135,12 @@ export async function requestGoHomeAction() {
     });
 
     goHomeAction();
+
+    /* Tour: logo / Inicio → tree root overview, not Bosque (Sources). */
+    const rootId = store.state.data?.id ?? store.state.rawGraphData?.id;
+    if (rootId != null && typeof store.navigateMobilePath === 'function') {
+        store.navigateMobilePath([String(rootId)]);
+    }
 }
 
 /** API pública shell, resuelve store vía `getArboritoStore()`. */

@@ -2,20 +2,57 @@ import { TreeUtils } from '../../tree-graph/api/tree-utils.js';
 
 export const TREE_CERT_PREFIX = '__tree_cert__:';
 
+/** @type {WeakMap<object, Set<string>>} */
+const BARE_ID_INDEX = new WeakMap();
+
+/**
+ * Index bare + composed completion ids once per Set (O(n) build, O(1) lookup).
+ * @param {Set<string>|Iterable<string>|null|undefined} completed
+ * @returns {Set<string>}
+ */
+function bareIdIndex(completed) {
+    if (completed instanceof Set) {
+        let idx = BARE_ID_INDEX.get(completed);
+        if (idx) return idx;
+        idx = new Set();
+        for (const c of completed) {
+            const s = String(c || '');
+            if (!s) continue;
+            idx.add(s);
+            const sep = s.indexOf('::');
+            if (sep >= 0) {
+                const bare = s.slice(sep + 2);
+                if (bare) idx.add(bare);
+            }
+        }
+        BARE_ID_INDEX.set(completed, idx);
+        return idx;
+    }
+    const idx = new Set();
+    for (const c of completed || []) {
+        const s = String(c || '');
+        if (!s) continue;
+        idx.add(s);
+        const sep = s.indexOf('::');
+        if (sep >= 0) {
+            const bare = s.slice(sep + 2);
+            if (bare) idx.add(bare);
+        }
+    }
+    return idx;
+}
+
 /** Match composed `ref::id` and bare lesson ids in a completion set. */
 export function setHasCompletableId(set, nodeId) {
     const id = String(nodeId || '');
     if (!id) return false;
-    if (set.has(id)) return true;
+    if (set instanceof Set && set.has(id)) return true;
+    const idx = bareIdIndex(set);
+    if (idx.has(id)) return true;
     const sep = id.indexOf('::');
     if (sep >= 0) {
         const bare = id.slice(sep + 2);
-        if (bare && set.has(bare)) return true;
-    } else {
-        const suffix = `::${id}`;
-        for (const c of set) {
-            if (String(c).endsWith(suffix)) return true;
-        }
+        if (bare && idx.has(bare)) return true;
     }
     return false;
 }

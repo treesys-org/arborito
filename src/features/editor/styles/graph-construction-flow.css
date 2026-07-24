@@ -334,14 +334,14 @@ html.arborito-construction-mobile
 }
 
 /* Unit chip inherits mobile-tree light text; force readable copy on construction panels. */
-html.arborito-construction-mobile:not(.arborito-desktop)
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
   .mobile-panel-branch-unit
   .arborito-branch-panel-version-chip--unit
   :is(.arborito-switcher-chip-title, .arborito-switcher-chip-author, .arborito-switcher-chip-sub, .arborito-chip-version-line) {
   color: var(--arborito-theme-branch-version-chip-color);
 }
 
-html.arborito-construction-mobile:not(.arborito-desktop)
+:is(html.arborito-construction-mobile:not(.arborito-desktop), html.force-mobile.arborito-construction-mobile:not(.arborito-desktop))
   .mobile-panel-branch-unit
   .arborito-branch-panel-version-chip--unit
   .arborito-chip-version-line--local {

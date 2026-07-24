@@ -1,6 +1,6 @@
 import { useShellChrome } from '../hooks/useShellChrome.js';
 import { useEffect } from 'react';
-import { useSidebar } from './sidebar/useSidebar.jsx';
+import { useSidebar } from '../hooks/useSidebar.jsx';
 import { SidebarDesktopHeader } from './sidebar/SidebarDesktopHeader.jsx';
 import { SidebarMobileTopActions, SidebarMobileDock } from './sidebar/SidebarMobileChrome.jsx';
 import { SidebarMobileMoreMenu } from './sidebar/SidebarMobileMoreMenu.jsx';

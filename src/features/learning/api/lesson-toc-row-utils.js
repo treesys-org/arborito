@@ -1,8 +1,8 @@
 import {
     tocPlainLineForList,
     tocLabelForDisplay,
-} from '../api/content-toc.js';
-import { isOutlinePathId } from '../api/lesson-toc-mutations.js';
+} from './content-toc.js';
+import { isOutlinePathId } from './lesson-toc-mutations.js';
 
 /** Nest steps under construct floor from the visible path id (`1`→0, `1.1`→1). */
 export function nestDepthFromPathOrLevel(item, outlineLevel = null) {

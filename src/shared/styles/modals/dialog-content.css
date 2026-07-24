@@ -232,11 +232,7 @@ html.dark .arborito-dialog-summary-card {
 
 /* Profile-stack child sheets (QR, recovery…) — fill overlay, same body rhythm as dialog. */
 .arborito-profile-stack-dialog {
-    background: var(--arborito-surface-panel, rgb(255 255 255));
-}
-
-html.dark .arborito-profile-stack-dialog {
-    background: rgb(15 23 42);
+    background: var(--arborito-theme-modal-footer-flat-bg, var(--arborito-surface-panel, rgb(255 255 255)));
 }
 
 .arborito-profile-stack-dialog .arborito-dock-hub-shell,

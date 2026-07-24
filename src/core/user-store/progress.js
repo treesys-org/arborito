@@ -60,6 +60,19 @@ export const progressMixin = {
         }
     },
 
+    /**
+     * Await IndexedDB write for one branch (fork / plant must not race a later hydrate).
+     * @param {string} branchId
+     */
+    async flushBranchEntry(branchId) {
+        const id = String(branchId || '').trim();
+        if (!id) return;
+        this._branchesDirty?.delete?.(id);
+        const entry = (this.state.branches || []).find((t) => t.id === id);
+        if (!entry) return;
+        await persistBranchEntry(entry);
+    },
+
     _flushDirtyTrees() {
         if (!this._treesDirty?.size) return;
         const ids = [...this._treesDirty];

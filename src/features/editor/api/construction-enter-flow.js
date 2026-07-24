@@ -33,11 +33,11 @@ export function syncConstructionAboutFromFocus() {
     }
 }
 
-/** @returns {'branch' | ''} */
+/** @returns {'branch' | 'tree' | ''} */
 export function resolvePresentationAboutKind() {
     if (!store.state.constructionMode) return '';
     if (fileSystem.isLocalComposedTree()) {
-        return store.state.constructionEditFocus === 'branch' ? 'branch' : '';
+        return store.state.constructionEditFocus === 'branch' ? 'branch' : 'tree';
     }
     return 'branch';
 }

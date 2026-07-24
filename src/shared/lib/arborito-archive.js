@@ -344,7 +344,15 @@ function reconstructTree(entries, manifestMeta) {
         languages,
     };
     if (courseDescription) tree.description = courseDescription;
-    if (manifestMeta?.icon) tree.icon = manifestMeta.icon;
+    if (manifestMeta?.icon) {
+        tree.icon = manifestMeta.icon;
+        tree.universePresentation = {
+            ...(tree.universePresentation && typeof tree.universePresentation === 'object'
+                ? tree.universePresentation
+                : {}),
+            icon: manifestMeta.icon,
+        };
+    }
     return tree;
 }
 

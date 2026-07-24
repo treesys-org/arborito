@@ -370,13 +370,6 @@
     border-color: var(--arborito-theme-surface-border, var(--arborito-theme-form-border));
 }
 
-html.dark .arborito-nested-form-card .arborito-input,
-html.dark .arborito-nested-form-card .arborito-select,
-html.dark .arborito-nested-form-card .arborito-textarea {
-    background-color: var(--arborito-theme-tile-bg, rgb(30 41 59));
-    border-color: var(--arborito-theme-surface-border, var(--arborito-theme-form-border));
-}
-
 /* Form controls: explicit contrast (avoids missing CSS vars / theme clashes) */
 [data-arborito-panel="modal-forum"] textarea,
 [data-arborito-panel="modal-forum"] select,
