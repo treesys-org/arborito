@@ -31,7 +31,7 @@
  "setup:flatpak": "npm run flatpak -- setup",
  "sync:flatpak-screenshots": "npm run flatpak:sync",
  "sync:flatpak-metainfo": "npm run flatpak:sync",
- "knip": "knip",
+ "knip": "knip --no-config-hints",
  "check:quality": "node ./scripts/check-quality.mjs",
  "check:max-lines": "node ./scripts/check-quality.mjs -- --only max-lines",
  "check:css-conventions": "node ./scripts/check-quality.mjs -- --only css-conventions",
