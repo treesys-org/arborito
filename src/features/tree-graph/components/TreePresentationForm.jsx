@@ -2,7 +2,6 @@ import { useTreeGraph } from '../hooks/useTreeGraph.js';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import { safeStripeSupportUrl } from '../../../shared/lib/stripe-support-url.js';
 import {
-    collectTreeIdentities,
     currentIdentityNameForSave,
     savePresentationMetadata,
 } from '../api/tree-presentation-logic.js';
@@ -47,7 +46,6 @@ export const TreePresentationForm = forwardRef(function TreePresentationForm(
     const { ui, notify } = tree;
     const [desc, setDesc] = useState(initialDesc);
     const [supportUrl, setSupportUrl] = useState(initialSupport);
-    const ids = useMemo(() => collectTreeIdentities(), [initialDesc, initialAuthor, initialSupport]);
 
     const pubLim =
         typeof tree.getPublicationMetadataLimits === 'function'
@@ -159,7 +157,7 @@ export const TreePresentationForm = forwardRef(function TreePresentationForm(
                 ok: false,
                 message:
                     ui.treeMetaSupportStripeHint ||
-                    'Only Stripe Payment Links (https://buy.stripe.com/…) are accepted.',
+                    'Only Stripe Payment Links (https://buy.stripe.com/…).',
             };
         }
         if (description.length < pubLim.descriptionMin) {
@@ -202,24 +200,6 @@ export const TreePresentationForm = forwardRef(function TreePresentationForm(
     ]);
 
     useImperativeHandle(ref, () => ({ flushMetadata }), [flushMetadata]);
-
-    const showCollabDialog = useCallback(() => {
-        if (!ids.owner) return;
-        const renderRow = (p) =>
-            `<li class="arborito-tree-pres-collab-item">
-                <span class="arborito-tree-pres-collab-item__name">${p.label}</span>
-                ${p.sub ? `<span class="arborito-tree-pres-collab-item__sub">${p.sub}</span>` : ''}
-                <span class="arborito-tree-pres-collab-item__role">${p.role}</span>
-            </li>`;
-        const html = `<ul class="arborito-tree-pres-collab-list">
-            ${renderRow(ids.owner)}
-            ${ids.collaborators.map(renderRow).join('')}
-        </ul>`;
-        tree.alert(html, ui.treeMetaCollaboratorsListTitle || 'People who edit this tree', {
-            bodyHtml: true,
-            confirmText: ui.treeMetaCollaboratorsClose || ui.close || 'Close',
-        });
-    }, [ids, ui]);
 
     const descLabel =
         aboutKind === 'tree'
@@ -275,7 +255,7 @@ export const TreePresentationForm = forwardRef(function TreePresentationForm(
                 />
                 <p className="text-[10px] arborito-text-muted leading-snug pt-0.5">
                     {ui.treeMetaSupportStripeHint ||
-                        'Only Stripe Payment Links (https://buy.stripe.com/…) are accepted, so the link always points to Stripe checkout.'}
+                        'Only Stripe Payment Links (https://buy.stripe.com/…).'}
                 </p>
                 {publishHub ? (
                     <>
@@ -304,34 +284,6 @@ export const TreePresentationForm = forwardRef(function TreePresentationForm(
                     >
                         {saveLabel}
                     </button>
-                )}
-                {!ids.owner ? (
-                    <p className="arborito-tree-pres-creator-hint">
-                        {ui.treeMetaCreatorMissingHint ||
-                            'Sign in with your online account (Profile) so the tree card shows you as the creator.'}
-                    </p>
-                ) : (
-                    <div className="arborito-tree-pres-creator" data-arbor-creator-row>
-                        <span className="arborito-tree-pres-creator__label">{ui.treeMetaCreatorLabel || 'Created by'}</span>
-                        <span className="arborito-tree-pres-creator__name">{ids.owner.label}</span>
-                        {ids.owner.sub ? (
-                            <span className="arborito-tree-pres-creator__sub">{ids.owner.sub}</span>
-                        ) : null}
-                        {ids.collaborators.length ? (
-                            <button
-                                type="button"
-                                className="arborito-tree-pres-creator__collab"
-                                data-arbor-collab-toggle="1"
-                                aria-haspopup="dialog"
-                                onClick={showCollabDialog}
-                            >
-                                {String(ui.treeMetaCollaboratorsCount || '+{n} collaborators').replace(
-                                    /\{n\}/g,
-                                    String(ids.collaborators.length)
-                                )}
-                            </button>
-                        ) : null}
-                    </div>
                 )}
             </div>
         </div>

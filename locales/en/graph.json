@@ -128,7 +128,7 @@
   "treeMetaSaveBranch": "Save branch info",
   "treeMetaSaved": "Tree info saved.",
   "treeMetaSavedBranch": "Branch info saved.",
-  "treeMetaSupportStripeHint": "Only Stripe Payment Links (https://buy.stripe.com/…) are accepted. The link always points to Stripe checkout.",
+  "treeMetaSupportStripeHint": "Only Stripe Payment Links (https://buy.stripe.com/…).",
   "treeMetaSupportUrl": "Support-the-creator link (Stripe)",
   "treeNamePlaceholder": "Name your tree...",
   "treeNameRequired": "Enter a name for your tree.",
