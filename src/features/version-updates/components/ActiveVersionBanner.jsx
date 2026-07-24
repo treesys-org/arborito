@@ -1,18 +1,16 @@
 import { useVersionUpdates } from '../hooks/useVersionUpdates.js';
 import { resolveActiveSourceVersionLabel, getVersionPresentation } from '../api/version-switch-logic.js';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
-import { isArboritoDemoTree } from '../../publishing/api/demo-tree-guard.js';
-import { getArboritoStore } from '../../../core/store-singleton.js';
 
 /** Construction / version tab: shows which edition or snapshot is loaded in the graph. */
 export function ActiveVersionBanner() {
     const version = useVersionUpdates();
-    const { ui, activeSource, availableReleases, constructionMode } = version;
+    const { ui, activeSource, availableReleases, constructionMode, isDemoTree } = version;
     if (!activeSource) return null;
 
     const releases = availableReleases || [];
     const vp = getVersionPresentation(activeSource, releases, ui);
-    const isDemo = isArboritoDemoTree(getArboritoStore());
+    const isDemo = !!isDemoTree;
     const label =
         resolveActiveSourceVersionLabel(ui, version) ||
         vp.chipSub ||

@@ -6,6 +6,7 @@ import { useSourcesSlice } from '../../../stores/sources-store.js';
 import { useTreeGraphSlice, treeGraphActions } from '../../../stores/tree-graph-store.js';
 import { shellUiActions } from '../../../stores/shell-ui-store-actions.js';
 import { getUserStoreAction } from '../../../stores/identity-store-actions.js';
+import { isArboritoDemoTree } from '../../publishing/api/demo-tree-guard.js';
 
 /** Versiones / snapshots / timeline. */
 export function useVersionUpdates() {
@@ -18,6 +19,8 @@ export function useVersionUpdates() {
         }))
     );
     const constructionMode = useTreeGraphSlice((s) => s.constructionMode);
+    const rawGraphData = useTreeGraphSlice((s) => s.rawGraphData);
+    const isDemoTree = isArboritoDemoTree({ state: { rawGraphData, activeSource } });
 
     const loadData = useCallback((source, forceRefresh = true) => store.loadData(source, forceRefresh), []);
     const alert = useCallback((...args) => shellUiActions.alert(...args), []);
@@ -35,6 +38,7 @@ export function useVersionUpdates() {
         availableReleases,
         activeSource,
         constructionMode,
+        isDemoTree,
         loadData,
         alert,
         materializeNetworkReleaseSnapshot,
