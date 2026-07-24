@@ -19,7 +19,8 @@
  * Documented exceptions (keep minimal):
  * 1. User-authored tree/lesson icons (`node.icon`, picker seeds) — dynamic data;
  *    always render at display time via ChromeEmoji / chromeEmojiHtml.
- * 2. Markdown and lesson body content — processed by the content/markdown pipeline.
+ * 2. Markdown and lesson body content — processed by the content/markdown pipeline
+ *    (reader) or `emojifyLessonEditor` (visual editor); saved back as Unicode.
  * 3. Editor math symbols (∑, ⌨) — typographic glyphs, not emoji assets.
  * 4. Plain-text exports, manifests, and store labels built for logs/API strings
  *    (e.g. version switcher `label: 🌳 ${name}`) — not rendered UI chrome.
@@ -120,14 +121,14 @@ function twemojiImgHtml(emoji, opts = {}) {
     if (!TWEMOJI_DATAURI) {
         return (
             `<img class="${escAttr(cls)}" src="${escAttr(src)}" alt="${escAttr(ch)}" ` +
-            `width="${size}" height="${size}" decoding="async" draggable="false" ` +
+            `width="${size}" height="${size}" decoding="async" draggable="false" contenteditable="false" ` +
             `data-emoji-fallback="${escAttr(ch)}" data-emoji-candidates="${escAttr(candidates.join(','))}" ` +
             `data-emoji-candidate-idx="0" role="img" aria-label="${escAttr(title)}" />`
         );
     }
     return (
         `<img class="${escAttr(cls)}" src="${escAttr(src)}" alt="${escAttr(ch)}" ` +
-        `width="${size}" height="${size}" decoding="async" draggable="false" ` +
+        `width="${size}" height="${size}" decoding="async" draggable="false" contenteditable="false" ` +
         `data-emoji-fallback="${escAttr(ch)}" data-emoji-candidates="${escAttr(candidates.join(','))}" ` +
         `data-emoji-candidate-idx="0" role="img" aria-label="${escAttr(title)}" />`
     );
@@ -166,9 +167,9 @@ function wireEmojiImgFallback() {
  * converts every emoji text node in the document to the same tiny Twemoji <img>,
  * so the whole app is consistent AND never needs the heavy font.
  *
- * Editable regions are skipped on purpose: turning a typed emoji into an <img>
- * would corrupt the lesson editor's contenteditable HTML on save. Those keep raw
- * text (rendered with the OS emoji font via the CSS stack). */
+ * Most editable regions stay raw Unicode. The lesson visual editor is emojified
+ * one-shot via `emojifyLessonEditor` (and Twemoji insert); save round-trips
+ * imgs → Unicode via `data-emoji-fallback`. */
 const EMOJIFY_SKIP_SELECTOR =
     'script,style,textarea,input,select,code,pre,[contenteditable],[contenteditable="true"],.arborito-no-emojify,.arborito-onboarding-lang-grid,#mobile-tree-ui,#mobile-knots-container,.graph-container,.mobile-tree-ui';
 
@@ -180,6 +181,7 @@ function makeTwemojiImgEl(ch) {
     img.alt = ch;
     img.decoding = 'async';
     img.setAttribute('draggable', 'false');
+    img.setAttribute('contenteditable', 'false');
     img.setAttribute('role', 'img');
     img.setAttribute('aria-label', ch);
     img.setAttribute('data-emoji-fallback', ch);
@@ -188,11 +190,16 @@ function makeTwemojiImgEl(ch) {
     /* Match surrounding text metrics so mid-sentence glyphs do not float above the line. */
     img.style.width = '1em';
     img.style.height = '1em';
+    img.style.maxWidth = '1em';
+    img.style.display = 'inline-block';
     img.style.verticalAlign = '-0.2em';
+    img.style.margin = '0';
+    img.style.marginInline = '0.05em';
+    img.style.borderRadius = '0';
     return img;
 }
 
-function emojifyTextNode(node) {
+function emojifyTextNode(node, opts = {}) {
     if (!node || node.nodeType !== 3) return;
     const text = node.textContent;
     if (!text) return;
@@ -200,8 +207,18 @@ function emojifyTextNode(node) {
     if (!EMOJI_IN_TEXT_RE.test(text)) return;
     const parent = node.parentElement;
     if (!parent) return;
-    if (parent.isContentEditable) return;
-    if (parent.closest && parent.closest(EMOJIFY_SKIP_SELECTOR)) return;
+    const editorRoot = opts.editorRoot instanceof HTMLElement ? opts.editorRoot : null;
+    const inEditor = !!(editorRoot && editorRoot.contains(parent));
+    if (inEditor) {
+        if (parent.closest('code,pre,textarea,input,.arborito-no-emojify,.arborito-math-edit,.arborito-code-edit')) {
+            return;
+        }
+        const nestedCe = parent.closest('[contenteditable="true"]');
+        if (nestedCe && nestedCe !== editorRoot) return;
+    } else {
+        if (parent.isContentEditable) return;
+        if (parent.closest && parent.closest(EMOJIFY_SKIP_SELECTOR)) return;
+    }
 
     EMOJI_IN_TEXT_RE.lastIndex = 0;
     const frag = document.createDocumentFragment();
@@ -216,9 +233,10 @@ function emojifyTextNode(node) {
     node.parentNode && node.parentNode.replaceChild(frag, node);
 }
 
-function emojifyElement(el) {
+function emojifyElement(el, opts = {}) {
     if (!el || el.nodeType !== 1) return;
-    if (el.closest && el.closest(EMOJIFY_SKIP_SELECTOR)) return;
+    const editorRoot = opts.editorRoot instanceof HTMLElement ? opts.editorRoot : null;
+    if (!editorRoot && el.closest && el.closest(EMOJIFY_SKIP_SELECTOR)) return;
     /* TreeWalker over text nodes is far cheaper than recursing every element. */
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
         acceptNode(n) {
@@ -232,7 +250,13 @@ function emojifyElement(el) {
     const pending = [];
     let cur;
     while ((cur = walker.nextNode())) pending.push(cur);
-    for (const n of pending) emojifyTextNode(n);
+    for (const n of pending) emojifyTextNode(n, opts);
+}
+
+/** One-shot: Unicode emoji in the lesson visual editor → Twemoji (round-trips on save). */
+export function emojifyLessonEditor(editorEl) {
+    if (!(editorEl instanceof HTMLElement)) return;
+    emojifyElement(editorEl, { editorRoot: editorEl });
 }
 
 let emojifyObserverStarted = false;

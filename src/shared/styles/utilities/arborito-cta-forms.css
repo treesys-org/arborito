@@ -166,7 +166,12 @@
 .prose blockquote {   border-left: 4px solid var(--yellow-400); padding-left: 1rem; font-style: italic; font-family: var(--font-family-base, system-ui, sans-serif); color: var(--slate-700); background: #fefce8; padding: 1rem; border-radius: 0 0.5rem 0.5rem 0; margin-top: 1.6em; margin-bottom: 1.6em;   }
 .prose code {   color: #db2777; background-color: var(--slate-100); padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-size: 0.875em; font-family: var(--font-family-mono);   }
 .prose pre {   background-color: var(--slate-800); color: var(--slate-200); padding: 1em; border-radius: 0.375rem; overflow-x: auto; margin-top: 1.7em; margin-bottom: 1.7em;   }
-.prose img {   margin-top: 2em; margin-bottom: 2em; border-radius: 0.5rem;   }
+/* Lesson figures only — Twemoji mid-text must stay on the baseline (no block margins). */
+.prose img:not(.arborito-emoji-img):not(.arborito-emoji-inline) {
+    margin-top: 2em;
+    margin-bottom: 2em;
+    border-radius: 0.5rem;
+}
 .not-prose {   color: inherit;   }
 .dark .prose h1, .dark .prose h2, .dark .prose strong {   color: white;   }
 .dark .prose h3 {   color: var(--slate-200);   }

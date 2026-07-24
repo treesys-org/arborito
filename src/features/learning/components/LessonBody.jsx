@@ -7,6 +7,14 @@ import {
     formatConstructEditorSeed,
     parseConstructEditorSeed,
 } from '../../editor/api/logic/lesson-construct-seed.js';
+import { emojifyLessonEditor } from '../../../shared/lib/emoji-display.js';
+
+function onLessonEditorPaste(e) {
+    const el = e.currentTarget;
+    if (!(el instanceof HTMLElement)) return;
+    /* After the browser inserts paste HTML/text, convert Unicode emoji → Twemoji. */
+    queueMicrotask(() => emojifyLessonEditor(el));
+}
 
 /** Lesson prose frame + optional visual editor (construction) + inline quizzes. */
 export function LessonBody({
@@ -87,6 +95,7 @@ export function LessonBody({
                 aria-multiline="true"
                 spellCheck={false}
                 suppressContentEditableWarning
+                onPaste={onLessonEditorPaste}
             />
         );
     }

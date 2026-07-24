@@ -6,6 +6,7 @@ import { visualHTMLToMarkdown } from './editor-serialize.js';
 import { formatConstructEditorSeed } from './lesson-construct-seed.js';
 import { resolveLiveConstructBody } from './lesson-construct-body.js';
 import { getArboritoStore as store } from '../../../../core/store-singleton.js';
+import { emojifyLessonEditor } from '../../../../shared/lib/emoji-display.js';
 
 const MISPLACED_BLOCK_SEL =
     '.edit-block-wrapper, .arborito-quiz-edit, .arborito-game-edit, .arborito-media-edit, .arborito-callout-edit, .arborito-math-edit, .arborito-table-edit';
@@ -76,6 +77,7 @@ export function applyEditorSectionMarkdown(editorEl, sectionMd) {
     const html = markdownToVisualHTML(sectionMd);
     replaceEditorHtml(editorEl, html);
     assignHeadingIdsFromBlocks(editorEl, sectionMd);
+    emojifyLessonEditor(editorEl);
 }
 
 /** Prose-only seed for the visual construct editor (outline heading stays in the TOC). */

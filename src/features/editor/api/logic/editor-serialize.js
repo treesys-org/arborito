@@ -163,6 +163,14 @@ function inlineChildrenToMarkdown(el) {
             out += '\n';
             continue;
         }
+        if (tag === 'IMG') {
+            const emoji =
+                child.getAttribute('data-emoji-fallback') ||
+                (child.classList?.contains('arborito-emoji-img') ? child.getAttribute('alt') : '') ||
+                '';
+            if (emoji) out += emoji;
+            continue;
+        }
         if (tag === 'B' || tag === 'STRONG') {
             out += `**${inlineChildrenToMarkdown(child)}**`;
             continue;

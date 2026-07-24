@@ -1,4 +1,4 @@
-import { insertBlockInEditor, insertMathSymbolInEditor, insertPlainTextInEditor, rememberMathLatexInput } from './editor-commands.js';
+import { insertBlockInEditor, insertMathSymbolInEditor, insertTwemojiInEditor, rememberMathLatexInput } from './editor-commands.js';
 import { restoreEditorSelection } from './editor-selection.js';
 import { markConstructBodyEdited } from './logic/lesson-construct-capture.js';
 
@@ -65,7 +65,7 @@ export function performLessonInsertBlock(type, ctx) {
         restoreEditorSelection(editorEl, lessonEditor?.savedRangeRef);
         editorEl.focus({ preventScroll: true });
         restoreEditorSelection(editorEl, lessonEditor?.savedRangeRef);
-        insertPlainTextInEditor(editorEl, emoji);
+        insertTwemojiInEditor(editorEl, emoji);
         markEdited();
         return true;
     }

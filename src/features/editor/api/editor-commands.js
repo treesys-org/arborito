@@ -5,6 +5,7 @@ import { bindGameBlockControls } from './logic/editor-game-block.js';
 import { bindMediaBlockControls } from './logic/editor-media-block.js';
 import { bindTableBlockControls } from './logic/editor-table.js';
 import { scrollLessonEditorToInsertedBlock } from '../../learning/api/content-panel-scroll.js';
+import { chromeEmojiHtml } from '../../../shared/lib/emoji-display.js';
 
 const ALIGN_BLOCK_SELECTOR = 'p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote';
 
@@ -744,6 +745,29 @@ export function insertPlainTextInEditor(editorEl, text) {
     } catch {
         range.insertNode(document.createTextNode(ch));
         range.collapse(false);
+    }
+    editorEl.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+/** Insert a Twemoji img at the caret (saved back to Unicode via data-emoji-fallback). */
+export function insertTwemojiInEditor(editorEl, emoji) {
+    const ch = String(emoji || '');
+    if (!(editorEl instanceof HTMLElement) || !ch) return;
+    editorEl.focus({ preventScroll: true });
+    const range = resolveEditorInsertRange(editorEl);
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(range);
+    const html = chromeEmojiHtml(ch, 18);
+    let ok = false;
+    try {
+        ok = document.execCommand('insertHTML', false, html);
+    } catch {
+        ok = false;
+    }
+    if (!ok) {
+        insertPlainTextInEditor(editorEl, ch);
+        return;
     }
     editorEl.dispatchEvent(new Event('input', { bubbles: true }));
 }

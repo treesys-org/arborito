@@ -437,10 +437,14 @@ body,
 
 .arborito-emoji-img,
 .arborito-emoji-inline {
-    display: inline-block;
-    vertical-align: -0.2em;
-    width: 1em;
-    height: 1em;
+    display: inline-block !important;
+    vertical-align: -0.2em !important;
+    width: 1em !important;
+    height: 1em !important;
+    max-width: 1em !important;
+    margin: 0 !important;
+    margin-inline: 0.05em !important;
+    border-radius: 0 !important;
     object-fit: contain;
     pointer-events: none;
 }
@@ -452,10 +456,14 @@ body,
 .arborito-lesson-prose-frame .arborito-emoji-inline,
 .arborito-lesson-body .arborito-emoji-img,
 .arborito-lesson-body .arborito-emoji-inline {
-    vertical-align: -0.2em;
-    width: 1em;
-    height: 1em;
-    margin-inline: 0.05em;
+    display: inline-block !important;
+    vertical-align: -0.2em !important;
+    width: 1em !important;
+    height: 1em !important;
+    max-width: 1em !important;
+    margin-block: 0 !important;
+    margin-inline: 0.05em !important;
+    border-radius: 0 !important;
 }
 
 html.arborito-emoji-images .arborito-emoji-glyph:not(.arborito-emoji-img):not(.arborito-emoji-native) {
