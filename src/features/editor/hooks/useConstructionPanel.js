@@ -236,17 +236,17 @@ export function useConstructionPanel() {
             return;
         }
 
-        if (ctx.isComposed || (srcUrl.startsWith('branch://') && localId)) {
-            /* Hub already open for publish — do not swallow the click; openPublishHub is idempotent. */
-            setOpeningPublishHub(true);
-            try {
+        /* openPublishHub is idempotent — re-tap refreshes the hub, never dismisses it. */
+        setOpeningPublishHub(true);
+        try {
+            if (ctx.isComposed || (srcUrl.startsWith('branch://') && localId)) {
                 await openPublishHub(getArboritoStore(), { branchId: localId || '' });
-            } finally {
-                setOpeningPublishHub(false);
+                return;
             }
-            return;
+            await handleMakeTreePublic();
+        } finally {
+            setOpeningPublishHub(false);
         }
-        return handleMakeTreePublic();
     }, [
         activeSource,
         canRetractActivePublicUniverse,

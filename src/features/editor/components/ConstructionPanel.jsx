@@ -148,10 +148,10 @@ export function ConstructionPanel({ embed }) {
                 }}
                 onRetract={() => void handleRetractPublicTree()}
                 onPublish={() => {
-                    if (modalType === 'construction-about') {
-                        dismissModal();
-                        return;
-                    }
+                    /* Do not toggle-dismiss: a second tap / ghost click while the hub
+                     * is opening used to close it instantly (“Publicar abre nada”).
+                     * openPublishHub is idempotent; close via sheet X. */
+                    if (openingPublishHub) return;
                     void handleScopePublishClick();
                 }}
                 onCurriculumLangAdd={closeMore}

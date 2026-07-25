@@ -151,10 +151,15 @@ function currentMode(state) {
 
     /*
      * Biblioteca / publish hub render their own LoadingBrand.
-     * Do not stack a second overlay unless a full-screen block was forced
-     * (import, publish lock, explicit treeGrowingOverlay).
+     * Never stack a second fullscreen overlay over the publish hub unless we are
+     * mid-network publish (publishingTree) — otherwise a lingering
+     * treeGrowingOverlay makes Publicar look like it opened nothing.
      */
-    if ((sourcesOpen || publishHubOpen) && !s.publishingTree && !s.treeGrowingOverlay) {
+    if (publishHubOpen) {
+        if (s.publishingTree) return 'block';
+        return null;
+    }
+    if (sourcesOpen && !s.publishingTree && !s.treeGrowingOverlay) {
         return null;
     }
 

@@ -16,7 +16,7 @@ export function buildPublishHubConfirmBody(store, { republish }) {
           stripHtmlForPlainText(ui.publicTreeRepublishBody) ||
           'Updates the public copy. Links and share code stay the same.'
         : ui.publicTreeHubConfirmBody ||
-          'You will publish a copy online. Do not include private data.';
+          'This creates a public copy. Share only material you’re allowed to, with no personal data (more in About → Legal). After ~12 months unused it unpublishes itself (GDPR).';
     return { body: stripHtmlForPlainText(body) };
 }
 

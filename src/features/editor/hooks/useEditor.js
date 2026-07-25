@@ -18,7 +18,7 @@ export function useEditor() {
     const { modal, lang } = useShellModalLang();
     const { dismissModal, setModal, notify, update, setViewMode, confirm, alert } = useShellModalActions();
     const treeCtx = useTreeLessonContext();
-    const { publishingTree } = useShellUiSlice((s) => s.publishingTree);
+    const publishingTree = useShellUiSlice((s) => s.publishingTree);
     const {
         constructionMode,
         constructionEditFocus,

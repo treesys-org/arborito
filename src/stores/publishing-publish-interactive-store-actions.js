@@ -258,15 +258,24 @@ export async function publishTreePublicInteractiveAction(opts = {}) {
 
     await yieldToPaint();
 
-    await store.acknowledge({
-        title: pubRes.republish
-            ? ui.publicTreeRepublishSuccessTitle || 'Changes published'
-            : resolvePublishSuccessTitle(ui, publishKind),
-        body,
-        bodyHtml: true,
-        confirmText: ui.dialogOkButton || 'OK',
-        dialogIcon: '✅',
-    });
+    /* Success dialog must show: showDialog no-ops while another resolver is live. */
+    const dialogWaitStarted = Date.now();
+    while (store._dialogResolver && Date.now() - dialogWaitStarted < 2500) {
+        await yieldToPaint();
+    }
+    if (store._dialogResolver) {
+        console.warn('[Arborito] publish success dialog skipped: another dialog still open');
+    } else {
+        await store.acknowledge({
+            title: pubRes.republish
+                ? ui.publicTreeRepublishSuccessTitle || 'Changes published'
+                : resolvePublishSuccessTitle(ui, publishKind),
+            body,
+            bodyHtml: true,
+            confirmText: ui.dialogOkButton || 'OK',
+            dialogIcon: '✅',
+        });
+    }
 
     /* Keep the local branch active after publish. Users open the public mirror
      * from Sources when they want; do not auto-swap the active source or strip

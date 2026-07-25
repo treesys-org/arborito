@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useRef } from 'react';
-import { useShallow } from 'zustand/react/shallow';
 import { useEditor } from './useEditor.js';
 import { resolvePresentationAboutKind } from '../api/construction-enter-flow.js';
 import { constructionSheetTitle } from '../../tree-graph/api/tree-presentation-logic.js';
@@ -7,6 +6,7 @@ import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 import { isTreeForumEnabled } from '../../../shared/lib/tree-forum-enabled.js';
 import { getActivePublishContext } from '../api/construction-scope-publish.js';
 import { useTreeGraphSlice } from '../../../stores/tree-graph-store.js';
+import { useShellUiSlice } from '../../../stores/shell-ui-store.js';
 
 function resolveConstructionAboutSubtitle(ui, aboutKind, publishIntent) {
     if (publishIntent) {
@@ -51,12 +51,8 @@ export function useConstructionAbout() {
         setModal,
     } = editor;
 
-    const { treeHydrating, treeGrowingOverlay } = useTreeGraphSlice(
-        useShallow((s) => ({
-            treeHydrating: s.treeHydrating,
-            treeGrowingOverlay: s.treeGrowingOverlay,
-        }))
-    );
+    const treeHydrating = useTreeGraphSlice((s) => s.treeHydrating);
+    const publishingTree = useShellUiSlice((s) => s.publishingTree);
 
     const { validatePublicationMetadata } = editorActions;
 
@@ -82,8 +78,10 @@ export function useConstructionAbout() {
     const close = useCallback(() => dismissModal(), [dismissModal]);
     const flushMetadata = useCallback(() => formRef.current?.flushMetadata?.(), []);
 
-    /** Graph not ready yet — show branded spinner instead of an empty hub body. */
-    const graphReady = !!rawGraphData && !treeHydrating && !treeGrowingOverlay;
+    /* Graph readiness only — do not couple to treeGrowingOverlay (can stick or
+     * flip during unrelated loads and blank the hub as if Publicar opened nothing).
+     * Mid-publish lock blanks via publishingTree (footer already locks on it). */
+    const graphReady = !!rawGraphData && !treeHydrating && !publishingTree;
 
     const forumNavEnabled = isTreeForumEnabled(rawGraphData?.meta, activeSource);
     const publishCtx = getActivePublishContext(activeSource);

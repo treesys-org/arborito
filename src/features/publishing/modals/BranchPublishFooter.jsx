@@ -9,7 +9,6 @@ import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 import { resolvePublishHubFooterLabel } from '../api/publish-hub-chrome.js';
 import { MODAL_CTA_CANCEL, modalCtaConfirm } from '../../../shared/ui/modal-action-chrome.js';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
-import { Callout } from '../../../shared/ui/Callout.jsx';
 
 /** Outline danger — same size as Close, sits with the action row without stealing Publish. */
 const RETRACT_OUTLINE =
@@ -118,14 +117,6 @@ export function BranchPublishFooter({
                     <p className="m-0 text-xs leading-snug text-slate-600 dark:text-slate-300 whitespace-pre-line">
                         {confirmCopy.body}
                     </p>
-                    <Callout
-                        tone="amber"
-                        size="sm"
-                        body={
-                            ui.publishHubInactivityNote ||
-                            'Public copies auto-retract after about 12 months without use (GDPR). Active learners pause the timer.'
-                        }
-                    />
                     <SwitchRow
                         id="publish-hub-list-in-discover"
                         label={ui.publicTreeListInDiscoverLabel || 'List in Discover'}
