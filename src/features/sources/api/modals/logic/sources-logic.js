@@ -69,7 +69,18 @@ async function resolveImportedBranchFollowUp(treeName, careLine, authorWarnings 
     const signedIn = !!(store.isSignedIn && store.isSignedIn());
     const name = importDoneName(treeName, 'sourcesActiveBranchHeading', 'Branch');
     const hasWarnings = authorWarnings.length > 0;
-    const needsDialog = signedIn || hasWarnings;
+    const autoSync =
+        signedIn &&
+        !!(
+            store.userStore?.state?.autoSyncLocalBranches
+        );
+
+    if (autoSync && !hasWarnings && !careLine) {
+        store.notify(importDoneBody(ui.importBranchDoneBody, name), false);
+        return { confirmed: true, sync: true };
+    }
+
+    const needsDialog = signedIn || hasWarnings || !!careLine;
 
     if (!needsDialog) {
         const toastParts = [importDoneBody(ui.importBranchDoneBody, name)];
@@ -97,15 +108,18 @@ async function resolveImportedBranchFollowUp(treeName, careLine, authorWarnings 
         body: bodyParts.join('\n\n'),
         dialogIcon: '🌿',
         confirmText: ui.importTreeDoneOk || ui.dialogConfirmTitle || 'OK',
-        switchLabel: signedIn
-            ? (ui.importBranchSyncCheckbox ||
-                  'Sync encrypted copy to my account (other devices)')
-            : undefined,
+        switchLabel:
+            signedIn && !autoSync
+                ? ui.importBranchSyncCheckbox ||
+                  ui.plantBranchSyncCheckbox ||
+                  'Sync to my account'
+                : undefined,
         switchDefault: true,
     });
     if (!result) return { confirmed: false, sync: false };
-    if (result === true) return { confirmed: true, sync: signedIn };
+    if (result === true) return { confirmed: true, sync: !!signedIn };
     if (typeof result === 'object' && result.confirmed) {
+        if (autoSync) return { confirmed: true, sync: !!signedIn };
         return { confirmed: true, sync: !!(signedIn && result.checked) };
     }
     return { confirmed: false, sync: false };
@@ -161,7 +175,12 @@ async function importBranchFromAnalysis(modal, analysis) {
         const { confirmed, sync } = await resolveImportedBranchFollowUp(newTree.name, careLine, authorWarnings);
         if (sync && confirmed) {
             try {
-                await store.publishActiveBranchAsPrivate();
+                const silent = !!store.userStore?.state?.autoSyncLocalBranches;
+                if (typeof store.publishBranchAsPrivate === 'function' && newTree?.id) {
+                    await store.publishBranchAsPrivate(newTree.id, silent ? { silent: true } : {});
+                } else {
+                    await store.publishActiveBranchAsPrivate();
+                }
             } catch (err) {
                 const ui = store.ui;
                 store.notify(

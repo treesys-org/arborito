@@ -5,10 +5,11 @@
 import { mountCurriculum } from './mount-curriculum.js';
 import { finishSourcesLoadSession } from './sources-session.js';
 import { requestConstructionTourOnce } from '../../tour/api/product-tour-start-bridge.js';
+import { isAutoSyncLocalBranchesEnabled } from '../../identity-auth/api/register-sync-local.js';
 
 /**
- * After planting: if signed in, ask whether to sync an encrypted draft to the account
- * (same pattern as import). Guests get a short hint only.
+ * After planting: if auto-sync is on, upload quietly with no done dialog.
+ * Otherwise ask with the sync switch (signed-in only).
  * @param {import('../../../core/store.js').Store} store
  * @param {{ id?: string, name?: string }} newTree
  */
@@ -19,8 +20,34 @@ async function offerPlantBranchAccountSync(store, newTree) {
 
     const name = String(newTree?.name || '').trim() || ui.plantBranchShort || 'Branch';
     const body = String(
-        ui.plantBranchDoneBody || '“{name}” is ready on this device. Sync an encrypted draft to your account?'
+        ui.plantBranchDoneBody || '“{name}” is ready on this device.'
     ).replace(/\{name\}/g, name);
+    const autoSync = isAutoSyncLocalBranchesEnabled(store.userStore);
+
+    const quietPublish = async (silent) => {
+        try {
+            if (typeof store.publishBranchAsPrivate === 'function' && newTree?.id) {
+                await store.publishBranchAsPrivate(newTree.id, silent ? { silent: true } : {});
+            } else if (typeof store.publishActiveBranchAsPrivate === 'function') {
+                await store.publishActiveBranchAsPrivate();
+            }
+        } catch (err) {
+            store.notify(
+                (ui.plantBranchSyncFailed ||
+                    ui.importTreeSyncFailed ||
+                    'Branch created, but account sync failed: {message}').replace(
+                    '{message}',
+                    err && err.message ? err.message : String(err)
+                ),
+                true
+            );
+        }
+    };
+
+    if (autoSync) {
+        void quietPublish(true);
+        return;
+    }
 
     const result = await store.acknowledge({
         title: ui.plantBranchDoneTitle || 'Branch planted',
@@ -30,7 +57,7 @@ async function offerPlantBranchAccountSync(store, newTree) {
         switchLabel:
             ui.plantBranchSyncCheckbox ||
             ui.importBranchSyncCheckbox ||
-            'Sync encrypted copy to my account (other devices)',
+            'Sync to my account',
         switchDefault: true,
     });
 
@@ -40,22 +67,7 @@ async function offerPlantBranchAccountSync(store, newTree) {
         sync = !!result.checked;
     }
     if (!sync) return;
-
-    try {
-        if (typeof store.publishBranchAsPrivate === 'function' && newTree?.id) {
-            await store.publishBranchAsPrivate(newTree.id);
-        } else if (typeof store.publishActiveBranchAsPrivate === 'function') {
-            await store.publishActiveBranchAsPrivate();
-        }
-    } catch (err) {
-        store.notify(
-            (ui.plantBranchSyncFailed || ui.importTreeSyncFailed || 'Branch created, but account sync failed: {message}').replace(
-                '{message}',
-                err && err.message ? err.message : String(err)
-            ),
-            true
-        );
-    }
+    await quietPublish(false);
 }
 
 /**

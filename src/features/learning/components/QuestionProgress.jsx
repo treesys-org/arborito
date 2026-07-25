@@ -1,5 +1,9 @@
+import { useEffect, useRef } from 'react';
 import { useLearning } from '../hooks/useLearning.js';
 import { getQuizState } from '../api/content-panel-quiz.js';
+
+/** Above this, segments share full width as a dense color strip (no horizontal scroll). */
+const DENSE_SEGMENT_THRESHOLD = 20;
 
 function getSegmentStatus(st, index, session) {
     const answered = !!(st?.v2Answered || st?.finished);
@@ -12,23 +16,39 @@ function getSegmentStatus(st, index, session) {
 /** Segmented session progress (one cell per question; green ✓ / red ✗ when answered). */
 export function QuestionProgress({ session, total, variant = 'quiz', quizStates = {} }) {
     const { ui } = useLearning();
+    const railRef = useRef(null);
     const count = total || session?.quizIds?.length || 0;
     const ids = session?.quizIds || [];
     const idx = session ? session.currentIndex : 0;
+    const dense = count > DENSE_SEGMENT_THRESHOLD;
     const progressLabel = (ui.lessonQuizSessionProgress || 'Question {current} of {total}')
         .replace('{current}', String(idx + 1))
         .replace('{total}', String(count));
     const isExam = variant === 'exam';
     const label = isExam ? ui.quizLabel || ui.lessonQuizLabel || 'Evaluation' : ui.lessonQuizLabel || 'Quiz';
 
+    /* Keep the current segment in view if a parent ever scrolls the rail. */
+    useEffect(() => {
+        const rail = railRef.current;
+        if (!rail || dense) return;
+        const current = rail.querySelector('.arborito-question-progress__segment.is-current');
+        if (!current || typeof current.scrollIntoView !== 'function') return;
+        try {
+            current.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' });
+        } catch {
+            /* ignore */
+        }
+    }, [idx, dense, count]);
+
     return (
-        <div className={`arborito-question-progress arborito-question-progress--${variant} mb-6 not-prose`}>
-            <div className="arborito-eyebrow flex justify-between mb-2">
+        <div className={`arborito-question-progress arborito-question-progress--${variant}${dense ? ' arborito-question-progress--dense' : ''} mb-6 not-prose`}>
+            <div className="arborito-eyebrow flex justify-between mb-2 gap-2">
                 <span>{label}</span>
-                <span>{progressLabel}</span>
+                <span className="shrink-0 tabular-nums">{progressLabel}</span>
             </div>
             <div
-                className="arborito-question-progress__segments"
+                ref={railRef}
+                className={`arborito-question-progress__segments${dense ? ' arborito-question-progress__segments--dense' : ''}`}
                 role="list"
                 aria-label={progressLabel}
             >
@@ -53,11 +73,12 @@ export function QuestionProgress({ session, total, variant = 'quiz', quizStates 
                             aria-current={isCurrent ? 'step' : undefined}
                             aria-label={title}
                         >
-                            {status === 'correct' ? (
+                            {!dense && status === 'correct' ? (
                                 <span className="arborito-question-progress__mark" aria-hidden="true">
                                     ✓
                                 </span>
-                            ) : status === 'wrong' ? (
+                            ) : null}
+                            {!dense && status === 'wrong' ? (
                                 <span className="arborito-question-progress__mark" aria-hidden="true">
                                     ✗
                                 </span>
@@ -69,3 +90,5 @@ export function QuestionProgress({ session, total, variant = 'quiz', quizStates 
         </div>
     );
 }
+
+export { DENSE_SEGMENT_THRESHOLD };

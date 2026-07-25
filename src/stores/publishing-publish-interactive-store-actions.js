@@ -188,6 +188,19 @@ export async function publishTreePublicInteractiveAction(opts = {}) {
                 /* ignore */
             }
         });
+        /*
+         * Public mirror ≠ editable account draft. Keep a silent encrypted copy on the
+         * account so the author can continue from other devices (no extra prompt).
+         */
+        try {
+            if (typeof store.publishBranchAsPrivate === 'function') {
+                void store.publishBranchAsPrivate(localId, { silent: true }).catch((e) => {
+                    console.warn('[arborito] post-publish account draft sync failed', e);
+                });
+            }
+        } catch (e) {
+            console.warn('[arborito] post-publish account draft sync failed', e);
+        }
     }
     const shareCode = pubRes.shareCode || '';
     const publishKind = getActivePublishContext(store.state.activeSource)?.kind;

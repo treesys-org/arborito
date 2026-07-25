@@ -31,6 +31,8 @@ export class UserStore {
             branches: [],
             trees: [],
             cloudProgressSync: false,
+            /** When true (signed-in): new local courses sync quietly; plant/import hide sync switch. */
+            autoSyncLocalBranches: false,
             memory: {},
             gamification: normalizeGamification({
                 username: '',

@@ -98,6 +98,9 @@ export const progressMixin = {
                     if (typeof parsed.cloudProgressSync === 'boolean') {
                         this.state.cloudProgressSync = parsed.cloudProgressSync;
                     }
+                    if (typeof parsed.autoSyncLocalBranches === 'boolean') {
+                        this.state.autoSyncLocalBranches = parsed.autoSyncLocalBranches;
+                    }
                     if (parsed.gamification) {
                         this.state.gamification = normalizeGamification({
                             ...this.state.gamification,
@@ -208,6 +211,7 @@ export const progressMixin = {
             frozenTrees: this.state.frozenTrees,
             gameData: this.state.gameData,
             cloudProgressSync: !!this.state.cloudProgressSync,
+            autoSyncLocalBranches: !!this.state.autoSyncLocalBranches,
             memory: this.state.memory,
             timestamp: Date.now()
         };

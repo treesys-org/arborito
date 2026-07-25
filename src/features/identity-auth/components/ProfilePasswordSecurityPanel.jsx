@@ -79,7 +79,10 @@ export function ProfilePasswordSecurityPanel({
                         </span>
                     ) : null}
                 </div>
-                <p className="profile-account-recovery__hint">{recoveryHint}</p>
+                {/* Hint only while recovery is missing — avoid permanent wall of text. */}
+                {hasRecovery === false ? (
+                    <p className="profile-account-recovery__hint">{recoveryHint}</p>
+                ) : null}
                 <div className="profile-account-recovery__actions">
                     {onDownloadRecoveryKit ? (
                         <button type="button" className={btnClass} disabled={disabled} onClick={onDownloadRecoveryKit}>

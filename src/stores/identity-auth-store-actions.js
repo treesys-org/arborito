@@ -235,8 +235,18 @@ export async function _finalizeSyncLoginSessionAction(name, opts = {}) {
             await store._loadProgressForOwnedTrees?.(name);
             await store._loadProgressForInstalledSources?.();
             await store._loadAccountCareProgress?.();
+            /* Register opt-in: push local authored branches after pull (new accounts are empty). */
+            if (store._pendingSyncLocalBranchesOnRegister) {
+                store._pendingSyncLocalBranchesOnRegister = false;
+                try {
+                    await store.syncAllLocalPrivateBranchesToAccount?.({ silent: true });
+                } catch (e) {
+                    console.warn('[arborito] post-register local branch sync failed', e);
+                }
+            }
         } catch (e) {
             console.warn('Post-login restore failed', e);
+            store._pendingSyncLocalBranchesOnRegister = false;
         } finally {
             store._nostrProgressPullInFlight = false;
         }

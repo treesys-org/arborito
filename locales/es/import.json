@@ -3,7 +3,7 @@
   "importBranchDoneBody": "«{name}» quedó lista en este dispositivo.",
   "importBranchDoneGuestSyncHint": "Para sincronizar ramas entre dispositivos, inicia sesión desde Perfil.",
   "importBranchDoneTitle": "Rama importada",
-  "importBranchSyncCheckbox": "Sincronizar copia cifrada con mi cuenta (otros dispositivos)",
+  "importBranchSyncCheckbox": "Sincronizar con mi cuenta",
   "importBtn": "Importar",
   "importCareDone": "{notes} lecciones importadas · {scheduled} con cuidados · {due} pendientes hoy.",
   "importConfirmDuplicateBranch": "Ya tienes esta rama en el dispositivo («{name}»). Al confirmar se abrirá la copia existente.",
@@ -34,6 +34,6 @@
   "importTreeDoneGuestSyncHint": "Para sincronizar entre dispositivos, inicia sesión desde Perfil.",
   "importTreeDoneOk": "Listo",
   "importTreeDoneTitle": "Árbol importado",
-  "importTreeSyncCheckbox": "Sincronizar copia cifrada con mi cuenta (otros dispositivos)",
+  "importTreeSyncCheckbox": "Sincronizar con mi cuenta",
   "importTreeSyncFailed": "Importación correcta, pero falló la sincronización con la cuenta: {message}"
 }

@@ -380,6 +380,8 @@ export async function publishBranchAsPrivateAction(treeId, opts = {}) {
 
     const ui = store.ui;
     const quiet = !!opts.quiet;
+    /* Full first upload without success toast (auto-sync / bulk register). */
+    const silent = !!opts.silent;
     if (!store.isSignedIn()) {
         throw new Error(ui.syncLoginNoAccount || 'Sign in with your account first.');
     }
@@ -460,11 +462,58 @@ export async function publishBranchAsPrivateAction(treeId, opts = {}) {
     } catch {
         /* ignore */
     }
-    store.notify(ui.privateTreesPublishedOk || 'Private tree synced to your account.', false);
+    if (!silent) {
+        store.notify(ui.privateTreesPublishedOk || 'Private tree synced to your account.', false);
+    }
 }
 
 export async function publishActiveBranchAsPrivateAction() {
     return publishBranchAsPrivateAction();
+}
+
+/**
+ * After register: upload every local authored branch as an encrypted account draft.
+ * Silent by default (no per-branch toasts). Skips demo and already-synced ids.
+ * @param {{ quiet?: boolean, silent?: boolean }} [opts]
+ * @returns {Promise<{ synced: number }>}
+ */
+export async function syncAllLocalPrivateBranchesToAccountAction(opts = {}) {
+    const store = shell();
+    if (!store) return { synced: 0 };
+    if (!store.isSignedIn?.()) return { synced: 0 };
+
+    const silent = opts.silent !== false;
+    try {
+        await store.userStore?.ensureBranchesHydrated?.();
+    } catch {
+        /* ignore */
+    }
+    const branches = Array.isArray(store.userStore?.state?.branches)
+        ? store.userStore.state.branches
+        : [];
+    let synced = 0;
+    for (const entry of branches) {
+        const id = String(entry?.id || '').trim();
+        if (!id || id === DEMO_BRANCH_ID) continue;
+        if (store.userStore?.isBranchPrivateSyncedFromAccount?.(id)) continue;
+        try {
+            await publishBranchAsPrivateAction(id, { silent: true });
+            synced += 1;
+        } catch (e) {
+            console.warn('[arborito] register bulk private sync failed', id, e);
+        }
+    }
+    if (!silent && synced > 0) {
+        const ui = store.ui;
+        store.notify(
+            (ui.registerSyncLocalDone || 'Local courses synced to your account.').replace(
+                '{count}',
+                String(synced)
+            ),
+            false
+        );
+    }
+    return { synced };
 }
 
 /** Debounced quiet republish for branches marked account-synced that were just dirtied. */
@@ -640,6 +689,7 @@ export const storeAccountRestoreMethods = {
     loadPrivateTreesFromAccount: loadPrivateTreesFromAccountAction,
     publishBranchAsPrivate: publishBranchAsPrivateAction,
     publishActiveBranchAsPrivate: publishActiveBranchAsPrivateAction,
+    syncAllLocalPrivateBranchesToAccount: syncAllLocalPrivateBranchesToAccountAction,
     maybeSyncPrivateAccountBranches: maybeSyncPrivateAccountBranchesAction,
     cancelPendingAccountSyncTimers: cancelPendingAccountSyncTimersAction,
     unpublishPrivateBranch: unpublishPrivateBranchAction,

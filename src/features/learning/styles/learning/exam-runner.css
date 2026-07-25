@@ -1,8 +1,24 @@
 /* Segmented question progress (one cell per question) */
+.arborito-question-progress {
+    max-width: 100%;
+    overflow-x: clip;
+}
+
 .arborito-question-progress__segments {
     display: flex;
     align-items: stretch;
     gap: 0.3rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.arborito-question-progress__segments::-webkit-scrollbar {
+    display: none;
 }
 
 .arborito-question-progress__segment {
@@ -15,7 +31,34 @@
     border: 2px solid transparent;
     border-radius: 999px;
     background: rgb(226 232 240);
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease, height 0.15s ease;
+}
+
+/* Many questions: fit the whole strip in the viewport — color map, no page sideways scroll. */
+.arborito-question-progress__segments--dense {
+    gap: 0.1rem;
+    overflow-x: hidden;
+}
+
+.arborito-question-progress__segments--dense .arborito-question-progress__segment {
+    min-width: 0;
+    max-width: none;
+    height: 0.5rem;
+    border-width: 0;
+    border-radius: 0.2rem;
+}
+
+.arborito-question-progress__segments--dense .arborito-question-progress__segment--current,
+.arborito-question-progress__segments--dense .arborito-question-progress__segment.is-current {
+    height: 0.7rem;
+    align-self: center;
+    border-radius: 0.25rem;
+    box-shadow: 0 0 0 1.5px rgb(255 255 255 / 0.85);
+}
+
+.dark .arborito-question-progress__segments--dense .arborito-question-progress__segment--current,
+.dark .arborito-question-progress__segments--dense .arborito-question-progress__segment.is-current {
+    box-shadow: 0 0 0 1.5px rgb(15 23 42 / 0.9);
 }
 
 .dark .arborito-question-progress__segment {
@@ -71,6 +114,11 @@
 .arborito-question-progress__segments--summary {
     max-width: 28rem;
     margin-inline: auto;
+}
+
+.arborito-question-progress__segments--summary.arborito-question-progress__segments--dense {
+    max-width: 100%;
+    width: 100%;
 }
 
 /* Inline exam / quiz session chrome */

@@ -25,6 +25,8 @@ import { ensureModalChunk } from '../../../app/modal-chunk-loaders.js';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import { isOnboardingWizardIncomplete } from '../../../shared/lib/onboarding-boot-gate.js';
 import { persistUserNostrRelays, SUGGESTED_NOSTR_RELAYS } from '../../nostr/api/nostr-relays-runtime.js';
+import { getArboritoStore } from '../../../core/store-singleton.js';
+import { listLocalSyncableBranchIds, setAutoSyncLocalBranches } from '../api/register-sync-local.js';
 
 const TOTAL_STEPS = 2;
 
@@ -384,12 +386,17 @@ export function ModalOnboarding() {
             if (norm && norm !== normalizeUsername(g.username)) {
                 updateUserProfile(norm, g.avatar || '👤');
             }
+            const store = getArboritoStore();
+            const hasLocal = listLocalSyncableBranchIds(store?.userStore).length > 0;
+            grantNetworkSocialConsent?.();
+            /* Silent default: keep local courses on the account; opt-out lives in Profile. */
+            setAutoSyncLocalBranches(store?.userStore, true);
+            store._pendingSyncLocalBranchesOnRegister = hasLocal;
             const res = await registerSyncLoginAccount(norm || u, {
                 credentialKind: 'password',
                 password: registerPassword,
                 passwordConfirm: registerPasswordConfirm,
             });
-            grantNetworkSocialConsent?.();
             setRegisterResult(res || null);
             setSecretSaved(false);
             setSessionView('registered');
@@ -398,6 +405,11 @@ export function ModalOnboarding() {
             finishTapGuardUntilRef.current = Date.now() + 1600;
             setTimeout(() => bumpGuard((n) => n + 1), 1650);
         } catch (e) {
+            try {
+                getArboritoStore()._pendingSyncLocalBranchesOnRegister = false;
+            } catch {
+                /* ignore */
+            }
             const msg = humanizeAuthError(e, ui);
             setError(msg);
             const low = String(msg || '').toLowerCase();

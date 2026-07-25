@@ -59,9 +59,6 @@ export function OnboardingAccountEntry({
     const signInLbl = ui.onboardingSessionSignIn || 'Sign in';
     const consentInfo = ui.networkSocialConsentInfo || '';
     const actionBusy = busy || checking;
-    const passwordHint =
-        ui.onboardingRegisterPasswordStepHint ||
-        'Ahora elige una contraseña. La repetirás una vez para confirmarla.';
 
     const handlePrimary = () => {
         if (!passwordStep) {
@@ -106,7 +103,6 @@ export function OnboardingAccountEntry({
                     />
                 ) : (
                     <div className="arborito-onb-password-step">
-                        <p className="arborito-onb-field-hint m-0 mb-3">{passwordHint}</p>
                         <LoginPasswordRegisterFields
                             ui={ui}
                             disabled={actionBusy}
@@ -164,7 +160,7 @@ export function OnboardingStep2Hero() {
     const title = ui.onboardingSessionTitle || 'Your account';
     const subtitle =
         ui.onboardingSessionSubtitle ||
-        'Primero elige un nombre. Después crearás una contraseña para entrar en otros dispositivos.';
+        'Create a free account or sign in.';
 
     return (
         <div className="arborito-onboarding-hero arborito-onboarding-hero--step2">

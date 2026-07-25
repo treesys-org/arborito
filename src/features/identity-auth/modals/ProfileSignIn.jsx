@@ -17,6 +17,9 @@ import { LoginPasswordRecoveryLinks } from '../components/LoginAuthExtras.jsx';
 import { ProfileLoginMethodTabs } from '../components/ProfileLoginMethodTabs.jsx';
 import { ProfilePasswordSecurityPanel } from '../components/ProfilePasswordSecurityPanel.jsx';
 import { ProfileGuestAuthMascot } from '../components/ProfileGuestAuthMascot.jsx';
+import { ProfileAutoSyncLocalSwitch } from '../components/ProfileAutoSyncLocalSwitch.jsx';
+import { getArboritoStore } from '../../../core/store-singleton.js';
+import { listLocalSyncableBranchIds, setAutoSyncLocalBranches } from '../api/register-sync-local.js';
 function BusyBanner({ label }) {
     if (!label) return null;
     return (
@@ -284,15 +287,24 @@ export function ProfileSignIn({
             ) {
                 updateUserProfile(norm, tempAvatar);
             }
+            const store = getArboritoStore();
+            const hasLocal = listLocalSyncableBranchIds(store?.userStore).length > 0;
+            grantNetworkSocialConsent?.();
+            setAutoSyncLocalBranches(store?.userStore, true);
+            store._pendingSyncLocalBranchesOnRegister = hasLocal;
             await registerSyncLoginAccount(norm || u, {
                 credentialKind: 'password',
                 password: registerPassword,
                 passwordConfirm: registerPasswordConfirm,
             });
-            grantNetworkSocialConsent?.();
             profileAfterSignedIn();
             onAuthErrorClear();
         } catch (e) {
+            try {
+                getArboritoStore()._pendingSyncLocalBranchesOnRegister = false;
+            } catch {
+                /* ignore */
+            }
             const friendly = humanizeAuthError(e, ui);
             onAuthError(friendly);
             const low = String(friendly || '').toLowerCase();
@@ -339,27 +351,34 @@ export function ProfileSignIn({
     let panelBody;
     if (signedIn) {
         panelBody = (
-            <>
-                <SyncAccessTriad qrRevealed={syncQrVisible} onToggleQr={onToggleQr} />
+            <div className="profile-authed-session">
+                <div className="profile-authed-session__security">
+                    <SyncAccessTriad qrRevealed={syncQrVisible} onToggleQr={onToggleQr} />
+                </div>
+                <div className="profile-authed-session__prefs">
+                    <ProfileAutoSyncLocalSwitch disabled={authBusy} />
+                </div>
                 {authError ? (
-                    <p className="text-[11px] text-red-600 dark:text-red-300 mt-3 mb-0 leading-snug" role="alert">
+                    <p className="text-[11px] text-red-600 dark:text-red-300 m-0 leading-snug" role="alert">
                         {authError}
                     </p>
                 ) : null}
-                <button
-                    type="button"
-                    id="profile-session-signout"
-                    className="profile-action-btn profile-action-btn--footer profile-action-btn--danger profile-session-logout"
-                    onClick={onSignOut}
-                >
-                    {ui.authSignOut || 'Sign out'}
-                </button>
-                <ProfileDangerZone
-                    authBusy={authBusy}
-                    onAuthError={onAuthError}
-                    onAuthBusyChange={onAuthBusyChange}
-                />
-            </>
+                <div className="profile-authed-session__actions">
+                    <button
+                        type="button"
+                        id="profile-session-signout"
+                        className="profile-action-btn profile-action-btn--footer profile-action-btn--danger profile-session-logout"
+                        onClick={onSignOut}
+                    >
+                        {ui.authSignOut || 'Sign out'}
+                    </button>
+                    <ProfileDangerZone
+                        authBusy={authBusy}
+                        onAuthError={onAuthError}
+                        onAuthBusyChange={onAuthBusyChange}
+                    />
+                </div>
+            </div>
         );
     } else {
         const primaryLbl = authBusy

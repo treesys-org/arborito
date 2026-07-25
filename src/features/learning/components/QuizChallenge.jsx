@@ -1,6 +1,6 @@
 import { useLearning } from '../hooks/useLearning.js';
 import { useMemo, useState } from 'react';
-import { QuestionProgress } from './QuestionProgress.jsx';
+import { QuestionProgress, DENSE_SEGMENT_THRESHOLD } from './QuestionProgress.jsx';
 import { QuestionFooter } from './QuestionFooter.jsx';
 import {
     QUIZ_MODE_CLOZE,
@@ -608,7 +608,9 @@ export function QuizSessionSummary({
             </div>
             <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">{title}</h3>
             <div
-                className="arborito-question-progress__segments arborito-question-progress__segments--summary mb-4 justify-center max-w-md mx-auto"
+                className={`arborito-question-progress__segments arborito-question-progress__segments--summary mb-4 justify-center max-w-md mx-auto${
+                    total > DENSE_SEGMENT_THRESHOLD ? ' arborito-question-progress__segments--dense' : ''
+                }`}
                 role="list"
                 aria-label={scoreLine}
             >
@@ -624,9 +626,11 @@ export function QuizSessionSummary({
                             title={title}
                             aria-label={title}
                         >
-                            <span className="arborito-question-progress__mark" aria-hidden="true">
-                                {ok ? '✓' : '✗'}
-                            </span>
+                            {total <= DENSE_SEGMENT_THRESHOLD ? (
+                                <span className="arborito-question-progress__mark" aria-hidden="true">
+                                    {ok ? '✓' : '✗'}
+                                </span>
+                            ) : null}
                         </div>
                     );
                 })}

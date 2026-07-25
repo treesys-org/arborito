@@ -627,6 +627,51 @@
     align-items: flex-start;
 }
 
+/* Signed-in session: clear bands, less stacked noise (mobile + desktop). */
+.profile-authed-session {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.profile-authed-session__prefs {
+    margin: 0;
+    padding: 0.15rem 0.15rem 0.15rem 0;
+    border-radius: 0.65rem;
+}
+
+.profile-authed-session__prefs .profile-auto-sync-local {
+    margin: 0;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+}
+
+.profile-authed-session__prefs .profile-auto-sync-local > div:first-child p {
+    font-size: 0.8125rem;
+}
+
+.profile-authed-session__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.15rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--arborito-theme-profile-divider);
+}
+
+.profile-authed-session__actions .profile-session-logout {
+    margin: 0;
+}
+
+.profile-authed-session__actions .profile-danger-zone {
+    margin-top: 0;
+}
+
+.profile-danger-zone__head {
+    margin-bottom: 0.4rem;
+}
+
 .profile-desk-authed-stack {
     display: flex;
     flex-direction: column;

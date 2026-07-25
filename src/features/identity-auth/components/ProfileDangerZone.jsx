@@ -12,15 +12,11 @@ export function ProfileDangerZone({ authBusy, onAuthError, onAuthBusyChange, onR
     const busyAttr = authBusy ? { disabled: true } : {};
 
     const title = ui.profileDangerZoneTitle || 'Danger zone';
-    const hint =
-        ui.profileDangerZoneHint ||
-        'Permanent actions for your online account. Local progress on this device is not affected.';
 
     return (
         <section className="profile-danger-zone" aria-label={title}>
             <div className="profile-danger-zone__head">
                 <p className="profile-danger-zone__title">{title}</p>
-                <p className="profile-danger-zone__hint">{hint}</p>
             </div>
             <button
                 type="button"
