@@ -7,6 +7,7 @@
  */
 import { GAME_SDK_CORE_FRAGMENT } from './game-sdk-inject/game-sdk-core.js';
 import { GAME_SDK_LESSON_FRAGMENT } from './game-sdk-inject/game-sdk-lesson.js';
+import { GAME_SDK_MEMORY_FRAGMENT } from './game-sdk-inject/game-sdk-memory.js';
 import { GAME_SDK_QUIZ_FRAGMENT } from './game-sdk-inject/game-sdk-quiz.js';
 import { GAME_SDK_PLATFORM_FRAGMENT } from './game-sdk-inject/game-sdk-platform.js';
 import { GAME_SDK_NARRATIVE_FRAGMENT } from './game-sdk-inject/game-sdk-narrative.js';
@@ -24,6 +25,7 @@ export function buildGameSdkInjection({ bridgeUser, bridgeAvatar, bridgeLang }) 
     var user = { username: ${u}, avatar: ${a}, lang: ${l} };
 ${GAME_SDK_CORE_FRAGMENT}
 ${GAME_SDK_LESSON_FRAGMENT}
+${GAME_SDK_MEMORY_FRAGMENT}
 ${GAME_SDK_QUIZ_FRAGMENT}
 ${GAME_SDK_PLATFORM_FRAGMENT}
 ${GAME_SDK_NARRATIVE_FRAGMENT}
