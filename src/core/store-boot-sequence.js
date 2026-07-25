@@ -149,9 +149,10 @@ export function scheduleStoreSourceBoot(store, clearBootSafetyTimer) {
                     void runSourceBoot(store);
                 }, 400);
             };
-            /** Open relay WebSockets during the wizard so the first Forest/Nostr load is not cold. */
-            const prewarmNostrDuringOnboarding = () => {
+            /** Open relay WebSockets after step-1 Continue (consent), not while the welcome is still open. */
+            const prewarmNostrAfterOnboardingConsent = () => {
                 if (!hasGdprNetworkConsent()) return;
+                if (isOnboardingWizardIncomplete()) return;
                 scheduleIdle(() => {
                     void warmNostrRelayConnections(store, { probe: true }).catch((e) => {
                         console.warn('[Arborito] onboarding nostr prewarm', e);
@@ -162,9 +163,9 @@ export function scheduleStoreSourceBoot(store, clearBootSafetyTimer) {
                 store.update({ loading: false });
                 hideInitialLoader();
                 if (isOnboardingWizardIncomplete()) {
-                    /* Shared diploma first; onboarding resumes when they close it. */
+                    /* Shared diploma first; onboarding resumes when they close it.
+                     * Do not warm Nostr here — wait for Continue / account on step 1. */
                     void ensureAppCoreReady().then(() => tryOpenSharedCertificate(store));
-                    prewarmNostrDuringOnboarding();
                     if (typeof window !== 'undefined') {
                         window.addEventListener('arborito-onboarding-complete', scheduleBoot, {
                             once: true,
@@ -193,10 +194,10 @@ export function scheduleStoreSourceBoot(store, clearBootSafetyTimer) {
                     scheduleLocalBoot();
                 }
                 onGdprNetworkConsentGranted(() => {
-                    if (isOnboardingWizardIncomplete()) {
-                        prewarmNostrDuringOnboarding();
-                        return;
-                    }
+                    /* Consent during welcome (Continue / Sign in) is warmed by OnboardingModal
+                     * via prewarmForestNetworkIndices — do not connect before that tap. */
+                    if (isOnboardingWizardIncomplete()) return;
+                    prewarmNostrAfterOnboardingConsent();
                     if (!store._sourceBootFinished && !store._sourceBootStarted) {
                         scheduleLocalBoot();
                     }
@@ -270,7 +271,7 @@ export function initStoreInstanceFields(store) {
         });
     }
 
-    if (hasGdprNetworkConsent()) {
+    if (hasGdprNetworkConsent() && !isOnboardingWizardIncomplete()) {
         void warmNostrRelayConnections(store, { probe: true }).catch((e) => {
             console.warn('[Arborito] boot nostr warm', e);
         });

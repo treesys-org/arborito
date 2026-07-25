@@ -63,7 +63,7 @@ export function formatArboritoImportSummary(ui, analysis) {
     const a = analysis || {};
     if (a.kind === 'composed-tree') {
         const lines = [];
-        lines.push(ui.importPreviewKindTree || '🌳 Tree (playlist of branches)');
+        lines.push(ui.importPreviewKindTree || '🌳 Tree (combined courses)');
         lines.push(
             String(ui.importPreviewTreeName || 'Name: {name}').replace(/\{name\}/g, a.title || '')
         );
@@ -157,9 +157,9 @@ function formatArboritoImportConfirmBodyHtml(ui, analysis, duplicate) {
     const isTree = analysis?.kind === 'composed-tree';
     const intro = isTree
         ? ui.importConfirmIntroTree ||
-          'This file is a tree (playlist). It will be added to Forest → Trees.'
+          'This file is a tree (combined courses). It will be added to Forest → Trees.'
         : ui.importConfirmIntroBranch ||
-          'This file is a branch (full course). It will be added to Forest → Branches.';
+          'This file is a full branch (course). It will be added to Forest → Branches.';
     const parts = [`<p class="arborito-dialog-intro">${escapeDialogHtml(intro)}</p>`];
 
     if (duplicate?.entry) {

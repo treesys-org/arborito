@@ -43,7 +43,7 @@ items:
       - Imported branches
       - Arcade points only
   - question: What is the umbrella for?
-    answer: Protects one day off
+    answer: Protects your streak if you miss a day
     modes: multiple,recall
     traps:
       - Raises volume
@@ -59,28 +59,28 @@ title: Trophies
 In **Achievements** (backpack):
 
 1. **Branch:** finish a whole course.
-2. **Tree:** finish every branch in a tree.
+2. **Tree:** finish every branch in a tree (combined courses).
 3. **Extra achievement:** the author puts it on a folder (construction mode).
 
 @quiz
 concept: Main trophies
 items:
   - question: Which trophy do you get for finishing this whole demo?
-    answer: Branch trophy
+    answer: The Branch trophy
     modes: multiple,recall
     traps:
       - Just an exam
       - A folder achievement
       - Arcade points only
   - question: Which trophy needs every branch in a tree?
-    answer: Tree trophy
+    answer: The Tree trophy
     modes: multiple,recall
     traps:
       - Branch trophy
       - Streak only
       - Classroom only
-  - question: Are trophies for competing with others?
-    answer: No
+  - question: Are trophies for competing with other people?
+    answer: No, they are for you
     modes: multiple,recall
     traps:
       - Yes, there is a global ranking

@@ -21,14 +21,14 @@ index: 2
 title: Carpetas y lecciones
 @/section
 
-- Una **carpeta** es un tema.
+- Una **carpeta** es un tema con lecciones dentro.
 - Una **hoja** es una lección.
-- Tocas la hoja y se abre el texto.
+- Tocas la hoja y se abre la lección.
 
 @quiz
 concept: Mapa y ramas
 items:
-  - question: ¿Qué abres al tocar una hoja?
+  - question: ¿Qué abres al tocar una hoja en el mapa?
     answer: Una lección
     modes: multiple,recall
     traps:
@@ -54,15 +54,15 @@ Tu avance se guarda **en este dispositivo**. El archivo `.arborito` es el **curs
 @quiz
 concept: Bosque y datos
 items:
-  - question: ¿Dónde se guarda tu progreso?
+  - question: ¿Dónde se guarda tu progreso por defecto?
     answer: En este dispositivo
     modes: multiple,recall
     traps:
       - En el archivo .arborito
       - Solo en internet
       - En Classroom
-  - question: ¿Qué archivo usas para compartir un curso?
-    answer: .arborito
+  - question: ¿Qué archivo usas para compartir un curso con alguien?
+    answer: Un archivo .arborito
     modes: multiple,recall
     traps:
       - .pdf solamente

@@ -8,4 +8,4 @@ index: 1
 title: Your map
 @/section
 
-Learn to open folders, lessons, and the Forest.
+Learn to open folders, lessons, and the Forest (branches = course, trees = combined courses).

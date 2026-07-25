@@ -26,7 +26,7 @@ title: Open and go back
 @/section
 
 - Tap a **folder**: see what's inside.
-- Tap a **lesson**: open the text.
+- Tap a **lesson**: the lesson opens.
 - **Back:** arrow or the path at the top.
 
 Beside the lesson (or above on mobile) is the **outline**: sections and questions. Get them right and they turn **green**.
@@ -34,22 +34,22 @@ Beside the lesson (or above on mobile) is the **outline**: sections and question
 @quiz
 concept: Basic navigation
 items:
-  - question: Where do you see course folders?
-    answer: On the map
+  - question: Where do you see the course folders?
+    answer: On the course map
     modes: multiple,recall
     traps:
       - Only in Arcade
       - In the exam
       - In the trash
   - question: What happens when you tap a lesson?
-    answer: The text opens
+    answer: The lesson opens
     modes: multiple,recall
     traps:
       - The branch is deleted
       - Only music plays
       - The Forest opens
-  - question: How do you go back?
-    answer: Arrow or the path at the top
+  - question: How do you go back on the map?
+    answer: The arrow or the path at the top
     modes: multiple,recall
     traps:
       - Close the browser
@@ -68,14 +68,14 @@ With a folder open, tap **Play** 🎮: that opens Arcade for this course.
 concept: Map on mobile
 items:
   - question: When does the Play button show?
-    answer: With a folder or branch open
+    answer: When a folder is open
     modes: multiple,recall
     traps:
       - Always on the home screen
       - Only after the exam
       - Never on mobile
   - question: Does the outline show sections and questions?
-    answer: Yes
+    answer: Yes, both of them
     modes: multiple,recall
     traps:
       - Titles only

@@ -20,14 +20,14 @@ index: 2
 title: Folders and lessons
 @/section
 
-- A **folder** is a topic.
+- A **folder** is a topic with lessons inside.
 - A **leaf** is a lesson.
-- Tap the leaf to open the text.
+- Tap the leaf to open the lesson.
 
 @quiz
 concept: Map and branches
 items:
-  - question: What opens when you tap a leaf?
+  - question: What opens when you tap a leaf on the map?
     answer: A lesson
     modes: multiple,recall
     traps:
@@ -53,15 +53,15 @@ Progress stays **on this device**. The `.arborito` file is the **course**, not y
 @quiz
 concept: Forest and data
 items:
-  - question: Where is progress saved by default?
+  - question: Where is your progress saved by default?
     answer: On this device
     modes: multiple,recall
     traps:
       - In the .arborito file
       - Only online
       - In Classroom
-  - question: What file do you share for a course?
-    answer: .arborito
+  - question: What file do you share to give someone a course?
+    answer: A .arborito file
     modes: multiple,recall
     traps:
       - PDF only

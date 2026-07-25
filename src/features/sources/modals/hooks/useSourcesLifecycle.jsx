@@ -78,8 +78,19 @@ export function useSourcesLifecycle({ embed, bump, setMainTab, setActiveTab, set
         void store.userStore?.ensureBranchesHydrated?.().then(() => {
             bump();
             if (!fromOnboarding || sourcesPickerTourAlreadyDone()) return;
+            /* Wait until demo row is mounted (above spinner) so the spotlight cannot land on another branch. */
+            let tries = 0;
+            const tryStart = () => {
+                const demoEl = document.querySelector('[data-arbor-tour="sources-demo-branch"]');
+                if (demoEl || tries >= 40) {
+                    fireOnboardingSourcesTour();
+                    return;
+                }
+                tries += 1;
+                window.setTimeout(tryStart, 50);
+            };
             requestAnimationFrame(() => {
-                requestAnimationFrame(() => fireOnboardingSourcesTour());
+                requestAnimationFrame(tryStart);
             });
         });
 

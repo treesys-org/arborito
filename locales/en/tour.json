@@ -209,24 +209,14 @@
   ],
   "uiTourStepsSourcesPicker": [
     {
-      "target": "sources-main-tabs",
-      "title": "Forest",
-      "body": "Manage branches and trees here. A branch is one full course."
-    },
-    {
-      "target": "sources-tab-trees",
-      "title": "Trees",
-      "body": "Trees combine several branches. Switch the tab above whenever you want to go back to branches."
+      "target": "sources-demo-branch",
+      "title": "Choose a course",
+      "body": "This is the example tutorial."
     },
     {
       "target": "sources-trees-footer",
       "title": "Create or import",
-      "body": "You can create your own tree or branch to teach, share offline, and import it whenever you want."
-    },
-    {
-      "target": "sources-demo-branch",
-      "title": "Tap to load",
-      "body": "Tap the Arborito demo card to load the course. When it opens on the map, the tour continues."
+      "body": "Create a course, or add one from a file."
     }
   ]
 }

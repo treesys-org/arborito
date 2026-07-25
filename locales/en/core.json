@@ -90,7 +90,7 @@
   "deletePublishedOwnerNoEditorsBody": "You are the only team editor, so deleting also retracts it from the network (share link and code will stop working). Invite another editor first if someone else should keep it published.",
   "deletePublishedOwnerHasEditorsBody": "This only removes the copy on this device. Other team editors can keep the published network version live.",
   "deletePublishedComposedTitle": "Delete this tree from the device?",
-  "deletePublishedComposedOwnerBody": "This removes the local playlist and, as the publisher, retracts it from the network (share link and code will stop working).",
+  "deletePublishedComposedOwnerBody": "This removes the local combined courses and, as the publisher, retracts them from the network (share link and code will stop working).",
   "deletePublishedComposedBody": "This only removes the local copy. The network version may still be reachable.",
   "dialogSaveButton": "Save",
   "errorNoContent": "No valid content found in this tree.",

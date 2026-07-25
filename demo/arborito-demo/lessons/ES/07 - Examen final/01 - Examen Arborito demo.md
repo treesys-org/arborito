@@ -14,26 +14,32 @@ Repaso de toda la demo. En el examen **no puedes salir a medias** y continuar de
 @quiz
 concept: Repaso Arborito demo
 items:
-  - question: ¿Quién es la asistente de esta demo?
-    answer: Sage
+  - question: ¿Quién te guía en esta demo?
+    answer: Sage, el asistente
     traps:
       - Classroom
       - Hacky Terminal
       - Bosque
   - question: ¿Cómo se llama un curso completo?
-    answer: Rama
+    answer: Una Rama
     traps:
       - Arcade
       - Examen
       - Racha
-  - question: ¿Dónde importas un .arborito?
-    answer: Bosque
+  - question: ¿Qué es un árbol en el Bosque?
+    answer: Varios cursos combinados en un recorrido
     traps:
-      - Mapa
-      - Sage
-      - Jardín
+      - Una sola lección
+      - Solo Arcade
+      - Un archivo de voz
+  - question: ¿Dónde importas un archivo .arborito de un curso?
+    answer: En el Bosque
+    traps:
+      - En el mapa
+      - En Sage
+      - En el jardín
   - question: ¿Dónde juegas con las preguntas de tus lecciones?
-    answer: Arcade
+    answer: En Arcade
     traps:
       - Modo construcción
       - Solo examen
@@ -56,20 +62,20 @@ items:
       - Un editor de código
       - El Bosque
       - Solo el examen final
-  - question: ¿Dónde se guarda tu progreso?
+  - question: ¿Dónde se guarda tu progreso por defecto?
     answer: En este dispositivo
     traps:
       - En el .arborito
       - Solo en la nube
       - En Arcade
   - question: ¿Un cuestionario puede tener varias preguntas?
-    answer: Sí
+    answer: Sí, varias en un mismo cuestionario
     traps:
       - No
       - Solo en lecciones cortas
       - Solo Sage
-  - question: ¿Cómo editas esta demo?
-    answer: Modo construcción y un nombre para tu copia
+  - question: ¿Cómo haces una copia editable de esta demo?
+    answer: Modo construcción y luego un nombre para tu copia
     traps:
       - Editar directo
       - Solo examen

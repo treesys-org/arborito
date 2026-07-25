@@ -43,14 +43,14 @@ items:
       - Solo de Sage
       - De un examen cerrado
   - question: ¿Qué botón abre los juegos?
-    answer: Jugar
+    answer: Jugar (el botón de juegos)
     modes: multiple,recall
     traps:
       - Bosque
       - Exportar
       - Solo Sage
   - question: ¿Qué modo funciona sin IA?
-    answer: Modo estático
+    answer: Modo estático (sin IA)
     modes: recall,multiple
     traps:
       - Modo dinámico
@@ -71,21 +71,21 @@ title: Algunos juegos
 @quiz
 concept: Catálogo Arcade
 items:
-  - question: ¿Qué juego usa parejas?
+  - question: ¿Qué juego usa parejas de concepto y respuesta?
     answer: Memory
     modes: multiple,recall
     traps:
       - Classroom
       - Solo examen
       - Bosque
-  - question: ¿Cuál parece una consola de los 80?
+  - question: ¿Qué juego es una consola retro?
     answer: Hacky Terminal
     modes: multiple,recall
     traps:
       - Classroom
       - Memory
       - Exportar
-  - question: ¿Cuál simula una clase?
+  - question: ¿Qué juego simula una clase con compañeros?
     answer: Classroom
     modes: multiple,recall
     traps:

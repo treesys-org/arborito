@@ -20,10 +20,12 @@ import { pickOnboardingLanguage } from '../hooks/useIdentityAuth.js';
 import { OnboardingAccountEntry, OnboardingStep2Hero } from './OnboardingChoose.jsx';
 import { OnboardingSignInLogin, OnboardingSignInRegistered } from './OnboardingSignIn.jsx';
 import { completeOnboardingWizard } from '../api/onboarding-complete.js';
+import { prewarmForestNetworkIndices } from '../api/prewarm-forest-network.js';
 import { ensureModalChunk } from '../../../app/modal-chunk-loaders.js';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import { isOnboardingWizardIncomplete } from '../../../shared/lib/onboarding-boot-gate.js';
 import { persistUserNostrRelays, SUGGESTED_NOSTR_RELAYS } from '../../nostr/api/nostr-relays-runtime.js';
+import { getArboritoStore } from '../../../core/store-singleton.js';
 
 const TOTAL_STEPS = 2;
 
@@ -137,7 +139,6 @@ export function ModalOnboarding() {
         authSession,
         identityActions,
         isSignedIn,
-        warmNostrRelays,
     } = auth;
 
     const {
@@ -304,16 +305,14 @@ export function ModalOnboarding() {
         setStepAdvancing(true);
         persistUserNostrRelays(SUGGESTED_NOSTR_RELAYS);
         if (!hasGdprNetworkConsent()) grantGdprNetworkConsent();
-        /* Warm relays while Biblioteca opens — Forest stays cold otherwise. */
-        void warmNostrRelays({ probe: true }).catch((e) => {
-            console.warn('[Arborito] onboarding accept nostr prewarm', e);
-        });
+        /* Warm relays + directory indices ASAP — never await (login/register must stay free). */
+        prewarmForestNetworkIndices(getArboritoStore());
         void loadLanguage(lang);
         completedRef.current = true;
         runAfterPaint(() => {
             completeOnboardingWizard({ setModal }, { guest: true, returnStep: 1 });
         });
-    }, [stepAdvancing, busy, loadLanguage, lang, warmNostrRelays, setModal]);
+    }, [stepAdvancing, busy, loadLanguage, lang, setModal]);
 
     const scheduleUsernameCheck = useCallback(() => {
         scheduleUsernameAvailabilityCheck(suggestHostRef.current, {
@@ -581,9 +580,8 @@ export function ModalOnboarding() {
                                 if (stepAdvancing || busy) return;
                                 persistUserNostrRelays(SUGGESTED_NOSTR_RELAYS);
                                 if (!hasGdprNetworkConsent()) grantGdprNetworkConsent();
-                                void warmNostrRelays({ probe: true }).catch((e) => {
-                                    console.warn('[Arborito] onboarding account nostr prewarm', e);
-                                });
+                                /* Prewarm while user fills login/register — do not await. */
+                                prewarmForestNetworkIndices(getArboritoStore());
                                 setError('');
                                 setSessionView('start');
                                 setStep(2);

@@ -1,6 +1,6 @@
 /** Stable ids for the bundled Arborito demo branch (restored after reseteverything). */
-export const DEMO_SEED_KEY = 'arborito-demo-seeded-v24';
-export const DEMO_SEED_VERSION = 'v24';
+export const DEMO_SEED_KEY = 'arborito-demo-seeded-v28';
+export const DEMO_SEED_VERSION = 'v28';
 export const DEMO_BRANCH_ID = 'branch-arborito-demo';
 export const DEMO_BRANCH_UNIVERSE = 'arborito-demo';
 

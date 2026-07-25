@@ -27,7 +27,7 @@ Those same questions also appear in **Arcade**.
 @quiz
 concept: Lesson structure
 items:
-  - question: Where do you see what you already finished?
+  - question: Where do you see what you already finished in a lesson?
     answer: In the lesson outline
     modes: recall,multiple
     traps:
@@ -35,7 +35,7 @@ items:
       - In the Forest
       - On the root map
   - question: Can one quiz hold several questions?
-    answer: Yes
+    answer: Yes, several in one quiz
     modes: multiple,recall
     traps:
       - No, one per lesson

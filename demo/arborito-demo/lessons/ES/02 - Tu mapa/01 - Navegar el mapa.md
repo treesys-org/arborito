@@ -26,7 +26,7 @@ title: Abrir y volver
 @/section
 
 - Toca una **carpeta**: ves lo de dentro.
-- Toca una **lección**: se abre el texto.
+- Toca una **lección**: se abre la lección.
 - **Volver:** flecha o la ruta de arriba.
 
 Al lado (o arriba en el móvil) está el **índice**: secciones y preguntas. Si aciertas, se ponen en **verde**.
@@ -35,21 +35,21 @@ Al lado (o arriba en el móvil) está el **índice**: secciones y preguntas. Si 
 concept: Navegación básica
 items:
   - question: ¿Dónde ves las carpetas del curso?
-    answer: En el mapa
+    answer: En el mapa del curso
     modes: multiple,recall
     traps:
       - Solo en Arcade
       - En el examen
       - En la papelera
   - question: ¿Qué pasa si tocas una lección?
-    answer: Se abre el texto
+    answer: Se abre la lección
     modes: multiple,recall
     traps:
       - Se borra la rama
       - Solo suena música
       - Abre el Bosque
-  - question: ¿Cómo vuelves atrás?
-    answer: Flecha o la ruta de arriba
+  - question: ¿Cómo vuelves atrás en el mapa?
+    answer: La flecha o la ruta de arriba
     modes: multiple,recall
     traps:
       - Cerrar el navegador
@@ -68,14 +68,14 @@ Con una carpeta abierta, pulsa **Jugar** 🎮: abre el Arcade de este curso.
 concept: Mapa en móvil
 items:
   - question: ¿Cuándo aparece el botón Jugar?
-    answer: Con una carpeta o rama abierta
+    answer: Cuando hay una carpeta abierta
     modes: multiple,recall
     traps:
       - Siempre en el inicio
       - Solo tras el examen
       - Nunca en móvil
   - question: ¿El índice muestra secciones y preguntas?
-    answer: Sí
+    answer: Sí, las dos cosas
     modes: multiple,recall
     traps:
       - Solo títulos

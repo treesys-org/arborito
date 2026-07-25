@@ -29,21 +29,21 @@ To edit it: enter construction mode and choose a **name** for your copy. On that
 @quiz
 concept: Demo readonly
 items:
-  - question: How do you edit this demo?
-    answer: Construction mode and a name for your copy
+  - question: How do you make an editable copy of this demo?
+    answer: Construction mode, then name your copy
     modes: multiple,recall
     traps:
       - Edit the demo directly
       - Delete Sage
       - Only read
   - question: Can you save changes on the original demo?
-    answer: No
+    answer: No, only on your copy
     modes: multiple,recall
     traps:
       - Yes, always
       - Titles only
       - Exam only
-  - question: What is construction mode for on your branch?
+  - question: What is construction mode for?
     answer: Create and edit your course
     modes: multiple,recall
     traps:
@@ -62,15 +62,15 @@ title: Export
 @quiz
 concept: Export branch
 items:
-  - question: What file do you share when you export?
-    answer: .arborito
+  - question: What file do you share when you export a course?
+    answer: A .arborito file
     modes: multiple,recall
     traps:
       - PDF only
       - .mp4
       - An Arcade link
-  - question: Where is that file imported?
-    answer: Forest
+  - question: Where is that .arborito file imported?
+    answer: In the Forest
     modes: multiple,recall
     traps:
       - Arcade

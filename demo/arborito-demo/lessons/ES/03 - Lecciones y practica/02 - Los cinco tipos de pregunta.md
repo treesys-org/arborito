@@ -40,7 +40,7 @@ index: 3
 title: Completar huecos
 @/section
 
-Rellenas la palabra que falta. Abajo, esa palabra es **hueco**.
+Rellenas la palabra que falta. Abajo, esa palabra es **hueco** — la misma palabra del título.
 
 @quiz
 concept: Completar huecos
@@ -54,11 +54,11 @@ index: 4
 title: Recordar
 @/section
 
-Escribes o eliges la respuesta **sin** una lista larga de trampas.
+Recuerdas la respuesta **sin** una lista larga de opciones.
 
 @quiz
 concept: Recordar
-definition: Respuesta que debes {recordar} sin muchas trampas
+definition: Respuesta que debes {recordar} sin muchas opciones
 question: ¿Qué modo pide recordar la respuesta?
 answer: Recordar
 modes: recall

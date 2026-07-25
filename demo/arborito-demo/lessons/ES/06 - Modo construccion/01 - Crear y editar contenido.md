@@ -29,21 +29,21 @@ Para editarla: entra en modo construcción y elige un **nombre** para tu copia. 
 @quiz
 concept: Demo readonly
 items:
-  - question: ¿Cómo editas esta demo?
-    answer: Modo construcción y un nombre para tu copia
+  - question: ¿Cómo haces una copia editable de esta demo?
+    answer: Modo construcción y luego un nombre para tu copia
     modes: multiple,recall
     traps:
       - Editar el demo directo
       - Borrar Sage
       - Solo leer
   - question: ¿Puedes guardar cambios en la demo original?
-    answer: No
+    answer: No, solo en tu copia
     modes: multiple,recall
     traps:
       - Sí, siempre
       - Solo títulos
       - Solo en examen
-  - question: ¿Para qué sirve el modo construcción en tu rama?
+  - question: ¿Para qué sirve el modo construcción?
     answer: Crear y editar tu curso
     modes: multiple,recall
     traps:
@@ -62,15 +62,15 @@ title: Exportar
 @quiz
 concept: Exportar rama
 items:
-  - question: ¿Qué archivo compartes al exportar?
-    answer: .arborito
+  - question: ¿Qué archivo compartes al exportar un curso?
+    answer: Un archivo .arborito
     modes: multiple,recall
     traps:
       - .pdf solamente
       - .mp4
       - Un enlace de Arcade
-  - question: ¿Dónde se importa ese archivo?
-    answer: Bosque
+  - question: ¿Dónde se importa ese archivo .arborito?
+    answer: En el Bosque
     modes: multiple,recall
     traps:
       - Arcade

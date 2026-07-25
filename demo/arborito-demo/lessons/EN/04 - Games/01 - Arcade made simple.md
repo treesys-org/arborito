@@ -43,14 +43,14 @@ items:
       - Sage only
       - A locked exam
   - question: Which button opens the games?
-    answer: Play
+    answer: Play (the games button)
     modes: multiple,recall
     traps:
       - Forest
       - Export
       - Sage only
   - question: Which mode works without AI?
-    answer: Static mode
+    answer: Static mode (no AI)
     modes: recall,multiple
     traps:
       - Dynamic mode
@@ -71,21 +71,21 @@ title: A few games
 @quiz
 concept: Arcade catalogue
 items:
-  - question: Which game uses pairs?
+  - question: Which game uses concept and answer pairs?
     answer: Memory
     modes: multiple,recall
     traps:
       - Classroom
       - Exam only
       - Forest
-  - question: Which looks like an 80s console?
+  - question: Which game is a retro console?
     answer: Hacky Terminal
     modes: multiple,recall
     traps:
       - Classroom
       - Memory
       - Export
-  - question: Which simulates a class?
+  - question: Which game simulates a class with classmates?
     answer: Classroom
     modes: multiple,recall
     traps:

@@ -25,7 +25,7 @@
   "graphAddLessonRoot": "New lesson",
   "graphChangeIcon": "Change icon",
   "graphComposedBranchPill": "Branch in tree",
-  "graphComposedTreePlaylistHint": "Edit the playlist in Forest → Trees, not from the map.",
+  "graphComposedTreePlaylistHint": "Edit combined courses in Forest → Trees, not from the map.",
   "graphCreateParentError": "Could not resolve the parent folder for the new item.",
   "graphDefaultExamName": "New exam",
   "graphDefaultModuleName": "New module",

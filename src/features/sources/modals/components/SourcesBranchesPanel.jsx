@@ -123,7 +123,26 @@ export function SourcesBranchesPanel({
     const loading = !!globalDirLoading;
     const curriculumLoading = !!sourcesTreeLoading || !!state.treeHydrating;
     const err = String(globalDirError || '').trim();
-    const listEmpty = !visible.length && !loading && !err && !activePin;
+
+    /* Demo always above the directory spinner so the tour never highlights another row. */
+    const demoFromPin =
+        activePin?.kind === 'branch' && String(activePin.branch?.id) === DEMO_BRANCH_ID
+            ? activePin.branch
+            : null;
+    const demoFromList = items.find(
+        (it) => it.kind === 'branch' && String(it.data?.branch?.id) === DEMO_BRANCH_ID
+    );
+    const demoBranch = demoFromPin || demoFromList?.data?.branch || null;
+    const demoIsActive = !!(
+        demoFromPin ||
+        (demoFromList && demoFromList.data?.isActive) ||
+        (demoBranch && String(activeSource?.id) === DEMO_BRANCH_ID)
+    );
+    const demoPinned = !!demoFromPin;
+    const listWithoutDemo = visible.filter(
+        (it) => !(it.kind === 'branch' && String(it.data?.branch?.id) === DEMO_BRANCH_ID)
+    );
+    const listEmpty = !listWithoutDemo.length && !loading && !err && !activePin && !demoBranch;
 
     return (
         <div className="pt-0 pb-1">
@@ -210,6 +229,34 @@ export function SourcesBranchesPanel({
                 {err ? (
                     <p className="text-xs font-bold text-amber-800 dark:text-amber-200">{err}</p>
                 ) : null}
+                {demoBranch ? (
+                    <div
+                        className={
+                            demoPinned
+                                ? 'arborito-sources-active-pin'
+                                : undefined
+                        }
+                        data-arbor-tour={demoPinned ? 'sources-active-branch' : undefined}
+                    >
+                        {demoPinned ? (
+                            <p className="arborito-sources-active-pin__label">
+                                {ui.sourcesActiveBranchHeading || ui.sourceActive || 'Active branch'}
+                            </p>
+                        ) : null}
+                        <SourcesBranchRow
+                            branch={demoBranch}
+                            ui={ui}
+                            isActive={demoIsActive}
+                            pinned={demoPinned}
+                            tourTarget="sources-demo-branch"
+                            isPublishedOwner={isPublishedResourceOwner(demoBranch, getNostrPublisherPair)}
+                            globalDirMetrics={globalDirMetrics}
+                            actionsOpen={rowActionsOpen}
+                            onAction={onAction}
+                            onToggleRowActions={toggleRowActions}
+                        />
+                    </div>
+                ) : null}
                 {curriculumLoading ? (
                     <SourcesLoadingPanel
                         className="arborito-sources-loading-slot"
@@ -223,7 +270,8 @@ export function SourcesBranchesPanel({
                         tone="slate"
                     />
                 ) : null}
-                {activePin?.kind === 'branch' ? (
+                {activePin?.kind === 'branch' &&
+                String(activePin.branch?.id) !== DEMO_BRANCH_ID ? (
                     <div
                         className="arborito-sources-active-pin"
                         data-arbor-tour="sources-active-branch"
@@ -236,11 +284,7 @@ export function SourcesBranchesPanel({
                             ui={ui}
                             isActive
                             pinned
-                            tourTarget={
-                                String(activePin.branch.id) === DEMO_BRANCH_ID
-                                    ? 'sources-demo-branch'
-                                    : 'sources-active-branch'
-                            }
+                            tourTarget="sources-active-branch"
                             isPublishedOwner={isPublishedResourceOwner(activePin.branch, getNostrPublisherPair)}
                             globalDirMetrics={globalDirMetrics}
                             actionsOpen={rowActionsOpen}
@@ -270,18 +314,18 @@ export function SourcesBranchesPanel({
                         />
                     </div>
                 ) : null}
-                {listEmpty ? (
+                {listEmpty && !demoBranch ? (
                     <div className="arborito-empty arborito-empty--dashed">
                         {ui.sourcesUnifiedEmpty || 'No results.'}
                     </div>
                 ) : (
                     <div className="space-y-3">
-                        {activePin && visible.length ? (
+                        {(activePin || demoBranch) && listWithoutDemo.length ? (
                             <div className="arborito-sources-list-divider">
                                 <span>{ui.sourcesOtherBranchesHeading || 'Other branches'}</span>
                             </div>
                         ) : null}
-                        {visible.map((it, idx) => {
+                        {listWithoutDemo.map((it, idx) => {
                             if (it.kind === 'branch') {
                                 return (
                                     <SourcesBranchRow
@@ -289,11 +333,6 @@ export function SourcesBranchesPanel({
                                         branch={it.data.branch}
                                         ui={ui}
                                         isActive={it.data.isActive}
-                                        tourTarget={
-                                            String(it.data.branch?.id) === DEMO_BRANCH_ID
-                                                ? 'sources-demo-branch'
-                                                : undefined
-                                        }
                                         isPublishedOwner={isPublishedResourceOwner(it.data.branch, getNostrPublisherPair)}
                                         globalDirMetrics={globalDirMetrics}
                                         actionsOpen={rowActionsOpen}

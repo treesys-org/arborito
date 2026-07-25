@@ -55,7 +55,7 @@
   "constructionEnterPickBranches": "Editar lecciones en una rama",
   "constructionEnterPickEmpty": "Añade ramas a este árbol en Bosque → Árboles y vuelve.",
   "constructionEnterPickTitle": "¿Qué quieres editar?",
-  "constructionEnterPickTree": "Árbol (playlist)",
+  "constructionEnterPickTree": "Árbol (cursos combinados)",
   "constructionEnterPickTreeHint": "Abre Bosque → Árboles",
   "constructionLoadWhileEditingTitle": "¿Cargar mientras editas?",
   "constructionLoadWhileEditingBody": "Estás en modo construcción. Cargar otro árbol o rama deja esta sesión de edición en el mapa.",

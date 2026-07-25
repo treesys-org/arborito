@@ -43,7 +43,7 @@ items:
       - Ramas importadas
       - Solo puntos de Arcade
   - question: ¿Para qué sirve el paraguas?
-    answer: Protege un día sin estudiar
+    answer: Protege la racha si un día no estudias
     modes: multiple,recall
     traps:
       - Sube el volumen
@@ -59,28 +59,28 @@ title: Trofeos
 En **Logros** (mochila):
 
 1. **Rama:** terminas todo un curso.
-2. **Árbol:** terminas todas las ramas de un árbol.
+2. **Árbol:** terminas todas las ramas de un árbol (cursos combinados).
 3. **Logro extra:** el autor lo pone en una carpeta (modo construcción).
 
 @quiz
 concept: Trofeos principales
 items:
   - question: ¿Qué trofeo ganas al terminar esta demo entera?
-    answer: Trofeo de rama
+    answer: El trofeo de rama
     modes: multiple,recall
     traps:
       - Solo un examen
       - Un logro de carpeta
       - Solo puntos de Arcade
   - question: ¿Qué trofeo pide todas las ramas de un árbol?
-    answer: Trofeo de árbol
+    answer: El trofeo de árbol
     modes: multiple,recall
     traps:
       - Trofeo de rama
       - Solo racha
       - Solo Classroom
-  - question: ¿Los trofeos son para competir con otros?
-    answer: No
+  - question: ¿Los trofeos son para competir con otras personas?
+    answer: No, son para ti
     modes: multiple,recall
     traps:
       - Sí, hay ranking global

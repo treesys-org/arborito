@@ -26,7 +26,7 @@ index: 2
 title: Hacky Terminal
 @/section
 
-**Hacky Terminal** es un juego con estilo de consola: mismas preguntas del curso, otro formato.
+**Hacky Terminal** es un juego tipo consola con las preguntas del curso. Como otros juegos del Arcade, funciona en modo **estático** sin IA.
 
 @quiz
 concept: Terminal estático
@@ -39,14 +39,14 @@ items:
       - El Bosque
       - Solo el examen final
   - question: ¿Dónde abres Hacky Terminal?
-    answer: Desde Arcade
+    answer: Desde Arcade con el curso abierto
     modes: recall,multiple
     traps:
       - Solo en el Bosque
       - Solo exportando
       - Solo con Sage
   - question: ¿El modo estático funciona sin IA?
-    answer: Sí
+    answer: Sí, sin IA
     modes: multiple,recall
     traps:
       - No
@@ -64,7 +64,7 @@ title: Classroom
 @quiz
 concept: Classroom
 items:
-  - question: ¿Qué juego simula una clase?
+  - question: ¿Qué juego simula una clase con compañeros?
     answer: Classroom
     modes: multiple,recall
     traps:

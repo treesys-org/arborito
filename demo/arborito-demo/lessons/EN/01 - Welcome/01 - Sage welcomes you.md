@@ -23,7 +23,7 @@ title: Three useful names
 
 - **Branch:** a full course (this demo is one).
 - **Lesson:** a page with text, screenshots, and questions.
-- **Tree:** several branches together.
+- **Tree:** combined courses (several branches in one path).
 
 Turn on AI in settings if you want my help. It is **off** by default.
 
@@ -31,21 +31,21 @@ Turn on AI in settings if you want my help. It is **off** by default.
 concept: Sage welcome
 items:
   - question: Who guides you in this demo?
-    answer: Sage
+    answer: Sage, the assistant
     modes: multiple,recall
     traps:
       - Hacky Terminal
-      - The Forest alone
+      - The Forest
       - An automatic exam
   - question: What do we call a full course?
-    answer: Branch
+    answer: A Branch
     modes: recall,multiple
     traps:
       - Just a quiz
-      - A loose game
+      - A game
       - A phone file
   - question: Is AI on by default?
-    answer: No
+    answer: No, it is off
     modes: multiple,recall
     traps:
       - Yes, always
@@ -64,14 +64,14 @@ Open the map folders in order. In the outline, what you get right turns **green*
 concept: Demo path
 items:
   - question: Where do you see what you finished in a lesson?
-    answer: In the lesson outline
+    answer: In the lesson outline (turns green)
     modes: recall,multiple
     traps:
       - Only in Arcade
       - In the Forest
       - In the trash
   - question: Can you retry a quiz you already passed?
-    answer: Yes
+    answer: Yes, anytime
     modes: multiple,recall
     traps:
       - Never

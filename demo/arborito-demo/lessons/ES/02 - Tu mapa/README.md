@@ -8,4 +8,4 @@ index: 1
 title: Tu mapa
 @/section
 
-Aquí aprendes a abrir carpetas, lecciones y el Bosque.
+Aquí aprendes a abrir carpetas, lecciones y el Bosque (ramas = curso, árboles = cursos combinados).

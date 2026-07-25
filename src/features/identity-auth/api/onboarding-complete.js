@@ -4,10 +4,8 @@
  */
 
 import { getArboritoStore } from '../../../core/store-singleton.js';
-import {
-    hasGdprNetworkConsent,
-    warmNostrRelayConnections,
-} from '../../../shared/lib/connected-services/index.js';
+import { hasGdprNetworkConsent } from '../../../shared/lib/connected-services/index.js';
+import { prewarmForestNetworkIndices } from './prewarm-forest-network.js';
 
 const ONBOARDING_SEEN_KEY = 'arborito-onboarding-seen-v1';
 
@@ -24,10 +22,9 @@ export function completeOnboardingWizard(store, opts = {}) {
     } catch {
         /* ignore */
     }
+    /* Fire-and-forget — never await; must not delay login/register success paths. */
     if (hasGdprNetworkConsent()) {
-        void warmNostrRelayConnections(getArboritoStore(), { probe: true }).catch((e) => {
-            console.warn('[Arborito] onboarding complete nostr prewarm', e);
-        });
+        prewarmForestNetworkIndices(getArboritoStore());
     }
     const returnStep = Number(opts.returnStep) === 1 ? 1 : 2;
     const fromOnboarding = { step: returnStep, view: 'start' };

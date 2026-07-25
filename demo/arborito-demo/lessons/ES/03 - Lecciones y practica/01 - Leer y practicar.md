@@ -27,7 +27,7 @@ Esas mismas preguntas salen en el **Arcade**.
 @quiz
 concept: Estructura de lección
 items:
-  - question: ¿Dónde ves lo que ya completaste?
+  - question: ¿Dónde ves lo que ya completaste en una lección?
     answer: En el índice de la lección
     modes: recall,multiple
     traps:
@@ -35,7 +35,7 @@ items:
       - En el Bosque
       - En el mapa raíz
   - question: ¿Un cuestionario puede tener varias preguntas?
-    answer: Sí
+    answer: Sí, varias en un mismo cuestionario
     modes: multiple,recall
     traps:
       - No, una por lección

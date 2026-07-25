@@ -1,6 +1,12 @@
 /** Sources modal tab footer CTAs — bare Import + create row (no card chrome). */
 export function SourcesTabFooter({ ui, mainTab, onAction }) {
     const isTrees = mainTab === 'trees';
+    const importLbl = isTrees
+        ? ui.sourcesImportTreeShort || ui.sourcesImportShort || 'Import tree'
+        : ui.sourcesImportBranchShort || ui.sourcesImportShort || 'Import file';
+    const createLbl = isTrees
+        ? ui.sourcesCreateTreeShort || ui.sourcesCreateTree || 'Create tree (combined courses)'
+        : ui.plantBranchShort || ui.plantBranch || 'Create branch (course)';
 
     return (
         <div
@@ -13,7 +19,7 @@ export function SourcesTabFooter({ ui, mainTab, onAction }) {
                     className="arborito-cta-slate arborito-sources-cta-bar__btn"
                     onClick={() => onAction('import-tree')}
                 >
-                    {ui.sourcesImportShort || 'Import'}
+                    {importLbl}
                 </button>
                 {isTrees ? (
                     <button
@@ -21,7 +27,7 @@ export function SourcesTabFooter({ ui, mainTab, onAction }) {
                         className="arborito-cta-purple arborito-sources-cta-bar__btn arborito-sources-cta-bar__btn--create"
                         onClick={() => onAction('create-composed-tree')}
                     >
-                        {ui.sourcesCreateTreeShort || ui.sourcesCreateTree || 'Create tree'}
+                        {createLbl}
                     </button>
                 ) : (
                     <button
@@ -29,7 +35,7 @@ export function SourcesTabFooter({ ui, mainTab, onAction }) {
                         className="arborito-cta-purple arborito-sources-cta-bar__btn arborito-sources-cta-bar__btn--create"
                         onClick={() => onAction('show-plant')}
                     >
-                        {ui.plantBranchShort || ui.plantBranch || 'New branch'}
+                        {createLbl}
                     </button>
                 )}
             </div>

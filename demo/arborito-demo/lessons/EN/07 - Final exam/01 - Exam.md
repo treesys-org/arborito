@@ -14,26 +14,32 @@ A review of the whole demo. In an exam you **cannot leave halfway** and continue
 @quiz
 concept: Arborito demo review
 items:
-  - question: Who is the assistant in this demo?
-    answer: Sage
+  - question: Who guides you in this demo?
+    answer: Sage, the assistant
     traps:
       - Classroom
       - Hacky Terminal
       - Forest
   - question: What do we call a full course?
-    answer: Branch
+    answer: A Branch
     traps:
       - Arcade
       - Exam
       - Streak
-  - question: Where do you import a .arborito?
-    answer: Forest
+  - question: What is a tree in the Forest?
+    answer: Several courses combined into one path
     traps:
-      - Map
-      - Sage
-      - Garden
+      - A single lesson
+      - Arcade only
+      - A voice file
+  - question: Where do you import a .arborito course file?
+    answer: In the Forest
+    traps:
+      - On the map
+      - In Sage
+      - In the garden
   - question: Where do you play with lesson questions?
-    answer: Arcade
+    answer: In Arcade
     traps:
       - Construction mode
       - Exam only
@@ -56,20 +62,20 @@ items:
       - A code editor
       - The Forest
       - The final exam only
-  - question: Where is progress saved?
+  - question: Where is your progress saved by default?
     answer: On this device
     traps:
       - In the .arborito
       - Cloud only
       - In Arcade
   - question: Can one quiz hold several questions?
-    answer: Yes
+    answer: Yes, several in one quiz
     traps:
       - No
       - Short lessons only
       - Sage only
-  - question: How do you edit this demo?
-    answer: Construction mode and a name for your copy
+  - question: How do you make an editable copy of this demo?
+    answer: Construction mode, then name your copy
     traps:
       - Edit directly
       - Exam only

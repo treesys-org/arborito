@@ -26,7 +26,7 @@ index: 2
 title: Hacky Terminal
 @/section
 
-**Hacky Terminal** is a console-style game: same course questions, different format.
+**Hacky Terminal** is a console-style game with your course questions. Like other Arcade games, it works in **static** mode without AI.
 
 @quiz
 concept: Static terminal
@@ -39,14 +39,14 @@ items:
       - The Forest
       - The final exam only
   - question: Where do you open Hacky Terminal?
-    answer: From Arcade
+    answer: From Arcade with the course open
     modes: recall,multiple
     traps:
       - Forest only
       - Export only
       - Sage only
   - question: Does static mode work without AI?
-    answer: Yes
+    answer: Yes, without AI
     modes: multiple,recall
     traps:
       - No
@@ -64,7 +64,7 @@ title: Classroom
 @quiz
 concept: Classroom
 items:
-  - question: Which game simulates a class?
+  - question: Which game simulates a class with classmates?
     answer: Classroom
     modes: multiple,recall
     traps:

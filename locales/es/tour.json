@@ -199,24 +199,14 @@
   ],
   "uiTourStepsSourcesPicker": [
     {
-      "target": "sources-main-tabs",
-      "title": "El Bosque",
-      "body": "Aquí gestionas ramas y árboles. Una rama es un curso completo."
-    },
-    {
-      "target": "sources-tab-trees",
-      "title": "Los árboles",
-      "body": "Los árboles combinan varias ramas. Cuando quieras volver a las ramas, cambia la pestaña de arriba."
+      "target": "sources-demo-branch",
+      "title": "Elige un curso",
+      "body": "Este es el tutorial de ejemplo."
     },
     {
       "target": "sources-trees-footer",
-      "title": "Crea o importa",
-      "body": "Puedes crear tu propio árbol o rama para enseñar, compartir sin conexión e importarlo cuando quieras."
-    },
-    {
-      "target": "sources-demo-branch",
-      "title": "Toca para cargar",
-      "body": "Pulsa la tarjeta Arborito demo para cargar el curso. Cuando abra en el mapa, el recorrido sigue."
+      "title": "Crear o importar",
+      "body": "Crea un curso, o añádelo desde un archivo."
     }
   ]
 }

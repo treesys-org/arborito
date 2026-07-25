@@ -51,7 +51,7 @@
   "constructionEnterPickBranches": "Edit lessons in a branch",
   "constructionEnterPickEmpty": "Add branches to this tree in Forest → Trees, then come back.",
   "constructionEnterPickTitle": "What do you want to edit?",
-  "constructionEnterPickTree": "Tree (playlist)",
+  "constructionEnterPickTree": "Tree (combined courses)",
   "constructionEnterPickTreeHint": "Opens Forest → Trees",
   "constructionLoadWhileEditingTitle": "Load while editing?",
   "constructionLoadWhileEditingBody": "You are in construction mode. Loading another tree or branch leaves this editing session on the map.",

@@ -31,6 +31,7 @@ export const storeConnectedServiceMethods = {
     },
 
     async ensureNostrReady() {
+        if (!hasGdprNetworkConsent()) return null;
         if (this._nostr) {
             /* Re-sync peers from storage (e.g. consent re-granted after local-only). */
             this._applyNostrPeerConfig(this._nostr);

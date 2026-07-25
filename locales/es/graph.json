@@ -25,7 +25,7 @@
   "graphAddLessonRoot": "Nueva lección",
   "graphChangeIcon": "Cambiar icono",
   "graphComposedBranchPill": "Rama del árbol",
-  "graphComposedTreePlaylistHint": "La playlist se edita en Bosque → Árboles, no desde el mapa.",
+  "graphComposedTreePlaylistHint": "Los cursos combinados se editan en Bosque → Árboles, no desde el mapa.",
   "graphCreateParentError": "No se pudo determinar la carpeta padre para el nuevo elemento.",
   "graphDefaultExamName": "Nuevo examen",
   "graphDefaultModuleName": "Nuevo módulo",

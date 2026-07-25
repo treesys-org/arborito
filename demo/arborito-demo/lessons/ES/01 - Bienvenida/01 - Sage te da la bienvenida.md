@@ -23,7 +23,7 @@ title: Tres nombres útiles
 
 - **Rama:** un curso completo (esta demo es una rama).
 - **Lección:** una página con texto, capturas y preguntas.
-- **Árbol:** varias ramas juntas.
+- **Árbol:** cursos combinados (varias ramas en un solo recorrido).
 
 Si activas la IA en ajustes, puedo ayudarte. Por defecto está **apagada**.
 
@@ -31,21 +31,21 @@ Si activas la IA en ajustes, puedo ayudarte. Por defecto está **apagada**.
 concept: Bienvenida Sage
 items:
   - question: ¿Quién te guía en esta demo?
-    answer: Sage
+    answer: Sage, la asistente
     modes: multiple,recall
     traps:
       - Hacky Terminal
-      - El Bosque solo
+      - El Bosque
       - Un examen automático
   - question: ¿Cómo se llama un curso completo?
-    answer: Rama
+    answer: Una Rama
     modes: recall,multiple
     traps:
       - Solo un cuestionario
-      - Un juego suelto
+      - Un juego
       - Un archivo del móvil
-  - question: ¿La IA viene encendida?
-    answer: No
+  - question: ¿La IA viene encendida por defecto?
+    answer: No, viene apagada
     modes: multiple,recall
     traps:
       - Sí, siempre
@@ -64,14 +64,14 @@ Abre las carpetas del mapa en orden. En el índice, lo que aciertas se pone **ve
 concept: Recorrido demo
 items:
   - question: ¿Dónde ves qué completaste en una lección?
-    answer: En el índice de la lección
+    answer: En el índice de la lección (se pone verde)
     modes: recall,multiple
     traps:
       - Solo en Arcade
       - En el Bosque
       - En la papelera
   - question: ¿Puedes repetir un cuestionario ya hecho?
-    answer: Sí
+    answer: Sí, cuando quieras
     modes: multiple,recall
     traps:
       - No, nunca

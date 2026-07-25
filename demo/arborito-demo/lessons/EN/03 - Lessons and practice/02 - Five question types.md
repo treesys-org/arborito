@@ -40,7 +40,7 @@ index: 3
 title: Fill the blank
 @/section
 
-You fill in the missing word. Below, that word is **blank**.
+You fill in the missing word. Below, that word is **blank** — same word as in the title.
 
 @quiz
 concept: Fill blanks
@@ -54,11 +54,11 @@ index: 4
 title: Recall
 @/section
 
-You type or pick the answer **without** a long trap list.
+You recall the answer **without** a long list of options.
 
 @quiz
 concept: Recall
-definition: An answer you must {recall} without many traps
+definition: An answer you must {recall} without many options
 question: Which mode asks you to recall the answer?
 answer: Recall
 modes: recall
