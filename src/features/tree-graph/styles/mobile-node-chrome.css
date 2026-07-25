@@ -527,9 +527,8 @@ html:not(.dark) .mobile-structure-menu__action--danger {
 /* Path knot: light amber ring for folders on the way to the last lesson. */
 .mobile-knot.mobile-knot--opened:not(.active) {
     outline: 2px solid rgb(245 158 11 / 0.9);
-    outline-offset: 2px;
+    outline-offset: 0;
 }
 .mobile-label-row.mobile-label-row--opened:not(.is-active) {
     border-radius: var(--radius-md, 12px);
-    box-shadow: inset 3px 0 0 rgb(245 158 11 / 0.9);
 }

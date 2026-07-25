@@ -204,9 +204,9 @@ html.dark .mobile-trunk-fade { background: var(--arborito-vignette-trunk, linear
 .mobile-label-row--with-version { min-height: 3rem; align-items: center; justify-content: flex-start; gap: 0.35rem; flex-wrap: wrap; }
 .mobile-label-row--with-version .mobile-label-text { flex: 1 1 auto; min-width: 0; }
 .mobile-label-row .mobile-label-text { flex: 1 1 auto; min-width: 0; }
-.mobile-label-text { font-size: 0.75rem; font-weight: 700; color: var(--color-mobile-text-muted, var(--slate-400)); padding-left: var(--space-sm); transition: all 0.3s; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.35; word-break: break-word; }
+.mobile-label-text { font-size: 0.75rem; font-weight: 700; color: var(--color-mobile-text-muted, var(--slate-400)); padding-left: 0.2rem; transition: all 0.3s; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.35; word-break: break-word; }
 .mobile-label-row.is-active .mobile-label-text { color: var(--color-mobile-text, var(--slate-200)); font-size: 0.8125rem; }
-.mobile-label-meta { font-size: 0.5625rem; color: var(--color-text-secondary, var(--slate-500)); letter-spacing: 0.04em; margin-left: var(--space-sm); flex-shrink: 0; max-width: 100%; }
+.mobile-label-meta { font-size: 0.5625rem; color: var(--color-text-secondary, var(--slate-500)); letter-spacing: 0.04em; margin-left: 0.2rem; flex-shrink: 0; max-width: 100%; }
 .mobile-label-row--suppress-title .mobile-label-text { visibility: hidden; }
 
 .mobile-active-branch { display: flex; flex-direction: column; align-items: stretch; margin-bottom: var(--space-xl); position: relative; }

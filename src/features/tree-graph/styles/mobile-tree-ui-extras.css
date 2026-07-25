@@ -591,12 +591,12 @@ html.dark .arborito-mobile-path.mobile-tree-ui .mobile-children-panel .mobile-ch
 }
 .arborito-mobile-path.mobile-tree-ui .mobile-knot.mobile-knot--opened:not(.active) {
     outline: 2px solid rgb(245 158 11 / 0.9);
-    outline-offset: 2px;
+    outline-offset: 0;
     box-shadow: none !important;
 }
 .arborito-mobile-path.mobile-tree-ui .mobile-label-row.mobile-label-row--opened:not(.is-active) {
     background: transparent !important;
-    box-shadow: inset 3px 0 0 rgb(245 158 11 / 0.9) !important;
+    box-shadow: none !important;
     border-radius: var(--radius-md, 12px);
 }
 .arborito-mobile-path.mobile-tree-ui .mobile-children-panel .mobile-child-name {

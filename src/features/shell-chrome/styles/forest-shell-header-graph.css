@@ -127,7 +127,7 @@ html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-trunk-fade {
 html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-right-col {
     flex: 1 1 0%;
     min-width: 0;
-    padding: var(--space-lg) 0 calc(env(safe-area-inset-bottom, 0px) + 0.75rem) clamp(0.5rem, 2vw, 1.25rem);
+    padding: var(--space-lg) 0 calc(env(safe-area-inset-bottom, 0px) + 0.75rem) 0.15rem;
 }
 
 html.arborito-desktop .arborito-mobile-path.mobile-tree-ui .mobile-label-text {
