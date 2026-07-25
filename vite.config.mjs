@@ -1,6 +1,6 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-import { createReadStream, existsSync, statSync } from 'node:fs';
+import { createReadStream, existsSync, statSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname, join, normalize, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
@@ -13,6 +13,51 @@ import {
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const DEMO_MEDIA_ROOT = resolve(ROOT, DEMO_MEDIA_REL);
+
+function readArboritoBuildId() {
+    try {
+        const src = readFileSync(resolve(ROOT, 'src/core/version.js'), 'utf8');
+        const m = src.match(/export const ARBORITO_BUILD_ID\s*=\s*['"]([^'"]+)['"]/);
+        return (m && m[1]) || 'dev';
+    } catch {
+        return 'dev';
+    }
+}
+
+/** Stamp built index.html + emit unhashed build-id.json for transparent shell refresh. */
+function stampViteBuild() {
+    const buildId = readArboritoBuildId();
+    return {
+        name: 'arborito-stamp-vite-build',
+        transformIndexHtml(html) {
+            let out = html;
+            if (!out.includes('name="arborito:build"')) {
+                out = out.replace(
+                    '<head>',
+                    '<head>\n  <meta name="arborito:build" content="vite-react">'
+                );
+            }
+            if (out.includes('name="arborito:build-id"')) {
+                out = out.replace(
+                    /<meta\s+name="arborito:build-id"\s+content="[^"]*"\s*\/?>/i,
+                    `<meta name="arborito:build-id" content="${buildId}">`
+                );
+            } else {
+                out = out.replace(
+                    '<meta name="arborito:build" content="vite-react">',
+                    `<meta name="arborito:build" content="vite-react">\n  <meta name="arborito:build-id" content="${buildId}">`
+                );
+            }
+            return out;
+        },
+        closeBundle() {
+            const outDir = resolve(ROOT, 'www');
+            if (!existsSync(outDir)) return;
+            const payload = `${JSON.stringify({ id: buildId })}\n`;
+            writeFileSync(resolve(outDir, 'build-id.json'), payload, 'utf8');
+        },
+    };
+}
 
 const STATIC_MIME = {
     '.css': 'text/css',
@@ -95,17 +140,6 @@ function serveRootStaticDirs() {
 const NOBLE_ALIASES = Object.fromEntries(
     Object.entries(VENDOR_IMPORT_ALIASES).map(([find, rel]) => [find, resolve(ROOT, rel)])
 );
-
-/** Stamp built index.html so production can be distinguished from raw src/ deploy. */
-function stampViteBuild() {
-    return {
-        name: 'arborito-stamp-vite-build',
-        transformIndexHtml(html) {
-            if (html.includes('name="arborito:build"')) return html;
-            return html.replace('<head>', '<head>\n  <meta name="arborito:build" content="vite-react">');
-        },
-    };
-}
 
 export default defineConfig({
     base: './',

@@ -62,7 +62,9 @@ jobs:
         run: node ./scripts/verify-vite-www.mjs
 
       - name: Show deploy fingerprint (check this in arborito.org view-source)
-        run: grep -E 'arborito:build|script.*assets/' www/index.html || true
+        run: |
+          grep -E 'arborito:build|script.*assets/' www/index.html || true
+          echo "build-id.json=$(cat www/build-id.json)"
 
       - name: Check GitHub Pages is enabled
         id: pages

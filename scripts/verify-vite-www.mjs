@@ -34,6 +34,27 @@ if (!html.includes('content="vite-react"')) {
     fail('missing <meta name="arborito:build" content="vite-react"> stamp');
 }
 
+if (!/name="arborito:build-id"\s+content="[^"]+"/.test(html)) {
+    fail('missing <meta name="arborito:build-id" content="…"> stamp');
+}
+
+const buildIdPath = join(WWW, 'build-id.json');
+if (!existsSync(buildIdPath)) {
+    fail('missing www/build-id.json (transparent shell refresh)');
+}
+try {
+    const buildIdDoc = JSON.parse(readFileSync(buildIdPath, 'utf8'));
+    if (!buildIdDoc || typeof buildIdDoc.id !== 'string' || !buildIdDoc.id.trim()) {
+        fail('www/build-id.json must be { "id": "…" }');
+    }
+    const metaId = (html.match(/name="arborito:build-id"\s+content="([^"]+)"/) || [])[1];
+    if (metaId && metaId !== buildIdDoc.id) {
+        fail(`build-id meta (${metaId}) !== build-id.json (${buildIdDoc.id})`);
+    }
+} catch (e) {
+    fail(`www/build-id.json invalid JSON: ${e?.message || e}`);
+}
+
 const top = readdirSync(WWW);
 console.log('[verify-vite-www] OK : Vite artifact looks valid');
 console.log('[verify-vite-www] www/ top-level:', top.join(', '));
