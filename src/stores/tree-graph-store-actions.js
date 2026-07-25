@@ -45,6 +45,25 @@ export function bumpGraphUiRevisionAction() {
     patchGraphUiAction({ revision: (g.revision || 0) + 1, lastTrunkSig: '', lastChildrenSig: '' });
 }
 
+/**
+ * Amber “last place” on the map: folder you entered or lesson you opened.
+ * Does not move when only going back up the path.
+ * @param {string|null|undefined} nodeId
+ */
+export function rememberLastMapFocusAction(nodeId) {
+    const store = getArboritoStore();
+    if (!store || nodeId == null || nodeId === '') return;
+    const id = String(nodeId);
+    const node = store.findNode?.(id);
+    if (!node || node.type === 'root') return;
+    const g = graphUiOf(store);
+    if (String(g.lastMapFocusId || '') === id) return;
+    patchGraphUiAction({
+        lastMapFocusId: id,
+        revision: (g.revision || 0) + 1,
+    });
+}
+
 export function resetGraphUiForNewTreeAction() {
     const store = getArboritoStore();
     if (!store) return;
@@ -63,9 +82,18 @@ export function navigateMobilePathAction(ids) {
     if (!store) return;
     const next = Array.isArray(ids) ? ids.map(String) : [];
     const g = graphUiOf(store);
+    const prev = Array.isArray(g.mobilePath) ? g.mobilePath.map(String) : [];
     patchGraphUiAction({ mobilePath: next, revision: (g.revision || 0) + 1 });
     if (typeof store.syncTreeContextFromMobilePath === 'function') {
         store.syncTreeContextFromMobilePath();
+    }
+    const tip = next.length ? next[next.length - 1] : null;
+    const goingBack =
+        !!tip &&
+        next.length < prev.length &&
+        next.every((id, i) => String(id) === String(prev[i]));
+    if (tip && !goingBack) {
+        rememberLastMapFocusAction(tip);
     }
     schedulePersistTreeUiState(store);
 }
@@ -375,4 +403,5 @@ export const storeGraphUiMethods = {
     navigateMobilePath: navigateMobilePathAction,
     selectMobileNode: selectMobileNodeAction,
     setPendingMoveNodeId: setPendingMoveNodeIdAction,
+    rememberLastMapFocus: rememberLastMapFocusAction,
 };

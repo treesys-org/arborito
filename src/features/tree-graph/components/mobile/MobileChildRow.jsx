@@ -6,7 +6,7 @@ import {
 } from '../../api/node-property-emojis.js';
 import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
 import { CompletedTickIcon } from '../../../../shared/ui/CompletedTickIcon.jsx';
-import { getMobileTone, nodeLeadsToLessonId } from '../../api/mobile-tree-presentation-utils.js';
+import { getMobileTone, nodeLeadsToLessonId, resolveLastMapFocusId } from '../../api/mobile-tree-presentation-utils.js';
 import { isFolderAchievementEarned } from '../../../garden-progress/api/achievement-folder-status.js';
 import { MobileInlineTools } from './MobileInlineTools.jsx';
 import { useBindMobileTapRef } from '../../../../shared/ui/useBindMobileTap.js';
@@ -63,15 +63,19 @@ export function MobileChildRow({ child, ctx }) {
         selectedId != null &&
         String(child.id) === String(selectedId);
     const openedId =
-        lastOpenedId != null
+        lastOpenedId != null && String(lastOpenedId)
             ? String(lastOpenedId)
-            : !isConstruct
-              ? String(tree.userStore?.getRecentLessons?.()?.[0]?.id || '')
-              : '';
-    const recentOpened =
+            : resolveLastMapFocusId(tree);
+    const findById = (id) => tree.findNode?.(id);
+    const isExactFocus = !!openedId && !isConstruct && String(child.id) === openedId;
+    /* Full amber on the exact last place (lesson or folder). Light border on ancestor folders. */
+    const recentOpened = isExactFocus;
+    const openedPathFolder =
         !!openedId &&
         !isConstruct &&
-        nodeLeadsToLessonId(child, openedId, (id) => tree.findNode?.(id));
+        !isExactFocus &&
+        child.type === 'branch' &&
+        nodeLeadsToLessonId(child, openedId, findById);
     const cname = child.name || '';
     const inlineRenameId = tree.graphUi?.inlineRenameNodeId;
     const renamingRow =
@@ -162,9 +166,9 @@ export function MobileChildRow({ child, ctx }) {
                 ref={rowRef}
                 className={`mobile-child-row${rowState}${isRowSel ? ' mobile-child-row--selected' : ''}${
                     recentOpened ? ' mobile-child-row--opened' : ''
-                }${isFolderRow ? ' mobile-child-row--folder' : ''}${
-                    isComposedBranch ? ' mobile-child-row--composed-branch' : ''
-                }`}
+                }${openedPathFolder ? ' mobile-child-row--opened-path' : ''}${
+                    isFolderRow ? ' mobile-child-row--folder' : ''
+                }${isComposedBranch ? ' mobile-child-row--composed-branch' : ''}`}
                 data-node-id={String(child.id)}
                 role="button"
                 tabIndex={0}

@@ -180,6 +180,7 @@ export class GraphLogic {
         this.store.dispatchEvent(new CustomEvent('arborito-set-mobile-path', { detail: { ids: mobileIds } }));
 
         if (target.type === 'leaf' || target.type === 'exam') {
+            this.store.rememberLastMapFocus?.(target.id);
             const current = this.store.state.selectedNode;
             if (
                 current &&

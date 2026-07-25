@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { fileSystem } from '../../../backup-export/api/filesystem.js';
 import { useTreeGraph } from '../../hooks/useTreeGraph.js';
-import { getMobileTone, nodeLeadsToLessonId } from '../../api/mobile-tree-presentation-utils.js';
+import { getMobileTone, nodeLeadsToLessonId, resolveLastMapFocusId } from '../../api/mobile-tree-presentation-utils.js';
 import { getMobilePath, getSelectedNodeId } from '../../api/graph-ui-accessors.js';
 import { Callout } from '../../../../shared/ui/Callout.jsx';
 import { MobileKnotRow, MobilePathLabelRow } from './MobileKnotRow.jsx';
@@ -62,9 +62,7 @@ export function MobileKnotsColumn({ model }) {
     if (!model?.pathNodes?.length) return null;
 
     const { pathNodes, harvested, activeIndex, pulseKnotIndex } = model;
-    const lastOpenedId = !constructionMode
-        ? String(tree.userStore?.getRecentLessons?.()?.[0]?.id || '')
-        : '';
+    const lastOpenedId = !constructionMode ? resolveLastMapFocusId(tree) : '';
     void recentEpoch;
 
     return pathNodes.map((node, index) => (
@@ -102,9 +100,7 @@ export function MobileRightColumn({ model, panelRef, scrollRootRef }) {
     const selectedId = getSelectedNodeId();
     const directChildSelected =
         selectedId != null && children.some((c) => String(c.id) === String(selectedId));
-    const lastOpenedId = !constructionMode
-        ? String(tree.userStore?.getRecentLessons?.()?.[0]?.id || '')
-        : '';
+    const lastOpenedId = !constructionMode ? resolveLastMapFocusId(tree) : '';
     void recentEpoch;
 
     return pathNodes.map((node, index) => {

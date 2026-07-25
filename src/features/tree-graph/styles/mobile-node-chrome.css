@@ -507,7 +507,7 @@ html:not(.dark) .mobile-structure-menu__action--danger {
     outline-offset: 1px;
     border-radius: var(--radius-md, 12px);
 }
-/* Last opened lesson — filled amber card (also on parent folders that lead to it). */
+/* Last opened lesson/exam — filled amber card. */
 .mobile-child-row--opened {
     outline: none;
     border: var(--arborito-theme-tree-mobile-child-row--opened-border) !important;
@@ -516,14 +516,20 @@ html:not(.dark) .mobile-structure-menu__action--danger {
     border-radius: var(--radius-md, 12px);
 }
 
-/* Path knot / label: same amber cue for ancestors of the last opened lesson. */
+/* Parent folder on the path to last opened — border only (do not wash over the folder). */
+.mobile-child-row--opened-path {
+    outline: none;
+    border: 2px solid rgb(245 158 11 / 0.85) !important;
+    box-shadow: 0 0 0 1px rgb(251 191 36 / 0.35) !important;
+    border-radius: var(--radius-md, 12px);
+}
+
+/* Path knot: light amber ring for folders on the way to the last lesson. */
 .mobile-knot.mobile-knot--opened:not(.active) {
-    box-shadow: var(--arborito-theme-tree-mobile-child-row--opened-box-shadow) !important;
-    outline: 2px solid rgb(245 158 11 / 0.95);
+    outline: 2px solid rgb(245 158 11 / 0.9);
     outline-offset: 2px;
 }
 .mobile-label-row.mobile-label-row--opened:not(.is-active) {
     border-radius: var(--radius-md, 12px);
-    background: var(--arborito-theme-tree-mobile-child-row--opened-background) !important;
-    box-shadow: var(--arborito-theme-tree-mobile-child-row--opened-box-shadow) !important;
+    box-shadow: inset 3px 0 0 rgb(245 158 11 / 0.9);
 }

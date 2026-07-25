@@ -6,6 +6,7 @@ import { MobilePanelHead } from './MobilePanelHead.jsx';
 import { MobileChildRow } from './MobileChildRow.jsx';
 import { ConstructionCreateFab } from '../construction/ConstructionCreateFab.jsx';
 import { useVirtualChildWindow } from '../../hooks/useVirtualChildWindow.jsx';
+import { resolveLastMapFocusId } from '../../api/mobile-tree-presentation-utils.js';
 
 /** Active branch children panel (right column). */
 export function MobileBranchPanel({ current, harvested, directChildSelected, panelRef, scrollRootRef }) {
@@ -36,9 +37,7 @@ export function MobileBranchPanel({ current, harvested, directChildSelected, pan
         }
     }, [current, children.length, current?.id, tree]);
 
-    const lastOpenedId = !isConstruct
-        ? String(tree.userStore?.getRecentLessons?.()?.[0]?.id || '')
-        : '';
+    const lastOpenedId = !isConstruct ? resolveLastMapFocusId(tree) : '';
     void recentEpoch;
 
     const ctx = {

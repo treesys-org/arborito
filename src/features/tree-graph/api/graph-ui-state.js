@@ -19,6 +19,8 @@ export function createDefaultGraphUi() {
         lastTrunkSig: '',
         lastChildrenSig: '',
         lastRootContentHeight: 0,
+        /** Last map place (folder entered or lesson opened) for the amber cue — not only lessons. */
+        lastMapFocusId: null,
         revision: 0,
         /** @type {null | { type: string, nodeId?: string, rect?: object, [key: string]: unknown }} */
         constructionOverlay: null,

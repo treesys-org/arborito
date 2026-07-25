@@ -9,16 +9,28 @@ export function getMobileTone(node) {
 }
 
 /**
- * True when `node` is the last-opened lesson/exam, or a non-root parent folder that leads to it.
+ * Id for the amber map cue: last folder entered or lesson opened.
+ * Falls back to last recent lesson until the user navigates the map.
+ * @param {{ graphUi?: { lastMapFocusId?: string|null }, constructionMode?: boolean, userStore?: { getRecentLessons?: () => { id?: string }[] } }} tree
+ */
+export function resolveLastMapFocusId(tree) {
+    const fromUi = tree?.graphUi?.lastMapFocusId;
+    if (fromUi != null && String(fromUi)) return String(fromUi);
+    if (tree?.constructionMode) return '';
+    return String(tree?.userStore?.getRecentLessons?.()?.[0]?.id || '');
+}
+
+/**
+ * True when `node` is the map focus, or a non-root parent folder that leads to it.
  * Root is never highlighted — the whole tree would light up and the cue stops being useful.
  * @param {object | null | undefined} node
- * @param {string | null | undefined} lessonId
+ * @param {string | null | undefined} focusId
  * @param {(id: string) => object | null | undefined} [findNode]
  */
-export function nodeLeadsToLessonId(node, lessonId, findNode) {
-    if (!node || lessonId == null || lessonId === '') return false;
+export function nodeLeadsToLessonId(node, focusId, findNode) {
+    if (!node || focusId == null || focusId === '') return false;
     if (node.type === 'root') return false;
-    const lid = String(lessonId);
+    const lid = String(focusId);
     if (String(node.id) === lid) return true;
 
     if (typeof findNode === 'function') {

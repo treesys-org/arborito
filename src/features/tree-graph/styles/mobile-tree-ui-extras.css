@@ -581,14 +581,22 @@ html:not(.dark) .arborito-mobile-path.mobile-tree-ui .mobile-children-panel .mob
     background: var(--arborito-theme-tree-mobile-child-row--opened-background) !important;
     box-shadow: var(--arborito-theme-tree-mobile-child-row--opened-box-shadow) !important;
 }
+.arborito-mobile-path.mobile-tree-ui .mobile-children-panel .mobile-child-row.mobile-child-row--opened-path:not(.is-empty) {
+    border: 2px solid rgb(245 158 11 / 0.85) !important;
+    background: transparent !important;
+    box-shadow: 0 0 0 1px rgb(251 191 36 / 0.35) !important;
+}
+html.dark .arborito-mobile-path.mobile-tree-ui .mobile-children-panel .mobile-child-row.mobile-child-row--opened-path:not(.is-empty) {
+    background: transparent !important;
+}
 .arborito-mobile-path.mobile-tree-ui .mobile-knot.mobile-knot--opened:not(.active) {
-    outline: 2px solid rgb(245 158 11 / 0.95);
+    outline: 2px solid rgb(245 158 11 / 0.9);
     outline-offset: 2px;
-    box-shadow: var(--arborito-theme-tree-mobile-child-row--opened-box-shadow) !important;
+    box-shadow: none !important;
 }
 .arborito-mobile-path.mobile-tree-ui .mobile-label-row.mobile-label-row--opened:not(.is-active) {
-    background: var(--arborito-theme-tree-mobile-child-row--opened-background) !important;
-    box-shadow: var(--arborito-theme-tree-mobile-child-row--opened-box-shadow) !important;
+    background: transparent !important;
+    box-shadow: inset 3px 0 0 rgb(245 158 11 / 0.9) !important;
     border-radius: var(--radius-md, 12px);
 }
 .arborito-mobile-path.mobile-tree-ui .mobile-children-panel .mobile-child-name {
