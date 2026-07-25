@@ -157,16 +157,20 @@ export function parseAllChallengesFromLessonContent(content) {
 }
 
 /**
- * Scan a module subtree for lesson quiz completeness (in-memory content only).
- * @param {object|null|undefined} rootNode, branch, root, or leaf
- * @returns {{ totalLeaves: number, withCompleteQuiz: number, uncheckedLeaves: number, staticReady: boolean }}
- */
-/**
  * Module-level static arcade readiness (quiz-bearing leaves).
  * Walks materialized children; falls back to `leafIds` via store lookup.
+ * Empty bodies with `treeLazyContent` count as unchecked (not “no quiz”).
+ * @param {object|null|undefined} rootNode
+ * @returns {{ totalLeaves: number, withCompleteQuiz: number, uncheckedLeaves: number, staticReady: boolean, pendingLazy: boolean }}
  */
 export function getModuleStaticGameReadiness(rootNode) {
-    const stats = { totalLeaves: 0, withCompleteQuiz: 0, uncheckedLeaves: 0, staticReady: false };
+    const stats = {
+        totalLeaves: 0,
+        withCompleteQuiz: 0,
+        uncheckedLeaves: 0,
+        staticReady: false,
+        pendingLazy: false,
+    };
     if (!rootNode) return stats;
     let findNode = null;
     try {
@@ -182,6 +186,7 @@ export function getModuleStaticGameReadiness(rootNode) {
             const body = n.content;
             if (!body || !String(body).trim()) {
                 stats.uncheckedLeaves += 1;
+                if (n.treeLazyContent && n.treeContentKey) stats.pendingLazy = true;
                 return;
             }
             if (lessonBodyHasPlayableQuiz(body)) {
@@ -197,6 +202,7 @@ export function getModuleStaticGameReadiness(rootNode) {
                     else {
                         stats.totalLeaves += 1;
                         stats.uncheckedLeaves += 1;
+                        stats.pendingLazy = true;
                     }
                 }
             }
@@ -205,4 +211,72 @@ export function getModuleStaticGameReadiness(rootNode) {
     walk(rootNode);
     stats.staticReady = stats.withCompleteQuiz > 0;
     return stats;
+}
+
+/**
+ * Collect leaf/exam nodes under a module that still need a body load.
+ * @param {object|null|undefined} rootNode
+ * @returns {object[]}
+ */
+export function listModuleLeavesNeedingContent(rootNode) {
+    /** @type {object[]} */
+    const out = [];
+    if (!rootNode) return out;
+    let findNode = null;
+    try {
+        const store = getArboritoStore();
+        if (store?.findNode) findNode = (id) => store.findNode(id);
+    } catch {
+        findNode = null;
+    }
+    const walk = (n) => {
+        if (!n) return;
+        if (n.type === 'leaf' || n.type === 'exam') {
+            const body = n.content;
+            if (body && String(body).trim()) return;
+            if (n.treeLazyContent && n.treeContentKey) out.push(n);
+            else if (n.contentPath) out.push(n);
+            return;
+        }
+        if (n.type === 'branch' || n.type === 'root') {
+            if (n.children && n.children.length) {
+                n.children.forEach(walk);
+            } else if (Array.isArray(n.leafIds) && n.leafIds.length) {
+                for (const id of n.leafIds) {
+                    const resolved = findNode?.(id);
+                    if (resolved) walk(resolved);
+                }
+            }
+        }
+    };
+    walk(rootNode);
+    return out;
+}
+
+/**
+ * Probe lazy lesson chunks until a complete quiz is found (or budget exhausted).
+ * Published Nostr trees strip `content` into chunks; sync readiness alone always
+ * looked empty.
+ *
+ * @param {object|null|undefined} rootNode
+ * @param {{ loadContent?: (node: object) => Promise<void>, maxProbe?: number }} [opts]
+ * @returns {Promise<ReturnType<typeof getModuleStaticGameReadiness>>}
+ */
+export async function resolveModuleStaticGameReadiness(rootNode, opts = {}) {
+    const loadContent = typeof opts.loadContent === 'function' ? opts.loadContent : null;
+    const maxProbe = Math.max(1, Math.min(48, Number(opts.maxProbe) || 16));
+    let stats = getModuleStaticGameReadiness(rootNode);
+    if (stats.staticReady || !loadContent || !stats.pendingLazy) return stats;
+
+    const pending = listModuleLeavesNeedingContent(rootNode);
+    for (let i = 0; i < pending.length && i < maxProbe; i++) {
+        try {
+            await loadContent(pending[i]);
+        } catch {
+            /* keep probing */
+        }
+        stats = getModuleStaticGameReadiness(rootNode);
+        if (stats.staticReady) return stats;
+    }
+    return getModuleStaticGameReadiness(rootNode);
 }

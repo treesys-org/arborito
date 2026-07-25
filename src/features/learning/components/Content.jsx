@@ -35,8 +35,9 @@ const ASIDE_CLASSES = [
     'flex',
     'flex-col',
     'z-[150]',
-    'transition-all',
-    'duration-500',
+    /* Avoid transition-all + transform: WebKit often drops the first pan until settle. */
+    'transition-[background-color,border-color,opacity]',
+    'duration-300',
     'ease-[cubic-bezier(0.25,0.8,0.25,1)]',
     'border-l',
     'border-transparent',
@@ -56,9 +57,6 @@ const ASIDE_CLASSES = [
     'bg-[#f8fafc]',
     'dark:bg-[#0c1222]',
 ].join(' ');
-
-/** Slide-in transform only in read mode — breaks caret in Chromium with overflow:hidden. */
-const ASIDE_TRANSFORM_CLASSES = 'transform translate-x-0';
 
 function getBookmarkMeta(getBookmark, node, activeSectionIndex, toc, ui) {
     const lessonBookmark = node ? getBookmark(node.id, node.content) : null;
@@ -290,7 +288,7 @@ const panelApi = useContentPanel({
                 ref={rootRef}
                 data-arborito-panel="content"
                 data-embed={embed ? '1' : undefined}
-                className="w-full h-full"
+                className="w-full h-full arborito-content-shell--pending"
             />
         );
     }
@@ -415,7 +413,7 @@ const panelApi = useContentPanel({
         <div ref={rootRef} data-arborito-panel="content" data-embed={embed ? '1' : undefined} className="w-full h-full">
             <div id="backdrop-overlay" className="fixed inset-0 z-[145] pointer-events-none arborito-lesson-mobile-scrim" aria-hidden="true" />
 
-            <aside className={`${ASIDE_CLASSES}${constructEdit ? ' arborito-lesson-aside--construct-edit' : ` ${ASIDE_TRANSFORM_CLASSES}`}${asideModeClass}`}>
+            <aside className={`${ASIDE_CLASSES}${constructEdit ? ' arborito-lesson-aside--construct-edit' : ''}${asideModeClass}`}>
                 <LessonHeader
                     node={node}
                     constructEdit={constructEdit}

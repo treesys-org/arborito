@@ -19,7 +19,13 @@ html:not(.arborito-desktop) .arborito-lesson-prose-frame--construct #lesson-visu
     min-height: 14rem;
 }
 
-html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area {
+/* First vertical swipe must scroll the reader (same steal as trunk: manipulation
+ * on button/[role=button] otherwise eats the first pan). */
+html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area,
+html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area button,
+html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area [role="button"],
+html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area .arborito-tap-target,
+html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area a {
     touch-action: pan-y;
 }
 

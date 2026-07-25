@@ -6,17 +6,17 @@ const MOBILE_TAP_SLOP_PX = 26;
  *   - skip the legacy 300ms double-tap-to-zoom wait
  *   - never cancel the synthetic click when the finger drifts a few px
  *     while the element lives inside a scrollable container
- * Inline-only (`el.style.touchAction`) so per-modal stylesheets that intentionally
- * pick a different value (e.g. `pan-y` on graph nodes) still win, we only fill in
- * the gap when nothing else is set.
+ * Uses a CSS class (not inline `touch-action`) so scroll surfaces can override
+ * with `pan-y` (trunk / lesson body). Inline styles used to win the cascade and
+ * steal the first vertical swipe.
  *
  * Use on every interactive element that is NOT itself a scrollable surface.
  *
  * @param {Element | null | undefined} el
  */
 export function markTapTarget(el) {
-    if (!el || !el.style) return;
-    if (!el.style.touchAction) el.style.touchAction = 'manipulation';
+    if (!el || !el.classList) return;
+    el.classList.add('arborito-tap-target');
 }
 
 /**

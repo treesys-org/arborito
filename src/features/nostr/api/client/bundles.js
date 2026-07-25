@@ -34,12 +34,13 @@ import { hasArbRoot, splitUtf8Chunks, tagValue, QUERY_MS_LONG } from './_shared.
 function nostrBundleLoadTimeouts() {
     const mobile = shouldShowMobileUI();
     return {
-        headerMs: mobile ? 8000 : 3500,
-        headerRetryMs: mobile ? 10000 : 5000,
-        headerFinalMs: mobile ? 12000 : 8000,
-        chunkMs: mobile ? 8000 : 3500,
-        chunkRetryMs: mobile ? 10000 : 5000,
-        chunkFinalMs: mobile ? 12000 : 10000,
+        /* Desktop previously used 3.5s and treated slow relays as missing courses. */
+        headerMs: mobile ? 8000 : 6000,
+        headerRetryMs: mobile ? 10000 : 8000,
+        headerFinalMs: mobile ? 14000 : 12000,
+        chunkMs: mobile ? 8000 : 6000,
+        chunkRetryMs: mobile ? 10000 : 8000,
+        chunkFinalMs: mobile ? 14000 : 12000,
     };
 }
 
@@ -136,11 +137,11 @@ export const bundlesMixin = {
         if (revoked) return { revoked: true, bundle: null };
         let hdr = hdrFast;
         if (!hdr) {
-            this._unpauseAllRelaysIfAllCoolingDown();
+            this._unpauseAllRelays();
             hdr = await this._get(headerFilter, t.headerRetryMs);
         }
         if (!hdr) {
-            this._unpauseAllRelaysIfAllCoolingDown();
+            this._unpauseAllRelays();
             hdr = await this._get(headerFilter, t.headerFinalMs);
         }
         if (!hdr) return { revoked: false, bundle: null };
@@ -232,14 +233,14 @@ export const bundlesMixin = {
 
         let parts = await collectParts(t.chunkMs);
         if (parts.some((p) => p == null)) {
-            this._unpauseAllRelaysIfAllCoolingDown();
+            this._unpauseAllRelays();
             const again = await collectParts(t.chunkRetryMs);
             for (let i = 0; i < n; i++) {
                 if (parts[i] == null && again[i] != null) parts[i] = again[i];
             }
         }
         if (parts.some((p) => p == null)) {
-            this._unpauseAllRelaysIfAllCoolingDown();
+            this._unpauseAllRelays();
             const final = await collectParts(t.chunkFinalMs);
             for (let i = 0; i < n; i++) {
                 if (parts[i] == null && final[i] != null) parts[i] = final[i];

@@ -7,7 +7,7 @@ import { clearJsdelivrCommitPinCache } from '../api/arcade-games-cdn.js';
 import { runArcadeAction } from '../api/modals/logic/arcade-actions/index.js';
 import { hydrateArcadeGameMetrics } from '../api/arcade-local-storage.js';
 import { refreshArcadeGameVotesFromNetwork } from '../api/arcade-vote-network.js';
-import { getModuleStaticGameReadiness } from '../../learning/api/quiz-status.js';
+import { getModuleStaticGameReadiness, resolveModuleStaticGameReadiness } from '../../learning/api/quiz-status.js';
 import {
     hasOfflineGameBundle,
     downloadAndCacheGame,
@@ -66,6 +66,7 @@ export function ModalArcade({ embed, dockEmbed = false, dockEmbedActive = false 
     const {
         loadNodeChildren,
         findNode,
+        loadNodeContent,
         loadTreeRanking,
         buyGardenShopItem,
         equipGardenShopItem,
@@ -260,13 +261,19 @@ export function ModalArcade({ embed, dockEmbed = false, dockEmbedActive = false 
         setActiveTab('games');
     }, []);
 
-    const launchGame = useCallback(() => {
+    const launchGame = useCallback(async () => {
         if (!selectedGame || !selectedNodeId) return;
         const targetNode = findNode(selectedNodeId);
         if (!activeSource || !targetNode) return;
 
         if (aiMode === 'static') {
-            const readiness = getModuleStaticGameReadiness(targetNode);
+            let readiness = getModuleStaticGameReadiness(targetNode);
+            if (readiness && !readiness.staticReady && readiness.pendingLazy) {
+                readiness = await resolveModuleStaticGameReadiness(targetNode, {
+                    loadContent: loadNodeContent,
+                    maxProbe: 24,
+                });
+            }
             if (readiness && !readiness.staticReady) {
                 notify(
                     ui.arcadeStaticNoQuizWarn ||
@@ -277,7 +284,6 @@ export function ModalArcade({ embed, dockEmbed = false, dockEmbedActive = false 
         }
 
         const treeUrl = encodeURIComponent(activeSource.url);
-        const playLang = lang || 'EN';
         const modulePath = targetNode.apiPath || targetNode.contentPath || '';
         const encodedPath = encodeURIComponent(modulePath);
 
@@ -307,6 +313,7 @@ export function ModalArcade({ embed, dockEmbed = false, dockEmbedActive = false 
         selectedNodeId,
         activeSource,
         findNode,
+        loadNodeContent,
         aiMode,
         lang,
         notify,
@@ -315,6 +322,7 @@ export function ModalArcade({ embed, dockEmbed = false, dockEmbedActive = false 
         userStore,
         dockEmbed,
         activeTab,
+        modal?.dockUi,
     ]);
 
     const toggleOffline = useCallback(

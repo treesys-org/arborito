@@ -42,6 +42,12 @@ html.arborito-lesson-open :is(arborito-content, [data-arborito-panel="content"])
     pointer-events: none;
 }
 
+/* Empty shell before the aside paints: host is PE-none with no children, so the
+ * first swipe fell through to the tree. Capture gestures until content mounts. */
+html.arborito-lesson-open :is(arborito-content, [data-arborito-panel="content"]).arborito-content-shell--pending {
+    pointer-events: auto;
+}
+
 /*
  * Shell side panels are flex siblings of <main>. They must collapse to width:0 so
  * <main> (flex:1) fills the row — otherwise the graph is squeezed to 0px wide.

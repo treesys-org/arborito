@@ -307,6 +307,7 @@ html:not(.dark) .mobile-panel-cta--arcade, html:not(.dark) .mobile-path-cta--arc
 .mobile-trunk-container button,
 .mobile-trunk-container [role="button"],
 .mobile-trunk-container a,
+.mobile-trunk-container .arborito-tap-target,
 .mobile-trunk-container .mobile-knot,
 .mobile-trunk-container .mobile-label-row,
 .mobile-trunk-container .mobile-child-row,

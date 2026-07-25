@@ -227,7 +227,8 @@ button, input, optgroup, select, textarea { font-family: inherit; font-size: 100
  * and the click is dropped, forcing the user to tap several times. Per-element
  * stylesheets can still override (e.g. graph nodes use `pan-y`).
  */
-button, [role="button"], summary { touch-action: manipulation; }
+button, [role="button"], summary,
+.arborito-tap-target { touch-action: manipulation; }
 button { background-color: transparent; background-image: none; cursor: pointer; }
 h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; margin: 0; }
 p { margin: 0; }

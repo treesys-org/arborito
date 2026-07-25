@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Callout } from '../../../shared/ui/Callout.jsx';
 import { LoadingBrand } from '../../../shared/ui/Loading.jsx';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
-import { getModuleStaticGameReadiness } from '../../learning/api/quiz-status.js';
+import { getModuleStaticGameReadiness, resolveModuleStaticGameReadiness } from '../../learning/api/quiz-status.js';
 import { folderDisplayIcon, FOLDER_DISPLAY_ICON } from '../../tree-graph/api/node-property-emojis.js';
 
 function isBranchLike(n) {
@@ -100,12 +100,14 @@ export function ArcadeSetup({
     onStartGame,
 }) {
     const { data, arcadeActions } = useArcade();
-    const { findNode } = arcadeActions;
+    const { findNode, loadNodeContent } = arcadeActions;
 
     const [localFilter, setLocalFilter] = useState(filterText || '');
     const [pickerOpen, setPickerOpen] = useState(true);
     const [pickerReady, setPickerReady] = useState(false);
     const [collapsedBranchIds, setCollapsedBranchIds] = useState(() => new Set());
+    const [probedReadiness, setProbedReadiness] = useState(null);
+    const [probeBusy, setProbeBusy] = useState(false);
     const selectedRowRef = useRef(null);
 
     useEffect(() => {
@@ -129,6 +131,40 @@ export function ArcadeSetup({
         });
         return () => window.cancelAnimationFrame(id);
     }, [pickerOpen, selectedNodeId, isPreparingContext, localFilter, collapsedBranchIds]);
+
+    /* Network trees keep lesson bodies lazy — probe chunks before claiming “no quiz”. */
+    useEffect(() => {
+        if (aiMode !== 'static' || !selectedNodeId || isPreparingContext) {
+            setProbedReadiness(null);
+            setProbeBusy(false);
+            return;
+        }
+        const node = findNode(selectedNodeId);
+        if (!node) {
+            setProbedReadiness(null);
+            return;
+        }
+        const sync = getModuleStaticGameReadiness(node);
+        if (sync.staticReady || !sync.pendingLazy) {
+            setProbedReadiness(sync);
+            setProbeBusy(false);
+            return;
+        }
+        let cancelled = false;
+        setProbeBusy(true);
+        void resolveModuleStaticGameReadiness(node, {
+            loadContent: loadNodeContent,
+            maxProbe: 16,
+        }).then((stats) => {
+            if (!cancelled) {
+                setProbedReadiness(stats);
+                setProbeBusy(false);
+            }
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, [aiMode, selectedNodeId, isPreparingContext, findNode, loadNodeContent, data]);
 
     const toggleBranch = useCallback((branchId) => {
         const id = String(branchId);
@@ -158,11 +194,22 @@ export function ArcadeSetup({
         ? getFlatNodes(data, localFilter).slice(0, 500)
         : getTreeVisibleNodes(data, collapsedBranchIds).slice(0, 500);
     const selectedNode = selectedNodeId ? findNode(selectedNodeId) : null;
-    const moduleReadiness = selectedNode ? getModuleStaticGameReadiness(selectedNode) : null;
+    const syncReadiness = selectedNode ? getModuleStaticGameReadiness(selectedNode) : null;
+    const moduleReadiness =
+        probedReadiness && selectedNode && String(selectedNodeId || '')
+            ? probedReadiness
+            : syncReadiness;
     const isStatic = aiMode === 'static';
     const isDynamic = aiMode === 'dynamic';
+    const awaitingLazyProbe =
+        isStatic && !!syncReadiness?.pendingLazy && !syncReadiness?.staticReady && (probeBusy || !probedReadiness);
     const staticBlocked =
-        isStatic && moduleReadiness && moduleReadiness.totalLeaves > 0 && !moduleReadiness.staticReady;
+        isStatic &&
+        moduleReadiness &&
+        moduleReadiness.totalLeaves > 0 &&
+        !moduleReadiness.staticReady &&
+        !awaitingLazyProbe &&
+        !moduleReadiness.pendingLazy;
     const staticReadyHint =
         isStatic && moduleReadiness && moduleReadiness.staticReady
             ? (ui.arcadeModuleStaticReady || '{n} lesson(s) with questionnaire ready for static play.').replace(

@@ -124,7 +124,7 @@ export function SourcesBranchesPanel({
     const curriculumLoading = !!sourcesTreeLoading || !!state.treeHydrating;
     const err = String(globalDirError || '').trim();
 
-    /* Demo always above the directory spinner so the tour never highlights another row. */
+    /* Demo keeps tourTarget=sources-demo-branch; active non-demo pins render above it. */
     const demoFromPin =
         activePin?.kind === 'branch' && String(activePin.branch?.id) === DEMO_BRANCH_ID
             ? activePin.branch
@@ -229,47 +229,7 @@ export function SourcesBranchesPanel({
                 {err ? (
                     <p className="text-xs font-bold text-amber-800 dark:text-amber-200">{err}</p>
                 ) : null}
-                {demoBranch ? (
-                    <div
-                        className={
-                            demoPinned
-                                ? 'arborito-sources-active-pin'
-                                : undefined
-                        }
-                        data-arbor-tour={demoPinned ? 'sources-active-branch' : undefined}
-                    >
-                        {demoPinned ? (
-                            <p className="arborito-sources-active-pin__label">
-                                {ui.sourcesActiveBranchHeading || ui.sourceActive || 'Active branch'}
-                            </p>
-                        ) : null}
-                        <SourcesBranchRow
-                            branch={demoBranch}
-                            ui={ui}
-                            isActive={demoIsActive}
-                            pinned={demoPinned}
-                            tourTarget="sources-demo-branch"
-                            isPublishedOwner={isPublishedResourceOwner(demoBranch, getNostrPublisherPair)}
-                            globalDirMetrics={globalDirMetrics}
-                            actionsOpen={rowActionsOpen}
-                            onAction={onAction}
-                            onToggleRowActions={toggleRowActions}
-                        />
-                    </div>
-                ) : null}
-                {curriculumLoading ? (
-                    <SourcesLoadingPanel
-                        className="arborito-sources-loading-slot"
-                        label={ui.treeHydratingHint || ui.loading || 'Loading…'}
-                    />
-                ) : null}
-                {loading && (scope === 'all' || scope === 'internet') && !curriculumLoading ? (
-                    <SourcesLoadingPanel
-                        className="arborito-sources-loading-slot"
-                        label={ui.loading || 'Loading…'}
-                        tone="slate"
-                    />
-                ) : null}
+                {/* Active non-demo / saved first; demo stays below unless it is the active pin. */}
                 {activePin?.kind === 'branch' &&
                 String(activePin.branch?.id) !== DEMO_BRANCH_ID ? (
                     <div
@@ -313,6 +273,47 @@ export function SourcesBranchesPanel({
                             onToggleFreeze={(id) => onAction('toggle-tree-freeze', { id })}
                         />
                     </div>
+                ) : null}
+                {demoBranch ? (
+                    <div
+                        className={
+                            demoPinned
+                                ? 'arborito-sources-active-pin'
+                                : undefined
+                        }
+                        data-arbor-tour={demoPinned ? 'sources-active-branch' : undefined}
+                    >
+                        {demoPinned ? (
+                            <p className="arborito-sources-active-pin__label">
+                                {ui.sourcesActiveBranchHeading || ui.sourceActive || 'Active branch'}
+                            </p>
+                        ) : null}
+                        <SourcesBranchRow
+                            branch={demoBranch}
+                            ui={ui}
+                            isActive={demoIsActive}
+                            pinned={demoPinned}
+                            tourTarget="sources-demo-branch"
+                            isPublishedOwner={isPublishedResourceOwner(demoBranch, getNostrPublisherPair)}
+                            globalDirMetrics={globalDirMetrics}
+                            actionsOpen={rowActionsOpen}
+                            onAction={onAction}
+                            onToggleRowActions={toggleRowActions}
+                        />
+                    </div>
+                ) : null}
+                {curriculumLoading ? (
+                    <SourcesLoadingPanel
+                        className="arborito-sources-loading-slot"
+                        label={ui.treeHydratingHint || ui.loading || 'Loading…'}
+                    />
+                ) : null}
+                {loading && (scope === 'all' || scope === 'internet') && !curriculumLoading ? (
+                    <SourcesLoadingPanel
+                        className="arborito-sources-loading-slot"
+                        label={ui.loading || 'Loading…'}
+                        tone="slate"
+                    />
                 ) : null}
                 {listEmpty && !demoBranch ? (
                     <div className="arborito-empty arborito-empty--dashed">

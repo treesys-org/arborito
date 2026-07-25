@@ -282,9 +282,29 @@ export const coreMixin = {
         const allPaused = paused.length === relays.length;
         const mostlyPaused = paused.length >= Math.ceil(relays.length * 0.5);
         if (!allPaused && !mostlyPaused) return false;
-        for (const url of relays) this._relayHealth.delete(url);
-        console.warn('[arborito] relays were cooling down, unpausing for a fresh attempt');
-        return true;
+        return this._unpauseAllRelays();
+    },
+
+    /**
+     * Clear circuit-breaker pauses on every configured relay (load / directory
+     * last-chance retries). Unlike `_unpauseAllRelaysIfAllCoolingDown`, does
+     * not require a majority to already be paused.
+     * @returns {boolean} whether any health entry was cleared
+     */
+    _unpauseAllRelays() {
+        const relays = this._relays();
+        if (!relays.length) return false;
+        let cleared = false;
+        for (const url of relays) {
+            if (this._relayHealth.has(url)) {
+                this._relayHealth.delete(url);
+                cleared = true;
+            }
+        }
+        if (cleared) {
+            console.warn('[arborito] relays unpaused for a fresh network attempt');
+        }
+        return cleared;
     },
 
     setPeers(peers) {
@@ -363,6 +383,7 @@ export const coreMixin = {
             try {
                 const relay = await publishOne(pin);
                 this._bundlePublishRelay = relay;
+                this._mirrorEventToRemainingRelays(ev, targets, relay);
                 return relay;
             } catch {
                 /* pinned relay failed — try the rest */
@@ -376,11 +397,35 @@ export const coreMixin = {
         try {
             const relay = await Promise.any(attempts);
             this._bundlePublishRelay = relay;
+            /* Readers assume redundancy across configured relays; fan out after
+             * the first accept so a single-relay publish does not orphan the tree. */
+            this._mirrorEventToRemainingRelays(ev, targets, relay);
             return relay;
         } catch (err) {
             const reasons = (err.errors || [err]).map((e) => String((e && e.message) || e));
             throw new Error(reasons.length ? reasons.join('; ') : 'publish failed on all relays');
         }
+    },
+
+    /**
+     * Best-effort copy of an already-accepted event onto the other configured relays.
+     * @param {import('core.js').Event} ev
+     * @param {string[]} relays
+     * @param {string} acceptedRelay
+     */
+    _mirrorEventToRemainingRelays(ev, relays, acceptedRelay) {
+        const rest = (Array.isArray(relays) ? relays : []).filter((r) => r && r !== acceptedRelay);
+        if (!rest.length || !ev) return;
+        void Promise.allSettled(
+            rest.map((relay) =>
+                Promise.race([
+                    this._pool.publish([relay], ev)[0],
+                    new Promise((_, reject) => {
+                        setTimeout(() => reject(new Error('mirror timed out')), RELAY_MIRROR_TIMEOUT_MS);
+                    }),
+                ]).catch(() => null)
+            )
+        );
     },
 
     /**

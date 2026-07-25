@@ -15,6 +15,7 @@ import {
 import {
     ensureConnectedNostr,
     hasGdprNetworkConsent,
+    warmNostrRelayConnections,
 } from '../../../shared/lib/connected-services/index.js';
 import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 import {
@@ -671,7 +672,23 @@ export class SourceManager {
                         )
                     );
                     if (merged.length) persistUserNostrRelays(merged);
-                    nostr._unpauseAllRelaysIfAllCoolingDown?.();
+                    /* Force a clean slate: the relay that holds the publish may
+                     * be the one the circuit breaker just paused. */
+                    nostr._unpauseAllRelays?.();
+                    loadResult = await nostr.loadNostrUniverseBundle(treeRef);
+                }
+                if (!loadResult.bundle && !loadResult.revoked) {
+                    /* Second chance after expanding peers + clearing pauses. */
+                    nostr._unpauseAllRelays?.();
+                    try {
+                        await warmNostrRelayConnections(store, {
+                            timeoutMs: shouldShowMobileUI() ? 10000 : 8000,
+                            perRelayMs: 4000,
+                            probe: true,
+                        });
+                    } catch {
+                        /* warm is best-effort */
+                    }
                     loadResult = await nostr.loadNostrUniverseBundle(treeRef);
                 }
                 const { revoked, bundle } = loadResult;

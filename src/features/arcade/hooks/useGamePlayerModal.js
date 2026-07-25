@@ -457,12 +457,16 @@ export function useGamePlayerModal(embed) {
             cursorIndexRef.current = 0;
         }
 
-        if (fileSystem.isLocal) {
+        /* Local files and Nostr lazy chunks both need bodies before static sniff / play. */
+        const needsPrefetch = (n) =>
+            !n.content &&
+            (fileSystem.isLocal || n.contentPath || (n.treeLazyContent && n.treeContentKey));
+        if (playlist.some(needsPrefetch)) {
             const BATCH = 6;
             for (let i = 0; i < playlist.length; i += BATCH) {
                 const slice = playlist.slice(i, i + BATCH);
                 await Promise.all(
-                    slice.map((n) => (n.content ? Promise.resolve() : loadNodeContent(n)))
+                    slice.map((n) => (needsPrefetch(n) ? loadNodeContent(n) : Promise.resolve()))
                 );
             }
         }

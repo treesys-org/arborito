@@ -511,9 +511,13 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate } = {})
             }
 
             const nostrRowsOk = rows.length > 0 && !directoryFetchError;
+            /* Always merge mirrors when Nostr is empty/errored, or when the
+             * catalog is thin — a partial relay answer used to skip fallbacks
+             * and leave Discover nearly empty. */
+            const wantMirrorFallback = !nostrRowsOk || rows.length < 8;
             let torrentRows = [];
             let httpRows = [];
-            if (!nostrRowsOk) {
+            if (wantMirrorFallback) {
                 try {
                     torrentRows = await loadGlobalDirectoryRowsFromTorrent(store, { query: q });
                 } catch (e) {
@@ -523,6 +527,22 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate } = {})
                     httpRows = await loadGlobalDirectoryRowsFromHttp({ query: q });
                 } catch (e) {
                     console.warn('[Arborito] global directory http', e);
+                }
+            }
+
+            /* Empty Nostr + failed mirrors: clear circuit breaker and retry once. */
+            if (!rows.length && !torrentRows.length && !httpRows.length && net) {
+                try {
+                    net._unpauseAllRelays?.();
+                    rows = await net.listGlobalTreeDirectoryEntriesOnce({
+                        limit: DIRECTORY_CLIENT_FETCH_LIMIT,
+                        query: q,
+                    });
+                    rows = Array.isArray(rows) ? rows : [];
+                    rows = rows.filter((r) => !store.isNostrTreeMaintainerBlocked(r?.ownerPub, r?.universeId));
+                    if (rows.length) directoryFetchError = '';
+                } catch (e) {
+                    if (!directoryFetchError) directoryFetchError = String(e?.message || e);
                 }
             }
 
