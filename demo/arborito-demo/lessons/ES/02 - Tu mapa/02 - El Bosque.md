@@ -32,8 +32,6 @@ También puedes:
 - **Abrir** una rama que ya tienes.
 - **Importar archivo** (un `.arborito` que te hayan compartido).
 
-Esta demo (como un curso en línea de otro autor) es **solo lectura**: se mira, no se cambia.
-
 @quiz
 concept: Operaciones del Bosque
 items:
@@ -51,13 +49,6 @@ items:
       - Solo desde Classroom
       - Borrando Sage
       - Solo en Arcade
-  - question: ¿Se puede borrar esta demo desde el Bosque?
-    answer: No, esta demo se queda
-    modes: multiple,recall
-    traps:
-      - Sí, como cualquier rama
-      - Solo Sage puede
-      - Solo en PC
 @/quiz
 
 @section
@@ -99,19 +90,19 @@ items:
 
 @section
 index: 4
-title: Cursos de otros
+title: Copia editable
 @/section
 
-Si el curso es de otro autor (o esta demo), no lo cambias aquí. En **modo construcción** puedes hacer una copia: eliges un nombre y editas la tuya.
+Algunas ramas no se editan directamente. En **modo construcción** puedes crear una copia con un nombre y editar la tuya.
 
 @quiz
 concept: Solo lectura y copia
 items:
-  - question: ¿Cómo haces una copia editable de esta demo?
+  - question: ¿Cómo haces una copia editable de este demo?
     answer: Modo construcción y luego un nombre para tu copia
     modes: multiple,recall
     traps:
-      - Editar el demo directo
+      - Editar el demo directamente
       - Borrar Sage
       - Solo leer
   - question: ¿Importar un .arborito trae el progreso del autor?

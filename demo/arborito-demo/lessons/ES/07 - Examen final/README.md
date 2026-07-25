@@ -1,6 +1,6 @@
 @info
 icon: 🎓
-description: Repaso final de la demo
+description: Repaso final del demo
 @/info
 
 @section

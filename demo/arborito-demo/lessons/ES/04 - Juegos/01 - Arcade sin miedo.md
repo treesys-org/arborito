@@ -1,5 +1,6 @@
 @info
 icon: 🕹️
+title: Arcade sin complicaciones
 description: Minijuegos con tus lecciones
 tags: classroom, memory, terminal
 @/info
@@ -25,7 +26,7 @@ title: Cómo entrar
 2. Pulsa **Jugar** 🎮.
 3. Elige Classroom, Memory, Hacky Terminal, Alonso Duel…
 
-**Estático:** sin IA. **Dinámico:** con Sage (si la activaste).
+**Estático:** sin IA. **Dinámico:** con Sage (si lo activaste).
 
 @image
 url:./media/08-alonso-es.png

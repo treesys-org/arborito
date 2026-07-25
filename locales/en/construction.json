@@ -57,7 +57,7 @@
   "constructionLoadWhileEditingBody": "You are in construction mode. Loading another tree or branch leaves this editing session on the map.",
   "constructionLoadWhileEditingConfirm": "Load anyway",
   "constructionForkForEditButton": "Copy to My Garden",
-  "constructionDemoReadonlyMessage": "Read-only demo (like an online course from another author). To edit: choose a name for your copy.",
+  "constructionDemoReadonlyMessage": "Read-only demo.",
   "constructionGuideBranchMetaHint": "Author, description, and publishing: Publish button in the dock",
   "constructionGuideCanEdit": "You can edit this branch",
   "constructionGuideComposedBranch": "Editing «{branch}»",

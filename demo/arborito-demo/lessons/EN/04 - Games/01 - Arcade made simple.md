@@ -25,7 +25,7 @@ title: How to enter
 2. Tap **Play** 🎮.
 3. Pick Classroom, Memory, Hacky Terminal, Alonso Duel…
 
-**Static:** no AI. **Dynamic:** with Sage (if you turned her on).
+**Static:** no AI. **Dynamic:** with Sage (if you turned him on).
 
 @image
 url:./media/08-alonso-en.png

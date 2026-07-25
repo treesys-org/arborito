@@ -425,7 +425,7 @@ export function validatePublicationMetadataAction() {
                     ok: false,
                     message:
                         ui.publishDemoTreeBlocked ||
-                        'The Arborito demo is a shared showcase tree. Duplicate it as your own branch before publishing.',
+                        'The Arborito demo cannot be published. Duplicate it as your own branch first.',
                 };
             }
             if (author.length < authorMin) {

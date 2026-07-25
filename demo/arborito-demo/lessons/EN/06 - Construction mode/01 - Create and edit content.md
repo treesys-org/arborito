@@ -22,9 +22,9 @@ index: 2
 title: This demo
 @/section
 
-Like an online course from another author, this demo is **read-only**: you can look at construction, but you cannot save here.
+Like an online course from another author, this demo is **read-only**. You can open construction to see how it is built, but **you cannot save** changes here.
 
-To edit it: enter construction mode and choose a **name** for your copy. On that copy you can change and write.
+When you enter construction, Arborito asks for a **name** for your copy. On that copy you can write and save.
 
 @quiz
 concept: Demo readonly

@@ -47,7 +47,7 @@
  "publicTreePublishComposedTooltip": "Publish the full combined courses (all branches in this tree)",
  "publicTreePublishedOk": "Tree published.",
  "publicTreePublishedOkBranch": "Branch published.",
- "publishDemoTreeBlocked": "The Arborito demo is a shared showcase tree. Duplicate it as your own branch before publishing.",
+ "publishDemoTreeBlocked": "The Arborito demo cannot be published. Duplicate it as your own branch first.",
  "publishLocalMediaBlocked": "This branch has Local media (./media/). Export a private .arborito; local files cannot be published to the network.",
  "publishLocalMediaOmitTitle": "Local media found",
  "publishLocalMediaOmitBody": "These lessons still use Local media (./media/). Replace with moderated links, or publish omitting Local media (those blocks will be empty online).",

@@ -51,7 +51,7 @@
   "sourcesCtaCompactTrees": "Nuevo árbol o importar",
   "sourcesDeleteComposedTreeConfirm": "¿Quitar este árbol de tus árboles?",
   "sourcesDeleteTreeLinkConfirm": "¿Desinstalar esta rama? Sigue disponible en línea y puedes volver a instalarla cuando quieras.",
-  "sourcesDemoBranchDeleteBlocked": "El demo de Arborito es contenido tutorial incluido. Duplícalo como rama propia si quieres una copia que puedas eliminar.",
+  "sourcesDemoBranchDeleteBlocked": "El demo de Arborito viene con la app. Duplícalo como rama propia si quieres una copia que puedas eliminar.",
   "sourcesDiscoverDisclaimer": "Descubrir muestra nombre y descripción de cursos en los servidores que elegiste. Arborito no revisa cada curso. Si hay un problema, contacta al autor.",
   "sourcesDismissNeedTree": "Añade o carga una rama antes de cerrar.",
   "sourcesDuplicateBranchInTree": "Esa rama ya está en este árbol.",

@@ -47,7 +47,7 @@
   "constructionContextManageProgram": "Gestionar programa →",
   "constructionContextModule": "Módulo",
   "constructionContextProgram": "Programa",
-  "constructionDemoReadonlyMessage": "Demo de solo lectura (como un curso en línea de otro autor). Para editar: elige un nombre para tu copia.",
+  "constructionDemoReadonlyMessage": "Demo de solo lectura.",
   "constructionDockAriaFallback": "Herramientas de construcción",
   "constructionComposedPersistFailed": "No se pudo guardar esta rama del árbol en el dispositivo.",
   "constructionEnterBranchNavigateFailed": "No se pudo abrir esa rama.",

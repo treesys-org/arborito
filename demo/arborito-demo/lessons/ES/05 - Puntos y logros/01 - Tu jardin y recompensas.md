@@ -65,7 +65,7 @@ En **Logros** (mochila):
 @quiz
 concept: Trofeos principales
 items:
-  - question: ¿Qué trofeo ganas al terminar esta demo entera?
+  - question: ¿Qué trofeo ganas al terminar este demo entero?
     answer: El trofeo de rama
     modes: multiple,recall
     traps:

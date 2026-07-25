@@ -32,8 +32,6 @@ You can also:
 - **Open** a branch you already have.
 - **Import file** (a shared `.arborito`).
 
-This demo (like an online course from another author) is **read-only**: look around, do not change it here.
-
 @quiz
 concept: Forest actions
 items:
@@ -51,13 +49,6 @@ items:
       - Only from Classroom
       - By deleting Sage
       - Arcade only
-  - question: Can you delete this demo from the Forest?
-    answer: No, this demo stays
-    modes: multiple,recall
-    traps:
-      - Yes, like any branch
-      - Only Sage can
-      - Only on PC
 @/quiz
 
 @section
@@ -99,10 +90,10 @@ items:
 
 @section
 index: 4
-title: Other people's courses
+title: Editable copy
 @/section
 
-If the course is someone else's (or this demo), do not change it here. In **construction mode** you can make a copy: choose a name and edit yours.
+Some branches are not edited in place. In **construction mode** you can create a named copy and edit yours.
 
 @quiz
 concept: Read-only and copy

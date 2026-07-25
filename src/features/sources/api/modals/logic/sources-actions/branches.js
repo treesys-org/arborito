@@ -62,7 +62,7 @@ export async function runBranchesAction(ctx, action, fields = {}) {
             const ui = store.ui;
             store.notify(
                 ui.sourcesDemoBranchDeleteBlocked ||
-                    'The Arborito demo is bundled tutorial content. Duplicate it as your own branch if you want a removable copy.',
+                    'The Arborito demo comes with the app. Duplicate it as your own branch if you want a copy you can delete.',
                 true
             );
             return true;

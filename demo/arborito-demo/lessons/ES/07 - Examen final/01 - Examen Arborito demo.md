@@ -1,6 +1,6 @@
 @info
 icon: ⚔️
-description: Repaso final, una sola tentativa
+description: Repaso final, un solo intento
 exam: yes
 @/info
 
@@ -9,12 +9,12 @@ index: 1
 title: Examen final
 @/section
 
-Repaso de toda la demo. En el examen **no puedes salir a medias** y continuar después. Lee con calma y pulsa **Comenzar evaluación**.
+Repaso de todo el demo. En el examen **no puedes salir a medias** y continuar después. Lee con calma y pulsa **Comenzar evaluación**.
 
 @quiz
 concept: Repaso Arborito demo
 items:
-  - question: ¿Quién te guía en esta demo?
+  - question: ¿Quién te guía en este demo?
     answer: Sage, el asistente
     traps:
       - Classroom
@@ -74,7 +74,7 @@ items:
       - No
       - Solo en lecciones cortas
       - Solo Sage
-  - question: ¿Cómo haces una copia editable de esta demo?
+  - question: ¿Cómo haces una copia editable de este demo?
     answer: Modo construcción y luego un nombre para tu copia
     traps:
       - Editar directo

@@ -32,7 +32,7 @@
   "sourcesAliasPrivacyNote": "Short names are looked up from a built-in list in the app (GDPR-friendly: no extra tracking).",
   "sourcesAliasQuickPick": "Quick add (official names)",
   "sourcesBranchAddedToTree": "Branch added to tree.",
-  "sourcesDemoBranchDeleteBlocked": "The Arborito demo is bundled tutorial content. Duplicate it as your own branch if you want a removable copy.",
+  "sourcesDemoBranchDeleteBlocked": "The Arborito demo comes with the app. Duplicate it as your own branch if you want a copy you can delete.",
   "sourcesBranchesSearchPlaceholder": "Search branches…",
   "sourcesBranchGrowingShort": "Loading branch…",
   "sourcesBranchHydratingHint": "Loading branch…",

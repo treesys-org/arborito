@@ -3,7 +3,7 @@
  */
 
 import { mountCurriculum } from './mount-curriculum.js';
-import { finishSourcesLoadSession, captureHadCurriculumBeforeLoad } from './sources-session.js';
+import { finishSourcesLoadSession } from './sources-session.js';
 import { requestConstructionTourOnce } from '../../tour/api/product-tour-start-bridge.js';
 
 /**
@@ -74,7 +74,6 @@ export async function runPlantNewTree(store, name, modal, skeleton = null) {
         store.acceptAuthorLicense();
     }
 
-    const hadCurriculumBeforeLoad = captureHadCurriculumBeforeLoad();
     /* Hydrate first; enter construction only after the new branch mounts.
      * Setting constructionMode before mount used to trigger “load while editing?”. */
     store.update({ treeHydrating: true });
@@ -124,7 +123,8 @@ export async function runPlantNewTree(store, name, modal, skeleton = null) {
         await new Promise((resolve) => {
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
-                    finishSourcesLoadSession(modal, { hadCurriculumBeforeLoad });
+                    /* Always close Forest after planting — keep-open is only for open/switch. */
+                    finishSourcesLoadSession(modal, { hadCurriculumBeforeLoad: false });
                     resolve();
                 });
             });

@@ -34,7 +34,7 @@
   "sageConstructDoneNestedLessons": "Creé «{parent}» con {n} lecciones adentro. Están en el mapa: tocá para editar.",
   "sageConstructGuideSubtitle": "Modo construcción: edita el árbol del curso con el Sabio",
   "sageConstructNeedModule": "Selecciona primero un módulo en el mapa y vuelve a pedírmelo.",
-  "sageConstructReadonly": "Esta rama es de solo lectura (p. ej. demo). Abre una rama editable de Mi jardín para que pueda crear módulos o lecciones.",
+  "sageConstructReadonly": "Esta rama es de solo lectura (por ejemplo, el demo). Abre una rama editable de Mi jardín para que pueda crear módulos o lecciones.",
   "sageConstructCreateFailed": "No pude crear eso en el mapa. Comprueba que el modo construcción esté activo y que la rama se pueda editar.",
   "sageConstructNodeHint": "Seleccionado: {name}",
   "sageConstructProposeExam": "Puedo añadir un examen nuevo bajo el módulo seleccionado. ¿Procedo?",

@@ -128,7 +128,7 @@ export function resolveConstructionEditScope(ui, opts = {}) {
                 readonlyMessage: isDemo
                     ? ui.constructionDemoReadonlyMessage ||
                       ui.constructionReadOnlyInMode ||
-                      'This is the bundled tutorial demo. Copy it to My garden to edit your own version.'
+                      'This demo is read-only. Copy it to My garden to edit your own version.'
                     : ui.constructionNoEditAccess || 'You do not have edit access to this course.',
             },
         };

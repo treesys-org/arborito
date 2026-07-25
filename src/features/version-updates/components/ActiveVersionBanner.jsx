@@ -26,7 +26,7 @@ export function ActiveVersionBanner() {
     const hint = isDemo
         ? ui.constructionActiveVersionDemoHint ||
           ui.constructionDemoReadonlyMessage ||
-          'Bundled tutorial demo (read-only).'
+          'Built-in demo (read-only).'
         : vp.isArchive || activeSource.localArchiveReleaseId != null
           ? ui.constructionActiveVersionSnapshotHint ||
             ui.treeSwitcherContextVersionHint ||

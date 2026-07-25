@@ -19,24 +19,24 @@ caption: Editas carpetas, lecciones y el índice.
 
 @section
 index: 2
-title: Esta demo
+title: Este demo
 @/section
 
-Como un curso en línea de otro autor, esta demo es **solo lectura**: puedes mirar la construcción, pero no guardar aquí.
+Como un curso en línea de otro autor, este demo es **solo lectura**. Puedes abrir construcción para ver cómo está hecho, pero **aquí no se guardan** cambios.
 
-Para editarla: entra en modo construcción y elige un **nombre** para tu copia. En esa copia sí puedes cambiar y escribir.
+Al entrar en construcción, Arborito te pide un **nombre** para tu copia. En esa copia sí puedes escribir y guardar.
 
 @quiz
 concept: Demo readonly
 items:
-  - question: ¿Cómo haces una copia editable de esta demo?
+  - question: ¿Cómo haces una copia editable de este demo?
     answer: Modo construcción y luego un nombre para tu copia
     modes: multiple,recall
     traps:
-      - Editar el demo directo
+      - Editar el demo directamente
       - Borrar Sage
       - Solo leer
-  - question: ¿Puedes guardar cambios en la demo original?
+  - question: ¿Puedes guardar cambios en el demo original?
     answer: No, solo en tu copia
     modes: multiple,recall
     traps:

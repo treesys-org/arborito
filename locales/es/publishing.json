@@ -95,7 +95,7 @@
   "publicTreeUpdateComposedTooltip": "Actualiza los cursos combinados públicos (todas las ramas del árbol)",
   "publicTreeUpdateLabel": "Publicar cambios",
   "publicTreeUpdateTooltip": "Ver y publicar los cambios en la copia pública",
-  "publishDemoTreeBlocked": "El árbol demo de Arborito es una muestra compartida. Duplícalo como rama propia antes de publicar.",
+  "publishDemoTreeBlocked": "El demo de Arborito no se puede publicar. Duplícalo como rama propia antes de publicar.",
   "publishHubInactivityNote": "Las copias públicas se despublican solas tras unos 12 meses sin uso (RGPD). Si hay alumnos activos, el temporizador se pausa.",
   "publishHubRetractLink": "Despublicar",
   "publishLocalMediaBlocked": "Esta rama tiene media Local (./media/). Exportá un .arborito privado: el media local no se puede publicar en la red.",

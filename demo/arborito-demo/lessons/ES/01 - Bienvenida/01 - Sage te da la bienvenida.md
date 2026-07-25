@@ -1,6 +1,6 @@
 @info
 icon: 👋
-description: Te doy la bienvenida y te cuento de qué va esta demo
+description: Te doy la bienvenida y te cuento de qué va este demo
 tags: demo, classroom
 @/info
 
@@ -9,7 +9,7 @@ index: 1
 title: Hola, soy Sage
 @/section
 
-Soy **Sage**, la asistente de Arborito. Esta demo te enseña lo básico: mapa, lecciones, juegos y cómo crear tu propio curso.
+Soy **Sage**, el asistente de Arborito. Este demo te enseña lo básico: mapa, lecciones, juegos y cómo crear tu propio curso.
 
 @image
 url:./media/01-sage-es.png
@@ -21,7 +21,7 @@ index: 2
 title: Tres nombres útiles
 @/section
 
-- **Rama:** un curso completo (esta demo es una rama).
+- **Rama:** un curso completo (este demo es una rama).
 - **Lección:** una página con texto, capturas y preguntas.
 - **Árbol:** cursos combinados (varias ramas en un solo recorrido).
 
@@ -30,8 +30,8 @@ Si activas la IA en ajustes, puedo ayudarte. Por defecto está **apagada**.
 @quiz
 concept: Bienvenida Sage
 items:
-  - question: ¿Quién te guía en esta demo?
-    answer: Sage, la asistente
+  - question: ¿Quién te guía en este demo?
+    answer: Sage, el asistente
     modes: multiple,recall
     traps:
       - Hacky Terminal
