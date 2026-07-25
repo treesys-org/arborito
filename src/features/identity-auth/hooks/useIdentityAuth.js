@@ -9,7 +9,10 @@ import {
     getUserStoreAction,
     getAvailableLanguagesAction,
 } from '../../../stores/identity-store-actions.js';
-import { cancelPendingAccountSyncTimersAction } from '../../../stores/identity-account-restore-store-actions.js';
+import {
+    cancelPendingAccountSyncTimersAction,
+    syncAllLocalPrivateBranchesToAccountAction,
+} from '../../../stores/identity-account-restore-store-actions.js';
 import { warmNostrRelayConnections } from '../../../shared/lib/connected-services/index.js';
 
 /** Onboarding, perfil, sync login, única puerta al store para `.jsx`. */
@@ -41,6 +44,10 @@ export function useIdentityAuth() {
             /* ignore */
         }
     }, []);
+    const syncAllLocalPrivateBranchesToAccount = useCallback(
+        (opts) => syncAllLocalPrivateBranchesToAccountAction(opts),
+        []
+    );
 
     return {
         ui,
@@ -62,6 +69,7 @@ export function useIdentityAuth() {
         toggleTheme,
         warmNostrRelays,
         cancelPendingAccountSyncTimers,
+        syncAllLocalPrivateBranchesToAccount,
         dismissModal,
         setModal,
         notify,
@@ -72,7 +80,7 @@ export function useIdentityAuth() {
     };
 }
 
-/** Singleton for rare imperative effects in identity hooks only. */
+/** Singleton for rare imperative effects in identity hooks only (not components/modals). */
 export function useIdentityAuthStore() {
     return getArboritoStore();
 }

@@ -18,8 +18,7 @@ import { ProfileLoginMethodTabs } from '../components/ProfileLoginMethodTabs.jsx
 import { ProfilePasswordSecurityPanel } from '../components/ProfilePasswordSecurityPanel.jsx';
 import { ProfileGuestAuthMascot } from '../components/ProfileGuestAuthMascot.jsx';
 import { ProfileAutoSyncLocalSwitch } from '../components/ProfileAutoSyncLocalSwitch.jsx';
-import { getArboritoStore } from '../../../core/store-singleton.js';
-import { listLocalSyncableBranchIds, setAutoSyncLocalBranches } from '../api/register-sync-local.js';
+import { armRegisterLocalBranchSync, disarmRegisterLocalBranchSync } from '../api/register-sync-local.js';
 function BusyBanner({ label }) {
     if (!label) return null;
     return (
@@ -162,7 +161,7 @@ export function ProfileSignIn({
     suggestHostRef,
     onUsernameAttention,
 }) {
-    const { ui, setModal, gamification, identityActions } = useIdentityAuth();
+    const { ui, setModal, gamification, identityActions, userStore } = useIdentityAuth();
     const { signInWithSyncSecret, registerSyncLoginAccount, updateUserProfile, grantNetworkSocialConsent } =
         identityActions;
     const modeCr = syncMode === 'create';
@@ -287,11 +286,8 @@ export function ProfileSignIn({
             ) {
                 updateUserProfile(norm, tempAvatar);
             }
-            const store = getArboritoStore();
-            const hasLocal = listLocalSyncableBranchIds(store?.userStore).length > 0;
             grantNetworkSocialConsent?.();
-            setAutoSyncLocalBranches(store?.userStore, true);
-            store._pendingSyncLocalBranchesOnRegister = hasLocal;
+            armRegisterLocalBranchSync(userStore);
             await registerSyncLoginAccount(norm || u, {
                 credentialKind: 'password',
                 password: registerPassword,
@@ -300,11 +296,7 @@ export function ProfileSignIn({
             profileAfterSignedIn();
             onAuthErrorClear();
         } catch (e) {
-            try {
-                getArboritoStore()._pendingSyncLocalBranchesOnRegister = false;
-            } catch {
-                /* ignore */
-            }
+            disarmRegisterLocalBranchSync();
             const friendly = humanizeAuthError(e, ui);
             onAuthError(friendly);
             const low = String(friendly || '').toLowerCase();

@@ -1,4 +1,5 @@
 import { DEMO_BRANCH_ID } from '../../../core/demo/arborito-demo-ids.js';
+import { getArboritoStore } from '../../../core/store-singleton.js';
 
 /**
  * Local authored branches that can upload as encrypted account drafts.
@@ -32,6 +33,30 @@ export function setAutoSyncLocalBranches(userStore, on) {
     userStore.state.autoSyncLocalBranches = !!on;
     try {
         userStore.persist?.();
+    } catch {
+        /* ignore */
+    }
+}
+
+/**
+ * Before register: enable auto-sync and mark whether local courses should upload after signup.
+ * UI must call this instead of touching the store singleton.
+ * @param {{ state?: object, persist?: () => void } | null | undefined} userStore
+ * @returns {boolean} true when at least one local branch will sync after register
+ */
+export function armRegisterLocalBranchSync(userStore) {
+    const store = getArboritoStore();
+    const hasLocal = listLocalSyncableBranchIds(userStore).length > 0;
+    setAutoSyncLocalBranches(userStore, true);
+    if (store) store._pendingSyncLocalBranchesOnRegister = hasLocal;
+    return hasLocal;
+}
+
+/** Clear the post-register local-sync flag (e.g. register failed). */
+export function disarmRegisterLocalBranchSync() {
+    try {
+        const store = getArboritoStore();
+        if (store) store._pendingSyncLocalBranchesOnRegister = false;
     } catch {
         /* ignore */
     }

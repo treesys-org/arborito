@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { SwitchRow } from '../../../shared/ui/SwitchRow.jsx';
-import { useIdentityAuth, useIdentityAuthStore } from '../hooks/useIdentityAuth.js';
+import { useIdentityAuth } from '../hooks/useIdentityAuth.js';
 import {
     isAutoSyncLocalBranchesEnabled,
     setAutoSyncLocalBranches,
@@ -10,8 +10,7 @@ import {
  * Profile-only control: auto-sync local courses (no onboarding switch — silent default on register).
  */
 export function ProfileAutoSyncLocalSwitch({ disabled = false }) {
-    const { ui, userStore, notify } = useIdentityAuth();
-    const store = useIdentityAuthStore();
+    const { ui, userStore, notify, syncAllLocalPrivateBranchesToAccount } = useIdentityAuth();
     const [on, setOn] = useState(() => isAutoSyncLocalBranchesEnabled(userStore));
 
     return (
@@ -27,8 +26,7 @@ export function ProfileAutoSyncLocalSwitch({ disabled = false }) {
                 setAutoSyncLocalBranches(userStore, next);
                 setOn(!!next);
                 if (next) {
-                    void store
-                        ?.syncAllLocalPrivateBranchesToAccount?.({ silent: true })
+                    void syncAllLocalPrivateBranchesToAccount?.({ silent: true })
                         .then((res) => {
                             const n = Number(res?.synced) || 0;
                             if (n > 0) {
