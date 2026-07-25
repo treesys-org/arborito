@@ -25,7 +25,6 @@ import { ensureModalChunk } from '../../../app/modal-chunk-loaders.js';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import { isOnboardingWizardIncomplete } from '../../../shared/lib/onboarding-boot-gate.js';
 import { persistUserNostrRelays, SUGGESTED_NOSTR_RELAYS } from '../../nostr/api/nostr-relays-runtime.js';
-import { getArboritoStore } from '../../../core/store-singleton.js';
 
 const TOTAL_STEPS = 2;
 
@@ -306,7 +305,7 @@ export function ModalOnboarding() {
         persistUserNostrRelays(SUGGESTED_NOSTR_RELAYS);
         if (!hasGdprNetworkConsent()) grantGdprNetworkConsent();
         /* Warm relays + directory indices ASAP — never await (login/register must stay free). */
-        prewarmForestNetworkIndices(getArboritoStore());
+        prewarmForestNetworkIndices();
         void loadLanguage(lang);
         completedRef.current = true;
         runAfterPaint(() => {
@@ -581,7 +580,7 @@ export function ModalOnboarding() {
                                 persistUserNostrRelays(SUGGESTED_NOSTR_RELAYS);
                                 if (!hasGdprNetworkConsent()) grantGdprNetworkConsent();
                                 /* Prewarm while user fills login/register — do not await. */
-                                prewarmForestNetworkIndices(getArboritoStore());
+                                prewarmForestNetworkIndices();
                                 setError('');
                                 setSessionView('start');
                                 setStep(2);
