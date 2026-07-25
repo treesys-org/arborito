@@ -8,11 +8,11 @@ index: 1
 title: Tu progreso
 @/section
 
-Arborito te da puntos para que sea más fácil volver. Es **tu** avance, no un ranking.
+Arborito te da puntos para motivarte a seguir. Es **tu** avance, no una competencia.
 
 @image
 url: ./media/11-jardin-es.png
-caption: Jardín de memoria: semillas al estudiar.
+caption: Jardín: semillas al estudiar.
 @/image
 
 @section
@@ -20,10 +20,10 @@ index: 2
 title: XP, racha y paraguas
 @/section
 
-- **Puntos (XP)** al completar lecciones y acertar.
+- **Puntos (XP)** al terminar lecciones y acertar.
 - **Racha:** días seguidos estudiando.
-- **Paraguas:** cada 3 días de racha ganas uno (máx. 3). Si un día fallas, gasta un paraguas y no pierdes la racha. También en la Tienda del jardín.
-- **Semillas** al terminar módulos (Progreso o mochila).
+- **Paraguas:** protege la racha si un día no estudias. Ganas uno cada 3 días de racha (máximo 3). También en la Tienda del jardín.
+- **Semillas** al terminar un tema (en Progreso o en la mochila).
 
 @quiz
 concept: Progreso diario
@@ -60,7 +60,7 @@ En **Logros** (mochila):
 
 1. **Rama:** terminas todo un curso.
 2. **Árbol:** terminas todas las ramas de un árbol.
-3. **Logro opcional:** el autor lo pone en una carpeta (modo construcción).
+3. **Logro extra:** el autor lo pone en una carpeta (modo construcción).
 
 @quiz
 concept: Trofeos principales

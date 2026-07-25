@@ -8,7 +8,7 @@ index: 1
 title: El Bosque
 @/section
 
-**Bosque** es tu archivador de cursos: los que abres, importas o creas.
+**Bosque** es donde guardas tus cursos: los que abres, importas o creas.
 
 @image
 url: ./media/04-bosque-es.png
@@ -17,14 +17,17 @@ caption: El Bosque: tus ramas.
 
 @section
 index: 2
-title: Qué puedes hacer
+title: Plantar tu rama
 @/section
 
-- **Abrir** una rama que ya tienes.
-- **Importar** un `.arborito`.
-- **Plantar rama nueva** para escribir la tuya.
+Para crear un curso: **Crear rama**. Empiezas con una carpeta y una lección de ejemplo, y las editas.
 
-Esta demo es **solo lectura**: se explora, no se borra. Para editarla, **Copia a Mi jardín**.
+También puedes:
+
+- **Abrir** una rama que ya tienes.
+- **Importar** un `.arborito` que te hayan compartido.
+
+Esta demo (como un curso en línea de otro autor) es **solo lectura**: se mira, no se cambia.
 
 @quiz
 concept: Operaciones del Bosque
@@ -37,12 +40,12 @@ items:
       - En el mapa
       - En Sage
   - question: ¿Cómo creas un curso vacío?
-    answer: Plantar rama nueva
+    answer: Crear rama
     modes: multiple,recall
     traps:
       - Solo desde Classroom
       - Borrando Sage
-      - Copiando el examen
+      - Solo en Arcade
   - question: ¿Se puede borrar esta demo desde el Bosque?
     answer: No
     modes: multiple,recall
@@ -54,16 +57,16 @@ items:
 
 @section
 index: 3
-title: Solo lectura
+title: Cursos de otros
 @/section
 
-Si una rama es de otro autor (o esta demo), no la editas encima. Copias a **Mi jardín** y trabajas sobre la copia.
+Si el curso es de otro autor (o esta demo), no lo cambias aquí. En **modo construcción** puedes hacer una copia: eliges un nombre y editas la tuya.
 
 @quiz
 concept: Solo lectura y copia
 items:
-  - question: ¿Cómo editas el demo?
-    answer: Copiar a Mi jardín y editar la copia
+  - question: ¿Cómo editas esta demo?
+    answer: Modo construcción y un nombre para tu copia
     modes: multiple,recall
     traps:
       - Editar el demo directo

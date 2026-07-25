@@ -48,7 +48,7 @@ index: 3
 title: Your progress
 @/section
 
-Progress stays **on this device**. A `.arborito` file carries the course **content**, not your history.
+Progress stays **on this device**. The `.arborito` file is the **course**, not your progress.
 
 @quiz
 concept: Forest and data

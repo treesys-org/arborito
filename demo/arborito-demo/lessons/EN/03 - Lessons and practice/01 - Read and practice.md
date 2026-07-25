@@ -8,11 +8,11 @@ index: 1
 title: Read and practice
 @/section
 
-A lesson mixes **text**, screenshots, and **questions**. The outline shows what's left.
+A lesson has **text**, screenshots, and **questions**. The outline shows what is left.
 
 @image
 url: ./media/05-leccion-en.png
-caption: Reader with text, practice, and outline.
+caption: Text, questions, and outline.
 @/image
 
 @section
@@ -20,9 +20,9 @@ index: 2
 title: Sections and quizzes
 @/section
 
-**Sections** break the topic into steps. One **quiz** can hold several questions: one outline step. Get them all right to turn it green. You can practise again later.
+**Sections** split the lesson into parts. One **quiz** can have several questions; in the outline it shows as **one**. Get them right and it turns **green**. You can try again later.
 
-Those same questions feed **Arcade**.
+Those same questions also appear in **Arcade**.
 
 @quiz
 concept: Lesson structure

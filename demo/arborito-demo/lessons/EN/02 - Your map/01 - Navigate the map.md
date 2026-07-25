@@ -27,9 +27,9 @@ title: Open and go back
 
 - Tap a **folder**: see what's inside.
 - Tap a **lesson**: open the text.
-- **Back:** arrow or breadcrumbs.
+- **Back:** arrow or the path at the top.
 
-The **outline** lists sections and questions. You must **get them right** to turn them green.
+Beside the lesson (or above on mobile) is the **outline**: sections and questions. Get them right and they turn **green**.
 
 @quiz
 concept: Basic navigation
@@ -42,14 +42,14 @@ items:
       - In the exam
       - In the trash
   - question: What happens when you tap a lesson?
-    answer: The reading panel opens
+    answer: The text opens
     modes: multiple,recall
     traps:
       - The branch is deleted
       - Only music plays
       - The Forest opens
   - question: How do you go back?
-    answer: Arrow or breadcrumbs
+    answer: Arrow or the path at the top
     modes: multiple,recall
     traps:
       - Close the browser
@@ -62,7 +62,7 @@ index: 3
 title: Play from the map
 @/section
 
-With a folder open, look for **Play** 🎮: that opens Arcade for this course.
+With a folder open, tap **Play** 🎮: that opens Arcade for this course.
 
 @quiz
 concept: Map on mobile

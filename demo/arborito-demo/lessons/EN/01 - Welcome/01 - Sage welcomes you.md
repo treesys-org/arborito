@@ -58,7 +58,7 @@ index: 3
 title: How to follow along
 @/section
 
-Walk the map folders in order. Each lesson's outline turns green when you get questions right. You can practise again anytime.
+Open the map folders in order. In the outline, what you get right turns **green**. You can retry the questions anytime.
 
 @quiz
 concept: Demo path

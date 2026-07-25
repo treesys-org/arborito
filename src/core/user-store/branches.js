@@ -47,7 +47,6 @@ export const branchesMixin = {
         const now = new Date().toISOString();
         const ui = this.getUi();
         const langKey = curriculumLangKeyFromStore(this);
-        const rootId = `${id}-${langKey.toLowerCase()}-root`;
         const parentCount = skeletonOpts && Number(skeletonOpts.parentCount) > 0
             ? Math.min(50, Math.max(1, Math.round(Number(skeletonOpts.parentCount))))
             : 0;
@@ -59,42 +58,34 @@ export const branchesMixin = {
         if (parentCount > 0 && childrenPerParent > 0) {
             skeleton = this._buildVolumeSkeleton(id, name, parentCount, childrenPerParent, ui, now, langKey);
         } else {
-            const defaultName = ui.defaultGardenName || 'My Private Garden';
-            const lessonName = ui.defaultLessonName || 'First Lesson';
-            const lessonMarkdown = buildDefaultLessonMarkdown(ui);
-            const lessonDescription =
-                (String(ui.defaultLessonContent || '').trim().split('\n')[0] || '').slice(0, 220) ||
-                (String(ui.defaultLessonFirstHeading || '').trim() || lessonName);
-
-            skeleton = {
-                generatedAt: now,
-                universeId: id,
-                universeName: name,
-                languages: {
-                    [langKey]: {
-                        id: rootId,
-                        name,
-                        type: 'root',
-                        expanded: true,
-                        icon: '🌱',
-                        description: defaultName,
-                        path: name,
-                        children: [
-                            {
-                                id: `${id}-leaf-1`,
-                                parentId: rootId,
-                                name: lessonName,
-                                type: 'leaf',
-                                icon: '📝',
-                                path: `${name} / ${lessonName}`,
-                                order: '1',
-                                description: lessonDescription,
-                                content: lessonMarkdown
-                            }
-                        ]
-                    }
-                }
-            };
+            /* Starter outline: one topic folder + one lesson with sample text/quiz (not a blank map). */
+            skeleton = this._buildVolumeSkeleton(id, name, 1, 1, ui, now, langKey);
+            const langRoot = skeleton?.languages?.[langKey];
+            const topic = Array.isArray(langRoot?.children) ? langRoot.children[0] : null;
+            const lesson = Array.isArray(topic?.children) ? topic.children[0] : null;
+            if (topic) {
+                const topicName = String(ui.skeletonStarterTopicName || ui.skeletonTopicName || 'Topic').trim() || 'Topic';
+                topic.name = topicName;
+                topic.path = `${name} / ${topicName}`;
+                topic.expanded = true;
+                topic.icon = '📁';
+            }
+            if (lesson && topic) {
+                const lessonName = ui.defaultLessonName || 'First Lesson';
+                const lessonMarkdown = buildDefaultLessonMarkdown(ui);
+                const lessonDescription =
+                    (String(ui.defaultLessonContent || '').trim().split('\n')[0] || '').slice(0, 220) ||
+                    (String(ui.defaultLessonFirstHeading || '').trim() || lessonName);
+                lesson.name = lessonName;
+                lesson.icon = '📝';
+                lesson.path = `${topic.path} / ${lessonName}`;
+                lesson.description = lessonDescription;
+                lesson.content = lessonMarkdown;
+            }
+            if (langRoot) {
+                langRoot.description = ui.defaultGardenName || 'My Private Garden';
+                langRoot.icon = '🌱';
+            }
         }
 
         const newTree = { id, name, updated: Date.now(), data: skeleton };

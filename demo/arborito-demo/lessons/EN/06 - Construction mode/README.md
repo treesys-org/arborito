@@ -8,4 +8,4 @@ index: 1
 title: Construction mode
 @/section
 
-Create folders, lessons, and questions; export your `.arborito`.
+Construction mode: write your course. New course = plant a branch in the Forest.

@@ -581,6 +581,16 @@ html:not(.dark) .arborito-mobile-path.mobile-tree-ui .mobile-children-panel .mob
     background: var(--arborito-theme-tree-mobile-child-row--opened-background) !important;
     box-shadow: var(--arborito-theme-tree-mobile-child-row--opened-box-shadow) !important;
 }
+.arborito-mobile-path.mobile-tree-ui .mobile-knot.mobile-knot--opened:not(.active) {
+    outline: 2px solid rgb(245 158 11 / 0.95);
+    outline-offset: 2px;
+    box-shadow: var(--arborito-theme-tree-mobile-child-row--opened-box-shadow) !important;
+}
+.arborito-mobile-path.mobile-tree-ui .mobile-label-row.mobile-label-row--opened:not(.is-active) {
+    background: var(--arborito-theme-tree-mobile-child-row--opened-background) !important;
+    box-shadow: var(--arborito-theme-tree-mobile-child-row--opened-box-shadow) !important;
+    border-radius: var(--radius-md, 12px);
+}
 .arborito-mobile-path.mobile-tree-ui .mobile-children-panel .mobile-child-name {
     color: var(--arborito-theme-tree-mobile-child-name-color) !important;
     text-shadow: var(--arborito-theme-tree-mobile-child-name-text-shadow);

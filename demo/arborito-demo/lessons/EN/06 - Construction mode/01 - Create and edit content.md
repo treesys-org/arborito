@@ -8,7 +8,9 @@ index: 1
 title: Construction mode
 @/section
 
-To **write** a course, use construction mode (hammer / wrench on the map).
+To **write** a course, use construction mode (hammer / wrench on the map). There you create folders, lessons, text, and questions.
+
+If you do not have your own branch yet: in the **Forest**, **Create branch**.
 
 @image
 url: ./media/12-construccion-en.png
@@ -17,18 +19,18 @@ caption: Edit folders, lessons, and the outline.
 
 @section
 index: 2
-title: This demo does not save
+title: This demo
 @/section
 
-You can **look** at construction here, but **not save**. To edit for real: **Copy to My garden**.
+Like an online course from another author, this demo is **read-only**: you can look at construction, but you cannot save here.
 
-On your copy you can rename, reorder, write text and questions, and turn on an achievement on a folder.
+To edit it: enter construction mode and choose a **name** for your copy. On that copy you can change and write.
 
 @quiz
 concept: Demo readonly
 items:
-  - question: How do you edit the demo?
-    answer: Copy to My garden and edit the copy
+  - question: How do you edit this demo?
+    answer: Construction mode and a name for your copy
     modes: multiple,recall
     traps:
       - Edit the demo directly

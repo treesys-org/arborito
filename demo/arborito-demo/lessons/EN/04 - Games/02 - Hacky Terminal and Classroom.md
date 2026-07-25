@@ -9,7 +9,7 @@ index: 1
 title: Two games, same questions
 @/section
 
-**Hacky Terminal** and **Classroom** review your course in another format.
+**Hacky Terminal** and **Classroom** review your course in another format. Open them from Arcade.
 
 @image
 url: ./media/09-hacky-en.png
@@ -26,30 +26,25 @@ index: 2
 title: Hacky Terminal
 @/section
 
-Type `lessons` to list lessons. Then `play 1` (or another number) to start: **play and the lesson number**. With AI on you can also ask me.
-
-```bash
-$ echo Hello
-Hello
-```
+**Hacky Terminal** is a console-style game: same course questions, different format.
 
 @quiz
 concept: Static terminal
 items:
-  - question: How do you start a lesson in Terminal?
-    answer: play and the lesson number
+  - question: What is Hacky Terminal?
+    answer: A console-style game with your course questions
     modes: recall,multiple
     traps:
-      - Ask Sage only
-      - Delete the branch
+      - A code editor
+      - The Forest
+      - The final exam only
+  - question: Where do you open Hacky Terminal?
+    answer: From Arcade
+    modes: recall,multiple
+    traps:
       - Forest only
-  - question: Which command lists lessons?
-    answer: lessons
-    modes: recall,multiple
-    traps:
-      - play
-      - quit
-      - export
+      - Export only
+      - Sage only
   - question: Does static mode work without AI?
     answer: Yes
     modes: multiple,recall
@@ -64,7 +59,7 @@ index: 3
 title: Classroom
 @/section
 
-A class with fictional classmates. Questions come from your lessons. Open it from Arcade.
+**Classroom** simulates a class with made-up classmates. Questions come from your lessons.
 
 @quiz
 concept: Classroom

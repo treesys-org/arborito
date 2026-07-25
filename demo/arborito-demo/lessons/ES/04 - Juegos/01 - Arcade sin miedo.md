@@ -9,7 +9,7 @@ index: 1
 title: Qué es el Arcade
 @/section
 
-**Arcade** son minijuegos **dentro** de Arborito. Usan las preguntas de tus lecciones: estudias una vez, juegas muchas.
+**Arcade** son minijuegos **dentro** de Arborito. Usan las preguntas de tus lecciones: estudias una vez, juegas muchas veces.
 
 @image
 url:./media/07-arcade-es.png
@@ -29,7 +29,7 @@ title: Cómo entrar
 
 @image
 url:./media/08-alonso-es.png
-caption: Alonso Duel: duelo rápido con el material del curso.
+caption: Alonso Duel: un duelo rápido con preguntas del curso.
 @/image
 
 @quiz
@@ -63,10 +63,10 @@ index: 3
 title: Algunos juegos
 @/section
 
-- **Classroom:** aula con compañeros ficticios.
-- **Memory:** parejas concepto / respuesta.
-- **Hacky Terminal:** consola retro.
-- **Alonso Duel:** duelo rápido.
+- **Classroom:** una clase con compañeros inventados.
+- **Memory:** parejas de concepto y respuesta.
+- **Hacky Terminal:** una consola retro.
+- **Alonso Duel:** un duelo rápido.
 
 @quiz
 concept: Catálogo Arcade

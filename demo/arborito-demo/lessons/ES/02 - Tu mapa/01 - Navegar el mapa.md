@@ -27,9 +27,9 @@ title: Abrir y volver
 
 - Toca una **carpeta**: ves lo de dentro.
 - Toca una **lección**: se abre el texto.
-- **Volver:** flecha o migas de pan arriba.
+- **Volver:** flecha o la ruta de arriba.
 
-A un lado (o arriba en móvil) está el **índice**: secciones y preguntas. Hay que **acertar** para marcarlas en verde.
+Al lado (o arriba en el móvil) está el **índice**: secciones y preguntas. Si aciertas, se ponen en **verde**.
 
 @quiz
 concept: Navegación básica
@@ -42,14 +42,14 @@ items:
       - En el examen
       - En la papelera
   - question: ¿Qué pasa si tocas una lección?
-    answer: Se abre el panel de lectura
+    answer: Se abre el texto
     modes: multiple,recall
     traps:
       - Se borra la rama
       - Solo suena música
       - Abre el Bosque
   - question: ¿Cómo vuelves atrás?
-    answer: Flecha o migas de pan
+    answer: Flecha o la ruta de arriba
     modes: multiple,recall
     traps:
       - Cerrar el navegador
@@ -62,7 +62,7 @@ index: 3
 title: Jugar desde el mapa
 @/section
 
-Con una carpeta abierta busca **Jugar** 🎮: ahí entra el Arcade con este curso.
+Con una carpeta abierta, pulsa **Jugar** 🎮: abre el Arcade de este curso.
 
 @quiz
 concept: Mapa en móvil

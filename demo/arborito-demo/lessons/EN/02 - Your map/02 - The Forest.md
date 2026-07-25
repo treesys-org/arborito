@@ -8,7 +8,7 @@ index: 1
 title: The Forest
 @/section
 
-**Forest** is your course shelf: what you open, import, or create.
+**Forest** is where you keep your courses: ones you open, import, or create.
 
 @image
 url: ./media/04-bosque-en.png
@@ -17,14 +17,17 @@ caption: The Forest: your branches.
 
 @section
 index: 2
-title: What you can do
+title: Plant your branch
 @/section
 
-- **Open** a branch you already have.
-- **Import** a `.arborito` file.
-- **Plant a new branch** to write your own.
+To create a course: **Create branch**. You start with an example folder and lesson, then edit them.
 
-This demo is **read-only**: explore it, don't delete it. To edit, **Copy to My garden**.
+You can also:
+
+- **Open** a branch you already have.
+- **Import** a `.arborito` someone shared with you.
+
+This demo (like an online course from another author) is **read-only**: look around, do not change it here.
 
 @quiz
 concept: Forest actions
@@ -37,12 +40,12 @@ items:
       - On the map
       - In Sage
   - question: How do you create an empty course?
-    answer: Plant a new branch
+    answer: Create branch
     modes: multiple,recall
     traps:
       - Only from Classroom
       - By deleting Sage
-      - By copying the exam
+      - Arcade only
   - question: Can you delete this demo from the Forest?
     answer: No
     modes: multiple,recall
@@ -54,16 +57,16 @@ items:
 
 @section
 index: 3
-title: Read-only
+title: Other people's courses
 @/section
 
-If a branch is someone else's (or this demo), don't edit it in place. Copy to **My garden** and work on the copy.
+If the course is someone else's (or this demo), do not change it here. In **construction mode** you can make a copy: choose a name and edit yours.
 
 @quiz
 concept: Read-only and copy
 items:
-  - question: How do you edit the demo?
-    answer: Copy to My garden and edit the copy
+  - question: How do you edit this demo?
+    answer: Construction mode and a name for your copy
     modes: multiple,recall
     traps:
       - Edit the demo directly

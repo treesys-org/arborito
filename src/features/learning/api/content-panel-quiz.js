@@ -96,16 +96,20 @@ export function hasActiveQuizInProgress(ctx) {
     if (states.some((s) => s.started && !s.finished)) return true;
     for (const session of Object.values(ctx.blockSessions || {})) {
         if (!session || session.finished) continue;
-        if (
-            session.quizIds?.some((id) => {
-                const st = getQuizState(ctx.quizStates, id);
-                return st.started && !st.finished;
-            })
-        ) {
-            return true;
-        }
+        /* Unfinished session still counts — including “all answered, results not closed”. */
+        if (session.quizIds?.length) return true;
     }
     return false;
+}
+
+/** True when every question in the session is answered (last tap can finish without “See results”). */
+export function isBlockSessionFullyAnswered(session, quizStates, answeredId = null) {
+    const ids = session?.quizIds;
+    if (!ids?.length) return false;
+    return ids.every((qid) => {
+        if (answeredId && qid === answeredId) return true;
+        return isQuestionAnswered(getQuizState(quizStates, qid));
+    });
 }
 
 /** Exam started but final summary not shown — warn only when closing, not between sections. */
@@ -352,6 +356,38 @@ export function buildAnswerQuizPatch(ctx, id, isCorrect) {
     }
     if (blockKey) {
         const session = ctx.blockSessions[blockKey];
+        const fullyAnswered = isBlockSessionFullyAnswered(session, nextStates, id);
+        if (fullyAnswered) {
+            const finishedSession = {
+                ...session,
+                awaitingAdvance: false,
+                finished: true,
+                currentIndex: Math.max(0, (session.quizIds?.length || 1) - 1),
+            };
+            const evalCtx = {
+                ...ctx,
+                quizStates: nextStates,
+                blockSessions: { ...ctx.blockSessions, [blockKey]: finishedSession },
+            };
+            const evalPatch = evaluateQuizSession(evalCtx, finishedSession);
+            Object.assign(patch, evalPatch);
+            patch.quizStates = nextStates;
+            const visited = new Set(evalPatch.visitedSections || ctx.visitedSections);
+            visited.add(ctx.activeSectionIndex);
+            patch.visitedSections = visited;
+            if (isExam) {
+                patch.blockSessions = {
+                    ...ctx.blockSessions,
+                    [blockKey]: finishedSession,
+                };
+            } else {
+                const nextSessions = { ...ctx.blockSessions };
+                delete nextSessions[blockKey];
+                patch.blockSessions = nextSessions;
+            }
+            /* Results already persisted — do not auto-advance or wait for “See results”. */
+            return patch;
+        }
         patch.blockSessions = {
             ...ctx.blockSessions,
             [blockKey]: { ...session, awaitingAdvance: true },

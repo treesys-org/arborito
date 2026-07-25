@@ -49,7 +49,7 @@ index: 3
 title: Tu progreso
 @/section
 
-Tu avance se guarda **en este dispositivo**. Un archivo `.arborito` lleva el **contenido** del curso, no tu historial.
+Tu avance se guarda **en este dispositivo**. El archivo `.arborito` es el **curso**, no tu progreso.
 
 @quiz
 concept: Bosque y datos

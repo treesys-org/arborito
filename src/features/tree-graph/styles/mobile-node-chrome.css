@@ -507,12 +507,23 @@ html:not(.dark) .mobile-structure-menu__action--danger {
     outline-offset: 1px;
     border-radius: var(--radius-md, 12px);
 }
-/* Last opened lesson — filled amber card (outline alone was easy to miss on mobile,
- * especially over the green completed wash). */
+/* Last opened lesson — filled amber card (also on parent folders that lead to it). */
 .mobile-child-row--opened {
     outline: none;
     border: var(--arborito-theme-tree-mobile-child-row--opened-border) !important;
     background: var(--arborito-theme-tree-mobile-child-row--opened-background) !important;
     box-shadow: var(--arborito-theme-tree-mobile-child-row--opened-box-shadow) !important;
     border-radius: var(--radius-md, 12px);
+}
+
+/* Path knot / label: same amber cue for ancestors of the last opened lesson. */
+.mobile-knot.mobile-knot--opened:not(.active) {
+    box-shadow: var(--arborito-theme-tree-mobile-child-row--opened-box-shadow) !important;
+    outline: 2px solid rgb(245 158 11 / 0.95);
+    outline-offset: 2px;
+}
+.mobile-label-row.mobile-label-row--opened:not(.is-active) {
+    border-radius: var(--radius-md, 12px);
+    background: var(--arborito-theme-tree-mobile-child-row--opened-background) !important;
+    box-shadow: var(--arborito-theme-tree-mobile-child-row--opened-box-shadow) !important;
 }

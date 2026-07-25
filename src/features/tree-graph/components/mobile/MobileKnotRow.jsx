@@ -52,6 +52,7 @@ export const MobileKnotRow = memo(function MobileKnotRow({
     tone,
     pulseGrowth,
     tree,
+    leadsToOpened = false,
 }) {
     const { ui, userStore, graphUi, constructionMode } = tree;
     const knotRef = useRef(null);
@@ -130,7 +131,7 @@ export const MobileKnotRow = memo(function MobileKnotRow({
                 ref={knotRef}
                 className={`mobile-knot mobile-knot-tone-${tone}${isActive ? ' active' : ''}${stateClass}${
                     isRoot ? ' mobile-knot--svg' : ''
-                }`}
+                }${leadsToOpened ? ' mobile-knot--opened' : ''}`}
                 {...(isRoot ? { 'data-arbor-tour': 'graph-root' } : {})}
                 onClick={mobile || isRootClover ? undefined : onKnotClick}
                 role={!isRootClover ? 'button' : undefined}
@@ -177,11 +178,12 @@ export const MobileKnotRow = memo(function MobileKnotRow({
     prev.pulseGrowth === next.pulseGrowth &&
     prev.tone === next.tone &&
     prev.index === next.index &&
+    prev.leadsToOpened === next.leadsToOpened &&
     prev.tree === next.tree
 );
 
 /** Path label row in the right column. */
-export function MobilePathLabelRow({ node, index, pathNodes }) {
+export function MobilePathLabelRow({ node, index, pathNodes, leadsToOpened = false }) {
     const tree = useTreeGraph();
     const { ui, viewMode, activeSource, constructionMode } = tree;
     const rowRef = useRef(null);
@@ -234,7 +236,7 @@ export function MobilePathLabelRow({ node, index, pathNodes }) {
 
     const rowClass = `mobile-label-row ${isActive ? 'is-active' : ''}${
         showRootVersion || suppressActiveTitle ? ' mobile-label-row--suppress-title' : ''
-    }`;
+    }${leadsToOpened ? ' mobile-label-row--opened' : ''}`;
 
     return (
         <div

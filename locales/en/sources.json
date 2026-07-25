@@ -47,7 +47,7 @@
   "sourcesCreateTreePrompt": "Name your tree:",
   "sourcesCreateTreeShort": "Create tree",
   "sourcesCtaCompact": "Create or import",
-  "sourcesCtaCompactBranches": "New branch or import",
+  "sourcesCtaCompactBranches": "Create branch or import",
   "sourcesCtaCompactTrees": "New tree or import",
   "sourcesDeleteComposedTreeConfirm": "Remove this tree from your trees?",
   "sourcesDeleteTreeLinkConfirm": "Uninstall this tree? It stays online, you can install it again any time.",

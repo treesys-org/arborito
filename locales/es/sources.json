@@ -47,7 +47,7 @@
   "sourcesCreateTreePrompt": "Nombre del árbol:",
   "sourcesCreateTreeShort": "Crear árbol",
   "sourcesCtaCompact": "Crear o importar",
-  "sourcesCtaCompactBranches": "Nueva rama o importar",
+  "sourcesCtaCompactBranches": "Crear rama o importar",
   "sourcesCtaCompactTrees": "Nuevo árbol o importar",
   "sourcesDeleteComposedTreeConfirm": "¿Quitar este árbol de tus árboles?",
   "sourcesDeleteTreeLinkConfirm": "¿Desinstalar esta rama? Sigue disponible en línea y puedes volver a instalarla cuando quieras.",

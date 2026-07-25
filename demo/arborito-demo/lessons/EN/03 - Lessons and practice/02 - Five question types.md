@@ -9,7 +9,7 @@ index: 1
 title: Five types
 @/section
 
-Here you see them **one by one**. Elsewhere they often sit together in one quiz.
+Here you see them **one by one**. In other lessons they often sit together in one quiz.
 
 @image
 url: ./media/06-quiz-en.png
@@ -40,11 +40,11 @@ index: 3
 title: Fill the blank
 @/section
 
-A sentence with a **hidden** word.
+You fill in the missing word. Below, that word is **blank**.
 
 @quiz
 concept: Fill blanks
-definition: A sentence with a {hidden} word you must get right
+definition: You fill in the missing word in the {blank}
 answer: Fill the blank
 modes: cloze
 @/quiz
@@ -58,7 +58,7 @@ You type or pick the answer **without** a long trap list.
 
 @quiz
 concept: Recall
-definition: An answer you must {recall} with few distractors
+definition: An answer you must {recall} without many traps
 question: Which mode asks you to recall the answer?
 answer: Recall
 modes: recall

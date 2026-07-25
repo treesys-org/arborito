@@ -8,11 +8,11 @@ index: 1
 title: Leer y practicar
 @/section
 
-Una lección mezcla **texto**, capturas y **preguntas**. El índice te dice qué te falta.
+Una lección tiene **texto**, capturas y **preguntas**. El índice te muestra qué te falta.
 
 @image
 url: ./media/05-leccion-es.png
-caption: Lector con texto, práctica e índice.
+caption: Texto, preguntas e índice.
 @/image
 
 @section
@@ -20,9 +20,9 @@ index: 2
 title: Secciones y cuestionarios
 @/section
 
-Las **secciones** parten el tema en pasos. Un **cuestionario** puede tener varias preguntas: en el índice cuenta como un solo paso. Hay que acertarlas todas para marcarlo verde. Luego puedes practicar otra vez.
+Las **secciones** cortan la lección en partes. Un **cuestionario** puede tener varias preguntas; en el índice se ve como **uno**. Si las aciertas, pasa a **verde**. Luego puedes repetirlo.
 
-Las mismas preguntas sirven después para el **Arcade**.
+Esas mismas preguntas salen en el **Arcade**.
 
 @quiz
 concept: Estructura de lección

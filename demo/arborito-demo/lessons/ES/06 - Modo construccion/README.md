@@ -8,4 +8,4 @@ index: 1
 title: Modo construcción
 @/section
 
-Crea carpetas, lecciones y preguntas; exporta tu `.arborito`.
+Modo construcción: escribe tu curso. Curso nuevo = plantar rama en el Bosque.

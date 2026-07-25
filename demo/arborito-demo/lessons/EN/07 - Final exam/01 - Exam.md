@@ -9,7 +9,7 @@ index: 1
 title: Final exam
 @/section
 
-A review of the whole demo. In an exam you **cannot leave mid-way** and continue the same attempt later. Read carefully, then tap **Start assessment**.
+A review of the whole demo. In an exam you **cannot leave halfway** and continue later. Read carefully, then tap **Start assessment**.
 
 @quiz
 concept: Arborito demo review
@@ -50,12 +50,12 @@ items:
       - Play only
       - Reset Sage
       - Watch videos
-  - question: How do you start a lesson in Hacky Terminal?
-    answer: play and the lesson number
+  - question: What is Hacky Terminal?
+    answer: A console-style game with your course questions
     traps:
-      - Dynamic AI only
-      - Delete the branch
-      - Without lessons
+      - A code editor
+      - The Forest
+      - The final exam only
   - question: Where is progress saved?
     answer: On this device
     traps:
@@ -68,8 +68,8 @@ items:
       - No
       - Short lessons only
       - Sage only
-  - question: How do you edit the demo?
-    answer: Copy to My garden and edit the copy
+  - question: How do you edit this demo?
+    answer: Construction mode and a name for your copy
     traps:
       - Edit directly
       - Exam only

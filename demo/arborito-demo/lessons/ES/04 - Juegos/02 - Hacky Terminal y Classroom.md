@@ -9,7 +9,7 @@ index: 1
 title: Dos juegos, mismas preguntas
 @/section
 
-**Hacky Terminal** y **Classroom** repasan tu curso con otro formato.
+**Hacky Terminal** y **Classroom** repasan tu curso con otro formato. Se abren desde el Arcade.
 
 @image
 url: ./media/09-hacky-es.png
@@ -26,30 +26,25 @@ index: 2
 title: Hacky Terminal
 @/section
 
-Escribe `lessons` para listar lecciones. Luego `play 1` (u otro número) para empezar: **play y el número de lección**. Con IA activada también puedes preguntarme a mí.
-
-```bash
-$ echo Hola
-Hola
-```
+**Hacky Terminal** es un juego con estilo de consola: mismas preguntas del curso, otro formato.
 
 @quiz
 concept: Terminal estático
 items:
-  - question: ¿Cómo empiezas una lección en Terminal?
-    answer: play y el número de lección
+  - question: ¿Qué es Hacky Terminal?
+    answer: Un juego tipo consola con las preguntas del curso
     modes: recall,multiple
     traps:
-      - Solo preguntando a Sage
-      - Borrando la rama
-      - Solo desde el Bosque
-  - question: ¿Qué comando lista las lecciones?
-    answer: lessons
+      - Un editor de código
+      - El Bosque
+      - Solo el examen final
+  - question: ¿Dónde abres Hacky Terminal?
+    answer: Desde Arcade
     modes: recall,multiple
     traps:
-      - play
-      - quit
-      - export
+      - Solo en el Bosque
+      - Solo exportando
+      - Solo con Sage
   - question: ¿El modo estático funciona sin IA?
     answer: Sí
     modes: multiple,recall
@@ -64,7 +59,7 @@ index: 3
 title: Classroom
 @/section
 
-Simula una clase con compañeros ficticios. Las preguntas son las de tus lecciones. Se abre desde el Arcade.
+**Classroom** simula una clase con compañeros inventados. Las preguntas son las de tus lecciones.
 
 @quiz
 concept: Classroom

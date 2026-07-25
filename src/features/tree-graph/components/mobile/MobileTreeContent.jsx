@@ -1,6 +1,7 @@
+import { useEffect, useState } from 'react';
 import { fileSystem } from '../../../backup-export/api/filesystem.js';
 import { useTreeGraph } from '../../hooks/useTreeGraph.js';
-import { getMobileTone } from '../../api/mobile-tree-presentation-utils.js';
+import { getMobileTone, nodeLeadsToLessonId } from '../../api/mobile-tree-presentation-utils.js';
 import { getMobilePath, getSelectedNodeId } from '../../api/graph-ui-accessors.js';
 import { Callout } from '../../../../shared/ui/Callout.jsx';
 import { MobileKnotRow, MobilePathLabelRow } from './MobileKnotRow.jsx';
@@ -51,10 +52,20 @@ function MobileMovePickBanner() {
 /** Knot column content, inline in Graph.jsx. */
 export function MobileKnotsColumn({ model }) {
     const tree = useTreeGraph();
-    const { ui, userStore, graphUi, constructionMode } = tree;
+    const { constructionMode, subscribeUserProgressChanged } = tree;
+    const [recentEpoch, setRecentEpoch] = useState(0);
+
+    useEffect(() => {
+        return subscribeUserProgressChanged(() => setRecentEpoch((n) => n + 1));
+    }, [subscribeUserProgressChanged]);
+
     if (!model?.pathNodes?.length) return null;
 
     const { pathNodes, harvested, activeIndex, pulseKnotIndex } = model;
+    const lastOpenedId = !constructionMode
+        ? String(tree.userStore?.getRecentLessons?.()?.[0]?.id || '')
+        : '';
+    void recentEpoch;
 
     return pathNodes.map((node, index) => (
         <MobileKnotRow
@@ -67,12 +78,23 @@ export function MobileKnotsColumn({ model }) {
             isActive={index === activeIndex}
             tone={getMobileTone(node)}
             pulseGrowth={index === pulseKnotIndex}
+            leadsToOpened={
+                !!lastOpenedId && nodeLeadsToLessonId(node, lastOpenedId, (id) => tree.findNode?.(id))
+            }
         />
     ));
 }
 
 /** Right column content, inline in Graph.jsx. */
 export function MobileRightColumn({ model, panelRef, scrollRootRef }) {
+    const tree = useTreeGraph();
+    const { constructionMode, subscribeUserProgressChanged } = tree;
+    const [recentEpoch, setRecentEpoch] = useState(0);
+
+    useEffect(() => {
+        return subscribeUserProgressChanged(() => setRecentEpoch((n) => n + 1));
+    }, [subscribeUserProgressChanged]);
+
     if (!model?.pathNodes?.length) return null;
 
     const { pathNodes, current, harvested, activeIndex } = model;
@@ -80,13 +102,24 @@ export function MobileRightColumn({ model, panelRef, scrollRootRef }) {
     const selectedId = getSelectedNodeId();
     const directChildSelected =
         selectedId != null && children.some((c) => String(c.id) === String(selectedId));
+    const lastOpenedId = !constructionMode
+        ? String(tree.userStore?.getRecentLessons?.()?.[0]?.id || '')
+        : '';
+    void recentEpoch;
 
     return pathNodes.map((node, index) => {
         const isActive = index === activeIndex;
+        const leadsToOpened =
+            !!lastOpenedId && nodeLeadsToLessonId(node, lastOpenedId, (id) => tree.findNode?.(id));
         if (isActive) {
             return (
                 <div key={`branch-${node.id}`} className="mobile-active-branch">
-                    <MobilePathLabelRow node={node} index={index} pathNodes={pathNodes} />
+                    <MobilePathLabelRow
+                        node={node}
+                        index={index}
+                        pathNodes={pathNodes}
+                        leadsToOpened={leadsToOpened}
+                    />
                     <MobileBranchPanel
                         current={current}
                         harvested={harvested}
@@ -98,7 +131,13 @@ export function MobileRightColumn({ model, panelRef, scrollRootRef }) {
             );
         }
         return (
-            <MobilePathLabelRow key={`label-${node.id}-${index}`} node={node} index={index} pathNodes={pathNodes} />
+            <MobilePathLabelRow
+                key={`label-${node.id}-${index}`}
+                node={node}
+                index={index}
+                pathNodes={pathNodes}
+                leadsToOpened={leadsToOpened}
+            />
         );
     });
 }

@@ -29,7 +29,7 @@ title: How to enter
 
 @image
 url:./media/08-alonso-en.png
-caption: Alonso Duel: a quick match with course material.
+caption: Alonso Duel: a quick duel with course questions.
 @/image
 
 @quiz
@@ -63,10 +63,10 @@ index: 3
 title: A few games
 @/section
 
-- **Classroom:** classroom with fictional classmates.
-- **Memory:** concept / answer pairs.
-- **Hacky Terminal:** retro console.
-- **Alonso Duel:** quick duel.
+- **Classroom:** a class with made-up classmates.
+- **Memory:** concept and answer pairs.
+- **Hacky Terminal:** a retro console.
+- **Alonso Duel:** a quick duel.
 
 @quiz
 concept: Arcade catalogue

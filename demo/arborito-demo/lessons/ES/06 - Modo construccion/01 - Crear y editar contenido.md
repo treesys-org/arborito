@@ -8,27 +8,29 @@ index: 1
 title: Modo construcción
 @/section
 
-Para **escribir** un curso usa el modo construcción (martillo / llave en el mapa).
+Para **escribir** un curso usa el modo construcción (martillo / llave en el mapa). Ahí creas carpetas, lecciones, texto y preguntas.
+
+Si aún no tienes rama propia: en el **Bosque**, **Crear rama**.
 
 @image
 url: ./media/12-construccion-es.png
-caption: Editas carpetas, lecciones y el temario.
+caption: Editas carpetas, lecciones y el índice.
 @/image
 
 @section
 index: 2
-title: Esta demo no se guarda
+title: Esta demo
 @/section
 
-Aquí puedes **mirar** la construcción, pero **no guardar**. Para editar de verdad: **Copiar a Mi jardín**.
+Como un curso en línea de otro autor, esta demo es **solo lectura**: puedes mirar la construcción, pero no guardar aquí.
 
-En tu copia puedes renombrar, reordenar, escribir texto y preguntas, y activar un logro en una carpeta.
+Para editarla: entra en modo construcción y elige un **nombre** para tu copia. En esa copia sí puedes cambiar y escribir.
 
 @quiz
 concept: Demo readonly
 items:
-  - question: ¿Cómo editas el demo?
-    answer: Copiar a Mi jardín y editar la copia
+  - question: ¿Cómo editas esta demo?
+    answer: Modo construcción y un nombre para tu copia
     modes: multiple,recall
     traps:
       - Editar el demo directo

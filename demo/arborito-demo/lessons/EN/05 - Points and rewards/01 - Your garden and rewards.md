@@ -8,11 +8,11 @@ index: 1
 title: Your progress
 @/section
 
-Arborito gives points so coming back is easier. It's **your** progress, not a ranking.
+Arborito gives points to help you keep going. It's **your** progress, not a contest.
 
 @image
 url: ./media/11-jardin-en.png
-caption: Memory garden: seeds as you study.
+caption: Garden: seeds as you study.
 @/image
 
 @section
@@ -22,8 +22,8 @@ title: XP, streak, and umbrella
 
 - **Points (XP)** when you finish lessons and get answers right.
 - **Streak:** days in a row studying.
-- **Umbrella:** every 3 streak days you earn one (max 3). Miss a day and it spends an umbrella so you keep the streak. Also in the garden Shop.
-- **Seeds** when you finish modules (Progress or backpack).
+- **Umbrella:** protects your streak if you miss a day. You earn one every 3 streak days (max 3). Also in the garden Shop.
+- **Seeds** when you finish a topic (in Progress or the backpack).
 
 @quiz
 concept: Daily progress
@@ -60,7 +60,7 @@ In **Achievements** (backpack):
 
 1. **Branch:** finish a whole course.
 2. **Tree:** finish every branch in a tree.
-3. **Optional achievement:** the author sets it on a folder (construction mode).
+3. **Extra achievement:** the author puts it on a folder (construction mode).
 
 @quiz
 concept: Main trophies

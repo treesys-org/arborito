@@ -58,7 +58,7 @@ index: 3
 title: Cómo seguir
 @/section
 
-Recorre las carpetas del mapa en orden. El índice de cada lección marca en verde lo que ya acertaste. Puedes repetir las preguntas cuando quieras.
+Abre las carpetas del mapa en orden. En el índice, lo que aciertas se pone **verde**. Puedes repetir las preguntas cuando quieras.
 
 @quiz
 concept: Recorrido demo

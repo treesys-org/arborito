@@ -6,7 +6,7 @@ import {
 } from '../../api/node-property-emojis.js';
 import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
 import { CompletedTickIcon } from '../../../../shared/ui/CompletedTickIcon.jsx';
-import { getMobileTone } from '../../api/mobile-tree-presentation-utils.js';
+import { getMobileTone, nodeLeadsToLessonId } from '../../api/mobile-tree-presentation-utils.js';
 import { isFolderAchievementEarned } from '../../../garden-progress/api/achievement-folder-status.js';
 import { MobileInlineTools } from './MobileInlineTools.jsx';
 import { useBindMobileTapRef } from '../../../../shared/ui/useBindMobileTap.js';
@@ -70,8 +70,8 @@ export function MobileChildRow({ child, ctx }) {
               : '';
     const recentOpened =
         !!openedId &&
-        (child.type === 'leaf' || child.type === 'exam') &&
-        String(child.id) === openedId;
+        !isConstruct &&
+        nodeLeadsToLessonId(child, openedId, (id) => tree.findNode?.(id));
     const cname = child.name || '';
     const inlineRenameId = tree.graphUi?.inlineRenameNodeId;
     const renamingRow =

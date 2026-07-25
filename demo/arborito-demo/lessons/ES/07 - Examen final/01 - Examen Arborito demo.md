@@ -9,7 +9,7 @@ index: 1
 title: Examen final
 @/section
 
-Repaso de toda la demo. En el examen **no puedes dejarlo a medias** y seguir luego en la misma tentativa. Lee con calma y pulsa **Comenzar evaluación**.
+Repaso de toda la demo. En el examen **no puedes salir a medias** y continuar después. Lee con calma y pulsa **Comenzar evaluación**.
 
 @quiz
 concept: Repaso Arborito demo
@@ -50,12 +50,12 @@ items:
       - Solo jugar
       - Resetear Sage
       - Ver vídeos
-  - question: ¿Cómo empiezas una lección en Hacky Terminal?
-    answer: play y el número de lección
+  - question: ¿Qué es Hacky Terminal?
+    answer: Un juego tipo consola con las preguntas del curso
     traps:
-      - Solo IA dinámica
-      - Borrar la rama
-      - Sin lecciones
+      - Un editor de código
+      - El Bosque
+      - Solo el examen final
   - question: ¿Dónde se guarda tu progreso?
     answer: En este dispositivo
     traps:
@@ -68,8 +68,8 @@ items:
       - No
       - Solo en lecciones cortas
       - Solo Sage
-  - question: ¿Cómo editas el demo?
-    answer: Copiar a Mi jardín y editar la copia
+  - question: ¿Cómo editas esta demo?
+    answer: Modo construcción y un nombre para tu copia
     traps:
       - Editar directo
       - Solo examen

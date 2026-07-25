@@ -9,7 +9,7 @@ index: 1
 title: Cinco tipos
 @/section
 
-Aquí las ves **una por una**. En el resto del curso suelen ir juntas en un cuestionario.
+Aquí las ves **una por una**. En otras lecciones suelen ir juntas en un cuestionario.
 
 @image
 url: ./media/06-quiz-es.png
@@ -40,11 +40,11 @@ index: 3
 title: Completar huecos
 @/section
 
-Una frase con una palabra **oculta**.
+Rellenas la palabra que falta. Abajo, esa palabra es **hueco**.
 
 @quiz
 concept: Completar huecos
-definition: Una frase con una palabra {oculta} que debes acertar
+definition: Rellenas la palabra que falta en el {hueco}
 answer: Completar huecos
 modes: cloze
 @/quiz
@@ -58,7 +58,7 @@ Escribes o eliges la respuesta **sin** una lista larga de trampas.
 
 @quiz
 concept: Recordar
-definition: Respuesta que debes {recordar} con pocos distractores
+definition: Respuesta que debes {recordar} sin muchas trampas
 question: ¿Qué modo pide recordar la respuesta?
 answer: Recordar
 modes: recall
