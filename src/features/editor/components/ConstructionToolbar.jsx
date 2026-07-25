@@ -6,7 +6,7 @@ import { CurriculumLangPicker } from '../../sources/components/CurriculumLangPic
 import { LanguageIcon } from '../../../shared/ui/ArboritoIcons.jsx';
 import { MmenuDrillRow } from '../../../shared/ui/MmenuChrome.jsx';
 import { MobDockBar } from '../../../shared/ui/MobDockBar.jsx';
-import { MobDockTab } from '../../../shared/ui/MobDockTab.jsx';
+import { MobDockTab, MobDockMenuIcon, shortDockLabel } from '../../../shared/ui/MobDockTab.jsx';
 import { MobMoreSheet } from '../../../shared/ui/MobMoreSheet.jsx';
 import { DockHubPanelLayer } from '../../../app/components/DockHubPanelLayer.jsx';
 import { ConstructionDockPublishButton } from './ConstructionDockPublishButton.jsx';
@@ -227,7 +227,7 @@ export function ConstructionToolbar({
                 ariaExpanded={moreToolsOpen}
                 ariaHaspopup="true"
                 onClick={onMoreToggle}
-                icon="☰"
+                icon={<MobDockMenuIcon size={22} />}
                 label={moreDockL}
             />
         );

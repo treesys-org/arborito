@@ -3,7 +3,7 @@ import { useShellChrome } from '../../hooks/useShellChrome.js';
 import { prefetchModal } from '../../../../app/modal-open.js';
 import { shouldBlockSageChromeToggle } from '../../../learning/api/sage-pointer-guard.js';
 import { MobDockBar } from '../../../../shared/ui/MobDockBar.jsx';
-import { MobDockTab } from '../../../../shared/ui/MobDockTab.jsx';
+import { MobDockTab, MobDockMenuIcon } from '../../../../shared/ui/MobDockTab.jsx';
 import { ArboritoLogoMark } from './SidebarMobileMoreMenu.jsx';
 import { CreatorModerationBell } from './CreatorModerationBell.jsx';
 import { GuestAccountHintBadge } from './GuestAccountHintBadge.jsx';
@@ -184,7 +184,7 @@ export function SidebarMobileDock({
                         e.stopPropagation();
                         onToggleMenu();
                     }}
-                    icon="☰"
+                    icon={<MobDockMenuIcon size={22} />}
                     label={ui.navMore || 'More'}
                 />
             </div>

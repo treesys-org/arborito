@@ -390,6 +390,11 @@ html.arborito-construction-mobile.arborito-mob-dock-modal-open
     font-weight: 700;
 }
 
+.arborito-mob-tab__icon--menu svg {
+    display: block;
+    flex-shrink: 0;
+}
+
 /* Inactive dock emoji tabs: monochrome like Home SVG (active tab keeps full colour in pill). */
 .arborito-mob-tab:not(.arborito-mob-tab--active) .arborito-mob-tab__icon .arborito-emoji-img,
 .arborito-mob-tab:not(.arborito-mob-tab--active) .arborito-mob-tab__icon .arborito-emoji-glyph {

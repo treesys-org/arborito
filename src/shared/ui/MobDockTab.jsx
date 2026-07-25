@@ -12,6 +12,35 @@ export function shortDockLabel(s) {
     return first.length <= max ? first : `${first.slice(0, max - 1)}…`;
 }
 
+/** Hamburger for More — SVG so small phones do not drop Unicode ☰. */
+export function MobDockMenuIcon({ size = 22, className = '' }) {
+    return (
+        <svg
+            data-dock-menu=""
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width={size}
+            height={size}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.25"
+            strokeLinecap="round"
+            aria-hidden="true"
+            focusable="false"
+            className={className}
+        >
+            <path d="M4 7h16" />
+            <path d="M4 12h16" />
+            <path d="M4 17h16" />
+        </svg>
+    );
+}
+
+function isDockMenuIcon(icon) {
+    if (typeof icon === 'string') return icon === '☰';
+    return !!(icon && typeof icon === 'object' && icon.props && 'data-dock-menu' in icon.props);
+}
+
 export function MobDockTab({
     id,
     tour,
@@ -43,7 +72,7 @@ export function MobDockTab({
 
     const iconClasses = [
         'arborito-mob-tab__icon',
-        typeof icon === 'string' && icon === '☰' ? 'arborito-mob-tab__icon--menu' : '',
+        isDockMenuIcon(icon) ? 'arborito-mob-tab__icon--menu' : '',
         iconClass,
     ]
         .filter(Boolean)
