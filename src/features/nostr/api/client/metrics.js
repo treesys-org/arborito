@@ -180,6 +180,115 @@ export const metricsMixin = {
         return n;
     },
 
+    /**
+     * Arcade game likes — same PoW + replaceable shape as tree votes, keyed by
+     * synthetic arb root (`game` / gameId) and metric tag `a:gvote`.
+     */
+    async putGameVote({ pair, gameId, vote = true }) {
+        const gid = String(gameId || '').trim();
+        if (!gid || !pair?.pub) return;
+        const ownerPub = 'game';
+        const universeId = gid;
+        const value = vote ? 1 : -1;
+        const bucket = `vote:${value > 0 ? 'up' : 'down'}`;
+        const pow = await this._solvePow(
+            'game_vote_v1',
+            ownerPub,
+            universeId,
+            bucket,
+            pair.pub,
+            this._powBits('game_vote_v1')
+        );
+        if (!pow?.powNonce) {
+            throw new Error('game_vote_v1 PoW failed');
+        }
+        const payload = {
+            kind: 'game_vote_v1',
+            gameId: gid,
+            ownerPub,
+            universeId,
+            value,
+            powBucket: bucket,
+            powBits: pow.powBits,
+            powNonce: pow.powNonce,
+            at: new Date().toISOString(),
+        };
+        const ev = await this._finalize(pair, {
+            kind: KIND_APP_SIGNED_PAYLOAD,
+            tags: [
+                arbRootTag(ownerPub, universeId),
+                ['m', this.metricKindName('gvote')],
+                ['d', `gvote:${gid}:${pair.pub}`],
+            ],
+            content: JSON.stringify(payload),
+        });
+        await this._publish(ev);
+    },
+
+    async verifyGameVote(record) {
+        const ev = record && record.sig && typeof record.sig === 'object' && record.sig.id ? record.sig : record;
+        if (!ev || !verifyEvent(ev)) return false;
+        let v;
+        try {
+            v = JSON.parse(String(ev.content || 'null'));
+        } catch {
+            return false;
+        }
+        if (!v || String(v.kind) !== 'game_vote_v1') return false;
+        const by = String(ev.pubkey || '');
+        const gid = String(v.gameId || record.gameId || '');
+        const ownerPub = String(v.ownerPub || 'game');
+        const universeId = String(v.universeId || gid);
+        if (!gid || universeId !== gid) return false;
+        return (
+            String(v.gameId) === String(record.gameId || v.gameId) &&
+            (await this._verifyPow(
+                'game_vote_v1',
+                ownerPub,
+                universeId,
+                v.powBucket,
+                by,
+                v.powBits,
+                v.powNonce
+            ))
+        );
+    },
+
+    async countGameVotesOnce({ gameId, max = 2500 } = {}) {
+        const gid = String(gameId || '').trim();
+        if (!gid) return 0;
+        const ownerPub = 'game';
+        const broad = await this._query(
+            {
+                kinds: [KIND_APP_SIGNED_PAYLOAD],
+                '#m': [this.metricKindName('gvote')],
+                limit: Math.min(8000, max * 2),
+            },
+            QUERY_MS_LONG
+        );
+        const byVoter = new Map();
+        for (const ev of broad) {
+            if (!hasArbRoot(ev, ownerPub, gid)) continue;
+            const pk = String((ev && ev.pubkey) || '');
+            if (!pk) continue;
+            const prev = byVoter.get(pk);
+            if (!prev || (Number(ev.created_at) || 0) > (Number(prev.created_at) || 0)) byVoter.set(pk, ev);
+        }
+        let n = 0;
+        for (const ev of byVoter.values()) {
+            let o;
+            try {
+                o = JSON.parse(ev.content || 'null');
+            } catch {
+                continue;
+            }
+            if (await this.verifyGameVote({ ...o, gameId: gid, sig: ev })) {
+                n += Number(o.value) > 0 ? 1 : -1;
+            }
+        }
+        return n;
+    },
+
     async putTreeFork({ pair, parentOwnerPub, parentUniverseId, forkOwnerPub, forkUniverseId }) {
         const parentPub = String(parentOwnerPub || '').trim();
         const parentId = String(parentUniverseId || '').trim();

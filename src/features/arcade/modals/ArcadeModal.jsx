@@ -6,6 +6,7 @@ import { loadArcadeGamesCatalog } from '../api/arcade-games-loader.js';
 import { clearJsdelivrCommitPinCache } from '../api/arcade-games-cdn.js';
 import { runArcadeAction } from '../api/modals/logic/arcade-actions/index.js';
 import { hydrateArcadeGameMetrics } from '../api/arcade-local-storage.js';
+import { refreshArcadeGameVotesFromNetwork } from '../api/arcade-vote-network.js';
 import { getModuleStaticGameReadiness } from '../../learning/api/quiz-status.js';
 import {
     hasOfflineGameBundle,
@@ -148,6 +149,7 @@ export function ModalArcade({ embed, dockEmbed = false, dockEmbedActive = false 
         const manualGames = userStore.state.installedGames || [];
         const ids = [...discoveredGames, ...manualGames].map((g) => g.id).filter(Boolean);
         setGameMetrics(hydrateArcadeGameMetrics(ids));
+        void refreshArcadeGameVotesFromNetwork(ids, setGameMetrics);
     }, [discoveredGames, userStore.state.installedGames, arcadeRevision]);
 
     useEffect(() => {

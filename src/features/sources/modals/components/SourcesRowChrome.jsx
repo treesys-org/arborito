@@ -39,11 +39,22 @@ export function SourcesVoteLikeIcon({ liked }) {
  * Like control — in-memory override + persisted vote floor so close/reopen
  * cannot drop the count while relays still lag.
  */
-export function SourcesVoteGroup({ ui, liked, votes, ownerPub, universeId, onVote }) {
+export function SourcesVoteGroup({
+    ui,
+    liked,
+    votes,
+    ownerPub,
+    universeId,
+    onVote,
+    /** When false, skip tree vote floor LS (arcade reuses this control with game keys). */
+    persistFloor = true,
+}) {
     const voteLbl = ui.sourcesGlobalVoteUp || ui.sourcesGlobalVote;
     const countAria = ui.sourcesGlobalVote || ui.sourcesGlobalVoteUp;
     const propLiked = !!liked;
-    const mergedVotes = mergeDisplayedVotes(ownerPub, universeId, votes, propLiked);
+    const mergedVotes = persistFloor
+        ? mergeDisplayedVotes(ownerPub, universeId, votes, propLiked)
+        : votes;
     const propVotes = mergedVotes == null ? 0 : Math.max(0, Number(mergedVotes) || 0);
     const rowKey = `${String(ownerPub || '').trim()}/${String(universeId || '').trim()}`;
 
@@ -81,7 +92,7 @@ export function SourcesVoteGroup({ ui, liked, votes, ownerPub, universeId, onVot
                     e.preventDefault();
                     e.stopPropagation();
                     const next = toggleVoteUiOverride(ownerPub, universeId, propLiked, propVotes);
-                    pinVoteCountAfterToggle(ownerPub, universeId, next.votes);
+                    if (persistFloor) pinVoteCountAfterToggle(ownerPub, universeId, next.votes);
                     try {
                         onVote?.({
                             ownerPub,

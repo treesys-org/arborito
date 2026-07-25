@@ -18,6 +18,7 @@ import { utf8ToBytes } from '../../../../vendor/deps/noble-hashes/esm/utils.js';
 const APP_POW_BITS = Object.freeze({
     tree_usage_v1: 16,
     tree_vote_v1: 18,
+    game_vote_v1: 18,
     tree_fork_v1: 18,
     tree_report_v1: 20,
     tree_urgent_user_message_v1: 20,

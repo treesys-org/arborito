@@ -352,12 +352,13 @@ export function SourcesForestTab({
                                             actionsOpen={rowActionsOpen}
                                             onAction={onAction}
                                             onToggleRowActions={onToggleRowActions}
-                                            onVote={({ ownerPub, universeId, liked }) =>
+                                            onVote={({ ownerPub, universeId, liked, votes }) =>
                                                 onAction('global-vote', {
                                                     ownerPub,
                                                     universeId,
                                                     vote: 'up',
                                                     liked,
+                                                    votes,
                                                 })
                                             }
                                             onShare={(opts) =>

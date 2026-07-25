@@ -32,8 +32,11 @@ export function readArcadeGameLiked(getNetworkUserPair, gameId) {
     try {
         const pair = getNetworkUserPair?.();
         const pub = String(pair?.pub || '').trim();
-        const lsKey = pub ? arcadeGameVoteKey(id, pub) : arcadeGameVoteKeyFallback(id);
-        return sourcesLsGet(lsKey) === '1';
+        const fallback = sourcesLsGet(arcadeGameVoteKeyFallback(id)) === '1';
+        if (pub) {
+            return sourcesLsGet(arcadeGameVoteKey(id, pub)) === '1' || fallback;
+        }
+        return fallback;
     } catch {
         return false;
     }

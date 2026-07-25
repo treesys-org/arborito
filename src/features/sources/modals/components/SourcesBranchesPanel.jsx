@@ -366,12 +366,13 @@ export function SourcesBranchesPanel({
                                     actionsOpen={rowActionsOpen}
                                     onAction={onAction}
                                     onToggleRowActions={toggleRowActions}
-                                    onVote={({ ownerPub, universeId, liked }) =>
+                                    onVote={({ ownerPub, universeId, liked, votes }) =>
                                         onAction('global-vote', {
                                             ownerPub,
                                             universeId,
                                             vote: 'up',
                                             liked,
+                                            votes,
                                         })
                                     }
                                     onShare={(opts) =>

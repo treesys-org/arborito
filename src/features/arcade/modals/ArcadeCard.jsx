@@ -67,7 +67,15 @@ export function ArcadeCard({
                     votes={votes}
                     ownerPub={gId}
                     universeId="game"
-                    onVote={() => onAction?.('game-vote', { gameId: gId, vote: 'up' })}
+                    persistFloor={false}
+                    onVote={({ liked: nextLiked, votes: nextVotes }) =>
+                        onAction?.('game-vote', {
+                            gameId: gId,
+                            vote: 'up',
+                            liked: nextLiked,
+                            votes: nextVotes,
+                        })
+                    }
                 />
                 {isElectronDesktop() ? (
                     <label className="flex flex-col items-center gap-1 shrink-0 cursor-pointer">

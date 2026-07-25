@@ -8,6 +8,7 @@ import {
     sourcesLsGet,
     sourcesLsSet,
 } from '../../../arcade-local-storage.js';
+import { enqueueGameVotePublish } from '../../../arcade-vote-network.js';
 
 function parseHttpGameUrl(raw) {
     const trimmed = String(raw || '').trim();
@@ -27,27 +28,46 @@ export async function runArcadeGamesAction(ctx, action, fields = {}) {
 
     if (action === 'game-vote') {
         const gameId = String(fields.gameId || '');
-        const dir = String(fields.vote || 'up');
         if (!gameId) return true;
 
-        const pair = await ctx.getNetworkUserPair?.();
+        /* Instant local toggle — network publish continues in the background. */
+        let pair = store.getNetworkUserPair?.() || null;
+        if (!String(pair?.pub || '').trim()) {
+            try {
+                pair = (await store.ensureNetworkUserPair?.()) || pair;
+            } catch {
+                /* soft-fail; publish worker retries */
+            }
+        }
         const pub = String(pair?.pub || '').trim();
-        const lsKey = pub ? arcadeGameVoteKey(gameId, pub) : arcadeGameVoteKeyFallback(gameId);
-        const prev = sourcesLsGet(lsKey) === '1';
-        const finalVote = dir === 'up' ? !prev : false;
+        const realKey = pub ? arcadeGameVoteKey(gameId, pub) : '';
+        const fallbackKey = arcadeGameVoteKeyFallback(gameId);
+        const prev =
+            (realKey && sourcesLsGet(realKey) === '1') || sourcesLsGet(fallbackKey) === '1';
+        const finalVote =
+            typeof fields.liked === 'boolean' ? !!fields.liked : !prev;
 
-        if (finalVote) sourcesLsSet(lsKey, '1');
-        else sourcesLsDel(lsKey);
+        if (finalVote) {
+            if (realKey) sourcesLsSet(realKey, '1');
+            sourcesLsSet(fallbackKey, '1');
+        } else {
+            if (realKey) sourcesLsDel(realKey);
+            sourcesLsDel(fallbackKey);
+        }
 
         ctx.setGameMetrics((prevMetrics) => {
             const cur = prevMetrics[gameId] || { votes: readArcadeGameVoteCount(gameId) };
             const base = Number(cur.votes) || 0;
             const delta = (finalVote ? 1 : 0) - (prev ? 1 : 0);
-            const votes = Math.max(0, base + delta);
+            const votes =
+                typeof fields.votes === 'number'
+                    ? Math.max(0, Math.floor(fields.votes))
+                    : Math.max(0, base + delta);
             sourcesLsSet(arcadeGameVoteCountKey(gameId), String(votes));
             return { ...prevMetrics, [gameId]: { ...cur, votes } };
         });
         ctx.bump?.();
+        enqueueGameVotePublish(gameId);
         return true;
     }
 
