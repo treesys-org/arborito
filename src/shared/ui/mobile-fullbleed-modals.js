@@ -11,7 +11,7 @@ import { CONSTRUCTION_DOCK_HUB_MODAL_TYPES } from '../../features/editor/api/con
 
 export { CONSTRUCTION_DOCK_HUB_MODAL_TYPES };
 
-/** HUB / FORUM tiers, `renderDockModalShell` family; NOT true fullscreen takeover. */
+/** HUB tier (`dock-hub`), `renderDockModalShell` family; NOT true fullscreen takeover. */
 export const MOBILE_DOCK_HUB_MODAL_TYPES = new Set([
     'arcade',
     'forum',

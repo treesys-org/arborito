@@ -1,5 +1,5 @@
 import { useArcade } from '../hooks/useArcade.js';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Callout } from '../../../shared/ui/Callout.jsx';
 import {
     GardenVitalityBanner,
@@ -7,9 +7,10 @@ import {
     GardenShop,
     GardenRankingSection,
 } from '../../garden-progress/components/GardenWidgets.jsx';
+import { collectOpenTreeLeafIds } from '../../garden-progress/api/care-reminders.js';
 
 export function ArcadeGarden({ ui }) {
-    const { userStore, arcadeActions, hasNetworkSocialConsent } = useArcade();
+    const { userStore, arcadeActions, hasNetworkSocialConsent, data } = useArcade();
     const { getActivePublicTreeRef, loadTreeRanking, findNode } = arcadeActions;
 
     const [rankingData, setRankingData] = useState(null);
@@ -18,10 +19,13 @@ export function ArcadeGarden({ ui }) {
 
     const memoryData = userStore?.state?.memory || {};
     const now = Date.now();
+    const openLeafIds = useMemo(() => collectOpenTreeLeafIds(data), [data]);
+
     const dueIds = [];
     const healthyIds = [];
 
     for (const [id, item] of Object.entries(memoryData)) {
+        if (!openLeafIds.has(String(id))) continue;
         if (now >= item.dueDate) dueIds.push(id);
         else healthyIds.push({ id, ...item });
     }

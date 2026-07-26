@@ -225,7 +225,7 @@ function ForumPanelShell({
     return (
         <DockModalShell
             mobile={mobile}
-            sizeTier="FORUM"
+            sizeTier="HUB"
             skipBodyWrap
             shellOpts={{ rootFlags: 'arborito-modal--forum', lift: 'strong' }}
             onBackdropClick={onBackdropClick ?? onClose}

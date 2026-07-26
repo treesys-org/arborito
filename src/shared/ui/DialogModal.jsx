@@ -208,8 +208,18 @@ export function ModalDialog() {
                     e.preventDefault();
                     return;
                 }
-                /* Focused button already activates via click — avoid Enter + click double-close. */
                 const t = e.target;
+                /* Prompt text field: Enter accepts (same as Confirm). */
+                if (
+                    isPrompt &&
+                    t instanceof HTMLInputElement &&
+                    (t.type === 'text' || t.type === 'search' || t.type === '' || !t.type)
+                ) {
+                    e.preventDefault();
+                    confirm();
+                    return;
+                }
+                /* Focused button already activates via click — avoid Enter + click double-close. */
                 if (
                     t instanceof Element &&
                     (t.closest('button, a, [role="button"], input, textarea, select') ||

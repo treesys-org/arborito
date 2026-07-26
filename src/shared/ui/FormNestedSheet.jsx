@@ -33,14 +33,26 @@ export function FormNestedSheet({
 
     useEffect(() => {
         const h = (e) => {
-            if (e.key !== 'Escape') return;
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            onCancel?.();
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                onCancel?.();
+                return;
+            }
+            if (e.key !== 'Enter' || submitDisabled || submitBusy) return;
+            const t = e.target;
+            if (t instanceof HTMLTextAreaElement) return;
+            if (t instanceof HTMLInputElement) {
+                const typ = String(t.type || 'text').toLowerCase();
+                if (typ === 'button' || typ === 'submit' || typ === 'checkbox' || typ === 'radio') return;
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                onSubmit?.();
+            }
         };
         document.addEventListener('keydown', h, true);
         return () => document.removeEventListener('keydown', h, true);
-    }, [onCancel]);
+    }, [onCancel, onSubmit, submitDisabled, submitBusy]);
 
     useEffect(() => {
         if (!focusInputId) return;

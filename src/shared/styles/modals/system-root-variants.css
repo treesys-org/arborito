@@ -159,7 +159,7 @@ arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-modal-root 
     max-width: var(--arborito-modal-width-xl);
 }
 
-/* Dock hub modals (Arcade, Biblioteca, Logros, Progreso…) — shared size + chrome */
+/* Dock hub modals (Arcade, Biblioteca, Logros, Foro, Progreso…) — shared size + chrome */
 .arborito-float-modal-card.arborito-float-modal-card--dock-hub {
     width: var(--arborito-dock-hub-width);
     max-width: var(--arborito-dock-hub-width);
@@ -181,21 +181,10 @@ arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-modal-root 
     }
 }
 
-/* Forum modal — the wide master/detail shell. Tall, generous, breathing room.
- * Mobile dock hub = sheet above dock (`.arborito-modal--forum` in mobile-sheets-dock.css).
- * Desktop = wide card capped at 80rem (~1280px) with extra height. */
-.arborito-float-modal-card.arborito-float-modal-card--forum {
-    width: var(--arborito-modal-width-forum);
-    max-width: var(--arborito-modal-width-forum);
-    height: min(94vh, 920px);
-    min-height: min(94vh, 920px);
-    max-height: min(94vh, 920px);
-}
-
 /* Mobile dock hub: fill the sheet above the dock (not viewport takeover). */
 :is(html.arborito-shell-mobile, html.force-mobile)
     #modal-backdrop.arborito-modal-root.arborito-modal--forum
-    .arborito-float-modal-card--forum,
+    .arborito-float-modal-card--dock-hub,
 :is(html.arborito-shell-mobile, html.force-mobile)
     #modal-backdrop.arborito-modal-root.arborito-modal--certificates-hub
     .arborito-float-modal-card,

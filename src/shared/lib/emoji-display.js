@@ -118,17 +118,11 @@ function twemojiImgHtml(emoji, opts = {}) {
     const cls = /(^|\s)arborito-emoji-img(\s|$)/.test(extra) ? extra : `${extra} arborito-emoji-img`;
     const title = opts.title != null ? opts.title : ch;
     const size = opts.size || 18;
-    if (!TWEMOJI_DATAURI) {
-        return (
-            `<img class="${escAttr(cls)}" src="${escAttr(src)}" alt="${escAttr(ch)}" ` +
-            `width="${size}" height="${size}" decoding="async" draggable="false" contenteditable="false" ` +
-            `data-emoji-fallback="${escAttr(ch)}" data-emoji-candidates="${escAttr(candidates.join(','))}" ` +
-            `data-emoji-candidate-idx="0" role="img" aria-label="${escAttr(title)}" />`
-        );
-    }
+    /* Data URIs are already in memory — sync decode avoids chrome glyph pop-in. */
+    const decoding = String(src || '').startsWith('data:') ? 'sync' : 'async';
     return (
         `<img class="${escAttr(cls)}" src="${escAttr(src)}" alt="${escAttr(ch)}" ` +
-        `width="${size}" height="${size}" decoding="async" draggable="false" contenteditable="false" ` +
+        `width="${size}" height="${size}" decoding="${decoding}" draggable="false" contenteditable="false" ` +
         `data-emoji-fallback="${escAttr(ch)}" data-emoji-candidates="${escAttr(candidates.join(','))}" ` +
         `data-emoji-candidate-idx="0" role="img" aria-label="${escAttr(title)}" />`
     );
@@ -270,7 +264,8 @@ function startEmojifyObserver() {
 
     const initialWalk = () => emojifyElement(root);
     if (typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function') {
-        window.requestIdleCallback(initialWalk, { timeout: 1200 });
+        /* Prefer soon after paint; 200ms cap avoids raw Unicode lingering ~1s on busy CPUs. */
+        window.requestIdleCallback(initialWalk, { timeout: 200 });
     } else {
         setTimeout(initialWalk, 0);
     }
@@ -339,7 +334,8 @@ export async function initEmojiRendering() {
     wireEmojiImgFallback();
     void ensureTwemojiBundle().then(() => {
         injectFallbackEmojiFont();
-        patchEmojiSlots();
+        /* No patchEmojiSlots here — Twemoji data URIs are sync; a shell re-render wave
+         * only delayed icons/text. Callers can still invoke patchEmojiSlots() manually. */
         if (document.body) startEmojifyObserver();
         else document.addEventListener('DOMContentLoaded', startEmojifyObserver, { once: true });
         try {

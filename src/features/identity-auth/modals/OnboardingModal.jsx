@@ -339,7 +339,9 @@ export function ModalOnboarding() {
         if (step === 1 && !shellPaintedRef.current) {
             shellPaintedRef.current = true;
             notifyOnboardingShellPainted();
-            scheduleIdle(() => void loadLanguage(lang), 500);
+            /* Pack is usually already in flight from ShellStore; apply as soon as idle
+             * (short timeout) so onboarding copy is not stuck on stubs for ~500ms+. */
+            scheduleIdle(() => void loadLanguage(lang), 120);
         }
     }, [step]);
 

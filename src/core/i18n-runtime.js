@@ -2,7 +2,8 @@
  * Loads UI locale packs from `locales/<lang>/pack.json` (one request) or modular namespaces.
  */
 
-import { normalizeAppLangCode } from './i18n.js';
+import { AVAILABLE_LANGUAGES, normalizeAppLangCode } from './i18n.js';
+import { ARBORITO_BUILD_ID } from './version.js';
 
 /** @type {Map<string, object>} */
 const _packCache = new Map();
@@ -12,6 +13,52 @@ const _packInflight = new Map();
 
 /** @type {Promise<{ version: number, namespaces: string[] }> | null} */
 let _manifestPromise = null;
+
+/** Dev: always revalidate. Prod: reuse HTTP cache; URL carries build id so deploys bust it. */
+function localeFetchCacheMode() {
+    try {
+        if (typeof import.meta !== 'undefined' && import.meta.env?.DEV) return 'no-cache';
+    } catch {
+        /* ignore */
+    }
+    return 'force-cache';
+}
+
+function withLocaleCacheBust(href) {
+    const id = String(ARBORITO_BUILD_ID || '').trim();
+    if (!id) return href;
+    try {
+        const u = new URL(href);
+        if (!u.searchParams.has('v')) u.searchParams.set('v', id);
+        return u.href;
+    } catch {
+        return href.includes('?') ? `${href}&v=${encodeURIComponent(id)}` : `${href}?v=${encodeURIComponent(id)}`;
+    }
+}
+
+/** Same resolution as ShellStore cold start (localStorage → browser → EN). */
+export function resolvePreferredAppLang() {
+    let initialLang = null;
+    try {
+        if (typeof localStorage !== 'undefined') {
+            initialLang = localStorage.getItem('arborito-lang');
+        }
+    } catch {
+        /* ignore */
+    }
+    if (!initialLang && typeof navigator !== 'undefined') {
+        try {
+            const browserLang = String(navigator.language || '')
+                .split('-')[0]
+                .toUpperCase();
+            const supportedLang = AVAILABLE_LANGUAGES.find((l) => l.code === browserLang);
+            initialLang = supportedLang ? supportedLang.code : 'EN';
+        } catch {
+            initialLang = 'EN';
+        }
+    }
+    return normalizeAppLangCode(initialLang || 'EN');
+}
 
 function looksLikeJsonObject(text) {
     const s = String(text || '').trimStart();
@@ -70,12 +117,14 @@ async function fetchLocaleJson(resourcePath) {
     const urls = localeResourceCandidateUrls(resourcePath);
     let lastErr = null;
 
-    for (const href of urls) {
+    const cache = localeFetchCacheMode();
+    for (const rawHref of urls) {
+        const href = withLocaleCacheBust(rawHref);
         try {
             const ac = new AbortController();
             const timer = setTimeout(() => ac.abort(), 8000);
             const res = await fetch(href, {
-                cache: 'no-cache',
+                cache,
                 credentials: 'same-origin',
                 signal: ac.signal,
             });
@@ -211,4 +260,15 @@ export async function fetchLocalePack(langCode, opts = {}) {
 /** Warm the locale cache in parallel with app JS, no await needed. */
 export function prefetchLocalePack(langCode) {
     void fetchLocalePack(langCode).catch(() => {});
+}
+
+/** Start the preferred-lang pack fetch as early as possible (boot / constructor). */
+export function prefetchPreferredLocalePack() {
+    prefetchLocalePack(resolvePreferredAppLang());
+}
+
+/** Sync peek at an already-fetched pack (null if still loading / never fetched). */
+export function getCachedLocalePack(langCode) {
+    const norm = normalizeAppLangCode(langCode);
+    return _packCache.get(norm) || null;
 }

@@ -67,8 +67,7 @@ Single source: [`modal-panel-size.js`](./src/shared/ui/modal-panel-size.js).
 | `compact` + `auto-h` | 28rem | Language, backup, Sage settings |
 | `standard` + `auto-h` | 36rem | Warnings, forms |
 | `content` + `auto-h` | 42rem | Search, profile |
-| `dock-hub` | 74rem | Arcade, certificates, tree-info |
-| `forum` | 80rem | Forum |
+| `dock-hub` | 74rem | Arcade, forum, certificates, tree-info |
 
 New width → add tier in `modal-panel-size.js` + CSS token, not loose classes in the modal.
 
@@ -242,7 +241,7 @@ Replace `GenericChunkFallback` with a shell-specific fallback when the loaded mo
 |-------------|---------------|
 | `search` | `DockModalShell` search dock |
 | `arcade` | `DockModalShell` HUB |
-| `forum` | `DockModalShell` FORUM |
+| `forum` | `DockModalShell` HUB |
 | `certificates` | `DockModalShell` HUB |
 | `contributor` | `ContributorHubShell` (compact from `contributorView`) |
 | `construction-about` | `ConstructionModalShell` compact + `BranchPublishFooterSkeleton` |

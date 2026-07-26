@@ -1,4 +1,5 @@
 import { AVAILABLE_LANGUAGES, normalizeAppLangCode } from '../core/i18n.js';
+import { prefetchLocalePack } from '../core/i18n-runtime.js';
 import { syncLessonReaderChromeClass } from '../shared/ui/lesson-reader-open.js';
 import { syncMobileTreeShellClass } from '../shared/ui/mobile-tree-shell-class.js';
 import {
@@ -72,6 +73,8 @@ export class ShellStore extends EventTarget {
             initialLang = supportedLang ? supportedLang.code : 'EN';
         }
         initialLang = normalizeAppLangCode(initialLang);
+        /* Overlap pack download with React mount / first paint (deduped by i18n-runtime). */
+        prefetchLocalePack(initialLang);
         this.state = {
             theme: resolveStoredTheme(),
             lang: initialLang,

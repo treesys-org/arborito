@@ -9,11 +9,11 @@ import { DockHubShell } from './DockHubShell.jsx';
 
 const VALID_SIZES = new Set([
     'xs', 'compact', 'standard', 'content', 'xl', 'dock-hub',
-    'auto-h', 'forum', 'readme', 'certificate', 'certs',
+    'auto-h', 'readme', 'certificate', 'certs',
 ]);
 
-/** Desktop hub sheets (Arcade, Historial, Acerca README…) keep dock layout; compact cards center in viewport. */
-const DESKTOP_HUB_SIZE_TIERS = new Set(['HUB', 'FORUM', 'README', 'DOCK-HUB']);
+/** Desktop hub sheets (Arcade, Foro, Historial, Acerca README…) keep dock layout; compact cards center in viewport. */
+const DESKTOP_HUB_SIZE_TIERS = new Set(['HUB', 'README', 'DOCK-HUB']);
 
 function resolveDesktopModalLayout(mobile, layout, sizeTier) {
     if (mobile) return layout;

@@ -29,7 +29,7 @@ export function CatalogRowEmoji({ emoji, size = 22, className = '' }) {
             alt=""
             width={px}
             height={px}
-            decoding="async"
+            decoding="sync"
             draggable={false}
             aria-hidden="true"
             title={ch}

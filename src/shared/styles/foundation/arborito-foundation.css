@@ -67,7 +67,7 @@
     --arborito-sheet-dock-seam-cover: 0px;
     --arborito-sheet-dock-gap: var(--arborito-chrome-dock-gap);
 
-    /* Dock hub modals (Arcade, Biblioteca, Logros, Progreso…) — one shared desktop footprint */
+    /* Dock hub modals (Arcade, Biblioteca, Foro, Logros, Progreso…) — one shared desktop footprint */
     --arborito-dock-hub-width: min(96vw, 74rem);
     --arborito-dock-hub-height: min(92vh, 900px);
 
@@ -79,7 +79,6 @@
     --arborito-modal-width-xs: min(92vw, 24rem);
     --arborito-modal-width-readme: min(92vw, 56rem);
     --arborito-modal-width-certs: min(92vw, 64rem);
-    --arborito-modal-width-forum: min(95vw, 80rem);
     --arborito-modal-max-height-auto: min(86vh, 720px);
     --arborito-modal-max-height-profile: min(92vh, 900px);
 

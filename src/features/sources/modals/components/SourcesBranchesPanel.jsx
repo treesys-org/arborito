@@ -183,9 +183,15 @@ export function SourcesBranchesPanel({
                                 <div className="flex flex-wrap gap-2 items-center" role="group">
                                     {[
                                         ['all', ui.sourcesUnifiedScopeAll || 'All'],
-                                        ['branch', ui.sourcesPillBranch || 'Branch'],
-                                        ['saved', ui.sourcesPillSaved || 'Saved'],
-                                        ['internet', ui.sourcesPillInternet || 'Internet'],
+                                        [
+                                            'branch',
+                                            ui.sourcesUnifiedScopeLocal ||
+                                                ui.sourcesTreesScopeDevice ||
+                                                ui.sourcesPillLocal ||
+                                                'Local',
+                                        ],
+                                        ['saved', ui.sourcesPillSaved || ui.sourcesUnifiedScopeSaved || 'Saved'],
+                                        ['internet', ui.sourcesPillInternet || ui.sourcesUnifiedScopeInternet || 'Internet'],
                                     ].map(([id, label]) => (
                                         <SourcesFilterChip
                                             key={id}

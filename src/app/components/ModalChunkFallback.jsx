@@ -86,7 +86,7 @@ function ForumChunkFallback({ ui, mobile }) {
     return (
         <DockModalShell
             mobile={mobile}
-            sizeTier="FORUM"
+            sizeTier="HUB"
             hero={
                 <ModalHubHero
                     ui={ui}

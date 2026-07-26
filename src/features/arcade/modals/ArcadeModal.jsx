@@ -24,6 +24,7 @@ import { ArcadeGarden } from './ArcadeGarden.jsx';
 import { ArcadeStorage } from './ArcadeStorage.jsx';
 import { ArcadeAddGameSheet } from './ArcadeAddGameSheet.jsx';
 import { localizedArcadeGameName } from '../api/arcade-game-display.js';
+import { forgetOrphanCareMemory } from '../../garden-progress/api/care-reminders.js';
 
 async function ensureTreeLoaded(node, loadNodeChildren, depth = 0) {
     if (depth > 4) return;
@@ -256,15 +257,29 @@ export function ModalArcade({ embed, dockEmbed = false, dockEmbedActive = false 
         [prepareLaunch, wateringTargetId]
     );
 
-    const launchWateringSession = useCallback((nodeId) => {
-        setWateringTargetId(nodeId);
-        setActiveTab('games');
-    }, []);
+    const launchWateringSession = useCallback(
+        (nodeId) => {
+            const id = String(nodeId || '').trim();
+            if (!id) return;
+            const node = typeof findNode === 'function' ? findNode(id) : null;
+            if (!node) {
+                if (forgetOrphanCareMemory(userStore, id)) bumpArcade();
+                return;
+            }
+            setWateringTargetId(id);
+            setActiveTab('games');
+        },
+        [findNode, userStore, bumpArcade]
+    );
 
     const launchGame = useCallback(async () => {
         if (!selectedGame || !selectedNodeId) return;
         const targetNode = findNode(selectedNodeId);
-        if (!activeSource || !targetNode) return;
+        if (!activeSource) return;
+        if (!targetNode) {
+            if (forgetOrphanCareMemory(userStore, selectedNodeId)) bumpArcade();
+            return;
+        }
 
         if (aiMode === 'static') {
             let readiness = getModuleStaticGameReadiness(targetNode);
@@ -323,6 +338,7 @@ export function ModalArcade({ embed, dockEmbed = false, dockEmbedActive = false 
         dockEmbed,
         activeTab,
         modal?.dockUi,
+        bumpArcade,
     ]);
 
     const toggleOffline = useCallback(

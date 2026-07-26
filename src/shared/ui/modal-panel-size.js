@@ -6,7 +6,6 @@ export const MODAL_PANEL_SIZE = Object.freeze({
     CONTENT: 'content auto-h',
     XL: 'xl',
     HUB: 'dock-hub',
-    FORUM: 'forum',
     README: 'readme',
     CERTIFICATE: 'certificate',
     CERTS: 'certs',

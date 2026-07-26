@@ -19,24 +19,50 @@ function walkLeaves(root, fn) {
     }
 }
 
-/** @param {import('../../../core/store.js' ).default} store */
+/** Leaf/exam ids in the mounted graph (single branch or composed tree). */
+export function collectOpenTreeLeafIds(root) {
+    const ids = new Set();
+    walkLeaves(root, (node) => {
+        const id = String(node?.id || '').trim();
+        if (id) ids.add(id);
+    });
+    return ids;
+}
+
+/**
+ * Due care ids limited to the open tree.
+ * Composed trees use the mounted graph (`data`), which already includes their branches.
+ */
 export function getCareDueNodeIds(store) {
     const userStore = store?.userStore;
     if (!userStore?.getDueNodes) return [];
     const due = userStore.getDueNodes();
     const root = getStoreTreeRoot(store);
     if (!root || !due.length) return [];
-    const dueSet = new Set(due.map(String));
-    const out = [];
-    walkLeaves(root, (node) => {
-        if (dueSet.has(String(node.id))) out.push(String(node.id));
-    });
-    return out;
+    const leafIds = collectOpenTreeLeafIds(root);
+    if (!leafIds.size) return [];
+    return due.map(String).filter((id) => leafIds.has(id));
 }
 
 /** @param {import('../../../core/store.js' ).default} store */
 export function countCareDue(store) {
     return getCareDueNodeIds(store).length;
+}
+
+/**
+ * Drop a stale memory row when watering cannot resolve the lesson in the open tree.
+ * @returns {boolean} true when an entry was removed
+ */
+export function forgetOrphanCareMemory(userStore, nodeId) {
+    if (typeof userStore?.forgetMemory === 'function') {
+        return !!userStore.forgetMemory(nodeId);
+    }
+    const id = String(nodeId || '').trim();
+    if (!id || !userStore?.state?.memory) return false;
+    if (!Object.prototype.hasOwnProperty.call(userStore.state.memory, id)) return false;
+    delete userStore.state.memory[id];
+    if (typeof userStore.persist === 'function') userStore.persist();
+    return true;
 }
 
 /** @param {import('../../../core/store.js' ).default} store */

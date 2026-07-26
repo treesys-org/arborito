@@ -24,14 +24,29 @@ export function ConfirmNestedSheet({
 
     useEffect(() => {
         const h = (e) => {
-            if (e.key !== 'Escape') return;
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                onCancel?.();
+                return;
+            }
+            if (e.key !== 'Enter') return;
+            const t = e.target;
+            /* Native button activation already fires click — skip to avoid double confirm. */
+            if (
+                t instanceof Element &&
+                (t.closest('button, a, [role="button"], input, textarea, select') ||
+                    t.isContentEditable)
+            ) {
+                return;
+            }
             e.preventDefault();
             e.stopImmediatePropagation();
-            onCancel?.();
+            onConfirm?.();
         };
         document.addEventListener('keydown', h, true);
         return () => document.removeEventListener('keydown', h, true);
-    }, [onCancel]);
+    }, [onCancel, onConfirm]);
 
     return (
         <NestedSheetShell

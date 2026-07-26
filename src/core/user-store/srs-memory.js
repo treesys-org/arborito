@@ -85,5 +85,16 @@ export const srsMemoryMixin = {
             }
         }
         return dueIds;
-    }
+    },
+
+    /** Remove one SRS row (stale id after republish / tree switch repair). */
+    forgetMemory(nodeId) {
+        const id = String(nodeId || '').trim();
+        if (!id || !this.state.memory || !Object.prototype.hasOwnProperty.call(this.state.memory, id)) {
+            return false;
+        }
+        delete this.state.memory[id];
+        this.persist();
+        return true;
+    },
 };

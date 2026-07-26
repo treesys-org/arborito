@@ -41,3 +41,5 @@ for (const lang of LANGS) {
     await writeFile(join(LOCALES, lang, 'pack.json'), out, 'utf8');
     console.log(`locales/${lang}/pack.json : ${Object.keys(merged).length} keys, ${out.length} bytes`);
 }
+
+await import('./regen-boot-stubs.mjs');

@@ -1,11 +1,17 @@
 import { normalizeAppLangCode } from '../core/i18n.js';
-import { fetchLocalePack } from '../core/i18n-runtime.js';
+import { fetchLocalePack, getCachedLocalePack } from '../core/i18n-runtime.js';
 import { ES_UI_BOOT_STUB, EN_UI_BOOT_STUB, bootStubForLang } from './shell-boot-stubs.js';
 import { getPanelRef } from '../app/panel-refs.js';
 
 /** @param {import('./shell-store.js').ShellStore} store */
 export async function loadLanguageOnStore(store, langCode) {
     const lang = normalizeAppLangCode(langCode);
+    const cached = getCachedLocalePack(lang);
+    if (cached) {
+        if (normalizeAppLangCode(store.state.lang) !== lang) return;
+        store.update({ i18nData: cached });
+        return;
+    }
     const stub = lang === 'ES' ? ES_UI_BOOT_STUB : EN_UI_BOOT_STUB;
     if (!store.state.i18nData) {
         store.update({ i18nData: { ...stub } });
@@ -46,11 +52,13 @@ export async function setLanguageOnStore(store, lang, opts = {}) {
     const deferNavigation = modalType === 'language' || modalType === 'onboarding';
 
     if (uiOnly && modalType === 'onboarding') {
+        const cached = getCachedLocalePack(target);
         store.update({
             lang: target,
-            i18nData: bootStubForLang(target),
+            i18nData: cached || bootStubForLang(target),
             loading: false,
         });
+        if (cached) return true;
         void fetchLocalePack(target)
             .then((pack) => {
                 const stillOnboarding = (() => {
@@ -79,7 +87,12 @@ export async function setLanguageOnStore(store, lang, opts = {}) {
     }
 
     if (!uiOnly) {
-        store.update({ loading: true, error: null });
+        /* Skip loading chrome when the pack is already warm (common after prefetch). */
+        if (!getCachedLocalePack(target)) {
+            store.update({ loading: true, error: null });
+        } else {
+            store.update({ error: null });
+        }
     }
 
     let appliedLang = target;

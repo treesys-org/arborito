@@ -181,9 +181,15 @@ export function SourcesForestTab({
                                 >
                                     {[
                                         ['all', ui.sourcesUnifiedScopeAll || 'All'],
-                                        ['device', ui.sourcesTreesScopeDevice || 'On device'],
-                                        ['saved', ui.sourcesUnifiedScopeSaved || 'Saved'],
-                                        ['internet', ui.sourcesUnifiedScopeInternet || 'Internet'],
+                                        [
+                                            'device',
+                                            ui.sourcesUnifiedScopeLocal ||
+                                                ui.sourcesTreesScopeDevice ||
+                                                ui.sourcesPillLocal ||
+                                                'Local',
+                                        ],
+                                        ['saved', ui.sourcesUnifiedScopeSaved || ui.sourcesPillSaved || 'Saved'],
+                                        ['internet', ui.sourcesUnifiedScopeInternet || ui.sourcesPillInternet || 'Internet'],
                                     ].map(([id, label]) => (
                                         <SourcesFilterChip
                                             key={id}

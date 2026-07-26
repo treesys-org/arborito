@@ -1,3 +1,4 @@
+import { prefetchPreferredLocalePack } from '../core/i18n-runtime.js';
 import { isFirstVisitOnboarding } from '../shared/lib/onboarding-boot-gate.js';
 import { onGdprNetworkConsentGranted } from '../shared/lib/connected-services/index.js';
 import { runAfterPaint, scheduleIdle } from '../shared/lib/yield-to-paint.js';
@@ -103,6 +104,8 @@ const reapplyMobileShellClasses = () => {
 
 /** Runs once before React paints the shell. */
 export function runStartup() {
+    /* Belt-and-suspenders if store construction was deferred; usually already in flight. */
+    prefetchPreferredLocalePack();
     applyArboritoTheme(resolveStoredTheme());
     ensureDeferredProductTourStyles();
     scheduleBootLoaderFallback();
