@@ -205,8 +205,8 @@
     },
     {
       "target": "sources-trees-footer",
-      "title": "Crear o importar",
-      "body": "Crea un curso, o añádelo desde un archivo."
+      "title": "Añadir un curso",
+      "body": "Importar archivo abre un archivo desde el disco. Crear curso empieza uno nuevo en tu jardín."
     }
   ]
 }

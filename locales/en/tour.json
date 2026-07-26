@@ -72,8 +72,8 @@
     },
     {
       "target": "con-info",
-      "title": "About this tree, fill in before publishing",
-      "body": "ℹ️ You need to fill this card before publishing: description (min. 5 characters) and an optional support link. Save with the button. To appear as the creator, sign in with your online account."
+      "title": "About this tree",
+      "body": "ℹ️ Fill this in before publishing: a short description (min. 5 characters) and an optional support link. Save with the button. Sign in with your online account to appear as the creator."
     },
     {
       "target": "con-gov",
@@ -93,11 +93,11 @@
     {
       "target": "profile",
       "title": "Your profile",
-      "body": "Your avatar opens your profile: name, picture, and the optional account. If you have an account and publish, the tree is linked to that profile; if you don't, you can still create, everything stays on this device."
+      "body": "Your avatar opens your profile: name, picture, and the optional account. With an account, published trees link to that profile. Without one, you can still create — everything stays on this device."
     },
     {
       "target": "sage-fab",
-      "title": "If you get stuck, the owl 🦉",
+      "title": "Ask the owl 🦉",
       "body": "If anything is unclear, come back here: Sage walks you through construction step by step with contextual hints based on what you are doing."
     }
   ],
@@ -119,8 +119,8 @@
     },
     {
       "target": "con-info",
-      "title": "About this tree, fill in before publishing",
-      "body": "ℹ️ You need to fill this card before publishing: description (min. 5 characters) and an optional support link. Save with the button. To appear as the creator, sign in with your online account."
+      "title": "About this tree",
+      "body": "ℹ️ Fill this in before publishing: a short description (min. 5 characters) and an optional support link. Save with the button. Sign in with your online account to appear as the creator."
     },
     {
       "target": "con-more",
@@ -135,11 +135,11 @@
     {
       "target": "mob-profile",
       "title": "Your profile",
-      "body": "Your avatar opens your profile: name, picture, and the optional account. If you have an account and publish, the tree is linked to that profile; if you don't, you can still create, everything stays on this device."
+      "body": "Your avatar opens your profile: name, picture, and the optional account. With an account, published trees link to that profile. Without one, you can still create — everything stays on this device."
     },
     {
       "target": "con-ai",
-      "title": "If you get stuck, the owl 🦉",
+      "title": "Ask the owl 🦉",
       "body": "If anything is unclear, come back here: Sage walks you through construction step by step with contextual hints based on what you are doing."
     }
   ],
@@ -178,8 +178,8 @@
   "uiTourStepsLessonEdit": [
     {
       "target": "lesson-edit-meta",
-      "title": "Lesson card, fill in before publishing",
-      "body": "Set the lesson title, description and emoji. These show up in the tree map, in search and in Arcade games. Lessons without these stay as drafts and won't be published."
+      "title": "Lesson details",
+      "body": "Set the lesson title, description and emoji before publishing. These show up in the tree map, in search and in Arcade games. Lessons without them stay as drafts and will not be published."
     },
     {
       "target": "lesson-edit-toolbar",
@@ -215,8 +215,8 @@
     },
     {
       "target": "sources-trees-footer",
-      "title": "Create or import",
-      "body": "Create a course, or add one from a file."
+      "title": "Add a course",
+      "body": "Import file opens an archive from disk. Create course starts a new empty course in your garden."
     }
   ]
 }

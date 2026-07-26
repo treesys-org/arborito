@@ -64,6 +64,8 @@ const [active, setActive] = useState(false);
     const tipRef = useRef(null);
     const nextBtnRef = useRef(null);
     const panelApiRef = useRef({});
+    /* True after the tour has painted once — next/prev keep CSS motion; first open teleports. */
+    const tourPaintedRef = useRef(false);
 
     const tourStateRef = useRef({});
     tourStateRef.current = {
@@ -85,8 +87,13 @@ const [active, setActive] = useState(false);
         const { active: isActive, index: idx, steps: tourSteps } = tourStateRef.current;
         if (!isActive) return;
         const step = tourSteps[idx];
+        /*
+         * Instant scroll + CSS ring/tip motion. Smooth scrollIntoView was measuring
+         * mid-scroll (spotlight jumped, felt stuck). `stepping` disables transitions
+         * only for the first paint / hard teleport.
+         */
         if (!animate) setStepping(true);
-        setLayout(computeLayout(step, tipRef.current, { smoothScroll: animate }));
+        setLayout(computeLayout(step, tipRef.current, { smoothScroll: false }));
         if (!animate) {
             if (layoutRafRef.current != null) cancelAnimationFrame(layoutRafRef.current);
             layoutRafRef.current = requestAnimationFrame(() => {
@@ -100,8 +107,8 @@ const [active, setActive] = useState(false);
         if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
         rafRef.current = requestAnimationFrame(() => {
             rafRef.current = null;
-            const { active: isActive, index: idx } = tourStateRef.current;
-            layoutNow({ animate: isActive && idx > 0 });
+            if (!tourStateRef.current.active) return;
+            layoutNow({ animate: tourPaintedRef.current });
         });
     }, [layoutNow]);
 
@@ -211,6 +218,7 @@ const [active, setActive] = useState(false);
         }
         clearTryStartTimer();
         setStepping(false);
+        tourPaintedRef.current = false;
     }, [clearTryStartTimer]);
 
     const applyStepText = useCallback(() => {
@@ -635,17 +643,24 @@ const [active, setActive] = useState(false);
         const tabSwitched = syncSourcesPickerTabForStep(step, sourcesPickerOnlyTour);
         setProfilePopoverOpen(false);
         applyStepText();
-        if (tabSwitched) {
+        /*
+         * Tab / graph paint can lag one frame behind the step change. Re-measure
+         * once with motion on — avoid a second competing smooth scroll.
+         */
+        if (tabSwitched || step?.target === 'graph-root') {
             requestAnimationFrame(() => scheduleLayout());
-        } else if (step?.target === 'graph-root') {
-            requestAnimationFrame(() => requestAnimationFrame(() => scheduleLayout()));
         }
         nextBtnRef.current?.focus();
     }, [active, index, steps, sourcesPickerOnlyTour, applyStepText, scheduleLayout]);
 
     useLayoutEffect(() => {
-        if (!active) return;
-        layoutNow({ animate: index > 0 });
+        if (!active) {
+            tourPaintedRef.current = false;
+            return;
+        }
+        const animate = tourPaintedRef.current;
+        layoutNow({ animate });
+        tourPaintedRef.current = true;
     }, [active, index, steps, layoutNow]);
 
     const ui = store?.ui ?? appUi ?? {};

@@ -196,18 +196,71 @@ jobs:
           set -euo pipefail
           mkdir -p ~/.gnupg
           chmod 700 ~/.gnupg
+          # Loopback for non-interactive gpg; preset needs an explicit agent allow-list.
           printf 'pinentry-mode loopback\n' >> ~/.gnupg/gpg.conf
-          printf 'allow-loopback-pinentry\n' >> ~/.gnupg/gpg-agent.conf
+          {
+            echo 'allow-loopback-pinentry'
+            echo 'allow-preset-passphrase'
+            echo 'default-cache-ttl 86400'
+            echo 'max-cache-ttl 86400'
+          } >> ~/.gnupg/gpg-agent.conf
           gpgconf --kill gpg-agent || true
           printf '%s\n' "$FLATPAK_GPG_PRIVATE_KEY" | gpg --batch --import
+          gpgconf --launch gpg-agent || true
+
           if [ -n "${FLATPAK_GPG_PASSPHRASE:-}" ]; then
-            KEYGRIP=$(gpg --list-secret-keys --with-colons "$FLATPAK_GPG_KEY_ID" | awk -F: '/^grp:/{print $10; exit}')
-            if [ -n "$KEYGRIP" ] && [ -x /usr/lib/gnupg/gpg-preset-passphrase ]; then
-              printf '%s' "$FLATPAK_GPG_PASSPHRASE" | /usr/lib/gnupg/gpg-preset-passphrase --preset "$KEYGRIP"
-            elif [ -n "$KEYGRIP" ] && [ -x /usr/libexec/gpg-preset-passphrase ]; then
-              printf '%s' "$FLATPAK_GPG_PASSPHRASE" | /usr/libexec/gpg-preset-passphrase --preset "$KEYGRIP"
+            KEYGRIP=$(
+              gpg --batch --with-colons --with-keygrip --list-secret-keys "$FLATPAK_GPG_KEY_ID" \
+                | awk -F: '/^grp:/{print $10; exit}'
+            )
+            PRESET=
+            if [ -x /usr/lib/gnupg/gpg-preset-passphrase ]; then
+              PRESET=/usr/lib/gnupg/gpg-preset-passphrase
+            elif [ -x /usr/libexec/gpg-preset-passphrase ]; then
+              PRESET=/usr/libexec/gpg-preset-passphrase
+            fi
+            PRESET_OK=0
+            if [ -n "$KEYGRIP" ] && [ -n "$PRESET" ]; then
+              if printf '%s' "$FLATPAK_GPG_PASSPHRASE" | "$PRESET" --preset "$KEYGRIP"; then
+                PRESET_OK=1
+              fi
+            fi
+            if [ "$PRESET_OK" != 1 ]; then
+              # Assuan pinentry that reads a job-local passphrase file (agent does not
+              # forward FLATPAK_GPG_PASSPHRASE to pinentry children).
+              PASSFILE="$HOME/.gnupg/ci-passphrase"
+              PINENTRY="$HOME/.gnupg/pinentry-ci"
+              umask 077
+              printf '%s' "$FLATPAK_GPG_PASSPHRASE" > "$PASSFILE"
+              chmod 600 "$PASSFILE"
+              {
+                echo '#!/bin/sh'
+                echo "PASSFILE=$PASSFILE"
+                echo 'echo OK'
+                echo 'while read -r cmd rest; do'
+                echo '  case "$cmd" in'
+                echo '    GETPIN)'
+                echo '      printf "D %s\n" "$(cat "$PASSFILE")"'
+                echo '      echo OK'
+                echo '      ;;'
+                echo '    BYE)'
+                echo '      echo OK'
+                echo '      exit 0'
+                echo '      ;;'
+                echo '    *)'
+                echo '      echo OK'
+                echo '      ;;'
+                echo '  esac'
+                echo 'done'
+              } > "$PINENTRY"
+              chmod 700 "$PINENTRY"
+              printf 'pinentry-program %s\n' "$PINENTRY" >> ~/.gnupg/gpg-agent.conf
+              gpgconf --kill gpg-agent || true
+              gpgconf --launch gpg-agent || true
+              echo "::notice::Using CI pinentry fallback for Flatpak GPG passphrase."
             fi
           fi
+          gpg --batch --list-secret-keys --with-colons "$FLATPAK_GPG_KEY_ID" | head -n 5
 
       - name: Build OSTree remote (prune-depth=1)
         env:

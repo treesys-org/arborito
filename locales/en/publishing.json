@@ -13,7 +13,7 @@
  "creatorModerationBellAria": "Creator alerts ({n} unread)",
   "creatorModerationOpenBiblioteca": "Open in Catalog",
  "publishHubRetractLink": "Unpublish",
- "creatorReportsToastProgress": "Community report score {score} / threshold {threshold} (14 days). Open Trees → your row ⋯ to contest or fix before the listing is hidden.",
+ "creatorReportsToastProgress": "Community report score {score} / threshold {threshold} (14 days). Open Courses → your row ⋯ to contest or fix before the listing is hidden.",
  "creatorReportsToast": "Your tree received a recent directory report. Check Trees / reports if relevant.",
  "creatorReportsToastMany": "Your tree received {n} recent directory reports. Check Trees / reports if relevant.",
  "creatorReportsToastOne": "Your tree received a recent directory report. Check Trees / reports if relevant.",

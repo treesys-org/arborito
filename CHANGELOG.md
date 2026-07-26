@@ -21,6 +21,8 @@ Arborito ships as **web** ([arborito.org](https://arborito.org), continuous depl
 - Publish / Update for local branches and composed trees: dock and hub stay aligned after edits; published baseline freezes at success time; missing snapshot no longer looks “up to date”.
 - Construction dock no longer switches to a dead **Publish** label when editing inside a map folder (keeps Update / Up to date and opens the hub).
 - Publish hub change list shows lesson titles (not internal IDs) and avoids nested scroll for a short list of edits.
+- Product tour and empty-state copy: clearer titles (no mid-sentence commas) and footer hints that match Import / Create buttons.
+- Product tour next/back: smoother spotlight motion (no mid-scroll jump when changing steps).
 - Composed-tree publish uses the same local branch-set fingerprint as the dock (no stuck Update state after a successful publish).
 - Composed-tree republish from Courses keeps prior forest-listing and forum choices; failed attempts no longer leave a false Update state.
 - Public bundle publish writes chunks before the header (generation-scoped main parts) so a mid-update failure does not mix old and new curriculum; disabling the forum replaces the on-relay forum pack with an empty one; a share-code claim binds the local garden identity so a retry reuses the same public URL.
