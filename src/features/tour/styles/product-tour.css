@@ -125,19 +125,27 @@ html.arborito-product-tour-sources-picker [data-arborito-panel="product-tour"] {
 .arborito-tour-tooltip__titles {
     min-width: 0;
     flex: 1;
-}.arborito-tour-tooltip__title {
+}
+
+.arborito-tour-tooltip__title {
     margin: 0;
     font-size: 1rem;
     font-weight: 900;
     letter-spacing: -0.02em;
     color: var(--arborito-theme-tour-arborito-tour-tooltip__title-color);
-    font-family: var(--font-family-base);
-}.arborito-tour-tooltip__body {
+    font-family: var(--font-family-base) !important;
+    text-align: start;
+    word-spacing: normal;
+}
+
+.arborito-tour-tooltip__body {
     margin: 0;
     font-size: 0.875rem;
     line-height: 1.45;
     color: var(--arborito-theme-tour-arborito-tour-tooltip__body-color);
-    font-family: var(--font-family-base);
+    font-family: var(--font-family-base) !important;
+    text-align: start;
+    word-spacing: normal;
 }
 
 .arborito-tour-tooltip__title .arborito-emoji-inline,

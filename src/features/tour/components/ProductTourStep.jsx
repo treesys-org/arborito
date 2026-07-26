@@ -42,12 +42,26 @@ export function ProductTourStep({
                     <h2
                         className="arborito-tour-tooltip__title"
                         id="arborito-tour-title"
+                        style={{
+                            fontFamily: 'var(--font-family-base, ui-sans-serif, system-ui, sans-serif)',
+                            textAlign: 'start',
+                            wordSpacing: 'normal',
+                        }}
                     >
                         <LocaleRichText html={richTextWithEmojis((step && step.title) || '')} />
                     </h2>
                 </div>
             </div>
-            <div className="arborito-tour-tooltip__body" id="arborito-tour-body" aria-live="polite">
+            <div
+                className="arborito-tour-tooltip__body"
+                id="arborito-tour-body"
+                aria-live="polite"
+                style={{
+                    fontFamily: 'var(--font-family-base, ui-sans-serif, system-ui, sans-serif)',
+                    textAlign: 'start',
+                    wordSpacing: 'normal',
+                }}
+            >
                 <LocaleRichText html={richTextWithEmojis((step && step.body) || '')} />
             </div>
             {total > 1 && (

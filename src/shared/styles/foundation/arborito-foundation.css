@@ -352,15 +352,22 @@ body,
 .arborito-lesson-toc-arcade .arborito-emoji-glyph,
 .arborito-quiz-edit .arborito-emoji-glyph,
 .quiz-mode-pill .arborito-emoji-glyph,
-.arborito-sage-chat-shell .sage-msg-bubble,
-.arborito-tour-tooltip__title,
-.arborito-tour-tooltip__body,
-.mobile-panel-cta,
-.mobile-child-rename-btn,
 .arborito-garden-bg__particle,
 .arborito-icon-btn,
 .arborito-mob-tab__icon {
     font-family: var(--font-family-emoji);
+}
+
+/*
+ * Tour tip copy is Latin UI text (Twemoji imgs handle any emoji). Never put the
+ * emoji font stack on these — on Pages the foundation sheet can win the cascade
+ * over the tour chunk, and emoji fonts stretch word spacing on Linux/Firefox.
+ */
+.arborito-tour-tooltip__title,
+.arborito-tour-tooltip__body {
+    font-family: var(--font-family-base) !important;
+    text-align: start !important;
+    word-spacing: normal !important;
 }
 
 /* Custom hover tips (desktop only; native title tooltips cannot render color emoji on Linux). */

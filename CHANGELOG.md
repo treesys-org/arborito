@@ -23,7 +23,7 @@ Arborito ships as **web** ([arborito.org](https://arborito.org), continuous depl
 - Publish hub change list shows lesson titles (not internal IDs) and avoids nested scroll for a short list of edits.
 - Product tour and empty-state copy: clearer titles (no mid-sentence commas) and footer hints that match Import / Create buttons.
 - Product tour next/back: smoother spotlight motion (no mid-scroll jump when changing steps).
-- Product tour (shell, first-course picker, construction, lesson edit): tip/shades use inline `position:fixed` and render on `document.body` so a CSS race cannot leave a huge empty band under the spotlight on any tour.
+- Product tour tip copy: always use the UI font (not the emoji font stack). On GitHub Pages the foundation sheet could win the cascade and emoji fonts stretched word spacing on Linux/Firefox; tip/shades also use inline `position:fixed` on `document.body`.
 - Lazy feature CSS (Sage, construction, Sources, contributor share-code): load with the feature chunk or await before open so production deploys do not flash unstyled chrome.
 - Editable copy from a network tree: materialize lazy lessons with limited concurrency (faster forks on large courses).
 - Install skips remount when that course is already open.
