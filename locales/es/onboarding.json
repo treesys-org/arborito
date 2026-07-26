@@ -5,7 +5,7 @@
   "onboardingAdvancing": "Cargando…",
   "onboardingAccessibilityButton": "Accesibilidad",
   "onboardingBack": "Volver",
-  "onboardingBetaWarningHead": "Alpha 0.1",
+  "onboardingBetaWarningHead": "Alpha {version}",
   "onboardingGithubCollab": "Colaborar en GitHub",
   "onboardingBody": "Aprende cualquier tema como un árbol de lecciones. Elige un idioma y luego qué estudiar.",
   "onboardingContinue": "Continuar",

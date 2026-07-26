@@ -5,7 +5,7 @@
   "onboardingAdvancing": "Loading…",
   "onboardingAccessibilityButton": "Accessibility",
   "onboardingBack": "Back",
-  "onboardingBetaWarningHead": "Alpha 0.1",
+  "onboardingBetaWarningHead": "Alpha {version}",
   "onboardingGithubCollab": "Contribute on GitHub",
   "onboardingBody": "Learn any subject as an interactive lesson tree. Pick a language, then choose what to study.",
   "onboardingContinue": "Continue",
