@@ -243,7 +243,9 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
 
         if (nextUrl.startsWith('branch://')) {
             await store.userStore?.ensureBranchesHydrated?.();
-            const { json, finalSource: fs } = store.sourceManager.readBranchSync(source);
+            const { json, finalSource: fs } = store.sourceManager.readBranchSync(source, {
+                freshBranchId: opts?.freshBranchId,
+            });
             graphJson = json;
             finalSource = fs;
         } else {
@@ -283,11 +285,50 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
                     let out;
                     try {
                         await connectPromise;
+                        const paintSkeletonEarly = (skelBundle) => {
+                            if (epoch !== store._curriculumMountEpoch) return;
+                            if (ticket !== store._networkLoadTicket) return;
+                            if (!skelBundle || typeof skelBundle !== 'object') return;
+                            if (parseArboritoTreeBundle(skelBundle)) return;
+                            let provisional = normalizeLoadedTreeJson(skelBundle, store, {
+                                ...source,
+                                origin: 'nostr',
+                            });
+                            if (!provisional) return;
+                            const { tree: sanitized } = sanitizeImportedTreeJson(provisional);
+                            provisional = sanitized;
+                            if (!provisional) return;
+                            if (epoch !== store._curriculumMountEpoch) return;
+                            if (ticket !== store._networkLoadTicket) return;
+                            const provisionalSource = {
+                                ...source,
+                                origin: 'nostr',
+                                isTrusted: source.isTrusted === true,
+                                shareCode:
+                                    (skelBundle.meta && skelBundle.meta.shareCode) ||
+                                    source.shareCode ||
+                                    null,
+                            };
+                            DataProcessor.process(store, provisional, provisionalSource, {
+                                suppressReadmeAutoOpen: true,
+                                carryOverSelection: true,
+                            });
+                            const ui = store.ui || {};
+                            store.update({
+                                treeGrowingOverlay: false,
+                                treeHydrating: true,
+                                treeGrowingHint:
+                                    ui.treeGrowingShort ||
+                                    ui.curriculumLoadingHint ||
+                                    null,
+                            });
+                        };
                         out = await store.sourceManager.loadData(
                             source,
                             store.state.lang,
                             forceRefresh,
-                            store.state.rawGraphData
+                            store.state.rawGraphData,
+                            { onSkeleton: paintSkeletonEarly }
                         );
                     } catch (e) {
                         if (ticket !== store._networkLoadTicket) {
@@ -403,10 +444,13 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
         }
         if (postLoadParallel.length) await Promise.all(postLoadParallel);
         const carryOverSelection =
-            String(prevSourceId || '') === String((finalSource && finalSource.id) || '');
+            String(prevSourceId || '') === String((finalSource && finalSource.id) || '') ||
+            (!!store.state.rawGraphData?.meta?.skeleton &&
+                String(store.state.activeSource?.id || '') ===
+                    String((finalSource && finalSource.id) || ''));
         await yieldToPaint();
         DataProcessor.process(store, graphJson, finalSource, {
-            suppressReadmeAutoOpen: !forceRefresh,
+            suppressReadmeAutoOpen: !forceRefresh || !!store.state.rawGraphData?.meta?.skeleton,
             carryOverSelection
         });
         // Best-effort: notify the creator on this device if new directory reports exist.

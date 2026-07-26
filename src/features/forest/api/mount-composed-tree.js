@@ -8,6 +8,7 @@ import { composeTreeGraph } from './compose-tree-graph.js';
 import { parseNostrTreeUrl } from '../../nostr/api/nostr-refs.js';
 import { yieldToPaint } from '../../../shared/lib/yield-to-paint.js';
 import { runThrottledBackgroundTask } from '../../../shared/lib/background-task-gate.js';
+import { mapWithConcurrency } from '../../../shared/lib/map-with-concurrency.js';
 import { getPanelRef } from '../../../app/panel-refs.js';
 import { resetSageChatForSourceChange } from '../../../stores/learning-store-actions.js';
 
@@ -132,10 +133,9 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
             return false;
         }
 
-        const branchPayloads = [];
-        for (const ref of refs) {
-            branchPayloads.push(await loadBranchPayloadForRef(store, ref));
-        }
+        const branchPayloads = await mapWithConcurrency(refs, 6, (ref) =>
+            loadBranchPayloadForRef(store, ref)
+        );
 
         const { graphJson, singleBranch, virtualRootId } = composeTreeGraph({
             treeEntry,

@@ -19,9 +19,11 @@ import {
 } from './SageScreens.jsx';
 import { SageOutsideDismiss } from './components/SageLayout.jsx';
 import { SAGE_OPEN } from '../api/modals/logic/sage-ui-helpers.js';
+import '../styles/sage-guide.css';
 import { ensureSageGuideStyles } from '../../../shared/lib/lazy-stylesheet.js';
 
-ensureSageGuideStyles();
+/* Idempotent: also prefetched on shell idle; co-import above covers the chunk race. */
+void ensureSageGuideStyles();
 
 export function SageOverlay() {
     const sage = useSageState();

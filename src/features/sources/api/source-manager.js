@@ -8,6 +8,7 @@ import { getManifestDiscoveryRoots, expandLibraryHttpsAlternates, resolveEdition
 import { normalizeReleaseUrl, releaseEditionKey } from '../../version-updates/api/version-switch-logic.js';
 import { applyMergedRelaysToService, loadUserNostrRelays, mergeNostrRelayUrls, normalizeNostrRelayUrls, persistUserNostrRelays, SUGGESTED_NOSTR_RELAYS } from '../../nostr/api/nostr-relays-runtime.js';
 import { fetchHttpText, fetchHttpTextTryUrls } from '../../../shared/lib/http-fetch.js';
+import { deepCloneJson } from '../../../shared/lib/deep-clone-json.js';
 import {
     loadCommunitySources,
     replaceCommunitySources,
@@ -531,9 +532,11 @@ export class SourceManager {
 
     /**
      * Synchronous read of local garden (no await → another loadData cannot interleave between steps).
+     * @param {object} source
+     * @param {{ freshBranchId?: string }} [opts] - after a just-planted fork, use structuredClone
      * @returns {{ json: object, finalSource: object }}
      */
-    readBranchSync(source) {
+    readBranchSync(source, opts = {}) {
         if (!(source && source.url) || !String(source.url).startsWith('branch://')) {
             throw new Error('Invalid local tree source.');
         }
@@ -560,10 +563,14 @@ export class SourceManager {
                         'That version has no saved snapshot in this garden yet.'
                 );
             }
-            data = JSON.parse(JSON.stringify(snap));
+            data = deepCloneJson(snap);
         } else {
             /* Detach from userStore — shared refs poison construction undo after in-place CRUD. */
-            data = JSON.parse(JSON.stringify(treeEntry.data));
+            const freshId = String(opts?.freshBranchId || '').trim();
+            data =
+                freshId && freshId === id
+                    ? deepCloneJson(treeEntry.data)
+                    : JSON.parse(JSON.stringify(treeEntry.data));
         }
         this.update({ availableReleases: [] });
         const finalSource = { ...source, url: `branch://${id}` };
@@ -586,7 +593,7 @@ export class SourceManager {
     /**
      * Nostr + HTTPS/manifest. No incluye branch:// (va por readBranchSync en el store).
      */
-    async loadData(source, currentLang = 'EN', forceRefresh = true, existingRawData = null) {
+    async loadData(source, currentLang = 'EN', forceRefresh = true, existingRawData = null, loadOpts = {}) {
         if (!source) return { json: null, finalSource: source };
 
         // --- public universe ---
@@ -666,7 +673,10 @@ export class SourceManager {
                     /* Relays already known: fetch bundle while directory/share hints resolve. */
                     const [hints, first] = await Promise.all([
                         hintPromise,
-                        nostr.loadNostrUniverseBundle(treeRef),
+                        nostr.loadNostrUniverseBundle({
+                            ...treeRef,
+                            onSkeleton: loadOpts?.onSkeleton,
+                        }),
                     ]);
                     relayHint = hints;
                     loadResult = first;
@@ -678,7 +688,10 @@ export class SourceManager {
                                 'Configure at least one relay in Profile or accept the network during onboarding to use online features.'
                         );
                     }
-                    loadResult = await nostr.loadNostrUniverseBundle(treeRef);
+                    loadResult = await nostr.loadNostrUniverseBundle({
+                        ...treeRef,
+                        onSkeleton: loadOpts?.onSkeleton,
+                    });
                 }
                 if (!loadResult.bundle && !loadResult.revoked) {
                     const merged = applyMergedRelaysToService(
@@ -694,7 +707,10 @@ export class SourceManager {
                     /* Force a clean slate: the relay that holds the publish may
                      * be the one the circuit breaker just paused. */
                     nostr._unpauseAllRelays?.();
-                    loadResult = await nostr.loadNostrUniverseBundle(treeRef);
+                    loadResult = await nostr.loadNostrUniverseBundle({
+                        ...treeRef,
+                        onSkeleton: loadOpts?.onSkeleton,
+                    });
                 }
                 if (!loadResult.bundle && !loadResult.revoked) {
                     /* Second chance after expanding peers + clearing pauses. */
@@ -708,7 +724,10 @@ export class SourceManager {
                     } catch {
                         /* warm is best-effort */
                     }
-                    loadResult = await nostr.loadNostrUniverseBundle(treeRef);
+                    loadResult = await nostr.loadNostrUniverseBundle({
+                        ...treeRef,
+                        onSkeleton: loadOpts?.onSkeleton,
+                    });
                 }
                 const { revoked, bundle } = loadResult;
                 if (revoked) throw new Error(ui.nostrUniverseRevokedError || 'This public tree was retracted by the publisher.');

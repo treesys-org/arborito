@@ -230,22 +230,41 @@ const [active, setActive] = useState(false);
         maybeSpeakTourStep(step, idx);
     }, [maybeSpeakTourStep, updateMascot]);
 
+    const startingRef = useRef(false);
+
     const startTour = useCallback(({ tourSteps, tourMode, force, pickerOnly }) => {
+        if (startingRef.current || tourStateRef.current.active) return;
+        startingRef.current = true;
         forceRef.current = force;
-        ensureDeferredProductTourStyles();
-        setMode(tourMode);
-        setSteps(tourSteps);
-        setSourcesPickerOnlyTour(!!pickerOnly);
-        setIndex(0);
-        setActive(true);
-        lastSpokenStepRef.current = -1;
-        lastMascotKeyRef.current = '';
-        setMascotKey(pickerOnly ? '📚' : defaultMascotForMode(tourMode, false));
-        if (pickerOnly) {
-            document.documentElement.classList.add('arborito-product-tour-sources-picker');
-        }
-        document.documentElement.classList.toggle('arborito-product-tour-lesson-edit', tourMode === 'lesson-edit');
-        setProfilePopoverOpen(false);
+        void (async () => {
+            try {
+                /* Production: CSS is async-split; wait so shades are position:fixed (not a tall stack). */
+                await ensureDeferredProductTourStyles();
+            } catch {
+                /* Critical positioning also lives in foundation as a safety net. */
+            }
+            if (tourStateRef.current.active) {
+                startingRef.current = false;
+                return;
+            }
+            setMode(tourMode);
+            setSteps(tourSteps);
+            setSourcesPickerOnlyTour(!!pickerOnly);
+            setIndex(0);
+            setActive(true);
+            lastSpokenStepRef.current = -1;
+            lastMascotKeyRef.current = '';
+            setMascotKey(pickerOnly ? '📚' : defaultMascotForMode(tourMode, false));
+            if (pickerOnly) {
+                document.documentElement.classList.add('arborito-product-tour-sources-picker');
+            }
+            document.documentElement.classList.toggle(
+                'arborito-product-tour-lesson-edit',
+                tourMode === 'lesson-edit'
+            );
+            setProfilePopoverOpen(false);
+            startingRef.current = false;
+        })();
     }, []);
 
     const scheduleTryStart = useCallback(
@@ -261,7 +280,7 @@ const [active, setActive] = useState(false);
 
     const tryStart = useCallback(
         ({ force = false, mode: startMode = 'default', skipDockForOpenTrees = false } = {}) => {
-            if (tourStateRef.current.active) return;
+            if (tourStateRef.current.active || startingRef.current) return;
 
             const m =
                 startMode === 'construction' ? 'construction'

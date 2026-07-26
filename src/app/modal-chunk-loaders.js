@@ -21,8 +21,11 @@ export const MODAL_EXPORT_NAMES = {
 /** @type {Record<string, () => Promise<Record<string, unknown>>>} */
 export const MODAL_CHUNK_LOADERS = {
     sources: async () => {
-        void import('../features/sources/styles/sources.css');
-        return import('../features/sources/modals/SourcesModal.jsx');
+        const [, mod] = await Promise.all([
+            import('../features/sources/styles/sources.css'),
+            import('../features/sources/modals/SourcesModal.jsx'),
+        ]);
+        return mod;
     },
     search: () => import('../features/search/modals/SearchModal.jsx'),
     'export-pdf': () => import('../features/backup-export/modals/ExportPdfModal.jsx'),
@@ -36,8 +39,11 @@ export const MODAL_CHUNK_LOADERS = {
     'construction-history': () => import('../features/editor/modals/ConstructionHistoryModal.jsx'),
     'construction-edit-pick': () => import('../features/editor/modals/ConstructionEditPickModal.jsx'),
     contributor: async () => {
-        void import('../features/sources/styles/share-code.css');
-        return import('../features/nostr/modals/ContributorModal.jsx');
+        const [, mod] = await Promise.all([
+            import('../features/sources/styles/share-code.css'),
+            import('../features/nostr/modals/ContributorModal.jsx'),
+        ]);
+        return mod;
     },
     certificates: () => import('../features/garden-progress/modals/CertificatesModal.jsx'),
 };

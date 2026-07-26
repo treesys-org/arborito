@@ -107,7 +107,7 @@ export function Graph({ embed }) {
     const { containerClasses, mobileTreeClasses } = useGraphShellClasses(state, userStore);
 
     useEffect(() => {
-        if (state.constructionMode) ensureDeferredConstructionStyles();
+        if (state.constructionMode) void ensureDeferredConstructionStyles();
     }, [state.constructionMode]);
 
     useEffect(() => {

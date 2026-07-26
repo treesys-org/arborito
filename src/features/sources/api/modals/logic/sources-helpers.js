@@ -20,6 +20,31 @@ export function findCommunitySourceByUrl(communitySources, urlOrFormatted) {
     );
 }
 
+/**
+ * True when `urlOrSource` is the network tree already mounted as activeSource.
+ * Used to skip remount after Install when the course is already open.
+ */
+export function isSameActiveNetworkSource(activeSource, urlOrSource) {
+    if (!activeSource) return false;
+    const other =
+        typeof urlOrSource === 'string'
+            ? { url: urlOrSource }
+            : urlOrSource && typeof urlOrSource === 'object'
+              ? urlOrSource
+              : null;
+    if (!other) return false;
+    if (
+        activeSource.id != null &&
+        other.id != null &&
+        String(activeSource.id) === String(other.id)
+    ) {
+        return true;
+    }
+    const a = canonicalNetworkTreeUrlString(String(activeSource.url || '').trim());
+    const b = canonicalNetworkTreeUrlString(String(other.url || '').trim());
+    return !!(a && b && a === b);
+}
+
 function branchIdFromUrl(url) {
     const u = String(url || '');
     return u.startsWith('branch://') ? u.slice('branch://'.length).split('/')[0] : '';

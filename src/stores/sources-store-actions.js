@@ -6,6 +6,7 @@ import { normalizeLoadedTreeJson } from '../features/tree-graph/api/tree-load-pi
 import { repairTreeViewFromRawAction } from './tree-graph-store-actions.js';
 import { mergeRemoteGamification } from '../core/user-store/gamification-merge.js';
 import { dismissModalAction, notifyAction } from './shell-ui-store-actions.js';
+import { isSameActiveNetworkSource } from '../features/sources/api/modals/logic/sources-helpers.js';
 
 function shell() {
     return getArboritoStore();
@@ -68,6 +69,13 @@ export async function maybeAutoLoadCommunityAfterAddAction(addResult) {
     const m = store.state.modal;
     const sourcesOpen = m && (m === 'sources' || (typeof m === 'object' && m.type === 'sources'));
     if (!sourcesOpen) return;
+    /* Already viewing this network tree — bookmark only, skip remount. */
+    if (isSameActiveNetworkSource(store.state.activeSource, added)) {
+        if (isSourcesWelcomeLoadClose()) {
+            dismissModalAction({ returnToMore: false });
+        }
+        return true;
+    }
     try {
         const ok = await store.loadAndSmartMerge?.(added.id);
         if (!ok) return;

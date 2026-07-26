@@ -23,6 +23,12 @@ Arborito ships as **web** ([arborito.org](https://arborito.org), continuous depl
 - Publish hub change list shows lesson titles (not internal IDs) and avoids nested scroll for a short list of edits.
 - Product tour and empty-state copy: clearer titles (no mid-sentence commas) and footer hints that match Import / Create buttons.
 - Product tour next/back: smoother spotlight motion (no mid-scroll jump when changing steps).
+- Product tour on the live site: wait for tour CSS (and keep critical fixed positioning in the main sheet) so the tip no longer opens with a huge gap under the spotlight.
+- Lazy feature CSS (Sage, construction, Sources, contributor share-code): load with the feature chunk or await before open so production deploys do not flash unstyled chrome.
+- Editable copy from a network tree: materialize lazy lessons with limited concurrency (faster forks on large courses).
+- Install skips remount when that course is already open.
+- Composed trees (playlists) load their branch refs in parallel.
+- Network courses paint the topic map as soon as the structure skeleton arrives, then finish loading the full bundle in the background; your own published mirrors pick up the skeleton automatically when you open them.
 - Composed-tree publish uses the same local branch-set fingerprint as the dock (no stuck Update state after a successful publish).
 - Composed-tree republish from Courses keeps prior forest-listing and forum choices; failed attempts no longer leave a false Update state.
 - Public bundle publish writes chunks before the header (generation-scoped main parts) so a mid-update failure does not mix old and new curriculum; disabling the forum replaces the on-relay forum pack with an empty one; a share-code claim binds the local garden identity so a retry reuses the same public URL.

@@ -30,6 +30,8 @@ export function treeBundleRoughStamp(json) {
         String(m.nostrBundleFormat || ''),
         String(m.nostrLessonChunksCount ?? ''),
         String(m.icon || ''),
+        String(m.gen || ''),
+        m.skeleton === true ? 'skel' : 'full',
         String(json.format || ''),
         String(nodes),
         String(branches),

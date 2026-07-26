@@ -117,12 +117,12 @@ export function useConstructionPanel() {
     }, [useCompactDock]);
 
     useEffect(() => {
-        ensureDeferredConstructionStyles();
+        void ensureDeferredConstructionStyles();
     }, []);
 
     useEffect(() => {
         if (!constructionMode) return undefined;
-        ensureDeferredConstructionStyles();
+        void ensureDeferredConstructionStyles();
         return undefined;
     }, [constructionMode]);
 

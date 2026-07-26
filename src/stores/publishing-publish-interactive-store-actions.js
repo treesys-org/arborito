@@ -436,7 +436,7 @@ export async function offerLocalCopyFromNetworkTreeForEditingAction({ enterConst
         const mounted = await store.loadData(
             { id: entry.id, name: entry.name, url: `branch://${entry.id}`, type: 'branch', isTrusted: true },
             true,
-            { skipConstructionLoadConfirm: true }
+            { skipConstructionLoadConfirm: true, freshBranchId: entry.id }
         );
         const activeUrl = String(store.state.activeSource?.url || '');
         const activeId = activeUrl.startsWith('branch://')

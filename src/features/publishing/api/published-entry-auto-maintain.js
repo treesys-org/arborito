@@ -32,6 +32,31 @@ function stampLocalPublishedBundleGen(store, { kind, id, gen }) {
     return true;
 }
 
+function stampLocalPublishedBundleHasSkeleton(store, { kind, id, hasSkeleton }) {
+    const flag = hasSkeleton === true;
+    if (kind === 'branch') {
+        const entry = (store.userStore?.state?.branches || []).find((b) => String(b?.id) === String(id));
+        if (!entry) return false;
+        if (entry.publishedBundleHasSkeleton === flag) return true;
+        entry.publishedBundleHasSkeleton = flag;
+        store.userStore.state.branches = [...store.userStore.state.branches];
+        store.userStore.markBranchDirty?.(id, { skipAccountSync: true });
+        store.userStore.persist?.();
+        return true;
+    }
+    const entry = store.userStore?.getTree?.(id);
+    if (!entry) return false;
+    if (entry.publishedBundleHasSkeleton === flag) return true;
+    entry.publishedBundleHasSkeleton = flag;
+    store.userStore.state.trees = [...store.userStore.state.trees];
+    store.userStore.markTreeDirty?.(id);
+    store.userStore.persist?.();
+    return true;
+}
+
+/** Session gate so skeleton quiet-republish does not hammer relays. */
+const skeletonMigrateAttempted = new Set();
+
 /**
  * Quietly rewrite a pre-gen public mirror to generation-scoped chunks when the
  * owner opens / scans it. Same identity, share code, and listing prefs.
@@ -49,7 +74,8 @@ async function migrateLegacyPublishedBundleGenIfNeeded(store, { kind, id }) {
     }
     if (!entry || entry.publishPending) return false;
     if (!isPublishedResourceOwner(entry, getPair)) return false;
-    if (String(entry.publishedBundleGen || '').trim()) return false;
+    const localGen = String(entry.publishedBundleGen || '').trim();
+    if (localGen && entry.publishedBundleHasSkeleton === true) return false;
 
     const url = String(entry.publishedNetworkUrl || '').trim();
     const treeRef = url ? parseNostrTreeUrl(url) : null;
@@ -58,24 +84,35 @@ async function migrateLegacyPublishedBundleGenIfNeeded(store, { kind, id }) {
     await ensureConnectedNostr(store);
     if (!store.nostr?.hasConfiguredRelays?.()) return false;
 
-    let headerGen = '';
+    let headerMeta = null;
     try {
-        const meta = await store.nostr.loadNostrBundleHeaderMeta?.(treeRef);
-        headerGen = String(meta?.gen || '').trim();
+        headerMeta = await store.nostr.loadNostrBundleHeaderMeta?.(treeRef);
     } catch (e) {
         console.warn('[Arborito] peek published header gen', e);
         return false;
     }
+    const headerGen = String(headerMeta?.gen || '').trim();
 
-    if (headerGen) {
-        return stampLocalPublishedBundleGen(store, { kind, id, gen: headerGen });
+    if (headerGen && headerMeta?.hasSkeleton === true) {
+        stampLocalPublishedBundleGen(store, { kind, id, gen: headerGen });
+        stampLocalPublishedBundleHasSkeleton(store, { kind, id, hasSkeleton: true });
+        return !localGen;
     }
 
-    /* Network still on legacy addresses — republish in place (owner only). */
+    if (headerGen && !localGen) {
+        stampLocalPublishedBundleGen(store, { kind, id, gen: headerGen });
+    }
+
+    /* Network still on legacy addresses, or gen without skeleton — republish in place (owner only). */
+    const sessionKey = `${kind}:${id}:skel`;
+    if (skeletonMigrateAttempted.has(sessionKey)) return false;
+    if (entry.publishedBundleHasSkeleton === true && headerGen) return false;
+
     try {
         if (kind === 'branch') {
             const activeId = branchIdFromBranchUrl(String(store.state.activeSource?.url || ''));
             if (String(activeId || '') !== String(id)) return false;
+            skeletonMigrateAttempted.add(sessionKey);
             const reuse = formatNostrTreeUrl(treeRef.pub, treeRef.universeId);
             const raw = store.state.rawGraphData;
             const includeForum = raw?.meta?.forumEnabled === true;
@@ -86,7 +123,10 @@ async function migrateLegacyPublishedBundleGenIfNeeded(store, { kind, id }) {
                 listInDiscover,
                 skipLocalMediaConfirm: true,
             });
-            if (!(res && res.publicTreeUrl)) return false;
+            if (!(res && res.publicTreeUrl)) {
+                skeletonMigrateAttempted.delete(sessionKey);
+                return false;
+            }
             if (raw) {
                 try {
                     store.userStore.setBranchPublishedSnapshot?.(id, JSON.parse(JSON.stringify(raw)));
@@ -95,9 +135,11 @@ async function migrateLegacyPublishedBundleGenIfNeeded(store, { kind, id }) {
                 }
             }
             if (res.gen) stampLocalPublishedBundleGen(store, { kind, id, gen: res.gen });
+            stampLocalPublishedBundleHasSkeleton(store, { kind, id, hasSkeleton: true });
             return true;
         }
 
+        skeletonMigrateAttempted.add(sessionKey);
         const includeForum = entry.publishedForumEnabled === true;
         const listInDiscover = entry.publishedListInDiscover !== false;
         const res = await store.publishComposedTreeToNostr?.({
@@ -108,8 +150,15 @@ async function migrateLegacyPublishedBundleGenIfNeeded(store, { kind, id }) {
             skipLocalMediaConfirm: true,
             quiet: true,
         });
-        return !!(res && res.publicTreeUrl);
+        if (!(res && res.publicTreeUrl)) {
+            skeletonMigrateAttempted.delete(sessionKey);
+            return false;
+        }
+        if (res.gen) stampLocalPublishedBundleGen(store, { kind, id, gen: res.gen });
+        stampLocalPublishedBundleHasSkeleton(store, { kind, id, hasSkeleton: true });
+        return true;
     } catch (e) {
+        skeletonMigrateAttempted.delete(sessionKey);
         console.warn('[Arborito] legacy published bundle gen migrate', kind, id, e);
         return false;
     }
@@ -117,8 +166,8 @@ async function migrateLegacyPublishedBundleGenIfNeeded(store, { kind, id }) {
 
 /**
  * Repair / sync a published composed tree when the owner opens it or the catalog scans.
- * Never auto-publishes curriculum updates — that requires an explicit Publish/Update.
- * Quietly migrates pre-gen public mirrors to generation-scoped packs.
+ * Never auto-publishes curriculum content updates — that requires explicit Publish/Update.
+ * Quietly migrates pre-gen mirrors and adds the structure skeleton when missing.
  * @returns {Promise<boolean>} whether anything changed
  */
 export async function autoMaintainPublishedComposedTree(store, treeId) {
@@ -152,8 +201,8 @@ export async function autoMaintainPublishedComposedTree(store, treeId) {
 }
 
 /**
- * Repair a published branch (local curriculum). Network updates require explicit Publish.
- * Quietly migrates pre-gen public mirrors when this branch is the active source.
+ * Repair a published branch (local curriculum). Network content updates require explicit Publish.
+ * Quietly migrates pre-gen mirrors and adds the structure skeleton when missing (active branch).
  * @returns {Promise<boolean>}
  */
 export async function autoMaintainPublishedBranch(store, branchId) {

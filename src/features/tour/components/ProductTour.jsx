@@ -1,3 +1,4 @@
+import '../styles/product-tour.css';
 import { useProductTour } from '../hooks/useProductTour.jsx';
 import { ProductTourStep } from './ProductTourStep.jsx';
 

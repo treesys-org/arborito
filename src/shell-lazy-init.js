@@ -49,8 +49,8 @@ let constructionPanelPromise = null;
 
 export function preloadConstructionPanel() {
     if (constructionPanelPromise) return constructionPanelPromise;
-    ensureDeferredConstructionStyles();
     constructionPanelPromise = Promise.all([
+        ensureDeferredConstructionStyles(),
         import('./features/editor/components/ConstructionPanel.jsx'),
         import('./features/tree-graph/components/TreePresentation.jsx'),
     ])

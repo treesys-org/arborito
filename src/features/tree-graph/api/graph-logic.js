@@ -8,6 +8,7 @@ import { reparentNodeByIdAllLanguages } from './raw-graph-mutations.js';
 import { schedulePersistTreeUiState } from './tree-ui-persist.js';
 import { getCachedLessonText, putCachedLessonText } from '../../learning/api/lesson-content-cache.js';
 import { resolveMutableBranchCurriculum } from '../../../core/user-store/branch-curriculum-target.js';
+import { mapWithConcurrency } from '../../../shared/lib/map-with-concurrency.js';
 
 function nodeNeedsLazyNetworkLesson(node) {
     return !!(
@@ -399,36 +400,53 @@ export class GraphLogic {
     
     /**
      * Pull lazy Nostr lesson bodies into `rawGraphData` before forking to a local branch.
-     * Already-opened lessons are copied from the live graph; remaining chunks are fetched.
+     * Already-opened lessons are copied from the live graph; remaining chunks are fetched
+     * with limited concurrency (quiet: no per-lesson loading flicker).
      */
     async materializeAllLazyLessonBodiesIntoRaw() {
         const raw = this.store.state.rawGraphData;
         if (!raw?.languages) return;
-        const walk = async (node) => {
+        const ui = this.store.ui || {};
+        const emptyPh = ui.nostrLessonLoadEmpty || '(Lesson could not be loaded.)';
+        const errPh = ui.nostrLessonLoadError || 'Error loading lesson from the network.';
+        const pending = [];
+
+        const collect = (node) => {
             if (!node || typeof node !== 'object') return;
             if (node.type === 'leaf' || node.type === 'exam') {
                 const live = this.findNode(node.id);
                 if (live?.content && !node.content) node.content = live.content;
-                if (
+                const needsFetch =
                     !node.content &&
-                    node.treeLazyContent &&
-                    node.treeContentKey &&
-                    fileSystem.isNostrTreeSource()
-                ) {
-                    await this.loadNodeContent(node);
-                }
-                if (!node.content && node.contentPath) {
-                    await this.loadNodeContent(node);
-                }
-                /* Only clear lazy markers when real content was loaded — not error placeholders alone. */
-                const ui = this.store.ui || {};
-                const emptyPh = ui.nostrLessonLoadEmpty || '(Lesson could not be loaded.)';
-                const errPh = ui.nostrLessonLoadError || 'Error loading lesson from the network.';
-                if (
-                    node.content &&
-                    node.content !== emptyPh &&
-                    node.content !== errPh
-                ) {
+                    ((node.treeLazyContent &&
+                        node.treeContentKey &&
+                        fileSystem.isNostrTreeSource()) ||
+                        !!node.contentPath);
+                if (needsFetch) pending.push(node);
+            }
+            if (Array.isArray(node.children)) {
+                for (const ch of node.children) collect(ch);
+            }
+        };
+        for (const lang of Object.keys(raw.languages)) {
+            collect(raw.languages[lang]);
+        }
+
+        if (pending.length) {
+            this.store.update({ loading: true });
+            try {
+                await mapWithConcurrency(pending, 6, (node) =>
+                    this.loadNodeContent(node, { quiet: true })
+                );
+            } finally {
+                this.store.update({ loading: false });
+            }
+        }
+
+        const clearLazy = (node) => {
+            if (!node || typeof node !== 'object') return;
+            if (node.type === 'leaf' || node.type === 'exam') {
+                if (node.content && node.content !== emptyPh && node.content !== errPh) {
                     delete node.treeLazyContent;
                     delete node.treeContentKey;
                 } else if (node.content === emptyPh || node.content === errPh) {
@@ -436,15 +454,21 @@ export class GraphLogic {
                 }
             }
             if (Array.isArray(node.children)) {
-                for (const ch of node.children) await walk(ch);
+                for (const ch of node.children) clearLazy(ch);
             }
         };
         for (const lang of Object.keys(raw.languages)) {
-            await walk(raw.languages[lang]);
+            clearLazy(raw.languages[lang]);
         }
+        this.store.dispatchEvent(new CustomEvent('graph-update'));
     }
 
-    async loadNodeContent(node) {
+    /**
+     * @param {object} node
+     * @param {{ quiet?: boolean }} [opts] - quiet: skip loading toggles and graph-update (batch materialize)
+     */
+    async loadNodeContent(node, opts = {}) {
+        const quiet = !!opts.quiet;
         const uiEarly = this.store.ui || {};
         const emptyPh = uiEarly.nostrLessonLoadEmpty || '(Lesson could not be loaded.)';
         const errPh = uiEarly.nostrLessonLoadError || 'Error loading lesson from the network.';
@@ -468,14 +492,14 @@ export class GraphLogic {
             } catch (e) {
                 console.warn('Local lesson load failed', e);
             }
-            this.store.dispatchEvent(new CustomEvent('graph-update'));
+            if (!quiet) this.store.dispatchEvent(new CustomEvent('graph-update'));
             return;
         }
 
         const networkLazy =
             fileSystem.isNostrTreeSource() && node.treeLazyContent && node.treeContentKey;
         if (networkLazy) {
-            this.store.update({ loading: true });
+            if (!quiet) this.store.update({ loading: true });
             try {
                 const treeRef = parseNostrTreeUrl(this.store.state.activeSource.url);
                 if (!treeRef) throw new Error('Invalid public tree URL');
@@ -496,15 +520,15 @@ export class GraphLogic {
                 const ui = this.store.ui || {};
                 node.content = ui.nostrLessonLoadError || 'Error loading lesson from the network.';
             } finally {
-                this.store.update({ loading: false });
+                if (!quiet) this.store.update({ loading: false });
             }
-            this.store.dispatchEvent(new CustomEvent('graph-update'));
+            if (!quiet) this.store.dispatchEvent(new CustomEvent('graph-update'));
             return;
         }
 
         if (!node.contentPath) return;
 
-        this.store.update({ loading: true });
+        if (!quiet) this.store.update({ loading: true });
 
         try {
             const sourceUrl = this.store.state.activeSource.url;
@@ -562,7 +586,7 @@ export class GraphLogic {
             console.error("Content fetch failed", e);
             node.content = "Error loading content. Please check internet connection.";
         } finally {
-            this.store.update({ loading: false });
+            if (!quiet) this.store.update({ loading: false });
         }
     }
     

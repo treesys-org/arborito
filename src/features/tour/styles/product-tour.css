@@ -150,15 +150,18 @@ html.arborito-product-tour-sources-picker [data-arborito-panel="product-tour"] {
     margin: 0 0.04em;
 }
 
-.arborito-tour-tooltip__mascot .arborito-emoji-img {
-    display: inline;
-    width: 1.75rem;
-    height: 1.75rem;
-    vertical-align: middle;
+.arborito-tour-tooltip__mascot .arborito-emoji-img,
+.arborito-tour-tooltip__mascot .arborito-emoji-inline {
+    display: inline-block !important;
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+    max-width: 1.75rem !important;
+    max-height: 1.75rem !important;
+    vertical-align: middle !important;
 }
 
 .arborito-tour-tooltip__mascot .arborito-emoji-img + .arborito-emoji-img {
-    margin-left: 0.12rem;
+    margin-left: 0.12rem !important;
 }
 
 .arborito-tour-tooltip__progress {

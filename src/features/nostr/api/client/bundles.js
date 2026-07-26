@@ -9,7 +9,7 @@
 import { verifyEvent } from '../../../../../vendor/nostr-tools/lib/esm/index.js';
 import { normalizeTreeShareCode } from '../../../sources/api/share-code.js';
 import { normalizeNostrRelayUrls } from '../nostr-relays-runtime.js';
-import { prepareNostrSplitBundleV2 } from '../nostr-bundle-chunks.js';
+import { prepareNostrSplitBundleV2, buildNostrBundleSkeleton } from '../nostr-bundle-chunks.js';
 import { randomUUIDSafe } from '../../../../shared/lib/secure-web-crypto.js';
 import {
     KIND_BUNDLE_CHUNK_JSON,
@@ -22,6 +22,7 @@ import {
     arbRootTag,
     bundleHeaderDTag,
     bundleMainChunkDTag,
+    bundleSkeletonDTag,
     forumPackChunkDTag,
     forumPackDTag,
     revokeDTag,
@@ -37,6 +38,12 @@ function bundleMainChunkDTagGen(ownerPubHex, universeId, gen, index) {
     const g = String(gen || '').trim();
     if (!g) return bundleMainChunkDTag(ownerPubHex, universeId, index);
     return `arborito:bundle:main:${String(ownerPubHex)}:${String(universeId)}:${g}:${Number(index)}`;
+}
+
+function bundleSkeletonDTagGen(ownerPubHex, universeId, gen) {
+    const g = String(gen || '').trim();
+    if (!g) return '';
+    return bundleSkeletonDTag(ownerPubHex, universeId, g);
 }
 
 function lessonChunkDTag(pub, universeId, key, gen) {
@@ -193,7 +200,7 @@ export const bundlesMixin = {
         return { ...payload, by: pair.pub, sig: tomb };
     },
 
-    async loadNostrUniverseBundle({ pub, universeId }) {
+    async loadNostrUniverseBundle({ pub, universeId, onSkeleton = null } = {}) {
         const t = nostrBundleLoadTimeouts();
         const headerFilter = {
             kinds: [KIND_BUNDLE_HEADER],
@@ -240,6 +247,55 @@ export const bundlesMixin = {
             this._bundleLoadCache.bundle
         ) {
             return { revoked: false, bundle: this._bundleLoadCache.bundle };
+        }
+
+        const stampSkeletonMeta = (bundle) => {
+            if (!bundle || typeof bundle !== 'object') return bundle;
+            bundle.meta = bundle.meta && typeof bundle.meta === 'object' ? bundle.meta : {};
+            const hdrCode = String(meta?.shareCode || '').trim();
+            if (hdrCode && !String(bundle.meta.shareCode || '').trim()) {
+                bundle.meta.shareCode = hdrCode;
+            }
+            const hdrUpdated = String(meta?.updatedAt || '').trim();
+            if (hdrUpdated) bundle.meta.updatedAt = hdrUpdated;
+            const hdrGen = String(meta?.gen || '').trim();
+            if (hdrGen) bundle.meta.gen = hdrGen;
+            return bundle;
+        };
+
+        /* Early structure paint — does not block main-chunk assembly. */
+        const genForSkel = String(meta?.gen || '').trim();
+        if (meta?.hasSkeleton === true && genForSkel && typeof onSkeleton === 'function') {
+            void (async () => {
+                try {
+                    const d = bundleSkeletonDTagGen(pub, universeId, genForSkel);
+                    if (!d) return;
+                    const ev = await this._getFast(
+                        {
+                            kinds: [KIND_BUNDLE_CHUNK_JSON],
+                            authors: [String(pub)],
+                            '#d': [d],
+                            limit: 1,
+                        },
+                        Math.min(t.chunkMs || 4000, 3000)
+                    );
+                    if (!ev || String(ev.pubkey) !== String(pub)) return;
+                    if (!hasArbRoot(ev, pub, universeId)) return;
+                    let skel;
+                    try {
+                        skel = JSON.parse(ev.content || 'null');
+                    } catch {
+                        return;
+                    }
+                    if (!skel || typeof skel !== 'object') return;
+                    stampSkeletonMeta(skel);
+                    skel.meta = skel.meta && typeof skel.meta === 'object' ? skel.meta : {};
+                    skel.meta.skeleton = true;
+                    onSkeleton(skel);
+                } catch (e) {
+                    console.warn('[Arborito] skeleton load failed', e);
+                }
+            })();
         }
 
         /* Do not filter chunks with `since`: headers/chunks can be months old.
@@ -372,17 +428,7 @@ export const bundlesMixin = {
             return { revoked: false, bundle: null };
         }
         if (bundle && typeof bundle === 'object') {
-            bundle.meta = bundle.meta && typeof bundle.meta === 'object' ? bundle.meta : {};
-            const hdrCode = String(meta?.shareCode || '').trim();
-            if (hdrCode && !String(bundle.meta.shareCode || '').trim()) {
-                bundle.meta.shareCode = hdrCode;
-            }
-            /* Header updatedAt is the republish clock; keep it on meta so SWR
-             * stamps change even when slim JSON omitted the field. */
-            const hdrUpdated = String(meta?.updatedAt || '').trim();
-            if (hdrUpdated) bundle.meta.updatedAt = hdrUpdated;
-            const hdrGen = String(meta?.gen || '').trim();
-            if (hdrGen) bundle.meta.gen = hdrGen;
+            stampSkeletonMeta(bundle);
             this._bundleLoadCache = { key: cacheKey, stamp: cacheStamp, bundle };
         }
         return { revoked: false, bundle: bundle && typeof bundle === 'object' ? bundle : null };
@@ -583,6 +629,20 @@ export const bundlesMixin = {
         /* New generation address for main chunks. Header is published LAST so a
          * mid-flight failure keeps readers on the previous intact header+chunks. */
         const gen = randomUUIDSafe().replace(/-/g, '').slice(0, 16);
+        const skelBundle = buildNostrBundleSkeleton(slimBundle);
+        let skeletonText = '';
+        let publishSkeleton = false;
+        if (skelBundle) {
+            try {
+                skeletonText = JSON.stringify(skelBundle);
+                const skelBytes = new TextEncoder().encode(skeletonText).length;
+                if (skelBytes > 0 && skelBytes <= NOSTR_CHUNK_CONTENT_MAX) {
+                    publishSkeleton = true;
+                }
+            } catch {
+                publishSkeleton = false;
+            }
+        }
         const meta = {
             v: 3,
             gen,
@@ -590,7 +650,8 @@ export const bundlesMixin = {
             title: ((slimBundle && slimBundle.meta) ? slimBundle.meta.title : undefined) || 'Arborito',
             updatedAt: new Date().toISOString(),
             format: (slimBundle && slimBundle.format) || 'arborito-bundle',
-            shareCode: ((slimBundle && slimBundle.meta) ? slimBundle.meta.shareCode : undefined) || null
+            shareCode: ((slimBundle && slimBundle.meta) ? slimBundle.meta.shareCode : undefined) || null,
+            ...(publishSkeleton ? { hasSkeleton: true } : {}),
         };
         const headerEv = this._finalize(pair, {
             kind: KIND_BUNDLE_HEADER,
@@ -614,6 +675,26 @@ export const bundlesMixin = {
             })
         );
         await this._publishBurst(mainChunkEvents, 5);
+
+        if (publishSkeleton && skeletonText) {
+            const skelD = bundleSkeletonDTagGen(pair.pub, universeId, gen);
+            if (skelD) {
+                await this._publish(
+                    this._finalize(pair, {
+                        kind: KIND_BUNDLE_CHUNK_JSON,
+                        created_at: Math.floor(Date.now() / 1000),
+                        tags: [
+                            ['d', skelD],
+                            ['e', headerEv.id, '', 'root'],
+                            ['g', gen],
+                            ['slot', 'skeleton'],
+                            arbRootTag(pair.pub, universeId),
+                        ],
+                        content: skeletonText,
+                    })
+                );
+            }
+        }
 
         const makeJsonChunkEvent = (slot, key, obj) => {
             const d =

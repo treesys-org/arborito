@@ -206,3 +206,52 @@ export function prepareNostrSplitBundleV2(bundle, { includeForum = true } = {}) 
 
     return { slimBundle, lessonChunks, snapshotChunks, searchPack, forumSplit };
 }
+
+/**
+ * Compact structure-only copy of a v2 slim bundle for early paint (one 30151 event).
+ * Strips folder README bodies; leaves stay as lazy stubs. Omits release snapshots.
+ * @param {object} slimBundle
+ * @returns {object|null}
+ */
+export function buildNostrBundleSkeleton(slimBundle) {
+    if (!slimBundle || typeof slimBundle !== 'object') return null;
+    let skel;
+    try {
+        skel = JSON.parse(JSON.stringify(slimBundle));
+    } catch {
+        return null;
+    }
+    const stripFolderBodies = (node) => {
+        if (!node || typeof node !== 'object') return;
+        const t = node.type;
+        if (t === 'root' || t === 'branch') {
+            if ('content' in node) node.content = '';
+            delete node.treeLazyContent;
+            delete node.treeContentKey;
+        }
+        if (Array.isArray(node.children)) {
+            for (const ch of node.children) stripFolderBodies(ch);
+        }
+    };
+    if (skel.tree && typeof skel.tree === 'object') {
+        delete skel.tree.releaseSnapshots;
+        delete skel.tree.searchIndex;
+        delete skel.tree.forum;
+        const langs = skel.tree.languages;
+        if (langs && typeof langs === 'object') {
+            for (const lk of Object.keys(langs)) stripFolderBodies(langs[lk]);
+        }
+    }
+    delete skel.forum;
+    skel.progress = {
+        completedNodes: [],
+        memory: {},
+        bookmarks: {},
+        gamification: {},
+        gameData: {},
+    };
+    skel.meta = skel.meta && typeof skel.meta === 'object' ? { ...skel.meta } : {};
+    skel.meta.nostrBundleFormat = 2;
+    skel.meta.skeleton = true;
+    return skel;
+}

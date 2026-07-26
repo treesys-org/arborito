@@ -1,7 +1,8 @@
 /** Idempotent deferred feature CSS, Vite code-splits each lazy sheet. */
 import { ensureModalChunk } from '../../app/modal-chunk-loaders.js';
 
-const loaded = new Set();
+/** @type {Map<string, Promise<void>>} */
+const loaded = new Map();
 
 /** @type {Record<string, () => Promise<unknown>>} */
 const LAZY_CSS_MODULES = {
@@ -13,21 +14,33 @@ const LAZY_CSS_MODULES = {
     'arborito-css-sources': () => import('../../features/sources/styles/sources.css'),
 };
 
+/**
+ * @param {string} id
+ * @returns {Promise<void>}
+ */
 export function ensureLazyStylesheet(id, _href) {
-    if (typeof document === 'undefined') return;
-    if (loaded.has(id)) return;
+    if (typeof document === 'undefined') return Promise.resolve();
+    const existing = loaded.get(id);
+    if (existing) return existing;
     const load = LAZY_CSS_MODULES[id];
-    if (load) {
-        loaded.add(id);
-        void load();
-        return;
+    if (!load) {
+        const done = Promise.resolve();
+        loaded.set(id, done);
+        return done;
     }
-    loaded.add(id);
+    const pending = Promise.resolve(load())
+        .then(() => undefined)
+        .catch((e) => {
+            loaded.delete(id);
+            console.warn('[Arborito] lazy stylesheet failed', id, e);
+        });
+    loaded.set(id, pending);
+    return pending;
 }
 
 /** @param {Array<[string, string]>} entries `[id, href]` pairs */
 export function ensureLazyStylesheets(entries) {
-    for (const [id, href] of entries) ensureLazyStylesheet(id, href);
+    for (const [id, href] of entries) void ensureLazyStylesheet(id, href);
 }
 
 /**
@@ -40,23 +53,25 @@ export const SHELL_BOOT_STYLESHEET_ENTRIES = [
 
 /** Construction panel + mobile construction graph chrome (idempotent fallback). */
 export function ensureDeferredConstructionStyles() {
-    ensureLazyStylesheet('arborito-css-editor');
-    ensureLazyStylesheet('arborito-css-construction-graph');
+    return Promise.all([
+        ensureLazyStylesheet('arborito-css-editor'),
+        ensureLazyStylesheet('arborito-css-construction-graph'),
+    ]).then(() => undefined);
 }
 
 /** Sage guide dock/header chrome (idempotent fallback for late callers). */
 export function ensureSageGuideStyles() {
-    ensureLazyStylesheet('arborito-css-sage-guide');
+    return ensureLazyStylesheet('arborito-css-sage-guide');
 }
 
-/** Product tour (lazy, not in main.css). */
+/** Product tour CSS — await before showing the tour (avoids unstyled shade stack). */
 export function ensureDeferredProductTourStyles() {
-    ensureLazyStylesheet('arborito-css-product-tour');
+    return ensureLazyStylesheet('arborito-css-product-tour');
 }
 
 /** Sources modal stylesheets (loaded with the sources chunk). */
 export function ensureDeferredSourcesStyles() {
-    ensureLazyStylesheet('arborito-css-sources');
+    return ensureLazyStylesheet('arborito-css-sources');
 }
 
 /** Prefetch sources modal JS + CSS (caller schedules idle timing). */

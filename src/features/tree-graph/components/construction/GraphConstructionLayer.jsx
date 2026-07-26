@@ -1,3 +1,4 @@
+import '../../styles/construction-graph.css';
 import { useEffect } from 'react';
 import { useTreeGraph } from '../../hooks/useTreeGraph.js';
 import { createPortal } from 'react-dom';

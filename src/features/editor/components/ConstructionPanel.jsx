@@ -1,3 +1,4 @@
+import '../styles/index.css';
 import { useRegisterPanel } from '../../../app/hooks/useRegisterPanel.js';
 import { getArboritoStore } from '../../../core/store-singleton.js';
 import { openContributorHub } from '../../publishing/api/account-hub-gate.js';

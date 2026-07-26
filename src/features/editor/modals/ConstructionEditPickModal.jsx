@@ -1,3 +1,4 @@
+import '../styles/index.css';
 import { useEditor } from '../hooks/useEditor.js';
 import { useCallback, useEffect } from 'react';
 import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
@@ -84,7 +85,7 @@ export function ModalConstructionEditPick() {
         'Add branches to this tree in Forest → Trees, then come back.';
 
     useEffect(() => {
-        ensureDeferredConstructionStyles();
+        void ensureDeferredConstructionStyles();
     }, []);
 
     const hero = (

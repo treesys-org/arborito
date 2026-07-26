@@ -474,6 +474,34 @@ html.arborito-emoji-images .arborito-emoji-native {
     font-family: var(--font-family-emoji);
 }
 
+/*
+ * Product tour chrome must stay position:fixed even if the lazy tour sheet
+ * races (production Pages). Without this, shade divs stack in normal flow and
+ * the tip appears with a huge vertical gap under the spotlight.
+ */
+.arborito-product-tour,
+[data-arborito-panel="product-tour"] {
+    position: fixed;
+    inset: 0;
+    z-index: 140;
+    pointer-events: none;
+}
+.arborito-tour-shade,
+.arborito-tour-ring {
+    position: fixed;
+    pointer-events: none;
+}
+.arborito-tour-shade {
+    pointer-events: auto;
+}
+.arborito-tour-tooltip {
+    position: fixed;
+    z-index: 2;
+    max-width: min(24rem, calc(100vw - 2rem));
+    pointer-events: auto;
+    box-sizing: border-box;
+}
+
 /* Chrome / nav emoji PNGs (Linux Twemoji fallback). */
 .arborito-desktop-sage-fab__ic .arborito-emoji-img,
 .arborito-mob-tab__icon .arborito-emoji-img,

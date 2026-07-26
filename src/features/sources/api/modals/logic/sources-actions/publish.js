@@ -6,7 +6,7 @@ import {
     pickTitleForLang,
     resolveDirectoryRowTitle,
 } from '../../../../../../shared/lib/catalog-titles.js';
-import { findCommunitySourceByUrl } from '../sources-helpers.js';
+import { findCommunitySourceByUrl, isSameActiveNetworkSource } from '../sources-helpers.js';
 import {
     directoryRowForCommunitySource,
     rerankGlobalDirectoryRowsOnly,
@@ -220,6 +220,11 @@ export async function runPublishAction(ctx, action, fields = {}) {
         const ok = out && typeof out === 'object' ? out.ok !== false : !!out;
         if (!ok) {
             if (out && out.reason === 'duplicate' && out.existing?.id) {
+                if (isSameActiveNetworkSource(store.state.activeSource, out.existing)) {
+                    store.notify(store.ui.sourcesInstalledToast || 'Ya instalado.', false);
+                    ctx.bump();
+                    return true;
+                }
                 store.notify(store.ui.sourcesInstalledToast || 'Ya instalado, cargando…', false);
                 const hadCurriculumBeforeLoad = captureHadCurriculumBeforeLoad();
                 const loaded = await withSourcesNetworkLoad(ctx, () =>
@@ -233,6 +238,10 @@ export async function runPublishAction(ctx, action, fields = {}) {
             return true;
         }
         store.notify(store.ui.sourcesInstalledToast || 'Instalado.', false);
+        if (isSameActiveNetworkSource(store.state.activeSource, out?.source || { url })) {
+            ctx.bump();
+            return true;
+        }
         const loaded = await withSourcesNetworkLoad(ctx, () => store.maybeAutoLoadCommunityAfterAdd(out));
         if (!loaded) ctx.bump();
         return true;

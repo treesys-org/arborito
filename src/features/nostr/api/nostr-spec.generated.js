@@ -37,6 +37,10 @@ export function bundleMainChunkDTag(ownerPubHex, universeId, index) {
     return `arborito:bundle:main:${String(ownerPubHex)}:${String(universeId)}:${Number(index)}`;
 }
 
+export function bundleSkeletonDTag(ownerPubHex, universeId, gen) {
+    return `arborito:bundle:skel:${String(ownerPubHex)}:${String(universeId)}:${String(gen || '')}`;
+}
+
 export function directoryDTag(ownerPubHex, universeId) {
     return `arborito:dir:v2:${String(ownerPubHex)}:${String(universeId)}`;
 }

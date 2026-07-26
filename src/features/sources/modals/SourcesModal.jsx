@@ -1,3 +1,4 @@
+import '../styles/sources.css';
 import { useSourcesModal } from '../hooks/useSourcesModal.js';
 import { DockModalShell } from '../../../app/components/ModalShell.jsx';
 import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
