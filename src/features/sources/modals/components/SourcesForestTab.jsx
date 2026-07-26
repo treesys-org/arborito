@@ -261,6 +261,7 @@ export function SourcesForestTab({
                             pinned
                             actionsOpen={rowActionsOpen}
                             freezeBusy={collectCtx.treeFreezeBusy}
+                            globalDirMetrics={globalDirMetrics}
                             onAction={onAction}
                             onToggleRowActions={onToggleRowActions}
                             onToggleFreeze={(id) => onAction('toggle-tree-freeze', { id })}
@@ -333,6 +334,7 @@ export function SourcesForestTab({
                                             isActive={false}
                                             actionsOpen={rowActionsOpen}
                                             freezeBusy={collectCtx.treeFreezeBusy}
+                                            globalDirMetrics={globalDirMetrics}
                                             onAction={onAction}
                                             onToggleRowActions={onToggleRowActions}
                                             onToggleFreeze={(id) =>

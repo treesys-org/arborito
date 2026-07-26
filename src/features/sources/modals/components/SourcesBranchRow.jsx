@@ -3,7 +3,7 @@ import { isBundledArboritoDemoBranch } from '../../../../core/demo/arborito-demo
 import { metricsForPublishedUrl } from '../../api/modals/logic/sources-directory-fetch.js';
 import { SourcesPill } from './SourcesPill.jsx';
 import { LanguagePills } from './LanguagePills.jsx';
-import { SourcesMoreButton } from './SourcesRowChrome.jsx';
+import { SourcesMoreButton, SourcesPublishedSocialToolbar } from './SourcesRowChrome.jsx';
 import { SourcesShareCodeField } from './SourcesShareCodeField.jsx';
 import { SourcesSocialMetrics } from './SourcesSocialMetrics.jsx';
 import { usePublishedShareCode } from '../../hooks/usePublishedShareCode.js';
@@ -44,11 +44,11 @@ export function SourcesBranchRow({
         entry: branch,
         kind: 'branch',
     });
+    const pubMetrics = branch?.publishedNetworkUrl
+        ? metricsForPublishedUrl(branch.publishedNetworkUrl, globalDirMetrics)
+        : {};
     const publishedMetrics = branch?.publishedNetworkUrl ? (
-        <SourcesSocialMetrics
-            ui={ui}
-            metrics={metricsForPublishedUrl(branch.publishedNetworkUrl, globalDirMetrics)}
-        />
+        <SourcesSocialMetrics ui={ui} metrics={pubMetrics} />
     ) : null;
     const updatedTs = Number(branch?.updated);
     const updatedLabel =
@@ -174,6 +174,21 @@ export function SourcesBranchRow({
                         aria-hidden="true"
                     />
                     <div className="arborito-sources-toolbar arborito-sources-toolbar--social">
+                        <SourcesPublishedSocialToolbar
+                            ui={ui}
+                            shareOpts={shareOpts}
+                            metrics={pubMetrics}
+                            onVote={(payload) => onAction?.('global-vote', payload)}
+                            onShare={(opts) =>
+                                onAction?.('share-tree-row', {
+                                    shareName: opts.name,
+                                    shareUrl: opts.url,
+                                    shareCode: opts.shareCode,
+                                    ownerPub: opts.ownerPub,
+                                    universeId: opts.universeId,
+                                })
+                            }
+                        />
                         <SourcesMoreButton
                             ui={ui}
                             rowKey={key}

@@ -274,6 +274,7 @@ export function SourcesBranchesPanel({
                             pinned
                             actionsOpen={rowActionsOpen}
                             freezeBusy={treeFreezeBusy}
+                            globalDirMetrics={globalDirMetrics}
                             onAction={onAction}
                             onToggleRowActions={toggleRowActions}
                             onToggleFreeze={(id) => onAction('toggle-tree-freeze', { id })}
@@ -357,6 +358,7 @@ export function SourcesBranchesPanel({
                                         isActive={it.data.isActive}
                                         actionsOpen={rowActionsOpen}
                                         freezeBusy={treeFreezeBusy}
+                                        globalDirMetrics={globalDirMetrics}
                                         onAction={onAction}
                                         onToggleRowActions={toggleRowActions}
                                         onToggleFreeze={(id) => onAction('toggle-tree-freeze', { id })}

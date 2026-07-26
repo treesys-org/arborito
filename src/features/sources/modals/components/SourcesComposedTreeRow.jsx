@@ -4,7 +4,7 @@ import { metricsForPublishedUrl } from '../../api/modals/logic/sources-directory
 import { SourcesShareCodeField } from './SourcesShareCodeField.jsx';
 import { usePublishedShareCode } from '../../hooks/usePublishedShareCode.js';
 import { SourcesPill } from './SourcesPill.jsx';
-import { SourcesMoreButton } from './SourcesRowChrome.jsx';
+import { SourcesMoreButton, SourcesPublishedSocialToolbar } from './SourcesRowChrome.jsx';
 import { SourcesSocialMetrics } from './SourcesSocialMetrics.jsx';
 
 export function composedTreeRowKey(treeId) {
@@ -38,11 +38,11 @@ export function SourcesComposedTreeRow({
         isActive && !pinned
             ? 'border-violet-500/70 dark:border-violet-400/40 dark:ring-1 dark:ring-violet-400/15'
             : 'border-violet-200/60 dark:border-violet-900/50';
+    const pubMetrics = tree.publishedNetworkUrl
+        ? metricsForPublishedUrl(tree.publishedNetworkUrl, globalDirMetrics)
+        : {};
     const publishedMetrics = tree.publishedNetworkUrl ? (
-        <SourcesSocialMetrics
-            ui={ui}
-            metrics={metricsForPublishedUrl(tree.publishedNetworkUrl, globalDirMetrics)}
-        />
+        <SourcesSocialMetrics ui={ui} metrics={pubMetrics} />
     ) : null;
 
     return (
@@ -123,6 +123,21 @@ export function SourcesComposedTreeRow({
                         </div>
                     )}
                     <div className="arborito-sources-toolbar arborito-sources-toolbar--social">
+                        <SourcesPublishedSocialToolbar
+                            ui={ui}
+                            shareOpts={shareOpts}
+                            metrics={pubMetrics}
+                            onVote={(payload) => onAction?.('global-vote', payload)}
+                            onShare={(opts) =>
+                                onAction?.('share-tree-row', {
+                                    shareName: opts.name,
+                                    shareUrl: opts.url,
+                                    shareCode: opts.shareCode,
+                                    ownerPub: opts.ownerPub,
+                                    universeId: opts.universeId,
+                                })
+                            }
+                        />
                         <SourcesMoreButton
                             ui={ui}
                             rowKey={key}

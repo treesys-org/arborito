@@ -8,6 +8,7 @@ import {
 import {
     mergeDisplayedVotes,
     pinVoteCountAfterToggle,
+    readLocalLiked,
 } from '../../api/modals/logic/sources-vote-persist.js';
 
 export function SourcesVoteLikeIcon({ liked }) {
@@ -141,6 +142,39 @@ export function SourcesShareButton({ ui, shareOpts, onShare }) {
                 />
             </svg>
         </button>
+    );
+}
+
+/**
+ * Like + share for published / network rows (also when that tree is the active local pin).
+ */
+export function SourcesPublishedSocialToolbar({
+    ui,
+    shareOpts,
+    metrics,
+    onVote,
+    onShare,
+}) {
+    const ownerPub = String(shareOpts?.ownerPub || '').trim();
+    const universeId = String(shareOpts?.universeId || '').trim();
+    if (!ownerPub || !universeId) {
+        return shareOpts ? <SourcesShareButton ui={ui} shareOpts={shareOpts} onShare={onShare} /> : null;
+    }
+    const votesRaw = Number.isFinite(Number(metrics?.votes)) ? Number(metrics.votes) : null;
+    const liked = readLocalLiked(ownerPub, universeId);
+    const votes = mergeDisplayedVotes(ownerPub, universeId, votesRaw, liked);
+    return (
+        <>
+            <SourcesVoteGroup
+                ui={ui}
+                liked={liked}
+                votes={votes}
+                ownerPub={ownerPub}
+                universeId={universeId}
+                onVote={onVote}
+            />
+            <SourcesShareButton ui={ui} shareOpts={shareOpts} onShare={onShare} />
+        </>
     );
 }
 

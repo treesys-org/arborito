@@ -141,6 +141,7 @@ html.dark .arborito-sources-action-chip--kind-active {
 
 /* Trees modal — fixed-width action column (uniform CTAs + aligned icon row) */
 .arborito-sources-row-aside {
+  --arborito-sources-cta-slot: 2.25rem;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -158,7 +159,7 @@ html.dark .arborito-sources-action-chip--kind-active {
   align-items: stretch;
   gap: 0.3rem;
   width: 100%;
-  min-height: 2.25rem;
+  min-height: var(--arborito-sources-cta-slot);
 }
 
 .arborito-sources-cta-row {
@@ -245,7 +246,7 @@ html.dark .arborito-sources-action-chip--kind-active {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 2.25rem;
+  min-height: var(--arborito-sources-cta-slot);
   padding: 0.45rem 0.5rem;
   border-radius: 0.75rem;
   font-size: 0.75rem;
@@ -255,8 +256,12 @@ html.dark .arborito-sources-action-chip--kind-active {
   box-sizing: border-box;
 }
 
+/*
+ * Reserve the Load slot so Like/Share/⋯ stay on the consolidated second row.
+ * Dual-stack rows (Branch): hidden until --active. Solo spacer (Composed/Saved pin): first-child.
+ */
 .arborito-sources-primary-stack--placeholder {
-  min-height: 2.25rem;
+  min-height: var(--arborito-sources-cta-slot);
   display: none;
 }
 
@@ -264,7 +269,8 @@ html.dark .arborito-sources-action-chip--kind-active {
   display: none;
 }
 
-.arborito-sources-row--active .arborito-sources-primary-stack--placeholder {
+.arborito-sources-row--active .arborito-sources-primary-stack--placeholder,
+.arborito-sources-row-aside > .arborito-sources-primary-stack--placeholder:first-child {
   display: flex;
 }
 
@@ -283,6 +289,7 @@ html.arborito-product-tour-sources-picker
 
 @media (min-width: 768px) {
   .arborito-sources-row-aside {
+    --arborito-sources-cta-slot: 2.75rem;
     flex: 0 0 10.5rem;
     width: 10.5rem;
     min-width: 10.5rem;
@@ -290,7 +297,6 @@ html.arborito-product-tour-sources-picker
   }
 
   .arborito-sources-row-cta {
-    min-height: 2.75rem;
     padding: 0.55rem 0.75rem;
     font-size: 0.8125rem;
     font-weight: 800;
@@ -304,7 +310,6 @@ html.arborito-product-tour-sources-picker
    * Do not stack to column — that inflates local cards and breaks size consolidation.
    */
   .arborito-sources-row-cta {
-    min-height: 2.25rem;
     padding: 0.35rem 0.5rem;
     font-size: 0.6875rem;
   }
@@ -866,6 +871,7 @@ button.arborito-sources-row-title--button {
 :is(html.arborito-shell-mobile, html.force-mobile)
     #modal-backdrop.arborito-modal--sources
     .arborito-sources-row-aside {
+    --arborito-sources-cta-slot: 2.2rem;
     flex: 0 0 8.75rem !important;
     width: 8.75rem !important;
     min-width: 8.75rem !important;

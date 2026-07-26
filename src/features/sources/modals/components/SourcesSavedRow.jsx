@@ -4,7 +4,7 @@ import { findCommunitySourceByUrl } from '../../api/modals/logic/sources-helpers
 import { pickTitleForLang } from '../../../../shared/lib/catalog-titles.js';
 import { SourcesPill } from './SourcesPill.jsx';
 import { LanguagePills } from './LanguagePills.jsx';
-import { SourcesMoreButton } from './SourcesRowChrome.jsx';
+import { SourcesMoreButton, SourcesPublishedSocialToolbar } from './SourcesRowChrome.jsx';
 import { SourcesShareCodeField } from './SourcesShareCodeField.jsx';
 import { SwitchRow } from '../../../../shared/ui/SwitchRow.jsx';
 import { isElectronDesktop } from '../../../learning/api/electron-bridge.js';
@@ -12,6 +12,7 @@ import { SourcesMenuPrefs } from './SourcesMenuPrefs.jsx';
 import { listingKind } from '../../api/sources-kind-ui.js';
 import { resolveOnlineListingIcon } from '../../api/branch-catalog-icon.js';
 import { CatalogRowEmoji } from './CatalogRowEmoji.jsx';
+import { metricsForPublishedUrl } from '../../api/modals/logic/sources-directory-fetch.js';
 
 export function SourcesSavedRow({
     source,
@@ -23,6 +24,7 @@ export function SourcesSavedRow({
     onAction,
     onToggleRowActions,
     onToggleFreeze,
+    globalDirMetrics = null,
 }) {
     const { communitySources, userStore, lang } = useSources();
     const store = useSourcesStore();
@@ -105,7 +107,22 @@ export function SourcesSavedRow({
               }
             : shareCode
               ? { name: title, url: String(source?.url || ''), shareCode }
-              : null;
+              : treeRef
+                ? {
+                      name: title,
+                      url: formatNostrTreeUrl(treeRef.pub, treeRef.universeId),
+                      shareCode: '',
+                      ownerPub: treeRef.pub,
+                      universeId: treeRef.universeId,
+                  }
+                : null;
+    const pubMetrics =
+        treeRef
+            ? metricsForPublishedUrl(
+                  formatNostrTreeUrl(treeRef.pub, treeRef.universeId),
+                  globalDirMetrics
+              )
+            : {};
 
     const freezeSwitch = showFreeze ? (
         <SwitchRow
@@ -225,6 +242,21 @@ export function SourcesSavedRow({
                         aria-hidden="true"
                     />
                     <div className="arborito-sources-toolbar arborito-sources-toolbar--social">
+                        <SourcesPublishedSocialToolbar
+                            ui={ui}
+                            shareOpts={shareOpts}
+                            metrics={pubMetrics}
+                            onVote={(payload) => onAction?.('global-vote', payload)}
+                            onShare={(opts) =>
+                                onAction?.('share-tree-row', {
+                                    shareName: opts.name,
+                                    shareUrl: opts.url,
+                                    shareCode: opts.shareCode,
+                                    ownerPub: opts.ownerPub,
+                                    universeId: opts.universeId,
+                                })
+                            }
+                        />
                         <SourcesMoreButton
                             ui={ui}
                             rowKey={key}
