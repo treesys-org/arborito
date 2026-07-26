@@ -25,7 +25,8 @@ const APP_POW_BITS = Object.freeze({
     tree_legal_report_v1: 22,
     forum_message_v1: 14,
     forum_thread_v1: 16,
-    account_register_v1: 20,
+    /* 16 bits: enough to deter casual squatting; 20 was often multi-second on phones. */
+    account_register_v1: 16,
     tree_directory_v2: 20
 });
 

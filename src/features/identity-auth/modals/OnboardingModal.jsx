@@ -140,6 +140,7 @@ export function ModalOnboarding() {
         identityActions,
         isSignedIn,
         userStore,
+        warmNostrRelays,
     } = auth;
 
     const {
@@ -231,6 +232,29 @@ export function ModalOnboarding() {
             }
         }
     }, [modal, authSession, setModal, busy]);
+
+    useEffect(() => {
+        if (sessionView !== 'registered') return;
+        const qr = String(auth.authSession?.syncQrDataUrl || '').trim();
+        const rk = String(auth.authSession?.recoveryKeyPlain || '').trim();
+        if (!qr && !rk) return;
+        setRegisterResult((prev) => {
+            if (!prev?.username) return prev;
+            let next = prev;
+            if (qr && !prev.qrDataUrl) next = { ...next, qrDataUrl: qr };
+            if (rk && !prev.recoveryKeyPlain) next = { ...next, recoveryKeyPlain: rk };
+            return next;
+        });
+    }, [auth.authSession?.syncQrDataUrl, auth.authSession?.recoveryKeyPlain, sessionView]);
+
+    useEffect(() => {
+        if (step !== 2 || sessionView !== 'start') return;
+        try {
+            void warmNostrRelays?.({ timeoutMs: 8_000, perRelayMs: 3_000, probe: true });
+        } catch {
+            /* ignore */
+        }
+    }, [step, sessionView, warmNostrRelays]);
 
     useEffect(() => {
         const onRecoverySetup = () => setSecretSaved(true);

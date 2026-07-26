@@ -3,6 +3,7 @@ import { notifyIdentityChanged } from './store-notify.js';
 import {
     getConnectedNostr,
     requireConnectedNostr,
+    warmNostrRelayConnections,
 } from '../shared/lib/connected-services/index.js';
 import {
     formatSyncSecretForDisplay,
@@ -128,17 +129,17 @@ export async function _putSyncLoginHashWithTimeoutAction(payload) {
             const started = Date.now();
             let lastErr = null;
             /*
-             * publishWithTimeout cannot abort the in-flight put. PoW (~20 bits)
-             * plus relay ACK often exceeds a short race, so the publish may still
-             * land after we reject. Confirm before retrying / throwing so we do
-             * not spawn parallel puts or lie that the name was free.
+             * publishWithTimeout cannot abort the in-flight put. PoW + relay ACK
+             * can still finish after we reject. Confirm before retrying / throwing
+             * so we do not spawn parallel puts or claim the name was free when a
+             * late ACK already reserved it.
              */
             while (Date.now() - started < SYNC_LOGIN_NETWORK_BUDGET_MS) {
                 const remaining = SYNC_LOGIN_NETWORK_BUDGET_MS - (Date.now() - started);
                 try {
                     await publishWithTimeout(
                         net.putSyncLoginHash(payload),
-                        Math.max(8_000, Math.min(22_000, remaining)),
+                        Math.max(12_000, Math.min(22_000, remaining)),
                         failMsg
                     );
                     return;
@@ -237,14 +238,39 @@ export async function registerSyncLoginAccountAction(username, options = {}) {
                         'Password is too weak. Use at least 10 characters with letters and numbers.'
                 );
             }
-            await requireConnectedNostr(store);
             const plain = normalizeUserPassword(passwordRaw);
             const recoveryKeyPlain = generateRecoveryKey();
+            /* Overlap module/relay warm with local crypto so the first publish is not also the first handshake. */
+            const connectP = (async () => {
+                const net = await requireConnectedNostr(store, {
+                    timeoutMs: SYNC_LOGIN_CONNECT_TIMEOUT_MS,
+                });
+                void warmNostrRelayConnections(store, {
+                    timeoutMs: 8_000,
+                    perRelayMs: 3_000,
+                    probe: true,
+                });
+                return net;
+            })();
             const hash = await hashSyncSecret(plain, credentialKind);
             const signer = deriveAccountSigningPair(name, plain, { credentialKind });
             if (!signer) {
                 throw new Error(ui.nostrIdentityUnavailable || 'Could not derive your account key.');
             }
+            const net = await connectP;
+            const powPromise = net._solvePow(
+                'account_register_v1',
+                '',
+                '',
+                `sync-login:${name}`,
+                signer.pub,
+                net._powBits('account_register_v1')
+            );
+            /* Overlap PoW with a <2s latency probe so put hits the fastest live relay. */
+            const rankPromise =
+                typeof net.rankRelaysByConnectMs === 'function'
+                    ? net.rankRelaysByConnectMs({ budgetMs: 1_800, perRelayMs: 800 }).catch(() => [])
+                    : Promise.resolve([]);
             /* UI already probed availability — one short first-hit check, not 4×6s. */
             const existing = await store._loadSyncLoginRecordReliable(name, undefined, {
                 quick: true,
@@ -260,13 +286,15 @@ export async function registerSyncLoginAccountAction(username, options = {}) {
              * Same hash already on the network = our earlier publish (often after a
              * timed-out attempt). Finish the local session instead of "taken".
              */
+            const [pow] = await Promise.all([powPromise, rankPromise]);
             if (!(existing?.hash === hash)) {
                 try {
                     await store._putSyncLoginHashWithTimeout({
                         username: name,
                         hash,
                         signerPair: signer,
-                        credential: credentialKind
+                        credential: credentialKind,
+                        pow,
                     });
                 } catch (e) {
                     if (!(await _confirmOwnSyncLoginHash(store, { username: name, hash, signerPair: signer }, 12_000))) {
@@ -274,9 +302,11 @@ export async function registerSyncLoginAccountAction(username, options = {}) {
                     }
                 }
             }
+            /* Put already ACKed (or confirm recovered it) — short first-hit confirm, not another 30s. */
             const published = await store._loadSyncLoginRecordReliable(name, signer.pub, {
                 confirm: true,
-                budgetMs: SYNC_LOGIN_NETWORK_BUDGET_MS,
+                budgetMs: 6_000,
+                firstHit: true,
             });
             if (!published?.hash || published.hash !== hash) {
                 throw new Error(

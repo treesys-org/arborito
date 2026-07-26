@@ -502,6 +502,19 @@ html.arborito-emoji-images .arborito-emoji-native {
     box-sizing: border-box;
 }
 
+/* Onboarding mini-preview: frames must overlay, not stack in normal flow. */
+.arborito-onb-mini__stage {
+    position: relative;
+    height: 8.35rem;
+    width: 100%;
+}
+.arborito-onb-mini__map,
+.arborito-onb-mini__lesson {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+}
+
 /* Chrome / nav emoji PNGs (Linux Twemoji fallback). */
 .arborito-desktop-sage-fab__ic .arborito-emoji-img,
 .arborito-mob-tab__icon .arborito-emoji-img,

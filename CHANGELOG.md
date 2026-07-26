@@ -29,6 +29,7 @@ Arborito ships as **web** ([arborito.org](https://arborito.org), continuous depl
 - Install skips remount when that course is already open.
 - Composed trees (playlists) load their branch refs in parallel.
 - Network courses paint the topic map as soon as the structure skeleton arrives, then finish loading the full bundle in the background; your own published mirrors pick up the skeleton automatically when you open them.
+- First-run onboarding: tighter welcome layout (no huge empty band above the buttons); account creation probes relay latency (~2s), races only live peers for the first ACK, uses lighter register proof-of-work, and confirms after ACK without claiming a free name if a timed-out put still landed.
 - Composed-tree publish uses the same local branch-set fingerprint as the dock (no stuck Update state after a successful publish).
 - Composed-tree republish from Courses keeps prior forest-listing and forum choices; failed attempts no longer leave a false Update state.
 - Public bundle publish writes chunks before the header (generation-scoped main parts) so a mid-update failure does not mix old and new curriculum; disabling the forum replaces the on-relay forum pack with an empty one; a share-code claim binds the local garden identity so a retry reuses the same public URL.

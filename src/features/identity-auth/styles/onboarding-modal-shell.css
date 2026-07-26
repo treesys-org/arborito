@@ -35,8 +35,9 @@
         > .arborito-onboarding-shell {
         width: min(100%, 40rem) !important;
         max-width: 40rem !important;
-        /* Floor height so step 1 → 2 does not collapse into a flat strip. */
-        min-height: min(38rem, calc(100dvh - 2rem)) !important;
+        /* Floor height so step 1 → 2 does not collapse into a flat strip —
+         * keep close to content so CTAs are not flung to the bottom of a tall empty card. */
+        min-height: min(28rem, calc(100dvh - 2rem)) !important;
         height: auto !important;
         max-height: min(96vh, 900px) !important;
         flex: 0 0 auto !important;
@@ -354,7 +355,7 @@
     position: sticky;
     bottom: 0;
     z-index: 2;
-    margin-top: auto;
+    margin-top: 0.85rem;
     padding-top: 0.65rem;
     background: var(--arborito-theme-onboarding-sticky-fade);
 }

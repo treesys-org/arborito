@@ -14,6 +14,10 @@ import { QUERY_MS, assertNostrContentSize, isNostrContentTooLargeError, isNostrN
 
 /** Per-relay publish budget (ms). Avoid waiting for every relay when one accepts. */
 const RELAY_PUBLISH_TIMEOUT_MS = 10_000;
+/** Shorter ACK wait when the caller already ranked live relays (account register). */
+const RELAY_PUBLISH_FAST_TIMEOUT_MS = 3_500;
+/** How long a connect-latency ranking stays reusable. */
+const RELAY_RANK_CACHE_MS = 45_000;
 /** Best-effort mirror to other relays after a critical account event landed somewhere. */
 const RELAY_MIRROR_TIMEOUT_MS = 6_000;
 
@@ -325,6 +329,59 @@ export const coreMixin = {
     },
 
     /**
+     * Parallel connect probe: which relays answer, and how fast.
+     * Budget stays under ~2s so register can pick the lowest RTT before publish.
+     * Returns live URLs sorted ascending by connect ms (empty if none answered).
+     * @param {{ budgetMs?: number, perRelayMs?: number }} [opts]
+     * @returns {Promise<string[]>}
+     */
+    async rankRelaysByConnectMs({ budgetMs = 1_800, perRelayMs = 800 } = {}) {
+        const relays = this._relays();
+        if (!relays.length) return [];
+        const now = Date.now();
+        const cached = this._relayRankCache;
+        if (
+            cached &&
+            Array.isArray(cached.urls) &&
+            cached.urls.length &&
+            now - Number(cached.at || 0) < RELAY_RANK_CACHE_MS
+        ) {
+            return cached.urls.filter((u) => relays.includes(u));
+        }
+        const deadline = now + Math.max(400, Number(budgetMs) || 1_800);
+        const cap = Math.max(200, Number(perRelayMs) || 800);
+        const scored = await Promise.all(
+            relays.map(async (url) => {
+                const left = deadline - Date.now();
+                if (left < 40) return { url, ms: Infinity };
+                const t0 = Date.now();
+                try {
+                    await Promise.race([
+                        this._pool.ensureRelay(url),
+                        new Promise((_, reject) => {
+                            setTimeout(
+                                () => reject(new Error('relay-rank-timeout')),
+                                Math.min(cap, left)
+                            );
+                        }),
+                    ]);
+                    return { url, ms: Date.now() - t0 };
+                } catch {
+                    return { url, ms: Infinity };
+                }
+            })
+        );
+        const live = scored
+            .filter((r) => Number.isFinite(r.ms))
+            .sort((a, b) => a.ms - b.ms)
+            .map((r) => r.url);
+        if (live.length) {
+            this._relayRankCache = { at: Date.now(), urls: live };
+        }
+        return live;
+    },
+
+    /**
      * GDPR defense-in-depth: every outbound relay call passes through `_publish`,
      * `_query` or `_get`. We refuse to open the WebSocket if the user has not
      * accepted the privacy policy. The boot pipeline in `store.js` already
@@ -351,12 +408,15 @@ export const coreMixin = {
     },
 
     /**
-     * Publish to several relays in parallel; succeed when any relay accepts
-     * within RELAY_PUBLISH_TIMEOUT_MS (do not wait for every slow/failed peer).
+     * Publish to several relays; succeed when any relay accepts within the
+     * per-relay timeout (do not wait for every slow/failed peer).
+     * `sequentialFailover: true` tries lowest-RTT first then the next on failure
+     * (account register), instead of racing every peer for the full timeout.
      * @param {import('core.js').Event} ev
      * @param {string[]} relays
+     * @param {{ timeoutMs?: number, sequentialFailover?: boolean }} [opts]
      */
-    async _publishEventAnyRelay(ev, relays) {
+    async _publishEventAnyRelay(ev, relays, opts = {}) {
         assertNostrContentSize(ev?.content, `kind ${ev?.kind}`);
         const targets = Array.isArray(relays) && relays.length ? relays : this._relays();
         if (!targets.length) {
@@ -364,9 +424,14 @@ export const coreMixin = {
             err.code = 'nostr_relays_required';
             throw err;
         }
+        const timeoutMs = Math.max(
+            1_200,
+            Number(opts.timeoutMs) || RELAY_PUBLISH_TIMEOUT_MS
+        );
+        const sequential = !!opts.sequentialFailover;
         const pin = this._bundlePublishRelay;
         const ordered =
-            pin && targets.includes(pin)
+            pin && targets.includes(pin) && !sequential
                 ? [pin, ...targets.filter((r) => r !== pin)]
                 : targets;
         const publishOne = async (relay) => {
@@ -374,11 +439,25 @@ export const coreMixin = {
             await Promise.race([
                 attempt,
                 new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error('publish timed out')), RELAY_PUBLISH_TIMEOUT_MS);
+                    setTimeout(() => reject(new Error('publish timed out')), timeoutMs);
                 })
             ]);
             return relay;
         };
+        if (sequential) {
+            const reasons = [];
+            for (const relay of ordered) {
+                try {
+                    const accepted = await publishOne(relay);
+                    this._bundlePublishRelay = accepted;
+                    this._mirrorEventToRemainingRelays(ev, targets, accepted);
+                    return accepted;
+                } catch (e) {
+                    reasons.push(`${relay}: ${(e && e.message) || e}`);
+                }
+            }
+            throw new Error(reasons.length ? reasons.join('; ') : 'publish failed on all relays');
+        }
         if (pin && ordered.includes(pin)) {
             try {
                 const relay = await publishOne(pin);
@@ -437,7 +516,7 @@ export const coreMixin = {
      * @param {import('core.js').Event} ev
      * @param {string[]} relays
      */
-    async _publishToRelays(ev, relays) {
+    async _publishToRelays(ev, relays, opts = {}) {
         this._assertNetworkConsent('publish');
         const targets = Array.isArray(relays) && relays.length ? relays : this._relays();
         if (!targets.length) {
@@ -446,7 +525,7 @@ export const coreMixin = {
             throw err;
         }
         const tryOnce = async () => {
-            await this._publishEventAnyRelay(ev, targets);
+            await this._publishEventAnyRelay(ev, targets, opts);
         };
         const chain = this._publishChain.queue.then(async () => {
             try {

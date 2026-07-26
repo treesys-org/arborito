@@ -189,10 +189,13 @@ export async function _finalizeSyncLoginSessionAction(name, opts = {}) {
     const store = shell();
     if (!store) return undefined;
 
-    try {
-        let sess = store._authSession;
-        const isPassword = resolveSessionCredentialKind(sess) === CREDENTIAL_KIND_PASSWORD;
-        if (isPassword) {
+    const buildQrInBackground = !!opts.deferNetwork;
+
+    const ensureQr = async () => {
+        try {
+            let sess = store._authSession;
+            const isPassword = resolveSessionCredentialKind(sess) === CREDENTIAL_KIND_PASSWORD;
+            if (!isPassword) return;
             sess = ensureRecoveryKeyInSession(sess);
             if (store._authSession && store._authSession.username === name) {
                 store._authSession = { ...store._authSession, recoveryKeyPlain: sess.recoveryKeyPlain };
@@ -206,10 +209,32 @@ export async function _finalizeSyncLoginSessionAction(name, opts = {}) {
             if (store._authSession && store._authSession.username === name) {
                 store._authSession.syncQrDataUrl = dataUrl || '';
                 persistAuthSession(store._authSession);
+                notifyIdentityChanged(store);
             }
+        } catch {
+            /* QR generation is best-effort */
         }
-    } catch {
-        /* QR generation is best-effort */
+    };
+
+    if (buildQrInBackground) {
+        try {
+            let sess = store._authSession;
+            if (resolveSessionCredentialKind(sess) === CREDENTIAL_KIND_PASSWORD) {
+                sess = ensureRecoveryKeyInSession(sess);
+                if (store._authSession && store._authSession.username === name) {
+                    store._authSession = {
+                        ...store._authSession,
+                        recoveryKeyPlain: sess.recoveryKeyPlain,
+                    };
+                    persistAuthSession(store._authSession);
+                }
+            }
+        } catch {
+            /* ignore */
+        }
+        void ensureQr();
+    } else {
+        await ensureQr();
     }
 
     const runNetworkRestore = async () => {

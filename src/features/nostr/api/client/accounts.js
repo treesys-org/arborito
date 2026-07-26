@@ -105,7 +105,7 @@ export const accountsMixin = {
      * secret can produce or replace it. `signerPair` is required.
      * @param {{ username: string, hash: string, signerPair: { pub: string, priv: string }, credential?: string }} args
      */
-    async putSyncLoginHash({ username, hash, signerPair, credential }) {
+    async putSyncLoginHash({ username, hash, signerPair, credential, pow: precomputedPow = null }) {
         const u = normalizeUsername(username);
         if (!u) return false;
         if (!(signerPair && signerPair.priv && signerPair.pub)) {
@@ -114,9 +114,21 @@ export const accountsMixin = {
         const h = String(hash || '').trim();
         /* Registration PoW (readers require it, see loadSyncLoginRecordOnce).
          * Clearing a record (empty hash) skips the work: readers treat empty
-         * hashes as "no account" regardless. */
+         * hashes as "no account" regardless. Callers may pass a precomputed `pow`
+         * so register can overlap solving with the username taken-check. */
         const pow = h
-            ? await this._solvePow('account_register_v1', '', '', `sync-login:${u}`, signerPair.pub, this._powBits('account_register_v1'))
+            ? precomputedPow &&
+              typeof precomputedPow === 'object' &&
+              precomputedPow.powNonce != null
+                ? precomputedPow
+                : await this._solvePow(
+                      'account_register_v1',
+                      '',
+                      '',
+                      `sync-login:${u}`,
+                      signerPair.pub,
+                      this._powBits('account_register_v1')
+                  )
             : { powBits: 0, powNonce: '' };
         const cred =
             String(credential || '').trim() === 'password' ? 'password' : credential ? 'sync_code' : undefined;
@@ -140,7 +152,21 @@ export const accountsMixin = {
             },
             pairSecretKey(signerPair)
         );
-        await this._publish(ev);
+        /* Rank live relays (~2s budget, often cached). Race only those with a
+         * short ACK timeout — first accept wins (faster than trying one-by-one).
+         * Dead peers never enter the race. Mirror fans out after success. */
+        let targets = this._relays();
+        if (typeof this.rankRelaysByConnectMs === 'function') {
+            try {
+                const ranked = await this.rankRelaysByConnectMs({ budgetMs: 1_800, perRelayMs: 800 });
+                if (ranked.length) targets = ranked;
+            } catch {
+                /* keep configured order */
+            }
+        }
+        await this._publishToRelays(ev, targets, {
+            timeoutMs: 3_500,
+        });
         this._mirrorAccountEvent(ev);
         return true;
     },
