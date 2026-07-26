@@ -478,24 +478,34 @@ html.arborito-emoji-images .arborito-emoji-native {
  * Product tour chrome must stay position:fixed even if the lazy tour sheet
  * races (production Pages). Without this, shade divs stack in normal flow and
  * the tip appears with a huge vertical gap under the spotlight.
+ * !important beats accidental utilities; JS also sets position:fixed inline.
  */
 .arborito-product-tour,
 [data-arborito-panel="product-tour"] {
-    position: fixed;
-    inset: 0;
+    position: fixed !important;
+    inset: 0 !important;
     z-index: 140;
     pointer-events: none;
 }
+/* Sources picker tour (post-onboarding “Choose a course”) must sit above modals (220). */
+html.arborito-product-tour-sources-picker .arborito-product-tour,
+html.arborito-product-tour-sources-picker [data-arborito-panel="product-tour"] {
+    z-index: 230 !important;
+}
+html.arborito-product-tour-lesson-edit .arborito-product-tour,
+html.arborito-product-tour-lesson-edit [data-arborito-panel="product-tour"] {
+    z-index: 160 !important;
+}
 .arborito-tour-shade,
 .arborito-tour-ring {
-    position: fixed;
+    position: fixed !important;
     pointer-events: none;
 }
 .arborito-tour-shade {
     pointer-events: auto;
 }
 .arborito-tour-tooltip {
-    position: fixed;
+    position: fixed !important;
     z-index: 2;
     max-width: min(24rem, calc(100vw - 2rem));
     pointer-events: auto;

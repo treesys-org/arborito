@@ -241,8 +241,16 @@ const [active, setActive] = useState(false);
                 /* Production: CSS is async-split; wait so shades are position:fixed (not a tall stack). */
                 await ensureDeferredProductTourStyles();
             } catch {
-                /* Critical positioning also lives in foundation as a safety net. */
+                /* Critical positioning also lives in foundation + inline styles. */
             }
+            /* Let the injected sheet apply before first layout measure. */
+            await new Promise((resolve) => {
+                if (typeof requestAnimationFrame !== 'function') {
+                    resolve();
+                    return;
+                }
+                requestAnimationFrame(() => requestAnimationFrame(resolve));
+            });
             if (tourStateRef.current.active) {
                 startingRef.current = false;
                 return;
@@ -679,7 +687,10 @@ const [active, setActive] = useState(false);
         }
         const animate = tourPaintedRef.current;
         layoutNow({ animate });
+        /* Second pass after tip/Twemoji paint so height is real (avoids tip parked far away). */
+        const t = window.setTimeout(() => layoutNow({ animate: true }), 40);
         tourPaintedRef.current = true;
+        return () => clearTimeout(t);
     }, [active, index, steps, layoutNow]);
 
     const ui = store?.ui ?? appUi ?? {};

@@ -1,6 +1,10 @@
+import { createPortal } from 'react-dom';
 import '../styles/product-tour.css';
 import { useProductTour } from '../hooks/useProductTour.jsx';
 import { ProductTourStep } from './ProductTourStep.jsx';
+
+/** Inline fixed geometry so a late/missing tour CSS chunk cannot stack shades in normal flow. */
+const FIXED = { position: 'fixed' };
 
 export function ProductTour({ embed }) {
     const {
@@ -32,8 +36,9 @@ export function ProductTour({ embed }) {
     const shadeClass = shadePassThrough
         ? 'arborito-tour-shade arborito-tour-shade--pass-through'
         : 'arborito-tour-shade';
+    const zIndex = sourcesPickerOnlyTour ? 230 : shadePassThrough ? 160 : 140;
 
-    return (
+    const tree = (
         <div
             className={`arborito-product-tour${stepping ? ' arborito-tour--stepping' : ''}${shadePassThrough ? ' arborito-product-tour--lesson-edit' : ''}`}
             data-arborito-panel="product-tour"
@@ -42,16 +47,29 @@ export function ProductTour({ embed }) {
             role="dialog"
             aria-modal="true"
             aria-label={ariaLabel}
+            style={{
+                ...FIXED,
+                inset: 0,
+                zIndex,
+                pointerEvents: 'none',
+            }}
         >
             <div
                 className={`${shadeClass} arborito-tour-shade--top`}
                 aria-hidden="true"
-                style={{ top: 0, left: 0, width: '100%', height: `${shades.top.height}px` }}
+                style={{
+                    ...FIXED,
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${shades.top.height}px`,
+                }}
             />
             <div
                 className={`${shadeClass} arborito-tour-shade--left`}
                 aria-hidden="true"
                 style={{
+                    ...FIXED,
                     top: `${shades.left.top}px`,
                     left: `${shades.left.left}px`,
                     width: `${shades.left.width}px`,
@@ -62,6 +80,7 @@ export function ProductTour({ embed }) {
                 className={`${shadeClass} arborito-tour-shade--right`}
                 aria-hidden="true"
                 style={{
+                    ...FIXED,
                     top: `${shades.right.top}px`,
                     left: `${shades.right.left}px`,
                     width: `${shades.right.width}px`,
@@ -72,6 +91,7 @@ export function ProductTour({ embed }) {
                 className={`${shadeClass} arborito-tour-shade--bottom`}
                 aria-hidden="true"
                 style={{
+                    ...FIXED,
                     top: `${shades.bottom.top}px`,
                     left: 0,
                     width: '100%',
@@ -82,6 +102,7 @@ export function ProductTour({ embed }) {
                 className="arborito-tour-ring"
                 aria-hidden="true"
                 style={{
+                    ...FIXED,
                     top: `${ring.top}px`,
                     left: `${ring.left}px`,
                     width: `${ring.width}px`,
@@ -107,4 +128,10 @@ export function ProductTour({ embed }) {
             />
         </div>
     );
+
+    /* Portal to body: viewport-fixed coords stay correct even if a parent later gets transform/filter. */
+    if (typeof document !== 'undefined' && document.body) {
+        return createPortal(tree, document.body);
+    }
+    return tree;
 }

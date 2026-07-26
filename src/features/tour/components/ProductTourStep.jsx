@@ -28,7 +28,13 @@ export function ProductTourStep({
         <div
             ref={tipRef}
             className="arborito-tour-tooltip"
-            style={{ top: `${tipPos.top}px`, left: `${tipPos.left}px` }}
+            style={{
+                position: 'fixed',
+                top: `${tipPos.top}px`,
+                left: `${tipPos.left}px`,
+                zIndex: 2,
+                pointerEvents: 'auto',
+            }}
         >
             <div className="arborito-tour-tooltip__head">
                 <ProductTourMascot mascotKey={mascotKey} />
