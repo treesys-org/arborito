@@ -248,6 +248,40 @@ export async function runBranchesAction(ctx, action, fields = {}) {
         return true;
     }
 
+    if (action === 'reset-branch-progress') {
+        const tid = String(id || '').trim();
+        if (!tid || isBundledDemoBranchId(tid)) return true;
+        const ui = store.ui;
+        ctx.setTargetId(tid);
+        ctx.setDeleteOverlayTitle?.(ui.sourcesResetBranchProgressTitle || 'Reset progress?');
+        ctx.setDeleteOverlayBody?.(
+            (ui.sourcesResetBranchProgressBody ||
+                'Clears completed lessons and reading position for “{name}” on this device. Certificates already earned stay.').replace(
+                /\{name\}/g,
+                name || tid
+            )
+        );
+        ctx.setOverlay('reset-branch-progress');
+        ctx.bump();
+        return true;
+    }
+
+    if (action === 'confirm-reset-branch-progress') {
+        const tid = String(ctx.targetId || '').trim();
+        if (!tid) return true;
+        try {
+            store.resetBranchProgress?.(tid);
+        } catch (e) {
+            store.alert?.(String(e?.message || e));
+        }
+        ctx.setOverlay(null);
+        ctx.setTargetId(null);
+        ctx.setDeleteOverlayTitle?.(null);
+        ctx.setDeleteOverlayBody?.(null);
+        ctx.bump();
+        return true;
+    }
+
     if (action === 'confirm-stop-private-sync') {
         const tid = String(ctx.targetId || '').trim();
         if (!tid) return true;

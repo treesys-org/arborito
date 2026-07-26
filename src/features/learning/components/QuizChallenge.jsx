@@ -729,7 +729,11 @@ export function QuizChallenge({ block, state, quizSession, actions, variant = 'q
         );
     }
 
-    const mode = state.v2Mode || pickStudyQuizMode(c, blockId);
+    /* Prefer stored mode. If missing while started, use a stable salt (not random) so the
+       Recuerdo UI cannot appear while answer grading thinks it is cloze/multiple. */
+    const mode =
+        state.v2Mode ||
+        pickStudyQuizMode(c, blockId, state.attemptCount > 0 ? state.attemptCount : 1);
     switch (mode) {
         case QUIZ_MODE_CLOZE:
             return (

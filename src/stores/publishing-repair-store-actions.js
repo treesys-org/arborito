@@ -94,7 +94,7 @@ export async function repairPublishedComposedTreeAction(treeId) {
 
     const hash = computeBranchSetHashSync(entry?.branchRefs || []);
     if (hash) {
-        store.userStore.updateTree(id, { branchSetHash: hash });
+        store.userStore.updateTree(id, { branchSetHash: hash }, { touchUpdated: false });
         entry = store.userStore.getTree(id);
     }
 
@@ -116,7 +116,32 @@ export async function repairPublishedComposedTreeAction(treeId) {
     }
 
     if (isOwner && hash && !String(entry?.publishedBranchSetHash || '').trim()) {
-        store.userStore.updateTree(id, { publishedBranchSetHash: hash });
+        /* Do not stamp local hash as published without a network update — that
+         * would hide “Actualizar” / repair until the user republishes. */
+        return { ok: true, source: 'local', needsRepublish: true };
+    }
+
+    /*
+     * Older composed publishes stored SHA-256 in publishedBranchSetHash while the
+     * rest of the app uses sync-… fingerprints. Rewrite the local stamp only so
+     * dock/Biblioteca stop showing a permanent Actualizar.
+     */
+    const publishedHash = String(entry?.publishedBranchSetHash || '').trim();
+    if (
+        isOwner &&
+        hash &&
+        publishedHash &&
+        !publishedHash.startsWith('sync-') &&
+        publishedHash !== hash
+    ) {
+        store.userStore.updateTree(
+            id,
+            {
+                branchSetHash: hash,
+                publishedBranchSetHash: hash,
+            },
+            { touchUpdated: false }
+        );
     }
 
     return { ok: true, source: 'local' };

@@ -233,7 +233,7 @@ export function useContentPanelQuizActions({
     );
 
     const answerQuiz = useCallback(
-        (id, isCorrect) => {
+        (id, isCorrect, opts = {}) => {
             const sessionsBefore = panel.blockSessions;
             const sessionBlockKeyBefore = findBlockSessionKeyForQuestionId(sessionsBefore, id);
             if (!sessionBlockKeyBefore) {
@@ -244,7 +244,8 @@ export function useContentPanelQuizActions({
             const patch = buildAnswerQuizPatch(
                 { ...panel, isLessonConstructEdit, persistExamPass },
                 id,
-                isCorrect
+                isCorrect,
+                opts
             );
             const deferAdvanceForRecall = !!patch.scheduleRecallAdvance;
             if (deferAdvanceForRecall) {

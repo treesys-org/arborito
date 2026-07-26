@@ -107,21 +107,33 @@ export const branchPublishMixin = {
     /**
      * After publishing a local garden to Nostr, the active source may stay `branch://…`;
      * we keep the public tree URL on the tree entry for governance copy and hints.
+     * @param {{ bindOnly?: boolean }} [opts] - claim-time bind: URL+code without snapshot/baseline.
      */
-    setBranchPublishedNetworkUrl(treeId, treeUrl, shareCode = null) {
+    setBranchPublishedNetworkUrl(treeId, treeUrl, shareCode = null, opts = {}) {
         const id = String(treeId || '').trim();
         const url = String(treeUrl || '').trim();
         if (!id || !url) return false;
         const treeEntry = this.state.branches.find((t) => t.id === id);
         if (!treeEntry) return false;
         treeEntry.publishedNetworkUrl = url;
-        treeEntry.publishedAt = Date.now();
         if (shareCode != null && String(shareCode).trim()) {
             treeEntry.publishedShareCode = String(shareCode).trim();
+        }
+        if (opts.bindOnly) {
+            /* Identity reserved after share-code claim; content not live yet. */
+            treeEntry.publishPending = true;
+            delete treeEntry.publishedAt;
+        } else {
+            treeEntry.publishedAt = Date.now();
+            delete treeEntry.publishPending;
+            if (opts.bundleGen != null && String(opts.bundleGen).trim()) {
+                treeEntry.publishedBundleGen = String(opts.bundleGen).trim();
+            }
         }
         this.state.branches = [...this.state.branches];
         this.markBranchDirty(treeId);
         this.persist();
+        this.notifyCatalogChanged?.();
         return true;
     },
 
@@ -129,7 +141,7 @@ export const branchPublishMixin = {
         const id = String(treeId || '').trim();
         if (!id) return null;
         const treeEntry = this.state.branches.find((t) => t.id === id);
-        if (!treeEntry?.publishedNetworkUrl) return null;
+        if (!treeEntry?.publishedNetworkUrl || treeEntry.publishPending) return null;
         const code =
             treeEntry.publishedShareCode ||
             treeEntry?.data?.meta?.shareCode ||
@@ -154,16 +166,20 @@ export const branchPublishMixin = {
         delete treeEntry.publishedNetworkUrl;
         delete treeEntry.publishedAt;
         delete treeEntry.publishedShareCode;
+        delete treeEntry.publishPending;
+        delete treeEntry.publishedBundleGen;
+        delete treeEntry.publishedSnapshot;
+        delete treeEntry.publishedSnapshotHash;
+        delete treeEntry.publishedSnapshotAt;
+        delete treeEntry.publishedInactivityPolicy;
         if (treeEntry.data?.meta && typeof treeEntry.data.meta === 'object') {
             delete treeEntry.data.meta.shareCode;
             delete treeEntry.data.meta.publishedNetworkUrl;
         }
-        if (treeEntry.publishedSnapshot?.meta && typeof treeEntry.publishedSnapshot.meta === 'object') {
-            delete treeEntry.publishedSnapshot.meta.shareCode;
-        }
         this.state.branches = [...this.state.branches];
         this.markBranchDirty(treeId);
         this.persist();
+        this.notifyCatalogChanged?.();
         return true;
     },
 
@@ -179,9 +195,12 @@ export const branchPublishMixin = {
         }
         treeEntry.publishedSnapshotHash = this.hashJson(treeEntry.publishedSnapshot);
         treeEntry.publishedSnapshotAt = Date.now();
+        /* Keep dock/hub dirty detection in sync immediately after publish. */
+        treeEntry.draftHash = treeEntry.publishedSnapshotHash;
         this.state.branches = [...this.state.branches];
         this.markBranchDirty(treeId);
         this.persist();
+        this.notifyCatalogChanged?.();
         return true;
     }
 };

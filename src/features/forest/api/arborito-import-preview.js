@@ -157,9 +157,9 @@ function formatArboritoImportConfirmBodyHtml(ui, analysis, duplicate) {
     const isTree = analysis?.kind === 'composed-tree';
     const intro = isTree
         ? ui.importConfirmIntroTree ||
-          'This file is a tree (combined courses). It will be added to Forest → Trees.'
+          'This file is a tree. It will be added to Catalog → Combined courses.'
         : ui.importConfirmIntroBranch ||
-          'This file is a full branch (course). It will be added to Forest → Branches.';
+          'This file is a full course. It will be added to Catalog → Individual courses.';
     const parts = [`<p class="arborito-dialog-intro">${escapeDialogHtml(intro)}</p>`];
 
     if (duplicate?.entry) {

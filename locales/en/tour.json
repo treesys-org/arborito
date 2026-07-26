@@ -5,7 +5,7 @@
   "tourPrev": "Back",
   "tourSkip": "Skip tour",
   "tourSourcesPickerBody": "Tap Arborito demo to open the sample course. The tour continues on the map.",
-  "tourSourcesPickerTitle": "Open a branch",
+  "tourSourcesPickerTitle": "Open a course",
   "tourStepIndicator": "Step {n} of {total}",
   "uiTourSteps": [
     {
@@ -20,8 +20,8 @@
     },
     {
       "target": "sources",
-      "title": "Switch tree",
-      "body": "Come back here to load another branch or tree when you want a different course."
+      "title": "Course catalog",
+      "body": "Come back here to load another course or a combined tree when you want a different topic."
     },
     {
       "target": "arcade",

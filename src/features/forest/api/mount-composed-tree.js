@@ -143,6 +143,19 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
             lang: store.state.lang,
         });
 
+        /* Keep publish-hub Discover/forum switches aligned after remount. */
+        if (treeEntry.publishedNetworkUrl) {
+            graphJson.meta = graphJson.meta && typeof graphJson.meta === 'object' ? graphJson.meta : {};
+            if (Object.prototype.hasOwnProperty.call(treeEntry, 'publishedListInDiscover')) {
+                graphJson.meta.listInDiscover = treeEntry.publishedListInDiscover !== false;
+            } else if (!Object.prototype.hasOwnProperty.call(graphJson.meta, 'listInDiscover')) {
+                graphJson.meta.listInDiscover = true;
+            }
+            if (Object.prototype.hasOwnProperty.call(treeEntry, 'publishedForumEnabled')) {
+                graphJson.meta.forumEnabled = treeEntry.publishedForumEnabled === true;
+            }
+        }
+
         const finalSource = {
             ...source,
             id: treeId,

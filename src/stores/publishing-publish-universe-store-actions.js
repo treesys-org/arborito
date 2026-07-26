@@ -14,7 +14,7 @@ import { usesGlobalDirectoryPointerForTorrent } from '../features/p2p-webtorrent
 import { escHtml as esc, escHtml as escAttr } from '../shared/lib/html-escape.js';
 
 import { buildArboritoTreeBundleObject } from '../features/forest/api/arborito-tree-bundle.js';
-import { computeBranchSetHash } from '../features/forest/api/branch-set-hash.js';
+import { computeBranchSetHash, computeBranchSetHashSync } from '../features/forest/api/branch-set-hash.js';
 import { buildComposedTreeExportAttribution } from '../shared/lib/arborito-attribution.js';
 import { pickTitleForLang, titlesFromTreeLanguages, descriptionsFromTreeLanguages } from '../shared/lib/catalog-titles.js';
 import { resolveDirectoryIconForPublish } from '../features/sources/api/branch-catalog-icon.js';
@@ -37,11 +37,30 @@ async function flushOpenLessonBeforePublish(store) {
     return true;
 }
 
+/** Delist from Discover with retries — used before Discover-off republish and on revoke. */
+async function delistPublishedTreeWithRetries(store, { pair, universeId, attempts = 3 }) {
+    let lastErr = null;
+    for (let i = 0; i < attempts; i++) {
+        try {
+            await store.nostr.putGlobalTreeDirectoryDelist({ pair, universeId });
+            return true;
+        } catch (e) {
+            lastErr = e;
+            if (i + 1 < attempts) {
+                await new Promise((r) => setTimeout(r, 350 * (i + 1)));
+            }
+        }
+    }
+    if (lastErr) throw lastErr;
+    return false;
+}
+
 export async function publishActiveTreeToNostrUniverseAction({
     universeId = null,
     reuseNostrTreeUrl = null,
     includeForum = false,
     listInDiscover = true,
+    skipLocalMediaConfirm = false,
 } = {}) {
     const store = shell();
     if (!store) return undefined;
@@ -52,6 +71,8 @@ export async function publishActiveTreeToNostrUniverseAction({
             reuseNostrTreeUrl,
             includeForum,
             listInDiscover,
+            skipLocalMediaConfirm,
+            quiet: true,
         });
     }
     const ui = store.ui;
@@ -76,7 +97,7 @@ export async function publishActiveTreeToNostrUniverseAction({
         store.notify(ui.forumNoTree || 'No tree loaded.', true);
         return null;
     }
-    if (curriculumHasLocalMedia(bundle.tree)) {
+    if (!skipLocalMediaConfirm && curriculumHasLocalMedia(bundle.tree)) {
         const lessons = collectLocalMediaLessonTitles(bundle.tree);
         const list =
             lessons.length > 0
@@ -216,6 +237,18 @@ export async function publishActiveTreeToNostrUniverseAction({
     bundle.meta = bundle.meta && typeof bundle.meta === 'object' ? bundle.meta : {};
     bundle.meta.shareCode = shareCode;
     store.saveNostrPublisherPair(pair);
+    /* Bind local garden to this identity now so a failed bundle publish retries
+     * as republish (same pair/universe/code) instead of minting a second one. */
+    {
+        const pendingUrl = formatNostrTreeUrl(pair.pub, id);
+        const srcUrl = String(store.state.activeSource?.url || '');
+        const localId = branchIdFromBranchUrl(srcUrl);
+        if (localId) {
+            store.userStore.setBranchPublishedNetworkUrl(localId, pendingUrl, shareCode, {
+                bindOnly: true,
+            });
+        }
+    }
     }
 
     bundle.meta = bundle.meta && typeof bundle.meta === 'object' ? bundle.meta : {};
@@ -228,8 +261,29 @@ export async function publishActiveTreeToNostrUniverseAction({
         : createInitialInactivityPolicy();
     bundle.meta.listInDiscover = !!listInDiscover;
 
+    /* Discover-off: delist before rewriting the bundle so a failed delist aborts cleanly. */
+    if (republish && !listInDiscover) {
+        try {
+            await delistPublishedTreeWithRetries(store, { pair, universeId: id });
+        } catch (eDelist) {
+            console.warn('global directory delist failed', eDelist);
+            store.notify(
+                ui.publicTreeDiscoverDelistFailed ||
+                    'Could not remove the course from forest listing. Check relays and try again.',
+                true
+            );
+            return null;
+        }
+    }
+
     await yieldToPaint();
-    await store.nostr.publishBundle({ pair, universeId: id, bundle, includeForum: !!includeForum });
+    const published = await store.nostr.publishBundle({
+        pair,
+        universeId: id,
+        bundle,
+        includeForum: !!includeForum,
+    });
+    const bundleGen = String(published?.gen || '').trim();
 
     if (listInDiscover) {
     // Global directory (metadata-only): let others discover store tree without indexing content.
@@ -252,9 +306,24 @@ export async function publishActiveTreeToNostrUniverseAction({
                     ((bundle && bundle.meta) ? bundle.meta.universeName : undefined) ||
                     'Arborito'
             );
-        const primaryDescription =
-            pickTitleForLang(descriptions, uiLang, '') ||
-            String(((bundle && bundle.meta) ? bundle.meta.description : undefined) || '').trim();
+        /* Prefer About (universePresentation → bundle.meta) over lang-root text.
+         * New branches used to ship langRoot.description = defaultGardenName, which
+         * drowned the real public blurb in Discover. */
+        const fromPresentation = String(
+            ((bundle && bundle.meta) ? bundle.meta.description : undefined) || ''
+        ).trim();
+        const fromLangRoot = pickTitleForLang(descriptions, uiLang, '');
+        const primaryDescription = fromPresentation || fromLangRoot;
+        const directoryDescriptions = (() => {
+            if (!fromPresentation) {
+                return Object.keys(descriptions).length ? descriptions : undefined;
+            }
+            /** @type {Record<string, string>} */
+            const out = { ...descriptions };
+            if (uiLang) out[uiLang] = fromPresentation;
+            if (!Object.keys(out).length) out.EN = fromPresentation;
+            return out;
+        })();
         const catalogIcon = resolveDirectoryIconForPublish(bundle);
         await store.nostr.putGlobalTreeDirectoryEntry({
             pair,
@@ -263,7 +332,7 @@ export async function publishActiveTreeToNostrUniverseAction({
             titles: Object.keys(titles).length ? titles : undefined,
             shareCode: String(((bundle && bundle.meta) ? bundle.meta.shareCode : undefined) || shareCode || ''),
             description: primaryDescription,
-            descriptions: Object.keys(descriptions).length ? descriptions : undefined,
+            descriptions: directoryDescriptions,
             authorName: String(((bundle && bundle.meta) ? bundle.meta.authorName : undefined) || '').trim(),
             languages: langKeys,
             contentKind: 'branch',
@@ -291,16 +360,20 @@ export async function publishActiveTreeToNostrUniverseAction({
     // Best-effort: publishing the bundle must still succeed even if directory is unavailable.
     console.warn('global directory publish failed', e);
     }
-    } else if (republish) {
-        try {
-            await store.nostr.putGlobalTreeDirectoryDelist({ pair, universeId: id });
-        } catch (eDelist) {
-            console.warn('global directory delist failed', eDelist);
-        }
     }
 
     const publicTreeUrl = formatNostrTreeUrl(pair.pub, id);
     const resolvedShareCode = String(shareCode || bundle.meta?.shareCode || '').trim();
+    /* Clear claim-time publishPending even if the interactive wrapper is skipped. */
+    {
+        const srcUrl = String(store.state.activeSource?.url || '');
+        const localId = branchIdFromBranchUrl(srcUrl);
+        if (localId) {
+            store.userStore.setBranchPublishedNetworkUrl(localId, publicTreeUrl, resolvedShareCode || null, {
+                bundleGen: bundleGen || undefined,
+            });
+        }
+    }
     return {
         publicTreeUrl,
         pub: pair.pub,
@@ -310,6 +383,7 @@ export async function publishActiveTreeToNostrUniverseAction({
         includeForum: !!includeForum,
         listInDiscover: !!listInDiscover,
         inactivityPolicy: bundle.meta.inactivityPolicy,
+        gen: bundleGen || undefined,
     };
 
 }
@@ -317,8 +391,10 @@ export async function publishComposedTreeToNostrAction({
     treeId = null,
     universeId = null,
     reuseNostrTreeUrl = null,
-    includeForum = false,
-    listInDiscover = true,
+    includeForum,
+    listInDiscover,
+    skipLocalMediaConfirm = false,
+    quiet = false,
 } = {}) {
     const store = shell();
     if (!store) return undefined;
@@ -353,7 +429,7 @@ export async function publishComposedTreeToNostrAction({
             for (const t of collectLocalMediaLessonTitles(data)) localLessons.push(t);
         }
     }
-    if (localLessons.length) {
+    if (localLessons.length && !skipLocalMediaConfirm) {
         const unique = [...new Set(localLessons)];
         const list = `\n\n• ${unique.slice(0, 12).join('\n• ')}${unique.length > 12 ? '\n• …' : ''}`;
         const intro =
@@ -368,20 +444,54 @@ export async function publishComposedTreeToNostrAction({
         if (!ok) return null;
     }
     const bundle = buildArboritoTreeBundleObject(entry, {}, attribution);
-    let branchSetHash = '';
+    /*
+     * Local dirty detection (dock / Biblioteca) compares against computeBranchSetHashSync.
+     * Keep branchSetHash / publishedBranchSetHash on that algorithm. Optional SHA-256 is
+     * only for the network directory fingerprint.
+     */
+    const localBranchSetHash = computeBranchSetHashSync(entry.branchRefs || []);
+    let directoryBranchSetHash = localBranchSetHash;
     try {
-        branchSetHash = await computeBranchSetHash(entry.branchRefs || []);
-        if (branchSetHash) store.userStore.updateTree(tid, { branchSetHash });
+        const sha = await computeBranchSetHash(entry.branchRefs || []);
+        if (sha) directoryBranchSetHash = sha;
     } catch {
-    branchSetHash = String(entry.branchSetHash || '');
+        /* keep sync hash for directory too */
     }
+    /* Do not call updateTree here: bumping `updated` before a successful publish
+     * leaves the dock stuck on Update when the attempt soft-fails. */
+    const branchSetHash = localBranchSetHash;
 
     const reuseRef = reuseNostrTreeUrl ? parseNostrTreeUrl(reuseNostrTreeUrl) : null;
     const publishedUrl = entry.publishedNetworkUrl ? parseNostrTreeUrl(entry.publishedNetworkUrl) : null;
     const effectiveRef = reuseRef || publishedUrl;
     const adminPair = effectiveRef ? store.getNostrPublisherPair(effectiveRef.pub) : null;
     const republish = !!effectiveRef && !!(adminPair && adminPair.priv);
-    const effectiveListInDiscover = !!listInDiscover;
+    /* Omitted options (Biblioteca) keep last published listing prefs. */
+    const effectiveListInDiscover =
+        listInDiscover !== undefined
+            ? !!listInDiscover
+            : entry.publishedNetworkUrl
+              ? entry.publishedListInDiscover !== false
+              : true;
+    const effectiveIncludeForum =
+        includeForum !== undefined
+            ? !!includeForum
+            : entry.publishedNetworkUrl
+              ? entry.publishedForumEnabled === true
+              : false;
+
+    /*
+     * Existing public tree without owner key: never mint a new publisher identity
+     * (would orphan the previous universe and rebind the local link).
+     */
+    if (effectiveRef && !republish) {
+        store.notify(
+            ui.publicTreeOwnerKeyMissing ||
+                'Missing the owner key for this public tree. Open your local garden copy to update it.',
+            true
+        );
+        return null;
+    }
 
     let pair;
     let id;
@@ -426,11 +536,17 @@ export async function publishComposedTreeToNostrAction({
     bundle.meta = bundle.meta && typeof bundle.meta === 'object' ? bundle.meta : {};
     bundle.meta.shareCode = shareCode;
     store.saveNostrPublisherPair(pair);
+    store.userStore.setTreePublishedNetworkUrl(
+        tid,
+        formatNostrTreeUrl(pair.pub, id),
+        shareCode,
+        { bindOnly: true }
+    );
     }
 
     bundle.meta = bundle.meta && typeof bundle.meta === 'object' ? bundle.meta : {};
-    bundle.meta.forumEnabled = !!includeForum;
-    if (!includeForum) {
+    bundle.meta.forumEnabled = !!effectiveIncludeForum;
+    if (!effectiveIncludeForum) {
         bundle.forum = { version: 1, threads: [], messages: [], moderationLog: [] };
     }
     bundle.meta.inactivityPolicy = republish
@@ -438,9 +554,34 @@ export async function publishComposedTreeToNostrAction({
         : createInitialInactivityPolicy();
     bundle.meta.listInDiscover = !!effectiveListInDiscover;
 
-    await store.nostr.publishBundle({ pair, universeId: id, bundle, includeForum: !!includeForum });
+    if (republish && !effectiveListInDiscover) {
+        try {
+            await delistPublishedTreeWithRetries(store, { pair, universeId: id });
+        } catch (eDelist) {
+            console.warn('composed tree directory delist failed', eDelist);
+            store.notify(
+                ui.publicTreeDiscoverDelistFailed ||
+                    'Could not remove the course from forest listing. Check relays and try again.',
+                true
+            );
+            return null;
+        }
+    }
+
+    const published = await store.nostr.publishBundle({
+        pair,
+        universeId: id,
+        bundle,
+        includeForum: !!effectiveIncludeForum,
+    });
+    const bundleGen = String(published?.gen || '').trim();
     const publicTreeUrl = formatNostrTreeUrl(pair.pub, id);
-    store.userStore.setTreePublishedNetworkUrl(tid, publicTreeUrl, shareCode || bundle.meta?.shareCode || '');
+    store.userStore.setTreePublishedNetworkUrl(tid, publicTreeUrl, shareCode || bundle.meta?.shareCode || '', {
+        branchSetHash: branchSetHash || null,
+        listInDiscover: !!effectiveListInDiscover,
+        forumEnabled: !!effectiveIncludeForum,
+        bundleGen: bundleGen || undefined,
+    });
     const treeEntry = store.userStore.getTree(tid);
     if (treeEntry) treeEntry.publishedInactivityPolicy = bundle.meta.inactivityPolicy;
 
@@ -456,7 +597,7 @@ export async function publishComposedTreeToNostrAction({
             authorName: String(bundle.meta?.authorName || attribution.authorName || '').trim(),
             contentKind: 'composed-tree',
             icon: catalogIcon || undefined,
-            branchSetHash: branchSetHash || undefined,
+            branchSetHash: directoryBranchSetHash || branchSetHash || undefined,
             forkOfUrl: String(entry.forkOf?.treeUrl || attribution.forkOf?.treeUrl || '').trim() || undefined,
             recommendedRelays: Array.isArray(store.nostr?.peers) ? store.nostr.peers : null,
         });
@@ -477,24 +618,21 @@ export async function publishComposedTreeToNostrAction({
     } catch (e) {
     console.warn('composed tree directory publish failed', e);
     }
-    } else if (republish) {
-        try {
-            await store.nostr.putGlobalTreeDirectoryDelist({ pair, universeId: id });
-        } catch (eDelist) {
-            console.warn('composed tree directory delist failed', eDelist);
-        }
     }
 
-    store.notify(ui.publicTreePublishedOk || 'Tree published.', false);
+    if (!quiet) {
+        store.notify(ui.publicTreePublishedOk || 'Tree published.', false);
+    }
     return {
         publicTreeUrl,
         pub: pair.pub,
         universeId: id,
         shareCode: shareCode || '',
         republish,
-        includeForum: !!includeForum,
+        includeForum: !!effectiveIncludeForum,
         listInDiscover: !!effectiveListInDiscover,
         inactivityPolicy: bundle.meta.inactivityPolicy,
+        gen: bundleGen || undefined,
     };
 
 }

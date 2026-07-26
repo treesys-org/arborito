@@ -1,9 +1,10 @@
 import { diffTreeData } from '../../tree-graph/api/tree-diff.js';
+import { branchIdFromBranchUrl } from '../../../shared/lib/branch-id.js';
 
 export function resolvePublishDiffLocalId(modal, activeSource) {
     if (modal && typeof modal === 'object' && modal.branchId) return String(modal.branchId);
     const srcUrl = String(activeSource?.url || '');
-    if (srcUrl.startsWith('branch://')) return srcUrl.slice('branch://'.length);
+    if (srcUrl.startsWith('branch://')) return branchIdFromBranchUrl(srcUrl);
     return '';
 }
 

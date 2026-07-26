@@ -88,6 +88,41 @@ export function titlesFromTreeLanguages(tree) {
     return out;
 }
 
+/** Built-in private starter blurbs that must never look like a public course summary. */
+const PLACEHOLDER_CATALOG_DESCRIPTIONS = new Set([
+    'mi jardín privado',
+    'my private garden',
+]);
+
+/**
+ * True when `text` is empty or the old plantBranch defaultGardenName placeholder.
+ * Used for **network** Discover / installed listings only — local garden rows may
+ * still show “Mi Jardín Privado” as a private starter blurb.
+ * @param {unknown} text
+ * @param {{ defaultGardenName?: string }|null|undefined} [ui]
+ */
+export function isPlaceholderCatalogDescription(text, ui) {
+    const t = String(text || '').trim();
+    if (!t) return true;
+    const lower = t.toLowerCase();
+    if (PLACEHOLDER_CATALOG_DESCRIPTIONS.has(lower)) return true;
+    const fromUi = String(ui?.defaultGardenName || '').trim().toLowerCase();
+    return !!(fromUi && lower === fromUi);
+}
+
+/**
+ * Directory / row description for display (skips placeholder garden blurbs).
+ * @param {{ descriptions?: unknown, description?: unknown, listDescription?: unknown }|null|undefined} row
+ * @param {string} lang
+ * @param {{ defaultGardenName?: string }|null|undefined} [ui]
+ */
+export function resolveCatalogDescription(row, lang, ui) {
+    const raw =
+        pickTitleForLang(row?.descriptions, lang, '') ||
+        String(row?.listDescription || row?.description || '').trim();
+    return isPlaceholderCatalogDescription(raw, ui) ? '' : raw;
+}
+
 /**
  * Descriptions map from language roots (when roots carry description).
  * @param {{ languages?: Record<string, { description?: string }> }|null|undefined} tree

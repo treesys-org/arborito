@@ -38,12 +38,15 @@ function isBrowseMobilePanel(mobUi) {
 export function shouldRenderBrowseDockHubInPanel(state, mobUi) {
     if (!isBrowseMobilePanel(mobUi)) return false;
 
+    const t = modalType(state);
+    /* Diploma view must go to ModalHost, not stay trapped under the Logros hub. */
+    if (t === 'certificate') return false;
+
     if (isMobileCertificatesHubOpen(state, mobUi)) return true;
 
     const m = state?.modal;
     if (!m) return false;
-    const t = modalType(state);
-    if (!t || t === 'certificate') return false;
+    if (!t) return false;
     if (typeof m === 'object' && m.fromMobileMore) return false;
     if (typeof m === 'object' && m.fromConstructionMore) return false;
 

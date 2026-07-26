@@ -123,6 +123,10 @@ export function mergeBundleMetaIntoTree(tree, meta) {
         tree.meta = tree.meta && typeof tree.meta === 'object' ? tree.meta : {};
         tree.meta.forumEnabled = meta.forumEnabled === true;
     }
+    if (meta.listInDiscover === false || meta.listInDiscover === true) {
+        tree.meta = tree.meta && typeof tree.meta === 'object' ? tree.meta : {};
+        tree.meta.listInDiscover = meta.listInDiscover === true;
+    }
     return tree;
 }
 

@@ -10,6 +10,8 @@ import { shareTreeLink } from '../../sources/api/share-tree-link.js';
 import { buildPublicShareAppUrl } from '../../../shared/lib/public-app-url.js';
 import { SourcesShareCodeField } from '../../sources/modals/components/SourcesShareCodeField.jsx';
 import { resolveBranchRefDisplayNames } from '../../forest/api/tree-branch-labels.js';
+import { SwitchRow } from '../../../shared/ui/SwitchRow.jsx';
+import { getArboritoStore } from '../../../core/store-singleton.js';
 
 function formatDate(ts) {
     if (!ts || !Number.isFinite(Number(ts))) return ': ';
@@ -22,11 +24,59 @@ function formatDate(ts) {
 
 /** Summary block: status, code, languages, forum, branches, above health metrics. */
 export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
-    const { ui, activeSource, rawGraphData, userStore, getNostrPublisherPair } = useTreeGraph();
+    const {
+        ui,
+        activeSource,
+        rawGraphData,
+        userStore,
+        getNostrPublisherPair,
+        communitySources,
+        notify,
+    } = useTreeGraph();
+    const sourceManager = getArboritoStore()?.sourceManager;
     const ctx = resolveActiveShareContext(activeSource, userStore, rawGraphData);
     const { shareOpts, localEntry, publishedNetworkUrl } = ctx;
     const [shareCode, setShareCode] = useState(() => String(ctx.shareCode || '').trim());
     const [shareLoading, setShareLoading] = useState(false);
+
+    const activeUrl = String(activeSource?.url || '').trim();
+    const isNetworkOpen = !!(
+        parseNostrTreeUrl(activeUrl) ||
+        activeSource?.type === 'shared' ||
+        activeSource?.type === 'community' ||
+        activeSource?._fromShareParam
+    );
+    const networkUrl = String(
+        (parseNostrTreeUrl(activeUrl) ? activeUrl : '') || publishedNetworkUrl || ''
+    ).trim();
+    const installed =
+        isNetworkOpen &&
+        !!networkUrl &&
+        Array.isArray(communitySources) &&
+        communitySources.some((s) => String(s?.url || '').trim() === networkUrl);
+
+    const toggleInstall = (next) => {
+        if (!sourceManager || !networkUrl) return;
+        if (next) {
+            const added = sourceManager.addCommunitySource(null, {
+                resolvedNostrTreeUrl: networkUrl,
+                codeLabel: shareCode && shareCode !== ': ' ? shareCode : null,
+            });
+            if (added?.ok || added?.reason === 'duplicate') {
+                notify?.(ui.sourcesInstallDone || ui.sourcesGlobalInstalled || 'Saved in your garden.', false);
+            }
+            return;
+        }
+        const row = (communitySources || []).find(
+            (s) =>
+                String(s?.url || '').trim() === networkUrl ||
+                String(s?.url || '').trim() === String(activeSource?.url || '').trim()
+        );
+        if (row?.id) {
+            sourceManager.removeCommunitySource(row.id);
+            notify?.(ui.sourcesUninstallDone || 'Removed from your garden.', false);
+        }
+    };
 
     useEffect(() => {
         const next = String(resolveActiveShareContext(activeSource, userStore, rawGraphData).shareCode || '').trim();
@@ -87,6 +137,23 @@ export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
     return (
         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 px-3 py-3 text-left mb-4">
             <p className="arborito-eyebrow m-0 mb-2">{ui.treeInfoCatalogHeading || 'Summary'}</p>
+            {isNetworkOpen ? (
+                <div className="mb-3">
+                    <SwitchRow
+                        id="tree-info-install-switch"
+                        label={ui.treeInfoInstallLabel || ui.sourcesGlobalInstall || 'Install in garden'}
+                        hint={
+                            ui.treeInfoInstallHint ||
+                            'Keeps this course in your catalog when you open another one. On by default for shared links.'
+                        }
+                        checked={!!installed}
+                        onChange={toggleInstall}
+                        onAria={ui.treeInfoInstallOn || 'Installed'}
+                        offAria={ui.treeInfoInstallOff || 'Not installed'}
+                        className="py-0"
+                    />
+                </div>
+            ) : null}
             <dl className="m-0 grid gap-1.5 text-xs leading-snug text-slate-600 dark:text-slate-300">
                 <div className="flex flex-wrap gap-x-2">
                     <dt className="font-semibold shrink-0">{ui.treeInfoKindLabel || 'Type'}:</dt>

@@ -112,7 +112,7 @@ export function buildScreenshotsXml() {
 export function buildReleaseXml(version, dateIso) {
     return `    <release version="${version}" date="${dateIso}">
       <description>
-        <p>Public alpha — interactive lesson maps, Memory Garden, optional Arcade and Sage AI on desktop.</p>
+        <p>Linux Flatpak install ref and remote so Software/Discover can update the desktop app. Modal dialog fixes. Windows and Android builds updated in the same release.</p>
       </description>
     </release>`;
 }

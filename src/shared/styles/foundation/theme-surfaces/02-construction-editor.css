@@ -48,6 +48,9 @@
         --arborito-theme-construction-mob-tab--cta-amber-background: rgb(254 252 232 / 0.85);
         --arborito-theme-construction-mob-tab--cta-amber-border-color: rgb(251 191 36 / 0.45);
         --arborito-theme-construction-mob-tab--cta-amber-color: rgb(146 64 14);
+        --arborito-theme-construction-mob-tab--cta-published-background: rgb(236 253 245 / 0.95);
+        --arborito-theme-construction-mob-tab--cta-published-border-color: rgb(52 211 153 / 0.45);
+        --arborito-theme-construction-mob-tab--cta-published-color: rgb(4 120 87);
         --arborito-theme-construction-mob-tab--cta-background: var(--arborito-chrome-tile);
         --arborito-theme-construction-mob-tab--cta-border: 1px solid var(--arborito-moss-border);
         --arborito-theme-construction-mob-tab--cta-danger-background: rgb(254 242 242 / 0.9);
@@ -105,6 +108,9 @@ html.dark {
         --arborito-theme-construction-mob-tab--cta-amber-background: rgb(69 26 3 / 0.45);
         --arborito-theme-construction-mob-tab--cta-amber-border-color: rgb(245 158 11 / 0.35);
         --arborito-theme-construction-mob-tab--cta-amber-color: rgb(253 230 138);
+        --arborito-theme-construction-mob-tab--cta-published-background: rgb(6 78 59 / 0.4);
+        --arborito-theme-construction-mob-tab--cta-published-border-color: rgb(52 211 153 / 0.4);
+        --arborito-theme-construction-mob-tab--cta-published-color: rgb(167 243 208);
         --arborito-theme-construction-mob-tab--cta-background: var(--arborito-bark-tile);
         --arborito-theme-construction-mob-tab--cta-border: 1px solid var(--arborito-bark-border);
         --arborito-theme-construction-mob-tab--cta-danger-background: rgb(69 10 10 / 0.45);

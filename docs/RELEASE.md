@@ -27,9 +27,25 @@ npm run release:build # interactive target picker
 | Windows `.exe` | `--win` (needs Wine on Linux) |
 | Android APK | `--android` |
 
-**CI:** Actions → **Arborito Release**. Tag `v*` (e.g. `v0.1.0-alpha`) creates a GitHub Release with binaries.
+**CI:** Actions → **Arborito Release**. Reads `package.json` version, builds binaries, publishes a GitHub Release, and publishes the Linux Flatpak remote (branch `flatpak-repo`, prune-depth 1, orphan force-push). Pages then serves `https://arborito.org/flatpak/`.
+
+Linux install CTA: `https://arborito.org/flatpak/org.treesys.arborito.flatpakref` (Software / Discover). The `.flatpak` bundle remains on GitHub Releases as a fallback.
 
 Windows auto-update reads `latest.yml` (and `.blockmap` when present) from that release; the Windows job uploads them next to the `.exe`.
+
+Linux packaged builds check GitHub Releases and open the `.flatpakref` when a newer version exists.
+
+### Flatpak remote secrets (once)
+
+Under repo **Settings → Secrets and variables → Actions**:
+
+| Secret | Purpose |
+|--------|---------|
+| `FLATPAK_GPG_PRIVATE_KEY` | Armored private key used to sign the OSTree remote |
+| `FLATPAK_GPG_KEY_ID` | Key id / fingerprint passed to `flatpak build-update-repo --gpg-sign` |
+| `FLATPAK_GPG_PASSPHRASE` | Optional, if the key is passphrase-protected |
+
+Generate a dedicated signing key locally, export the private key armored into the secret, and keep the public half only as needed for verification. Each release rewrites branch `flatpak-repo` (orphan tip only) so Git history does not accumulate prior OSTree blobs.
 
 Output in `dist/`. Icons from `build/arborito-app-logo.png` → `npm run ensure:icon`.
 
@@ -39,6 +55,7 @@ Output in `dist/`. Icons from `build/arborito-app-logo.png` → `npm run ensure:
 |---------|-----|
 | Flatpak runtimes EOL | `npm run setup:flatpak` |
 | Flatpak inside a container | Build Flatpak on the **host**, not in Toolbx |
+| Missing Flatpak GPG secrets | Add `FLATPAK_GPG_*` secrets (release job `publish-flatpak-remote` fails closed) |
 | No Wine | `sudo dnf install wine` or `--flatpak --android` only |
 | Wrong icon | Replace `build/arborito-app-logo.png` + `npm run ensure:icon` |
 

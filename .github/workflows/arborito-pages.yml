@@ -1,10 +1,10 @@
 # Vite production build + deploy to GitHub Pages (arborito.org).
-# Runs automatically after GitSync pushes to main.
+# Runs automatically after GitSync pushes to main, when flatpak-repo updates, or manually.
 name: Arborito Pages
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, flatpak-repo]
   workflow_dispatch:
 
 permissions:
@@ -23,8 +23,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout app sources
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name == 'flatpak-repo' && 'main' || github.ref }}
+          fetch-depth: 1
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -57,6 +60,24 @@ jobs:
           npm run sync:flatpak-screenshots
           test -f demo/arborito-demo/media/02-mapa-claro-en.png
           test -f www/demo-media/02-mapa-claro-en.png
+
+      - name: Attach Flatpak remote tree (branch flatpak-repo)
+        run: |
+          set -euo pipefail
+          git fetch origin flatpak-repo --depth=1 2>/dev/null || {
+            echo "No flatpak-repo branch yet; Pages deploy without /flatpak/."
+            exit 0
+          }
+          TMP=$(mktemp -d)
+          git archive origin/flatpak-repo | tar -x -C "$TMP"
+          if [ -d "$TMP/flatpak" ]; then
+            rm -rf www/flatpak
+            cp -a "$TMP/flatpak" www/flatpak
+            echo "Attached www/flatpak from origin/flatpak-repo"
+            ls -la www/flatpak | head -n 20
+          else
+            echo "::warning::flatpak-repo tip has no flatpak/ directory"
+          fi
 
       - name: Verify Vite output (not raw src/ deploy)
         run: node ./scripts/verify-vite-www.mjs

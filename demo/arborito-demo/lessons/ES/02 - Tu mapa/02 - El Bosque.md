@@ -1,6 +1,6 @@
 @info
 icon: 📚
-description: Abrir e importar cursos en el Bosque
+description: Abrir e importar cursos en el catálogo (tu bosque)
 @/info
 
 @section
@@ -8,42 +8,42 @@ index: 1
 title: El Bosque
 @/section
 
-**Bosque** es donde guardas tus cursos: los que abres, importas o creas.
+En la barra, **Cursos** abre el **Catálogo de cursos**: ahí guardas lo que abres, importas o creas. Ese catálogo es tu **bosque** de estudio.
 
 Hay dos pestañas:
 
-- **Ramas (curso):** cada tarjeta es **un curso completo**.
-- **Árboles (cursos combinados):** un **árbol** junta **varios cursos** en un solo recorrido.
+- **Cursos individuales** (ramas): cada tarjeta es **un curso completo**.
+- **Cursos combinados** (árboles): un **árbol** junta **varios cursos** en un solo recorrido.
 
 @image
 url: ./media/04-bosque-es.png
-caption: El Bosque: tus ramas.
+caption: Catálogo de cursos: tus ramas.
 @/image
 
 @section
 index: 2
-title: Plantar tu rama
+title: Crear tu curso
 @/section
 
-Para crear un curso: **Crear rama**. Empiezas con una carpeta y una lección de ejemplo, y las editas.
+Para crear un curso: **Crear curso**. Empiezas con una carpeta y una lección de ejemplo, y las editas.
 
 También puedes:
 
-- **Abrir** una rama que ya tienes.
+- **Abrir** un curso que ya tienes.
 - **Importar archivo** (un `.arborito` que te hayan compartido).
 
 @quiz
-concept: Operaciones del Bosque
+concept: Operaciones del catálogo
 items:
   - question: ¿Dónde importas un archivo .arborito de un curso?
-    answer: En el Bosque
+    answer: En el catálogo de cursos
     modes: recall,multiple
     traps:
       - En Arcade
       - En el mapa
       - En Sage
   - question: ¿Cómo creas un curso nuevo?
-    answer: Crear rama en el Bosque
+    answer: Crear curso en el catálogo
     modes: multiple,recall
     traps:
       - Solo desde Classroom
@@ -53,26 +53,26 @@ items:
 
 @section
 index: 3
-title: Árboles (cursos combinados)
+title: Cursos combinados (árboles)
 @/section
 
 Un **árbol** no es un curso suelto: es **varios cursos (ramas) combinados** en un mismo recorrido.
 
 Úsalo cuando quieras estudiar o compartir **más de un curso juntos** (por ejemplo idioma + gramática, o varios módulos de un programa).
 
-En el Bosque abre la pestaña **Árboles (cursos combinados)** para crear, abrir o importar un árbol.
+En el catálogo abre la pestaña **Cursos combinados** (Árboles) para crear, abrir o importar un árbol.
 
 @quiz
 concept: Rama y árbol
 items:
-  - question: ¿Qué es una rama en el Bosque?
+  - question: ¿Qué es una rama en el catálogo?
     answer: Un curso completo
     modes: multiple,recall
     traps:
       - Varios cursos juntos
       - Solo un juego
       - Solo Sage
-  - question: ¿Qué es un árbol en el Bosque?
+  - question: ¿Qué es un árbol en el catálogo?
     answer: Varios cursos combinados en un recorrido
     modes: multiple,recall
     traps:
@@ -80,7 +80,7 @@ items:
       - Solo el Arcade
       - Un archivo de voz
   - question: ¿Dónde gestionas los árboles?
-    answer: En Bosque → Árboles
+    answer: Catálogo → Cursos combinados
     modes: recall,multiple
     traps:
       - Solo en Arcade

@@ -10,7 +10,7 @@ export function stripHtmlForPlainText(s) {
 
 /** Copy above the forum switch in the publish hub footer, keep it short. */
 export function buildPublishHubConfirmBody(store, { republish }) {
-    const ui = store.ui || {};
+    const ui = store?.ui || {};
     const body = republish
         ? ui.publicTreeHubRepublishBody ||
           stripHtmlForPlainText(ui.publicTreeRepublishBody) ||
@@ -20,16 +20,49 @@ export function buildPublishHubConfirmBody(store, { republish }) {
     return { body: stripHtmlForPlainText(body) };
 }
 
-export function defaultIncludeForumForPublish(store, republish) {
-    if (republish) {
-        return store.state.rawGraphData?.meta?.forumEnabled === true;
+function activeComposedTreeEntry(store) {
+    const treeId = String(store?.state?.activeSource?.treeId || '').trim();
+    if (!treeId || store?.state?.activeSource?.type !== 'composed-tree') return null;
+    return store.userStore?.getTree?.(treeId) || null;
+}
+
+/** Live forum option for hub dirty checks / defaults. */
+export function liveIncludeForumForPublish(store) {
+    const meta = store?.state?.rawGraphData?.meta;
+    if (meta && Object.prototype.hasOwnProperty.call(meta, 'forumEnabled')) {
+        return meta.forumEnabled === true;
+    }
+    const entry = activeComposedTreeEntry(store);
+    if (entry?.publishedNetworkUrl) {
+        return entry.publishedForumEnabled === true;
     }
     return false;
 }
 
-/** Default Discover listing switch in the publish hub (always on; user can opt out). */
-export function defaultListInDiscoverForPublish() {
+/**
+ * Live Discover option for hub dirty checks / defaults.
+ * Unset means listed (`!== false`), matching network directory behavior.
+ */
+export function liveListInDiscoverForPublish(store) {
+    const meta = store?.state?.rawGraphData?.meta;
+    if (meta && Object.prototype.hasOwnProperty.call(meta, 'listInDiscover')) {
+        return meta.listInDiscover !== false;
+    }
+    const entry = activeComposedTreeEntry(store);
+    if (entry?.publishedNetworkUrl) {
+        return entry.publishedListInDiscover !== false;
+    }
     return true;
+}
+
+/** Forum switch default: match live published options (off when unset). */
+export function defaultIncludeForumForPublish(store) {
+    return liveIncludeForumForPublish(store);
+}
+
+/** Discover switch default: match live published options. */
+export function defaultListInDiscoverForPublish(store) {
+    return liveListInDiscoverForPublish(store);
 }
 
 /** Whether the active local source already has a published network copy we can update. */

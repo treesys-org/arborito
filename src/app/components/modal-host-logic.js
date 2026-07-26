@@ -5,6 +5,7 @@ import {
     resolveModalSurface,
 } from '../modal-surface-routing.js';
 import { onboardingModalFromSourcesHint } from '../../shared/lib/onboarding-boot-gate.js';
+import { loadDefaultDemoAndDismissSources } from '../../features/sources/api/modals/logic/sources-actions-support.js';
 
 /** Sub-modals opened from Profile: keep profile mounted underneath. */
 export const PROFILE_STACK_CHILD_TYPES = new Set(['backup', 'privacy', 'sync-login-qr-scanner', 'account-recovery', 'change-password']);
@@ -137,7 +138,10 @@ export function syncModalBackdropClasses(backdrop, state) {
     );
     backdrop.classList.toggle('arborito-modal--dialog', DIALOG_LIKE_MODAL_TYPES.has(t));
     backdrop.classList.toggle('arborito-modal--backup', t === 'backup');
-    backdrop.classList.toggle('arborito-modal--certificates-hub', state.viewMode === 'certificates');
+    backdrop.classList.toggle(
+        'arborito-modal--certificates-hub',
+        state.viewMode === 'certificates' && t !== 'certificate'
+    );
     backdrop.classList.toggle(
         'arborito-modal--construction-dock-hub',
         !!(t && CONSTRUCTION_DOCK_HUB_MODAL_TYPES.has(t)),
@@ -164,8 +168,8 @@ export function handleModalEscapeKey(state, store) {
                 return true;
             }
             if (store.isSourcesDismissBlocked()) {
-                const ui = store.ui;
-                store.notify(ui.sourcesDismissNeedTree || 'Add or load a tree before closing.', true);
+                if (store.state.treeHydrating) return true;
+                void loadDefaultDemoAndDismissSources({ returnToMore: true });
                 return true;
             }
         }
@@ -194,7 +198,11 @@ export function handleFocusTrapEscape(store) {
             store.setModal(onboardingModalFromSourcesHint(fromOnb));
             return;
         }
-        if (store.isSourcesDismissBlocked()) return;
+        if (store.isSourcesDismissBlocked()) {
+            if (store.state.treeHydrating) return;
+            void loadDefaultDemoAndDismissSources({ returnToMore: true });
+            return;
+        }
     }
     if (state.viewMode === 'certificates' && mt !== 'certificate') {
         store.leaveCertificatesView();
@@ -219,8 +227,8 @@ export function handleBackdropEmptyTap(store) {
             return;
         }
         if (store.isSourcesDismissBlocked()) {
-            const ui = store.ui;
-            store.notify(ui.sourcesDismissNeedTree || 'Add or load a tree before closing.', true);
+            if (store.state.treeHydrating) return;
+            void loadDefaultDemoAndDismissSources({ returnToMore: true });
             return;
         }
     }

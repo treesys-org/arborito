@@ -6,8 +6,8 @@ import {
 } from '../shared/lib/connected-services/index.js';
 
 /**
- * Windows packaged: after privacy consent, ask main to check GitHub Releases,
- * then prompt before download/install.
+ * Packaged desktop: after privacy consent, ask main to check for updates,
+ * then prompt before install (Windows quiet install, Linux system installer).
  */
 export function initElectronAppUpdatePrompt() {
     const bridge = getAppUpdateBridge();
@@ -37,11 +37,16 @@ export function initElectronAppUpdatePrompt() {
 
         const ui = store.ui || store.state?.i18nData || {};
         const version = String(payload?.version || '').trim() || '?';
+        const kind = String(payload?.kind || '').trim();
+        const isLinuxRef = kind === 'linux-ref';
         const title = ui.appUpdateTitle || 'Update available';
-        const body = String(
-            ui.appUpdateBody ||
-                'Arborito {version} is available. Update now? The app will download the installer, install quietly, and restart.'
-        ).replace(/\{version\}/g, version);
+        const bodyTemplate = isLinuxRef
+            ? ui.appUpdateBodyLinux ||
+              ui.appUpdateBody ||
+              'Arborito {version} is available. Update now? Your system installer will open so you can install this version.'
+            : ui.appUpdateBody ||
+              'Arborito {version} is available. Update now? The app will download the installer, install quietly, and restart.';
+        const body = String(bodyTemplate).replace(/\{version\}/g, version);
 
         let accepted = false;
         try {
@@ -67,7 +72,10 @@ export function initElectronAppUpdatePrompt() {
         }
 
         try {
-            store.notify?.(ui.appUpdateDownloading || 'Downloading update…', false);
+            const progress = isLinuxRef
+                ? ui.appUpdateOpeningInstaller || 'Opening system installer…'
+                : ui.appUpdateDownloading || 'Downloading update…';
+            store.notify?.(progress, false);
         } catch {
             /* ignore */
         }
@@ -82,7 +90,9 @@ export function initElectronAppUpdatePrompt() {
         if (!result?.ok) {
             const err =
                 String(result?.error || '').trim() ||
-                ui.appUpdateFailed ||
+                (isLinuxRef
+                    ? ui.appUpdateFailedLinux || ui.appUpdateFailed
+                    : ui.appUpdateFailed) ||
                 'Could not download the update. Try again later from GitHub Releases.';
             try {
                 await store.alert?.(err, title);

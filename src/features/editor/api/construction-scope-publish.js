@@ -4,6 +4,101 @@ import { fileSystem } from '../../backup-export/api/filesystem.js';
 import { parseNostrTreeUrl } from '../../nostr/api/nostr-refs.js';
 import { computeBranchSetHashSync } from '../../forest/api/branch-set-hash.js';
 import { branchIdFromBranchUrl } from '../../../shared/lib/branch-id.js';
+import { diffTreeData } from '../../tree-graph/api/tree-diff.js';
+
+/**
+ * Local branch: published if we have a public URL (snapshot hash may lag briefly).
+ * Dirty when draft/live hash ≠ published hash, or snapshot/live diff finds changes.
+ * URL without snapshot/hash → dirty (repair/update), never fake “up to date”.
+ */
+function resolveLocalBranchPublishFlags(entry) {
+    const hasPublishedBaseline = !!String(entry?.publishedNetworkUrl || '').trim();
+    if (!hasPublishedBaseline || !entry) {
+        return { hasPublishedBaseline: false, isDraftDirty: false };
+    }
+    if (entry.publishPending) {
+        return { hasPublishedBaseline: true, isDraftDirty: true };
+    }
+
+    const pubHash = String(entry.publishedSnapshotHash || '').trim();
+    const live = store.state?.rawGraphData;
+    let liveHash = '';
+    if (live && typeof store.userStore?.hashJson === 'function') {
+        try {
+            liveHash = String(store.userStore.hashJson(live) || '').trim();
+        } catch {
+            /* ignore */
+        }
+    }
+    /* Prefer live graph hash so dock flips to Update before autosave writes draftHash. */
+    const draftHash = liveHash || String(entry.draftHash || '').trim();
+    if (pubHash && draftHash) {
+        return { hasPublishedBaseline: true, isDraftDirty: draftHash !== pubHash };
+    }
+
+    const draft = live || entry.data || null;
+    const published = entry.publishedSnapshot || null;
+    if (published && draft) {
+        try {
+            const d = diffTreeData(published, draft);
+            const dirty =
+                (d?.counts?.added || 0) + (d?.counts?.removed || 0) + (d?.counts?.changed || 0) > 0;
+            return { hasPublishedBaseline: true, isDraftDirty: dirty };
+        } catch {
+            /* ignore */
+        }
+    }
+
+    /* Missing baseline payload after a public URL → needs update/repair, not “Al día”. */
+    return { hasPublishedBaseline: true, isDraftDirty: true };
+}
+
+/**
+ * Composed playlist: dirty on ref-set change, missing published hash, or member
+ * branch content newer than last composed publish (bundle embeds live branch data).
+ */
+function resolveComposedPublishFlags(entry) {
+    const hasPublishedBaseline = !!String(entry?.publishedNetworkUrl || '').trim();
+    if (!hasPublishedBaseline || !entry) {
+        return { hasPublishedBaseline: false, isDraftDirty: false };
+    }
+    /* Claim succeeded but bundle not live yet — keep Update / retry same identity. */
+    if (entry.publishPending) {
+        return { hasPublishedBaseline: true, isDraftDirty: true };
+    }
+
+    const currentHash = computeBranchSetHashSync(entry.branchRefs || []);
+    const publishedHash = String(entry.publishedBranchSetHash || '').trim();
+    if (!publishedHash) {
+        return { hasPublishedBaseline: true, isDraftDirty: true };
+    }
+    if (currentHash !== publishedHash) {
+        return { hasPublishedBaseline: true, isDraftDirty: true };
+    }
+
+    const publishedAt = Number(entry.publishedAt) || 0;
+    if (publishedAt && Number(entry.updated) > publishedAt) {
+        return { hasPublishedBaseline: true, isDraftDirty: true };
+    }
+
+    const branches = store.userStore?.state?.branches || [];
+    for (const ref of entry.branchRefs || []) {
+        const bid = String(ref?.branchId || ref?.refId || ref?.id || '').trim();
+        if (!bid) continue;
+        const branch = branches.find((b) => String(b?.id) === bid);
+        if (!branch) continue;
+        const pubH = String(branch.publishedSnapshotHash || '').trim();
+        const draftH = String(branch.draftHash || '').trim();
+        if (pubH && draftH && draftH !== pubH) {
+            return { hasPublishedBaseline: true, isDraftDirty: true };
+        }
+        if (publishedAt && Number(branch.updated) > publishedAt) {
+            return { hasPublishedBaseline: true, isDraftDirty: true };
+        }
+    }
+
+    return { hasPublishedBaseline: true, isDraftDirty: false };
+}
 
 /** Publish baseline / dirty state for branch, composed tree, or network source. */
 export function getActivePublishContext(activeSource) {
@@ -15,11 +110,7 @@ export function getActivePublishContext(activeSource) {
     if (isLocalComposed) {
         const treeId = fileSystem.composedTreeId();
         const entry = treeId ? store.userStore?.getTree?.(treeId) : null;
-        const currentHash = entry ? computeBranchSetHashSync(entry.branchRefs || []) : '';
-        const publishedHash = String(entry?.publishedBranchSetHash || '').trim();
-        const hasPublishedBaseline = !!entry?.publishedNetworkUrl;
-        const isDraftDirty =
-            hasPublishedBaseline && (!publishedHash || (currentHash && currentHash !== publishedHash));
+        const { hasPublishedBaseline, isDraftDirty } = resolveComposedPublishFlags(entry);
         const publishedUrl = entry?.publishedNetworkUrl
             ? parseNostrTreeUrl(String(entry.publishedNetworkUrl))
             : null;
@@ -43,12 +134,7 @@ export function getActivePublishContext(activeSource) {
         const localId = branchIdFromBranchUrl(activeSource.url);
         const entry =
             (store.userStore?.state?.branches || []).find((t) => String(t?.id) === localId) || null;
-        const hasPublishedBaseline = !!(entry?.publishedNetworkUrl && entry?.publishedSnapshotHash);
-        const isDraftDirty =
-            hasPublishedBaseline &&
-            entry?.draftHash &&
-            entry?.publishedSnapshotHash &&
-            String(entry.draftHash) !== String(entry.publishedSnapshotHash);
+        const { hasPublishedBaseline, isDraftDirty } = resolveLocalBranchPublishFlags(entry);
         const publishedUrl = entry?.publishedNetworkUrl
             ? parseNostrTreeUrl(String(entry.publishedNetworkUrl))
             : null;
@@ -173,11 +259,15 @@ export function resolveScopePublishButton(ui, opts = {}) {
             : null;
 
     const pubBusy = !!(opts.publishingPublic || opts.revokingPublic);
-    const pubIcon = pubActsAsUnpublish ? '🛑' : isUpdate ? '🔄' : '🌐';
+    const pubIcon = pubActsAsUnpublish ? '🛑' : isUpdate ? '🔄' : isUpToDate ? '✓' : '🌐';
     const busyLabel = pubBusy ? ui.conDockBusy || '…' : pubShort;
 
     return {
-        show: scopeKind !== 'map_folder',
+        /*
+         * Keep real Publish / Update / Up to date while browsing folders.
+         * Hiding here left the dock on a fake disabled “Publicar” fallback.
+         */
+        show: true,
         label: busyLabel,
         title: pubL,
         note: pubNote,
@@ -185,7 +275,7 @@ export function resolveScopePublishButton(ui, opts = {}) {
         busy: pubBusy,
         /* Keep clickable when up to date so the hub still opens (share / unpublish). */
         disabled: pubBusy,
-        variant: pubActsAsUnpublish ? 'danger' : isUpdate ? 'update' : 'publish',
+        variant: pubActsAsUnpublish ? 'danger' : isUpdate ? 'update' : isUpToDate ? 'published' : 'publish',
         actsAsUnpublish: pubActsAsUnpublish,
         isUpdate,
         isUpToDate,

@@ -99,6 +99,11 @@
  </keywords>
 
  <releases>
+ <release version="0.1.1-alpha" date="2026-07-27">
+ <description>
+ <p>Linux Flatpak install ref and remote so Software/Discover can update the desktop app. Modal dialog fixes. Windows and Android builds updated in the same release.</p>
+ </description>
+ </release>
  <release version="0.1.0-alpha" date="2026-07-16">
  <description>
  <p>Public alpha: interactive lesson maps, Memory Garden, optional Arcade and Sage AI on desktop.</p>

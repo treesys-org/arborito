@@ -5,7 +5,7 @@
   "tourPrev": "Atrás",
   "tourSkip": "Saltar recorrido",
   "tourSourcesPickerBody": "Toca Arborito demo para abrir el curso de ejemplo. El recorrido sigue en el mapa.",
-  "tourSourcesPickerTitle": "Abre una rama",
+  "tourSourcesPickerTitle": "Abre un curso",
   "tourStepIndicator": "Paso {n} de {total}",
   "uiTourSteps": [
     {
@@ -20,8 +20,8 @@
     },
     {
       "target": "sources",
-      "title": "Cambiar de árbol",
-      "body": "Vuelve aquí para cargar otra rama u otro árbol cuando quieras estudiar otro tema."
+      "title": "Catálogo de cursos",
+      "body": "Vuelve aquí para cargar otro curso o un árbol combinado cuando quieras estudiar otro tema."
     },
     {
       "target": "arcade",

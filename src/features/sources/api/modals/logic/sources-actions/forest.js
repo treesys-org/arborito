@@ -238,5 +238,49 @@ export async function runForestAction(ctx, action, fields = {}) {
         return true;
     }
 
+    if (action === 'publish-private-composed-tree') {
+        const treeId = String(id || '').trim();
+        if (!treeId) return true;
+        try {
+            await store.publishComposedTreeAsPrivate?.(treeId);
+            ctx.bump();
+        } catch (e) {
+            store.alert?.(String(e?.message || e));
+        }
+        return true;
+    }
+
+    if (action === 'unpublish-private-composed-tree') {
+        const treeId = String(id || '').trim();
+        if (!treeId) return true;
+        const ui = store.ui;
+        ctx.setTargetId(treeId);
+        ctx.setDeleteOverlayTitle?.(ui.privateTreesStopSyncTitle || 'Stop syncing?');
+        ctx.setDeleteOverlayBody?.(
+            ui.privateComposedTreeStopSyncBody ||
+                ui.privateTreesStopSyncBody ||
+                'Other devices you sign in on will no longer see this tree playlist. The local copy on this device stays.'
+        );
+        ctx.setOverlay('stop-private-composed-sync');
+        ctx.bump();
+        return true;
+    }
+
+    if (action === 'confirm-stop-private-composed-sync') {
+        const treeId = String(ctx.targetId || '').trim();
+        if (!treeId) return true;
+        try {
+            await store.unpublishPrivateComposedTree?.(treeId);
+            ctx.setOverlay(null);
+            ctx.setTargetId(null);
+            ctx.setDeleteOverlayTitle?.(null);
+            ctx.setDeleteOverlayBody?.(null);
+            ctx.bump();
+        } catch (e) {
+            store.alert?.(String(e?.message || e));
+        }
+        return true;
+    }
+
     return false;
 }

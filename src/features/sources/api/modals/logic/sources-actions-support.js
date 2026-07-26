@@ -5,6 +5,10 @@ import { runBibliotecaNetworkLoad } from '../../../../../shared/lib/connected-se
 import { yieldToPaint } from '../../../../../shared/lib/yield-to-paint.js';
 import { finishSourcesLoadSession, captureHadCurriculumBeforeLoad } from '../../sources-session.js';
 import { saveFrozenTreeBundle, removeFrozenTreeBundle } from '../../tree-freeze-cache.js';
+import {
+    maybeSeedArboritoDemo,
+    bundledDemoBootSource,
+} from '../../../../../core/demo/seed-arborito-demo.js';
 import { plantNewTree } from './sources-logic.js';
 import { sourcesLsGet, sourcesLsSet } from './sources-local-storage.js';
 
@@ -215,9 +219,30 @@ export function closeSourcesModal(opts = {}, embed = false) {
         return;
     }
     if (store.isSourcesDismissBlocked()) {
-        const ui = store.ui;
-        store.notify(ui.sourcesDismissNeedTree || 'Add or load a tree before closing.', true);
+        /* Mid-hydrate (switching courses): keep the catalog open. Empty canvas: load demo. */
+        if (store.state.treeHydrating) return;
+        void loadDefaultDemoAndDismissSources(opts);
         return;
     }
     store.dismissModal({ returnToMore: opts.returnToMore !== false });
+}
+
+/** After deleting the active course, closing the catalog loads the bundled demo. */
+export async function loadDefaultDemoAndDismissSources(opts = {}) {
+    const ui = store.ui || {};
+    try {
+        maybeSeedArboritoDemo(store.userStore);
+        const src = bundledDemoBootSource(store.userStore);
+        if (!src) {
+            store.notify(ui.sourcesDismissNeedTree || 'Add or load a tree before closing.', true);
+            return false;
+        }
+        await store.loadData?.(src, true);
+        store.dismissModal({ returnToMore: opts.returnToMore !== false });
+        return true;
+    } catch (e) {
+        console.warn('[Arborito] load default demo on sources close', e);
+        store.notify(ui.sourcesDismissNeedTree || 'Add or load a tree before closing.', true);
+        return false;
+    }
 }

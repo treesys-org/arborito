@@ -1,8 +1,9 @@
 import { getArboritoStore } from '../../../core/store-singleton.js';
 import { parseNostrTreeUrl } from '../../nostr/api/nostr-refs.js';
 
-/** @param {{ publishedShareCode?: string, data?: { meta?: { shareCode?: string } }, publishedSnapshot?: { meta?: { shareCode?: string } } } | null | undefined} branch */
+/** @param {{ publishedShareCode?: string, publishPending?: boolean, data?: { meta?: { shareCode?: string } }, publishedSnapshot?: { meta?: { shareCode?: string } } } | null | undefined} branch */
 export function branchShareCode(branch) {
+    if (branch?.publishPending) return '';
     if (!String(branch?.publishedNetworkUrl || '').trim()) return '';
     return String(
         branch?.publishedShareCode ||
@@ -12,8 +13,9 @@ export function branchShareCode(branch) {
     ).trim();
 }
 
-/** @param {{ publishedShareCode?: string, data?: { meta?: { shareCode?: string } } } | null | undefined} tree */
+/** @param {{ publishedShareCode?: string, publishPending?: boolean, data?: { meta?: { shareCode?: string } } } | null | undefined} tree */
 export function composedTreeShareCode(tree) {
+    if (tree?.publishPending) return '';
     if (!String(tree?.publishedNetworkUrl || '').trim()) return '';
     return String(tree?.publishedShareCode || tree?.data?.meta?.shareCode || '').trim();
 }
@@ -42,6 +44,7 @@ function activeContextForEntry(entry) {
 
 /** @param {{ publishedNetworkUrl?: string, name?: string, id?: string } | null | undefined} entry */
 export function shareOptsForPublishedBranch(entry, { rawGraphData, activeSource } = {}) {
+    if (entry?.publishPending) return null;
     const ctx = !rawGraphData && !activeSource ? activeContextForEntry(entry) : { rawGraphData, activeSource };
     const url = String(entry?.publishedNetworkUrl || '').trim();
     const code =
@@ -61,6 +64,7 @@ export function shareOptsForPublishedBranch(entry, { rawGraphData, activeSource 
 
 /** @param {{ publishedNetworkUrl?: string, publishedShareCode?: string, name?: string, id?: string } | null | undefined} entry */
 export function shareOptsForPublishedComposedTree(entry, { rawGraphData, activeSource } = {}) {
+    if (entry?.publishPending) return null;
     const ctx = !rawGraphData && !activeSource ? activeContextForEntry(entry) : { rawGraphData, activeSource };
     const url = String(entry?.publishedNetworkUrl || '').trim();
     const code =
@@ -171,6 +175,7 @@ async function fetchShareCodeFromNetwork(ref, store) {
 
 /** Best-effort: load share code from Nostr when local metadata is missing. */
 export async function hydratePublishedShareCode(entry, { kind = 'branch' } = {}) {
+    if (entry?.publishPending) return null;
     const url = String(entry?.publishedNetworkUrl || '').trim();
     if (!url) return null;
     const existing = kind === 'composed-tree' ? composedTreeShareCode(entry) : branchShareCode(entry);

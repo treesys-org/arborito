@@ -67,12 +67,26 @@ export function useSourcesModal(embed = false) {
         () => [
             {
                 id: 'branches',
-                label: ui.sourcesTabBranches || 'Branches',
+                label: ui.sourcesTabBranches || 'Individual courses',
+                caption: ui.sourcesTabBranchesCaption || 'Branches',
+                emoji: '🌱',
                 tourTarget: 'sources-tab-branches',
             },
-            { id: 'trees', label: ui.sourcesTabTrees || ui.sourcesTabForest || 'Trees', tourTarget: 'sources-tab-trees' },
+            {
+                id: 'trees',
+                label: ui.sourcesTabTrees || ui.sourcesTabForest || 'Combined courses',
+                caption: ui.sourcesTabTreesCaption || 'Trees',
+                emoji: '🌳',
+                tourTarget: 'sources-tab-trees',
+            },
         ],
-        [ui.sourcesTabBranches, ui.sourcesTabTrees, ui.sourcesTabForest]
+        [
+            ui.sourcesTabBranches,
+            ui.sourcesTabBranchesCaption,
+            ui.sourcesTabTrees,
+            ui.sourcesTabForest,
+            ui.sourcesTabTreesCaption,
+        ]
     );
 
     const tabSubtitle = useMemo(() => {

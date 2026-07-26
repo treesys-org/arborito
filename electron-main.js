@@ -653,7 +653,9 @@ app.whenReady().then(async () => {
   registerLlamacppIpc(ipcMain, isTrustedRenderer);
   registerSageVoiceIpc(ipcMain, isTrustedRenderer);
   registerUserDataIpc(ipcMain, app, isTrustedRenderer);
-  registerAppUpdateIpc(ipcMain, isTrustedRenderer, app);
+  registerAppUpdateIpc(ipcMain, isTrustedRenderer, app, {
+    openUrl: (href) => openUrlInSystemBrowser(href),
+  });
   console.info('[Arborito] Native llama.cpp IPC ready (llama-server on port 8765)');
   Menu.setApplicationMenu(null);
   createWindow();

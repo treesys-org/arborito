@@ -3,10 +3,122 @@ import {
     getComposedTreeSyncState,
 } from './published-entry-sync-state.js';
 import { isPublishedResourceOwner } from './published-owner.js';
+import {
+    parseNostrTreeUrl,
+    formatNostrTreeUrl,
+    isNostrNetworkAvailable,
+} from '../../nostr/api/nostr-refs.js';
+import { ensureConnectedNostr } from '../../../shared/lib/connected-services/index.js';
+import { branchIdFromBranchUrl } from '../../../shared/lib/branch-id.js';
+
+function stampLocalPublishedBundleGen(store, { kind, id, gen }) {
+    const g = String(gen || '').trim();
+    if (!g) return false;
+    if (kind === 'branch') {
+        const entry = (store.userStore?.state?.branches || []).find((b) => String(b?.id) === String(id));
+        if (!entry) return false;
+        entry.publishedBundleGen = g;
+        store.userStore.state.branches = [...store.userStore.state.branches];
+        store.userStore.markBranchDirty?.(id, { skipAccountSync: true });
+        store.userStore.persist?.();
+        return true;
+    }
+    const entry = store.userStore?.getTree?.(id);
+    if (!entry) return false;
+    entry.publishedBundleGen = g;
+    store.userStore.state.trees = [...store.userStore.state.trees];
+    store.userStore.markTreeDirty?.(id);
+    store.userStore.persist?.();
+    return true;
+}
+
+/**
+ * Quietly rewrite a pre-gen public mirror to generation-scoped chunks when the
+ * owner opens / scans it. Same identity, share code, and listing prefs.
+ * @returns {Promise<boolean>}
+ */
+async function migrateLegacyPublishedBundleGenIfNeeded(store, { kind, id }) {
+    const getPair = store.getNostrPublisherPair?.bind(store);
+    if (!getPair || !isNostrNetworkAvailable()) return false;
+
+    let entry = null;
+    if (kind === 'branch') {
+        entry = (store.userStore?.state?.branches || []).find((b) => String(b?.id) === String(id));
+    } else {
+        entry = store.userStore?.getTree?.(id) || null;
+    }
+    if (!entry || entry.publishPending) return false;
+    if (!isPublishedResourceOwner(entry, getPair)) return false;
+    if (String(entry.publishedBundleGen || '').trim()) return false;
+
+    const url = String(entry.publishedNetworkUrl || '').trim();
+    const treeRef = url ? parseNostrTreeUrl(url) : null;
+    if (!treeRef) return false;
+
+    await ensureConnectedNostr(store);
+    if (!store.nostr?.hasConfiguredRelays?.()) return false;
+
+    let headerGen = '';
+    try {
+        const meta = await store.nostr.loadNostrBundleHeaderMeta?.(treeRef);
+        headerGen = String(meta?.gen || '').trim();
+    } catch (e) {
+        console.warn('[Arborito] peek published header gen', e);
+        return false;
+    }
+
+    if (headerGen) {
+        return stampLocalPublishedBundleGen(store, { kind, id, gen: headerGen });
+    }
+
+    /* Network still on legacy addresses — republish in place (owner only). */
+    try {
+        if (kind === 'branch') {
+            const activeId = branchIdFromBranchUrl(String(store.state.activeSource?.url || ''));
+            if (String(activeId || '') !== String(id)) return false;
+            const reuse = formatNostrTreeUrl(treeRef.pub, treeRef.universeId);
+            const raw = store.state.rawGraphData;
+            const includeForum = raw?.meta?.forumEnabled === true;
+            const listInDiscover = raw?.meta?.listInDiscover !== false;
+            const res = await store.publishActiveTreeToNostrUniverse?.({
+                reuseNostrTreeUrl: reuse,
+                includeForum,
+                listInDiscover,
+                skipLocalMediaConfirm: true,
+            });
+            if (!(res && res.publicTreeUrl)) return false;
+            if (raw) {
+                try {
+                    store.userStore.setBranchPublishedSnapshot?.(id, JSON.parse(JSON.stringify(raw)));
+                } catch {
+                    store.userStore.setBranchPublishedSnapshot?.(id, raw);
+                }
+            }
+            if (res.gen) stampLocalPublishedBundleGen(store, { kind, id, gen: res.gen });
+            return true;
+        }
+
+        const includeForum = entry.publishedForumEnabled === true;
+        const listInDiscover = entry.publishedListInDiscover !== false;
+        const res = await store.publishComposedTreeToNostr?.({
+            treeId: id,
+            reuseNostrTreeUrl: formatNostrTreeUrl(treeRef.pub, treeRef.universeId),
+            includeForum,
+            listInDiscover,
+            skipLocalMediaConfirm: true,
+            quiet: true,
+        });
+        return !!(res && res.publicTreeUrl);
+    } catch (e) {
+        console.warn('[Arborito] legacy published bundle gen migrate', kind, id, e);
+        return false;
+    }
+}
 
 /**
  * Repair / sync a published composed tree when the owner opens it or the catalog scans.
  * Never auto-publishes curriculum updates — that requires an explicit Publish/Update.
+ * Quietly migrates pre-gen public mirrors to generation-scoped packs.
  * @returns {Promise<boolean>} whether anything changed
  */
 export async function autoMaintainPublishedComposedTree(store, treeId) {
@@ -19,23 +131,29 @@ export async function autoMaintainPublishedComposedTree(store, treeId) {
     const getPair = store.getNostrPublisherPair?.bind(store);
     if (!getPair || !isPublishedResourceOwner(entry, getPair)) return false;
 
-    const state = getComposedTreeSyncState(entry, {
+    let changed = false;
+    if (await migrateLegacyPublishedBundleGenIfNeeded(store, { kind: 'composed-tree', id })) {
+        changed = true;
+    }
+
+    const state = getComposedTreeSyncState(store.userStore.getTree?.(id) || entry, {
         getNostrPublisherPair: getPair,
         branches: store.userStore?.state?.branches,
     });
-    if (state.mode === 'upToDate' || state.mode === 'publish') return false;
+    if (state.mode === 'upToDate' || state.mode === 'publish') return changed;
 
     if (state.mode === 'repair') {
         const repaired = await store.repairPublishedComposedTree?.(id);
-        return !!repaired?.ok;
+        return changed || !!repaired?.ok;
     }
 
     /* mode === 'update': leave for explicit dock/hub publish. */
-    return false;
+    return changed;
 }
 
 /**
  * Repair a published branch (local curriculum). Network updates require explicit Publish.
+ * Quietly migrates pre-gen public mirrors when this branch is the active source.
  * @returns {Promise<boolean>}
  */
 export async function autoMaintainPublishedBranch(store, branchId) {
@@ -48,16 +166,24 @@ export async function autoMaintainPublishedBranch(store, branchId) {
     const getPair = store.getNostrPublisherPair?.bind(store);
     if (!getPair || !isPublishedResourceOwner(branch, getPair)) return false;
 
-    const state = getBranchSyncState(branch, { getNostrPublisherPair: getPair });
-    if (state.mode === 'upToDate' || state.mode === 'publish') return false;
+    let changed = false;
+    if (await migrateLegacyPublishedBundleGenIfNeeded(store, { kind: 'branch', id })) {
+        changed = true;
+    }
+
+    const state = getBranchSyncState(
+        (store.userStore?.state?.branches || []).find((b) => String(b?.id) === id) || branch,
+        { getNostrPublisherPair: getPair }
+    );
+    if (state.mode === 'upToDate' || state.mode === 'publish') return changed;
 
     if (state.mode === 'repair') {
         const repaired = await store.repairPublishedBranch?.(id);
-        return !!repaired?.ok;
+        return changed || !!repaired?.ok;
     }
 
-    /* mode === 'update': never silent republish. */
-    return false;
+    /* mode === 'update': never silent curriculum republish. */
+    return changed;
 }
 
 /** Background pass when Árboles opens, owner entries only, best-effort (yield between items). */

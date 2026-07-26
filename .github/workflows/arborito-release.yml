@@ -20,6 +20,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: release-manual
@@ -149,6 +150,100 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+  publish-flatpak-remote:
+    needs: [build-flatpak]
+    if: needs.build-flatpak.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Require Flatpak GPG secrets
+        env:
+          FLATPAK_GPG_PRIVATE_KEY: ${{ secrets.FLATPAK_GPG_PRIVATE_KEY }}
+          FLATPAK_GPG_KEY_ID: ${{ secrets.FLATPAK_GPG_KEY_ID }}
+        run: |
+          missing=
+          [ -n "$FLATPAK_GPG_PRIVATE_KEY" ] || missing="$missing FLATPAK_GPG_PRIVATE_KEY"
+          [ -n "$FLATPAK_GPG_KEY_ID" ] || missing="$missing FLATPAK_GPG_KEY_ID"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing GitHub Actions secrets:$missing"
+            echo "Add FLATPAK_GPG_PRIVATE_KEY (armored private key) and FLATPAK_GPG_KEY_ID."
+            echo "Optional: FLATPAK_GPG_PASSPHRASE if the key is protected."
+            exit 1
+          fi
+
+      - name: Install flatpak / ostree / gpg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak ostree gnupg
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: flatpak
+          path: dist
+
+      - name: Import GPG key
+        env:
+          FLATPAK_GPG_PRIVATE_KEY: ${{ secrets.FLATPAK_GPG_PRIVATE_KEY }}
+          FLATPAK_GPG_PASSPHRASE: ${{ secrets.FLATPAK_GPG_PASSPHRASE }}
+          FLATPAK_GPG_KEY_ID: ${{ secrets.FLATPAK_GPG_KEY_ID }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.gnupg
+          chmod 700 ~/.gnupg
+          printf 'pinentry-mode loopback\n' >> ~/.gnupg/gpg.conf
+          printf 'allow-loopback-pinentry\n' >> ~/.gnupg/gpg-agent.conf
+          gpgconf --kill gpg-agent || true
+          printf '%s\n' "$FLATPAK_GPG_PRIVATE_KEY" | gpg --batch --import
+          if [ -n "${FLATPAK_GPG_PASSPHRASE:-}" ]; then
+            KEYGRIP=$(gpg --list-secret-keys --with-colons "$FLATPAK_GPG_KEY_ID" | awk -F: '/^grp:/{print $10; exit}')
+            if [ -n "$KEYGRIP" ] && [ -x /usr/lib/gnupg/gpg-preset-passphrase ]; then
+              printf '%s' "$FLATPAK_GPG_PASSPHRASE" | /usr/lib/gnupg/gpg-preset-passphrase --preset "$KEYGRIP"
+            elif [ -n "$KEYGRIP" ] && [ -x /usr/libexec/gpg-preset-passphrase ]; then
+              printf '%s' "$FLATPAK_GPG_PASSPHRASE" | /usr/libexec/gpg-preset-passphrase --preset "$KEYGRIP"
+            fi
+          fi
+
+      - name: Build OSTree remote (prune-depth=1)
+        env:
+          FLATPAK_GPG_KEY_ID: ${{ secrets.FLATPAK_GPG_KEY_ID }}
+          FLATPAK_GPG_PASSPHRASE: ${{ secrets.FLATPAK_GPG_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          BUNDLE=$(ls dist/*.flatpak | head -n1)
+          test -n "$BUNDLE"
+          node ./scripts/publish-flatpak-remote.mjs --bundle "$BUNDLE" --out flatpak-dist
+
+      - name: Orphan force-push branch flatpak-repo
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test -d flatpak-dist/flatpak/repo
+          WORK=$(mktemp -d)
+          cp -a flatpak-dist/flatpak "$WORK/flatpak"
+          cd "$WORK"
+          git init
+          git checkout --orphan flatpak-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add flatpak
+          git commit -m "flatpak remote v${{ env.version }}"
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push -f origin HEAD:flatpak-repo
+
+      - name: Trigger Pages deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run arborito-pages.yml --ref main \
+            || echo "::warning::Could not trigger Pages workflow; push to main or run Arborito Pages manually."
+
   publish-release:
     needs: [build-flatpak, build-windows, build-android]
     if: |
@@ -228,7 +323,7 @@ jobs:
           exit 1
 
   build-summary:
-    needs: [build-flatpak, build-windows, build-android, publish-release]
+    needs: [build-flatpak, build-windows, build-android, publish-flatpak-remote, publish-release]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -241,4 +336,5 @@ jobs:
           echo "| Flatpak | ${{ needs.build-flatpak.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Windows | ${{ needs.build-windows.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Android | ${{ needs.build-android.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Flatpak remote | ${{ needs.publish-flatpak-remote.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| GitHub Release | ${{ needs.publish-release.result }} |" >> "$GITHUB_STEP_SUMMARY"

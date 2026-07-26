@@ -2,11 +2,11 @@
 export function SourcesTabFooter({ ui, mainTab, onAction }) {
     const isTrees = mainTab === 'trees';
     const importLbl = isTrees
-        ? ui.sourcesImportTreeShort || ui.sourcesImportShort || 'Import tree'
+        ? ui.sourcesImportTreeShort || ui.sourcesImportShort || 'Import file'
         : ui.sourcesImportBranchShort || ui.sourcesImportShort || 'Import file';
     const createLbl = isTrees
-        ? ui.sourcesCreateTreeShort || ui.sourcesCreateTree || 'Create tree (combined courses)'
-        : ui.plantBranchShort || ui.plantBranch || 'Create branch (course)';
+        ? ui.sourcesCreateTreeShort || ui.sourcesCreateTree || 'Create tree'
+        : ui.plantBranchShort || ui.plantBranch || 'Create course';
 
     return (
         <div

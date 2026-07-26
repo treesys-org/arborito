@@ -6,6 +6,10 @@ import { usePublishedShareCode } from '../../hooks/usePublishedShareCode.js';
 import { SourcesPill } from './SourcesPill.jsx';
 import { SourcesMoreButton, SourcesPublishedSocialToolbar } from './SourcesRowChrome.jsx';
 import { SourcesSocialMetrics } from './SourcesSocialMetrics.jsx';
+import { SourcesMenuPrefs } from './SourcesMenuPrefs.jsx';
+import { SwitchRow } from '../../../../shared/ui/SwitchRow.jsx';
+import { getArboritoStore } from '../../../../core/store-singleton.js';
+import { hasGdprNetworkConsent } from '../../../../shared/lib/connected-services/index.js';
 
 export function composedTreeRowKey(treeId) {
     return `tree:${String(treeId || '')}`;
@@ -22,6 +26,11 @@ export function SourcesComposedTreeRow({
     onToggleRowActions,
     isPublishedOwner = false,
 }) {
+    const store = getArboritoStore();
+    const signedIn = !!store?.isSignedIn?.();
+    const networkOn = hasGdprNetworkConsent();
+    const canToggleAccountSync = signedIn && networkOn;
+    const accountSynced = !!store?.userStore?.isTreePrivateSyncedFromAccount?.(tree?.id);
     const isActive = !!(
         activeSource?.type === 'composed-tree' &&
         String(activeSource.treeId || '') === String(tree.id || '')
@@ -138,6 +147,13 @@ export function SourcesComposedTreeRow({
                                 })
                             }
                         />
+                        <button
+                            type="button"
+                            className="arborito-sources-action-chip"
+                            onClick={() => onAction?.('edit-composed-tree', { id: tree.id })}
+                        >
+                            {ui.sourcesEditTree || 'Edit branches'}
+                        </button>
                         <SourcesMoreButton
                             ui={ui}
                             rowKey={key}
@@ -148,20 +164,44 @@ export function SourcesComposedTreeRow({
                 </aside>
             </div>
             {open ? (
-                <div className="mt-3 flex flex-wrap gap-2" data-composed-tree-actions={key}>
+                <div className="mt-3 space-y-1" data-composed-tree-actions={key}>
+                    <SourcesMenuPrefs title={ui.sourcesTreePrefsHeading || 'This tree'}>
+                        <SwitchRow
+                            id={`tree-account-sync-${tree?.id || 'x'}`}
+                            label={ui.privateTreesSyncToggleLabel || 'Sync to my account'}
+                            hint={
+                                !signedIn
+                                    ? ui.privateTreesSyncSignInHint ||
+                                      'Sign in from Profile to sync this tree across devices.'
+                                    : !networkOn
+                                      ? ui.privateTreesSyncNetworkHint ||
+                                        'Turn on the network in Privacy & data to sync this tree.'
+                                      : ui.privateComposedTreeSyncHint ||
+                                        'Keeps an encrypted copy of this playlist (branches list) on your account. Member courses sync separately.'
+                            }
+                            checked={accountSynced}
+                            disabled={!canToggleAccountSync}
+                            onChange={(next) => {
+                                if (next) {
+                                    onAction?.('publish-private-composed-tree', {
+                                        id: tree?.id,
+                                        name: tree?.name,
+                                    });
+                                } else {
+                                    onAction?.('unpublish-private-composed-tree', { id: tree?.id });
+                                }
+                            }}
+                            onAria={ui.privateTreesPublishCtaShort || 'Account draft'}
+                            offAria={ui.privateTreesStopSyncShort || 'Stop sync'}
+                        />
+                    </SourcesMenuPrefs>
+                    <div className="pt-1 flex flex-wrap gap-2">
                     <button
                         type="button"
                         className="arborito-sources-action-chip"
                         onClick={() => onAction?.('composed-tree-info', { id: tree.id })}
                     >
                         {ui.sourcesComposedTreeInfoButton || 'Tree information'}
-                    </button>
-                    <button
-                        type="button"
-                        className="arborito-sources-action-chip"
-                        onClick={() => onAction?.('edit-composed-tree', { id: tree.id })}
-                    >
-                        {ui.sourcesEditTree || 'Edit branches'}
                     </button>
                     <button
                         type="button"
@@ -201,6 +241,7 @@ export function SourcesComposedTreeRow({
                     >
                         {ui.sourceRemove || 'Remove'}
                     </button>
+                    </div>
                 </div>
             ) : null}
         </div>

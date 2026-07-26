@@ -10,6 +10,7 @@ import { verifyEvent } from '../../../../../vendor/nostr-tools/lib/esm/index.js'
 import { normalizeTreeShareCode } from '../../../sources/api/share-code.js';
 import { normalizeNostrRelayUrls } from '../nostr-relays-runtime.js';
 import { prepareNostrSplitBundleV2 } from '../nostr-bundle-chunks.js';
+import { randomUUIDSafe } from '../../../../shared/lib/secure-web-crypto.js';
 import {
     KIND_BUNDLE_CHUNK_JSON,
     KIND_BUNDLE_HEADER,
@@ -30,6 +31,77 @@ import {
 } from '../nostr-spec.js';
 import { shouldShowMobileUI } from '../../../../shared/ui/breakpoints.js';
 import { hasArbRoot, splitUtf8Chunks, tagValue, QUERY_MS_LONG } from './_shared.js';
+
+/** Versioned main-chunk address so mid-republish does not overwrite the live generation. */
+function bundleMainChunkDTagGen(ownerPubHex, universeId, gen, index) {
+    const g = String(gen || '').trim();
+    if (!g) return bundleMainChunkDTag(ownerPubHex, universeId, index);
+    return `arborito:bundle:main:${String(ownerPubHex)}:${String(universeId)}:${g}:${Number(index)}`;
+}
+
+function lessonChunkDTag(pub, universeId, key, gen) {
+    const g = String(gen || '').trim();
+    const ck = String(key || '');
+    return g
+        ? `arborito:lesson:${String(pub)}:${String(universeId)}:${g}:${ck}`
+        : `arborito:lesson:${String(pub)}:${String(universeId)}:${ck}`;
+}
+
+function lessonPartDTag(pub, universeId, key, index, gen) {
+    const g = String(gen || '').trim();
+    const ck = String(key || '');
+    const i = Number(index);
+    return g
+        ? `arborito:lesson:${String(pub)}:${String(universeId)}:${g}:${ck}:p:${i}`
+        : `arborito:lesson:${String(pub)}:${String(universeId)}:${ck}:p:${i}`;
+}
+
+function snapChunkDTag(pub, universeId, key, gen) {
+    const g = String(gen || '').trim();
+    const sk = String(key || '');
+    return g
+        ? `arborito:snap:${String(pub)}:${String(universeId)}:${g}:${sk}`
+        : `arborito:snap:${String(pub)}:${String(universeId)}:${sk}`;
+}
+
+function snapPartDTag(pub, universeId, key, index, gen) {
+    const g = String(gen || '').trim();
+    const sk = String(key || '');
+    const i = Number(index);
+    return g
+        ? `arborito:snap:${String(pub)}:${String(universeId)}:${g}:${sk}:c:${i}`
+        : `arborito:snap:${String(pub)}:${String(universeId)}:${sk}:c:${i}`;
+}
+
+function searchPackDTagGen(pub, universeId, gen) {
+    const g = String(gen || '').trim();
+    return g
+        ? `arborito:search:${String(pub)}:${String(universeId)}:${g}:v1`
+        : searchPackDTag(pub, universeId);
+}
+
+function searchPackChunkDTagGen(pub, universeId, index, gen) {
+    const g = String(gen || '').trim();
+    const i = Math.max(0, Math.floor(Number(index)) || 0);
+    return g
+        ? `arborito:search:${String(pub)}:${String(universeId)}:${g}:v1:c:${i}`
+        : searchPackChunkDTag(pub, universeId, i);
+}
+
+function forumPackDTagGen(pub, universeId, gen) {
+    const g = String(gen || '').trim();
+    return g
+        ? `arborito:forum:${String(pub)}:${String(universeId)}:${g}:v1`
+        : forumPackDTag(pub, universeId);
+}
+
+function forumPackChunkDTagGen(pub, universeId, index, gen) {
+    const g = String(gen || '').trim();
+    const i = Math.max(0, Math.floor(Number(index)) || 0);
+    return g
+        ? `arborito:forum:${String(pub)}:${String(universeId)}:${g}:v1:c:${i}`
+        : forumPackChunkDTag(pub, universeId, i);
+}
 
 function nostrBundleLoadTimeouts() {
     const mobile = shouldShowMobileUI();
@@ -175,9 +247,76 @@ export const bundlesMixin = {
         const collectParts = async (ms) => {
             const fastMs = Math.min(ms, 3000);
             const parts = new Array(n);
-            const missing = [];
+            const gen = String(meta?.gen || '').trim();
+
+            /* Prefer generation-scoped d-tags (header-last publish) so a live older
+             * header never reads half-written replacement chunks. */
+            if (gen) {
+                const genHits = await Promise.all(
+                    Array.from({ length: n }, async (_, idx) => {
+                        const d = bundleMainChunkDTagGen(pub, universeId, gen, idx);
+                        const ev = await this._getFast(
+                            {
+                                kinds: [KIND_BUNDLE_CHUNK_JSON],
+                                authors: [String(pub)],
+                                '#d': [d],
+                                limit: 1
+                            },
+                            fastMs
+                        );
+                        return { idx, ev };
+                    })
+                );
+                for (const { idx, ev } of genHits) {
+                    if (!ev || String(ev.pubkey) !== String(pub)) continue;
+                    if (!hasArbRoot(ev, pub, universeId)) continue;
+                    parts[idx] = String(ev.content || '');
+                }
+                if (parts.every((p) => p != null)) return parts;
+            }
+
+            /* Chunks tagged with this header id (works for header-last + legacy). */
+            const chunkEvs = await this._queryFast(
+                {
+                    kinds: [KIND_BUNDLE_CHUNK_JSON],
+                    authors: [String(pub)],
+                    '#e': [hdr.id],
+                    limit: Math.min(8000, n + 50)
+                },
+                fastMs
+            );
+            for (const ev of chunkEvs) {
+                if (String(ev.pubkey) !== String(pub)) continue;
+                if (!hasArbRoot(ev, pub, universeId)) continue;
+                const idx = Number(tagValue(ev, 'i'));
+                if (!Number.isFinite(idx) || idx < 0 || idx >= n) continue;
+                if (parts[idx] == null) parts[idx] = String(ev.content || '');
+            }
+            if (parts.every((p) => p != null)) return parts;
+
+            /* Legacy unversioned d-tags only when the header has no gen (pre-hardening publishes).
+             * Never mix legacy bytes into a gen-scoped header — that can serve a stale curriculum. */
+            if (gen) {
+                for (let i = 0; i < n; i++) {
+                    if (parts[i] != null) continue;
+                    const d = bundleMainChunkDTagGen(pub, universeId, gen, i);
+                    const ev = await this._get(
+                        { kinds: [KIND_BUNDLE_CHUNK_JSON], authors: [String(pub)], '#d': [d], limit: 1 },
+                        ms
+                    );
+                    if (!ev || String(ev.pubkey) !== String(pub)) continue;
+                    if (!hasArbRoot(ev, pub, universeId)) continue;
+                    parts[i] = String(ev.content || '');
+                }
+                return parts;
+            }
+
+            const stillMissing = [];
+            for (let i = 0; i < n; i++) {
+                if (parts[i] == null) stillMissing.push(i);
+            }
             const dHits = await Promise.all(
-                Array.from({ length: n }, async (_, idx) => {
+                stillMissing.map(async (idx) => {
                     const d = bundleMainChunkDTag(pub, universeId, idx);
                     const ev = await this._getFast(
                         {
@@ -194,27 +333,6 @@ export const bundlesMixin = {
             for (const { idx, ev } of dHits) {
                 if (!ev || String(ev.pubkey) !== String(pub)) continue;
                 if (!hasArbRoot(ev, pub, universeId)) continue;
-                parts[idx] = String(ev.content || '');
-            }
-            for (let i = 0; i < n; i++) {
-                if (parts[i] == null) missing.push(i);
-            }
-            if (!missing.length) return parts;
-
-            const chunkEvs = await this._queryFast(
-                {
-                    kinds: [KIND_BUNDLE_CHUNK_JSON],
-                    authors: [String(pub)],
-                    '#e': [hdr.id],
-                    limit: Math.min(8000, n + 50)
-                },
-                fastMs
-            );
-            for (const ev of chunkEvs) {
-                if (String(ev.pubkey) !== String(pub)) continue;
-                if (!hasArbRoot(ev, pub, universeId)) continue;
-                const idx = Number(tagValue(ev, 'i'));
-                if (!Number.isFinite(idx) || idx < 0 || idx >= n) continue;
                 parts[idx] = String(ev.content || '');
             }
             for (let i = 0; i < n; i++) {
@@ -263,15 +381,18 @@ export const bundlesMixin = {
              * stamps change even when slim JSON omitted the field. */
             const hdrUpdated = String(meta?.updatedAt || '').trim();
             if (hdrUpdated) bundle.meta.updatedAt = hdrUpdated;
+            const hdrGen = String(meta?.gen || '').trim();
+            if (hdrGen) bundle.meta.gen = hdrGen;
             this._bundleLoadCache = { key: cacheKey, stamp: cacheStamp, bundle };
         }
         return { revoked: false, bundle: bundle && typeof bundle === 'object' ? bundle : null };
     },
 
-    async loadNostrLessonChunk({ pub, universeId, contentKey }) {
+    async loadNostrLessonChunk({ pub, universeId, contentKey, gen = null }) {
         const ck = String(contentKey || '').trim();
-        const d = `arborito:lesson:${String(pub)}:${String(universeId)}:${ck}`;
-        const tryOnce = async () => {
+        const g = String(gen || '').trim();
+        const tryOnce = async (useGen) => {
+            const d = lessonChunkDTag(pub, universeId, ck, useGen ? g : '');
             const ev = await this._get(
                 { kinds: [KIND_BUNDLE_CHUNK_JSON], authors: [String(pub)], '#d': [d], limit: 1 },
                 10000
@@ -285,7 +406,7 @@ export const bundlesMixin = {
                 const parts = new Array(n);
                 await Promise.all(
                     Array.from({ length: n }, async (_, i) => {
-                        const pd = `arborito:lesson:${String(pub)}:${String(universeId)}:${ck}:p:${i}`;
+                        const pd = lessonPartDTag(pub, universeId, ck, i, useGen ? g : '');
                         const pev = await this._get(
                             { kinds: [KIND_BUNDLE_CHUNK_JSON], authors: [String(pub)], '#d': [pd], limit: 1 },
                             10000
@@ -313,106 +434,136 @@ export const bundlesMixin = {
         const backoffsMs = [0, 400, 1200];
         for (let i = 0; i < backoffsMs.length; i++) {
             if (backoffsMs[i]) await new Promise((r) => setTimeout(r, backoffsMs[i]));
-            const got = await tryOnce();
-            if (got) return got;
+            if (g) {
+                const gotGen = await tryOnce(true);
+                if (gotGen) return gotGen;
+                /* Do not fall back to legacy when the live header pins a gen. */
+                continue;
+            }
+            const gotLegacy = await tryOnce(false);
+            if (gotLegacy) return gotLegacy;
         }
         return null;
     },
 
-    async loadNostrSnapshotChunk({ pub, universeId, snapshotKey }) {
+    async loadNostrSnapshotChunk({ pub, universeId, snapshotKey, gen = null }) {
         const key = String(snapshotKey || '').trim();
-        const d = `arborito:snap:${String(pub)}:${String(universeId)}:${key}`;
-        const ev = await this._get({ kinds: [KIND_BUNDLE_CHUNK_JSON], authors: [String(pub)], '#d': [d], limit: 1 }, 10000);
-        if (!ev || String(ev.pubkey) !== String(pub)) return null;
-        try {
-            const raw = JSON.parse(ev.content || 'null');
-            if (!raw || typeof raw !== 'object') return null;
-            const n = Math.max(0, Math.floor(Number(raw.chunkCount)) || 0);
-            if (!n) return raw;
-            const parts = new Array(n);
-            await Promise.all(
-                Array.from({ length: n }, async (_, i) => {
-                    const pd = `arborito:snap:${String(pub)}:${String(universeId)}:${key}:c:${i}`;
-                    const pev = await this._get(
-                        { kinds: [KIND_BUNDLE_CHUNK_JSON], authors: [String(pub)], '#d': [pd], limit: 1 },
-                        10000
-                    );
-                    if (pev && String(pev.pubkey) === String(pub)) parts[i] = String(pev.content || '');
-                })
+        const g = String(gen || '').trim();
+        const loadAt = async (useGen) => {
+            const d = snapChunkDTag(pub, universeId, key, useGen ? g : '');
+            const ev = await this._get(
+                { kinds: [KIND_BUNDLE_CHUNK_JSON], authors: [String(pub)], '#d': [d], limit: 1 },
+                10000
             );
-            if (parts.some((p) => p == null)) return null;
-            return JSON.parse(parts.join(''));
-        } catch {
-            return null;
-        }
+            if (!ev || String(ev.pubkey) !== String(pub)) return null;
+            try {
+                const raw = JSON.parse(ev.content || 'null');
+                if (!raw || typeof raw !== 'object') return null;
+                const n = Math.max(0, Math.floor(Number(raw.chunkCount)) || 0);
+                if (!n) return raw;
+                const parts = new Array(n);
+                await Promise.all(
+                    Array.from({ length: n }, async (_, i) => {
+                        const pd = snapPartDTag(pub, universeId, key, i, useGen ? g : '');
+                        const pev = await this._get(
+                            { kinds: [KIND_BUNDLE_CHUNK_JSON], authors: [String(pub)], '#d': [pd], limit: 1 },
+                            10000
+                        );
+                        if (pev && String(pev.pubkey) === String(pub)) parts[i] = String(pev.content || '');
+                    })
+                );
+                if (parts.some((p) => p == null)) return null;
+                return JSON.parse(parts.join(''));
+            } catch {
+                return null;
+            }
+        };
+        if (g) return loadAt(true);
+        return loadAt(false);
     },
 
-    async loadNostrSearchPack({ pub, universeId }) {
-        const d = searchPackDTag(pub, universeId);
-        const ev = await this._get({ kinds: [KIND_BUNDLE_CHUNK_JSON], authors: [String(pub)], '#d': [d], limit: 1 }, 10000);
-        if (!ev || String(ev.pubkey) !== String(pub)) return null;
-        try {
-            const raw = JSON.parse(ev.content || 'null');
-            if (!raw || typeof raw !== 'object') return null;
-            if (Array.isArray(raw.entries)) return raw;
-            if (raw.entriesJson != null) {
-                const arr = JSON.parse(String(raw.entriesJson || '[]'));
-                return { version: 1, entries: Array.isArray(arr) ? arr : [] };
-            }
-            const n = Math.max(0, Math.floor(Number(raw.chunkCount)) || 0);
-            if (!n) return null;
-            const parts = new Array(n);
-            await Promise.all(
-                Array.from({ length: n }, async (_, i) => {
-                    const cd = searchPackChunkDTag(pub, universeId, i);
-                    const cev = await this._get(
-                        { kinds: [KIND_BUNDLE_CHUNK_JSON], authors: [String(pub)], '#d': [cd], limit: 1 },
-                        10000
-                    );
-                    if (cev && String(cev.pubkey) === String(pub)) {
-                        parts[i] = String(cev.content || '');
-                    }
-                })
+    async loadNostrSearchPack({ pub, universeId, gen = null }) {
+        const g = String(gen || '').trim();
+        const loadAt = async (useGen) => {
+            const d = searchPackDTagGen(pub, universeId, useGen ? g : '');
+            const ev = await this._get(
+                { kinds: [KIND_BUNDLE_CHUNK_JSON], authors: [String(pub)], '#d': [d], limit: 1 },
+                10000
             );
-            if (parts.some((p) => p == null)) return null;
-            const joined = JSON.parse(parts.join(''));
-            if (joined && Array.isArray(joined.entries)) return joined;
-            if (joined && joined.entriesJson != null) {
-                const arr = JSON.parse(String(joined.entriesJson || '[]'));
-                return { version: 1, entries: Array.isArray(arr) ? arr : [] };
+            if (!ev || String(ev.pubkey) !== String(pub)) return null;
+            try {
+                const raw = JSON.parse(ev.content || 'null');
+                if (!raw || typeof raw !== 'object') return null;
+                if (Array.isArray(raw.entries)) return raw;
+                if (raw.entriesJson != null) {
+                    const arr = JSON.parse(String(raw.entriesJson || '[]'));
+                    return { version: 1, entries: Array.isArray(arr) ? arr : [] };
+                }
+                const n = Math.max(0, Math.floor(Number(raw.chunkCount)) || 0);
+                if (!n) return null;
+                const parts = new Array(n);
+                await Promise.all(
+                    Array.from({ length: n }, async (_, i) => {
+                        const cd = searchPackChunkDTagGen(pub, universeId, i, useGen ? g : '');
+                        const cev = await this._get(
+                            { kinds: [KIND_BUNDLE_CHUNK_JSON], authors: [String(pub)], '#d': [cd], limit: 1 },
+                            10000
+                        );
+                        if (cev && String(cev.pubkey) === String(pub)) {
+                            parts[i] = String(cev.content || '');
+                        }
+                    })
+                );
+                if (parts.some((p) => p == null)) return null;
+                const joined = JSON.parse(parts.join(''));
+                if (joined && Array.isArray(joined.entries)) return joined;
+                if (joined && joined.entriesJson != null) {
+                    const arr = JSON.parse(String(joined.entriesJson || '[]'));
+                    return { version: 1, entries: Array.isArray(arr) ? arr : [] };
+                }
+                return null;
+            } catch {
+                return null;
             }
-            return null;
-        } catch {
-            return null;
-        }
+        };
+        if (g) return loadAt(true);
+        return loadAt(false);
     },
 
-    async loadNostrForumPack({ pub, universeId }) {
-        const d = forumPackDTag(pub, universeId);
-        const ev = await this._get({ kinds: [KIND_BUNDLE_CHUNK_JSON], authors: [String(pub)], '#d': [d], limit: 1 }, 10000);
-        if (!ev || String(ev.pubkey) !== String(pub)) return null;
-        try {
-            const raw = JSON.parse(ev.content || 'null');
-            if (!raw || typeof raw !== 'object') return null;
-            const n = Math.max(0, Math.floor(Number(raw.chunkCount)) || 0);
-            if (!n) return raw;
-            const parts = new Array(n);
-            await Promise.all(
-                Array.from({ length: n }, async (_, i) => {
-                    const cd = forumPackChunkDTag(pub, universeId, i);
-                    const cev = await this._get(
-                        { kinds: [KIND_BUNDLE_CHUNK_JSON], authors: [String(pub)], '#d': [cd], limit: 1 },
-                        10000
-                    );
-                    if (cev && String(cev.pubkey) === String(pub)) parts[i] = String(cev.content || '');
-                })
+    async loadNostrForumPack({ pub, universeId, gen = null }) {
+        const g = String(gen || '').trim();
+        const loadAt = async (useGen) => {
+            const d = forumPackDTagGen(pub, universeId, useGen ? g : '');
+            const ev = await this._get(
+                { kinds: [KIND_BUNDLE_CHUNK_JSON], authors: [String(pub)], '#d': [d], limit: 1 },
+                10000
             );
-            if (parts.some((p) => p == null)) return null;
-            const joined = JSON.parse(parts.join(''));
-            return joined && typeof joined === 'object' ? joined : null;
-        } catch {
-            return null;
-        }
+            if (!ev || String(ev.pubkey) !== String(pub)) return null;
+            try {
+                const raw = JSON.parse(ev.content || 'null');
+                if (!raw || typeof raw !== 'object') return null;
+                const n = Math.max(0, Math.floor(Number(raw.chunkCount)) || 0);
+                if (!n) return raw;
+                const parts = new Array(n);
+                await Promise.all(
+                    Array.from({ length: n }, async (_, i) => {
+                        const cd = forumPackChunkDTagGen(pub, universeId, i, useGen ? g : '');
+                        const cev = await this._get(
+                            { kinds: [KIND_BUNDLE_CHUNK_JSON], authors: [String(pub)], '#d': [cd], limit: 1 },
+                            10000
+                        );
+                        if (cev && String(cev.pubkey) === String(pub)) parts[i] = String(cev.content || '');
+                    })
+                );
+                if (parts.some((p) => p == null)) return null;
+                const joined = JSON.parse(parts.join(''));
+                return joined && typeof joined === 'object' ? joined : null;
+            } catch {
+                return null;
+            }
+        };
+        if (g) return loadAt(true);
+        return loadAt(false);
     },
 
     async loadBundle({ pub, universeId }) {
@@ -429,8 +580,12 @@ export const bundlesMixin = {
         );
         const mainJson = JSON.stringify(slimBundle);
         const parts = splitUtf8Chunks(mainJson);
+        /* New generation address for main chunks. Header is published LAST so a
+         * mid-flight failure keeps readers on the previous intact header+chunks. */
+        const gen = randomUUIDSafe().replace(/-/g, '').slice(0, 16);
         const meta = {
             v: 3,
+            gen,
             chunkCount: parts.length,
             title: ((slimBundle && slimBundle.meta) ? slimBundle.meta.title : undefined) || 'Arborito',
             updatedAt: new Date().toISOString(),
@@ -443,16 +598,16 @@ export const bundlesMixin = {
             tags: [['d', bundleHeaderDTag(pair.pub, universeId)], arbRootTag(pair.pub, universeId), [TAG_APP, TAG_APP_VALUE]],
             content: JSON.stringify(meta)
         });
-        await this._publish(headerEv);
         const mainChunkEvents = parts.map((content, i) =>
             this._finalize(pair, {
                 kind: KIND_BUNDLE_CHUNK_JSON,
                 created_at: Math.floor(Date.now() / 1000),
                 tags: [
-                    ['d', bundleMainChunkDTag(pair.pub, universeId, i)],
+                    ['d', bundleMainChunkDTagGen(pair.pub, universeId, gen, i)],
                     ['e', headerEv.id, '', 'root'],
                     ['i', String(i)],
                     ['n', String(parts.length)],
+                    ['g', gen],
                     arbRootTag(pair.pub, universeId)
                 ],
                 content
@@ -463,10 +618,14 @@ export const bundlesMixin = {
         const makeJsonChunkEvent = (slot, key, obj) => {
             const d =
                 slot === 'search' && key === 'v1'
-                    ? searchPackDTag(pair.pub, universeId)
+                    ? searchPackDTagGen(pair.pub, universeId, gen)
                     : slot === 'forum' && key === 'v1'
-                      ? forumPackDTag(pair.pub, universeId)
-                      : `arborito:${slot}:${String(pair.pub)}:${String(universeId)}:${String(key)}`;
+                      ? forumPackDTagGen(pair.pub, universeId, gen)
+                      : slot === 'lesson'
+                        ? lessonChunkDTag(pair.pub, universeId, key, gen)
+                        : slot === 'snap'
+                          ? snapChunkDTag(pair.pub, universeId, key, gen)
+                          : `arborito:${slot}:${String(pair.pub)}:${String(universeId)}:${String(key)}`;
             let text;
             try {
                 text = JSON.stringify(obj != null ? obj : {});
@@ -485,7 +644,7 @@ export const bundlesMixin = {
             return this._finalize(pair, {
                 kind: KIND_BUNDLE_CHUNK_JSON,
                 created_at: Math.floor(Date.now() / 1000),
-                tags: [['d', d], arbRootTag(pair.pub, universeId), ['slot', slot]],
+                tags: [['d', d], arbRootTag(pair.pub, universeId), ['slot', slot], ['g', gen]],
                 content: text
             });
         };
@@ -511,14 +670,12 @@ export const bundlesMixin = {
                             kind: KIND_BUNDLE_CHUNK_JSON,
                             created_at: Math.floor(Date.now() / 1000),
                             tags: [
-                                [
-                                    'd',
-                                    `arborito:lesson:${String(pair.pub)}:${String(universeId)}:${String(key)}:p:${i}`
-                                ],
+                                ['d', lessonPartDTag(pair.pub, universeId, key, i, gen)],
                                 arbRootTag(pair.pub, universeId),
                                 ['slot', 'lesson'],
                                 ['i', String(i)],
-                                ['n', String(bodyParts.length)]
+                                ['n', String(bodyParts.length)],
+                                ['g', gen]
                             ],
                             content
                         })
@@ -544,11 +701,12 @@ export const bundlesMixin = {
                             kind: KIND_BUNDLE_CHUNK_JSON,
                             created_at: Math.floor(Date.now() / 1000),
                             tags: [
-                                ['d', `arborito:snap:${String(pair.pub)}:${String(universeId)}:${String(sk2)}:c:${i}`],
+                                ['d', snapPartDTag(pair.pub, universeId, sk2, i, gen)],
                                 arbRootTag(pair.pub, universeId),
                                 ['slot', 'snap'],
                                 ['i', String(i)],
-                                ['n', String(snapParts.length)]
+                                ['n', String(snapParts.length)],
+                                ['g', gen]
                             ],
                             content
                         })
@@ -573,50 +731,102 @@ export const bundlesMixin = {
                     kind: KIND_BUNDLE_CHUNK_JSON,
                     created_at: Math.floor(Date.now() / 1000),
                     tags: [
-                        ['d', searchPackChunkDTag(pair.pub, universeId, i)],
+                        ['d', searchPackChunkDTagGen(pair.pub, universeId, i, gen)],
                         arbRootTag(pair.pub, universeId),
                         ['slot', 'search'],
                         ['i', String(i)],
-                        ['n', String(searchParts.length)]
+                        ['n', String(searchParts.length)],
+                        ['g', gen]
                     ],
                     content
                 })
             );
             await this._publishBurst(searchChunkEvents, 5);
         }
-        if (includeForum !== false) {
-            const forumPayload = {
-                version: 1,
-                threads: forumSplit?.threads || [],
-                messages: (forumSplit?.messageParts || []).flat(),
-                moderationLog: forumSplit?.moderationLog || []
-            };
-            const forumText = JSON.stringify(forumPayload);
-            const forumParts = splitUtf8Chunks(forumText);
-            if (forumParts.length <= 1) {
-                await this._publish(makeJsonChunkEvent('forum', 'v1', forumPayload));
-            } else {
-                await this._publish(
-                    makeJsonChunkEvent('forum', 'v1', { version: 1, chunkCount: forumParts.length })
-                );
-                const forumChunkEvents = forumParts.map((content, i) =>
-                    this._finalize(pair, {
-                        kind: KIND_BUNDLE_CHUNK_JSON,
-                        created_at: Math.floor(Date.now() / 1000),
-                        tags: [
-                            ['d', forumPackChunkDTag(pair.pub, universeId, i)],
-                            arbRootTag(pair.pub, universeId),
-                            ['slot', 'forum'],
-                            ['i', String(i)],
-                            ['n', String(forumParts.length)]
-                        ],
-                        content
-                    })
-                );
-                await this._publishBurst(forumChunkEvents, 5);
-            }
+
+        /* Always replace the forum pack: empty wipe when forum is disabled so prior
+         * threads do not linger on relays after includeForum:false. */
+        const forumPayload =
+            includeForum !== false
+                ? {
+                      version: 1,
+                      threads: forumSplit?.threads || [],
+                      messages: (forumSplit?.messageParts || []).flat(),
+                      moderationLog: forumSplit?.moderationLog || []
+                  }
+                : { version: 1, threads: [], messages: [], moderationLog: [] };
+        const forumText = JSON.stringify(forumPayload);
+        const forumParts = splitUtf8Chunks(forumText);
+        if (forumParts.length <= 1) {
+            await this._publish(makeJsonChunkEvent('forum', 'v1', forumPayload));
+        } else {
+            await this._publish(
+                makeJsonChunkEvent('forum', 'v1', { version: 1, chunkCount: forumParts.length })
+            );
+            const forumChunkEvents = forumParts.map((content, i) =>
+                this._finalize(pair, {
+                    kind: KIND_BUNDLE_CHUNK_JSON,
+                    created_at: Math.floor(Date.now() / 1000),
+                    tags: [
+                        ['d', forumPackChunkDTagGen(pair.pub, universeId, i, gen)],
+                        arbRootTag(pair.pub, universeId),
+                        ['slot', 'forum'],
+                        ['i', String(i)],
+                        ['n', String(forumParts.length)],
+                        ['g', gen]
+                    ],
+                    content
+                })
+            );
+            await this._publishBurst(forumChunkEvents, 5);
         }
-        return { pub: pair.pub, universeId };
+        /* Also wipe the legacy unversioned forum address when disabling forum so older
+         * clients that ignore `gen` do not keep reading prior threads. */
+        if (includeForum === false) {
+            await this._publish(
+                this._finalize(pair, {
+                    kind: KIND_BUNDLE_CHUNK_JSON,
+                    created_at: Math.floor(Date.now() / 1000),
+                    tags: [
+                        ['d', forumPackDTag(pair.pub, universeId)],
+                        arbRootTag(pair.pub, universeId),
+                        ['slot', 'forum']
+                    ],
+                    content: JSON.stringify({
+                        version: 1,
+                        threads: [],
+                        messages: [],
+                        moderationLog: []
+                    })
+                })
+            );
+        }
+
+        /* Commit: readers only see the new generation once this header replaces the old. */
+        await this._publish(headerEv);
+        return { pub: pair.pub, universeId, gen };
+    },
+
+    /** Lightweight header peek (for legacy→gen migration checks). */
+    async loadNostrBundleHeaderMeta({ pub, universeId }) {
+        const headerFilter = {
+            kinds: [KIND_BUNDLE_HEADER],
+            authors: [String(pub)],
+            '#d': [bundleHeaderDTag(pub, universeId)],
+            limit: 1
+        };
+        let hdr = await this._getFast(headerFilter, 6000);
+        if (!hdr) {
+            this._unpauseAllRelays?.();
+            hdr = await this._get(headerFilter, 10000);
+        }
+        if (!hdr || String(hdr.pubkey) !== String(pub)) return null;
+        try {
+            const meta = JSON.parse(hdr.content || 'null');
+            return meta && typeof meta === 'object' ? meta : null;
+        } catch {
+            return null;
+        }
     },
 
     async signTreeCodeClaim(pair, code, universeId, recommendedRelays = null) {

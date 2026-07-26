@@ -1,6 +1,6 @@
 {
  "name": "arborito",
- "version": "0.1.0-alpha",
+ "version": "0.1.1-alpha",
  "description": "Visual Knowledge Explorer, Vite + React + Tailwind CSS v3.",
  "main": "electron-main.js",
  "scripts": {
@@ -27,6 +27,7 @@
  "dist:android": "node ./scripts/build-android-apk.mjs",
  "ensure:icon": "node ./scripts/ensure-build-icon.mjs",
  "flatpak:sync": "node ./scripts/flatpak-sync.mjs",
+ "flatpak:publish-remote": "node ./scripts/publish-flatpak-remote.mjs",
  "flatpak": "node ./scripts/flatpak-toolkit.mjs",
  "setup:flatpak": "npm run flatpak -- setup",
  "sync:flatpak-screenshots": "npm run flatpak:sync",

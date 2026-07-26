@@ -465,7 +465,7 @@
 .arborito-tab {
     flex: 1 1 0%;
     min-width: 4.5rem;
-    padding: 0.625rem 0.75rem 0.75rem;
+    padding: 0.625rem 0.75rem 0.7rem;
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
@@ -474,21 +474,84 @@
     background: transparent;
     border: none;
     border-bottom: 2px solid transparent;
+    border-radius: 0.65rem 0.65rem 0 0;
     cursor: pointer;
-    transition: color 0.15s ease, border-color 0.15s ease;
+    transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
     white-space: nowrap;
+}
+.arborito-tab--stacked {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    white-space: normal;
+    line-height: 1.15;
+    min-height: 2.75rem;
+}
+.arborito-tab__primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    min-width: 0;
+    max-width: 100%;
+}
+.arborito-tab__emoji {
+    flex: 0 0 auto;
+    line-height: 0;
+}
+.arborito-tab__label {
+    min-width: 0;
+    text-align: center;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+}
+.arborito-tab__caption {
+    display: block;
+    max-width: 100%;
+    padding: 0 0.15rem;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0;
+    text-transform: none;
+    opacity: 0.72;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+@media (max-width: 639px) {
+    .arborito-tab--stacked {
+        padding-left: 0.4rem;
+        padding-right: 0.4rem;
+        font-size: 9px;
+        letter-spacing: 0.03em;
+    }
+    .arborito-tab__caption {
+        font-size: 9px;
+    }
 }
 @media (min-width: 640px) {
     .arborito-tab { font-size: 12px; padding: 0.75rem 1rem; }
+    .arborito-tab--stacked { min-height: 3rem; }
+    .arborito-tab__caption { font-size: 11px; }
 }
 .arborito-tab:hover:not(:disabled) {
     color: var(--arborito-theme-tab-hover-fg);
+    background: var(--arborito-theme-tab-hover-bg, transparent);
 }
 
 .arborito-tab--active,
 .arborito-tab[aria-selected="true"] {
     color: var(--arborito-theme-tab-active-fg);
     border-bottom-color: var(--arborito-theme-tab-active-indicator);
+    background: var(--arborito-theme-tab-active-bg);
+}
+.arborito-tab--active .arborito-tab__caption,
+.arborito-tab[aria-selected="true"] .arborito-tab__caption {
+    opacity: 0.85;
+    color: inherit;
 }
 
 /**

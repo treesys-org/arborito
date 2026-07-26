@@ -13,9 +13,15 @@ export function resolvePublishHubFooterLabel(ui = {}, { isFirstPublish, noChange
         );
     }
     if (noChanges) {
-        return ui.publicTreeUpToDateLabel || 'Up to date';
+        /* Hub no longer shows this as a fake CTA; dock still uses the short status word. */
+        return ui.publicTreeUpToDateLabel || ui.publishDiffClean || 'Up to date';
     }
-    return ui.publishDiffPublishCta || ui.publicTreeRepublishButton || 'Publish these changes';
+    return (
+        ui.publicTreeUpdateLabel ||
+        ui.publishDiffPublishCta ||
+        ui.publicTreeRepublishButton ||
+        'Update'
+    );
 }
 
 /** Scroll host class for publish hub body (ConstructionAboutModal). */

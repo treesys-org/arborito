@@ -200,14 +200,33 @@ export class SourceManager {
                        : treeRef ? `Public · ${String(treeRef.pub).slice(0, 10)}…`
                        : new URL(href, window.location.href).hostname;
 
-            const sourceObject = {
-                id: `shared-${Date.now()}`,
-                name,
-                url: normalizedUrl,
-                isTrusted: this.isUrlTrusted(normalizedUrl),
-                type: 'shared',
-                _fromShareParam: true
-            };
+            /* Default: install into the garden so switching courses does not lose it. */
+            let sourceObject = null;
+            if (treeRef) {
+                const added = this.addCommunitySource(null, {
+                    resolvedNostrTreeUrl: normalizedUrl,
+                    codeLabel: resolved.kind === 'code' ? resolved.code : null,
+                    contentKind: String(treeRef.universeId || '').startsWith('tre-')
+                        ? 'composed-tree'
+                        : 'branch',
+                });
+                if (added?.ok && added.source) {
+                    sourceObject = { ...added.source, _fromShareParam: true, _openTreeInfoAfterLoad: true };
+                } else if (added?.reason === 'duplicate' && added.existing) {
+                    sourceObject = { ...added.existing, _fromShareParam: true, _openTreeInfoAfterLoad: true };
+                }
+            }
+            if (!sourceObject) {
+                sourceObject = {
+                    id: `shared-${Date.now()}`,
+                    name,
+                    url: normalizedUrl,
+                    isTrusted: this.isUrlTrusted(normalizedUrl),
+                    type: 'shared',
+                    _fromShareParam: true,
+                    _openTreeInfoAfterLoad: true,
+                };
+            }
 
             if (sourceObject.isTrusted) return sourceObject;
             this.update({ pendingUntrustedSource: sourceObject, modal: { type: 'load-warning' } });

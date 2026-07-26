@@ -193,6 +193,38 @@ export function ModalSources({ embed = false }) {
                     onConfirm={() => onAction('confirm-stop-private-sync')}
                 />
             ) : null}
+            {sources.overlay === 'stop-private-composed-sync' ? (
+                <SourcesDeleteOverlay
+                    ui={ui}
+                    title={
+                        sources.deleteOverlayTitle ||
+                        ui.privateTreesStopSyncTitle ||
+                        'Stop syncing?'
+                    }
+                    body={
+                        sources.deleteOverlayBody ||
+                        ui.privateTreesStopSyncBody ||
+                        'Other devices you sign in on will no longer see this tree. The local copy on this device stays.'
+                    }
+                    confirmLabel={ui.privateTreesStopSyncShort || ui.privateTreesStopSync || 'Stop sync'}
+                    onCancel={() => onAction('cancel-overlay')}
+                    onConfirm={() => onAction('confirm-stop-private-composed-sync')}
+                />
+            ) : null}
+            {sources.overlay === 'reset-branch-progress' ? (
+                <SourcesDeleteOverlay
+                    ui={ui}
+                    title={
+                        sources.deleteOverlayTitle ||
+                        ui.sourcesResetBranchProgressTitle ||
+                        'Reset progress?'
+                    }
+                    body={sources.deleteOverlayBody}
+                    confirmLabel={ui.sourcesResetBranchProgressConfirm || ui.sourcesResetBranchProgress || 'Reset'}
+                    onCancel={() => onAction('cancel-overlay')}
+                    onConfirm={() => onAction('confirm-reset-branch-progress')}
+                />
+            ) : null}
             {sources.overlay === 'export-curriculum' && sources.exportTarget ? (
                 <ExportCurriculumSheet
                     ui={ui}

@@ -485,7 +485,8 @@ export class GraphLogic {
                 const raw = await net.loadNostrLessonChunk({
                     pub: treeRef.pub,
                     universeId: treeRef.universeId,
-                    contentKey: ck
+                    contentKey: ck,
+                    gen: this.store.state.rawGraphData?.meta?.gen || null
                 });
                 const ui = this.store.ui || {};
                 const text = typeof (raw && raw.content) === 'string' ? raw.content : '';

@@ -296,6 +296,14 @@ export function useContentPanelNavigation({
             return;
         }
         patchPanel({ visitedSections: visited });
+        persistLessonReadingPosition(store, {
+            nodeId: panel.currentNode.id,
+            index: idx,
+            visitedSections: visited,
+            contentRaw: panel.currentNode.content,
+            quizPassRecord: panel.quizPassRecord,
+            isExam: isExamLesson(panel.currentNode),
+        });
         if (!store.isCompleted(panel.currentNode.id)) {
             store.markComplete(panel.currentNode.id, true);
             store.checkForModuleCompletion(panel.currentNode.id);

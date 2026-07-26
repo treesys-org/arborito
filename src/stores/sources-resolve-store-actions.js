@@ -11,6 +11,7 @@ import {
 } from '../features/sources/api/active-source-pointer.js';
 import { startRotatingWebTorrentSeeder, stopRotatingWebTorrentSeeder, collectWebTorrentMagnets } from '../features/p2p-webtorrent/api/webtorrent-seeder-rotate.js';
 import { branchIdFromBranchUrl } from '../shared/lib/branch-id.js';
+import { fileSystem } from '../features/backup-export/api/filesystem.js';
 
 function shell() {
     return getArboritoStore();
@@ -175,13 +176,23 @@ export function getPublishedTreeRefForActiveLocalSourceAction() {
     if (!store) return undefined;
 
             try {
-                const srcUrl = String(store.state.activeSource?.url || '');
-                if (!srcUrl.startsWith('branch://')) return null;
-                const localId = branchIdFromBranchUrl(srcUrl);
-                if (!localId) return null;
-                const published = store.userStore?.getBranchPublishedNetworkUrl?.(localId);
-                if (!published) return null;
-                return parseNostrTreeUrl(published);
+                const src = store.state.activeSource;
+                const srcUrl = String(src?.url || '');
+                if (srcUrl.startsWith('branch://')) {
+                    const localId = branchIdFromBranchUrl(srcUrl);
+                    if (!localId) return null;
+                    const published = store.userStore?.getBranchPublishedNetworkUrl?.(localId);
+                    if (!published) return null;
+                    return parseNostrTreeUrl(published);
+                }
+                if (src?.type === 'composed-tree' || fileSystem.isLocalComposedTree?.()) {
+                    const tid = String(src?.treeId || fileSystem.composedTreeId?.() || '').trim();
+                    if (!tid) return null;
+                    const published = store.userStore?.getTreePublishedNetworkUrl?.(tid);
+                    if (!published) return null;
+                    return parseNostrTreeUrl(published);
+                }
+                return null;
             } catch {
                 return null;
             }

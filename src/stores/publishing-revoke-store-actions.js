@@ -46,10 +46,23 @@ export async function _revokePublicTreeCoreAction(treeRef, opts = {}) {
     }
     try {
         await store.nostr.revokeUniverse({ pair, universeId: treeRef.universeId, reason: '' });
-        try {
-            await store.nostr.putGlobalTreeDirectoryDelist({ pair, universeId: treeRef.universeId });
-        } catch (e2) {
-            console.warn('global directory delist failed', e2);
+        let delistOk = false;
+        let lastDelistErr = null;
+        for (let i = 0; i < 3; i++) {
+            try {
+                await store.nostr.putGlobalTreeDirectoryDelist({
+                    pair,
+                    universeId: treeRef.universeId,
+                });
+                delistOk = true;
+                break;
+            } catch (e2) {
+                lastDelistErr = e2;
+                if (i < 2) await new Promise((r) => setTimeout(r, 350 * (i + 1)));
+            }
+        }
+        if (!delistOk) {
+            console.warn('global directory delist failed', lastDelistErr);
         }
         if (opts.branchIdToUnlink && store.userStore?.clearBranchPublishedNetworkUrl) {
             store.userStore.clearBranchPublishedNetworkUrl(opts.branchIdToUnlink);
@@ -69,13 +82,25 @@ export async function _revokePublicTreeCoreAction(treeRef, opts = {}) {
             console.warn('post-revoke source cleanup failed', e3);
         }
         if (!opts.silent) {
-            await store.alert(copy.successBody, copy.successTitle, {
-                confirmText: ui.dialogOkButton || 'OK',
-                dialogIcon: '✅',
-            });
+            if (delistOk) {
+                await store.alert(copy.successBody, copy.successTitle, {
+                    confirmText: ui.dialogOkButton || 'OK',
+                    dialogIcon: '✅',
+                });
+            } else {
+                await store.alert(
+                    ui.revokePublicTreeDelistWarningBody ||
+                        `${copy.successBody}\n\nForest listing could not be cleared on every relay — it may still appear briefly.`,
+                    copy.successTitle,
+                    {
+                        confirmText: ui.dialogOkButton || 'OK',
+                        dialogIcon: '⚠️',
+                    }
+                );
+            }
         }
         notifyPublishingChanged(store);
-        return { ok: true };
+        return { ok: true, delistOk };
     } catch (e) {
         console.warn('_revokePublicTreeCore', e);
         store.notify(ui.revokePublicTreeError || 'Could not unpublish.', true);

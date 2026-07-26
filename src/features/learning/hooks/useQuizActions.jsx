@@ -89,7 +89,8 @@ export function useQuizActions({ panel, patchPanel, startQuiz, answerQuiz, isLes
 
     const answerRecall = useCallback(
         (blockId, remembered) => {
-            answerQuiz(blockId, remembered);
+            /* Always grade as recall — do not rely on v2Mode alone (can be missing mid-session). */
+            answerQuiz(blockId, remembered, { asRecall: true });
         },
         [answerQuiz]
     );

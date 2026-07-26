@@ -329,9 +329,16 @@ export function evaluateQuizSession(ctx, session) {
     return patch;
 }
 
-export function buildAnswerQuizPatch(ctx, id, isCorrect) {
+/**
+ * @param {object} ctx
+ * @param {string} id
+ * @param {boolean} isCorrect
+ * @param {{ asRecall?: boolean }} [opts] Force recall grading when the Recuerdo UI answered
+ *   (guards against a lost `v2Mode` so "Lo recuerdo" never falls through to Incorrecto).
+ */
+export function buildAnswerQuizPatch(ctx, id, isCorrect, opts = {}) {
     const st = getQuizState(ctx.quizStates, id);
-    const isRecall = st.v2Mode === QUIZ_MODE_RECALL;
+    const isRecall = !!opts.asRecall || st.v2Mode === QUIZ_MODE_RECALL;
     const remembered = !!isCorrect;
     const nextStates = {
         ...ctx.quizStates,
@@ -341,6 +348,8 @@ export function buildAnswerQuizPatch(ctx, id, isCorrect) {
             finished: true,
             v2Answered: true,
             correct: remembered,
+            /* Persist mode so QuizFinished routes to recall chrome, not Incorrecto/Correcto. */
+            v2Mode: isRecall ? QUIZ_MODE_RECALL : st.v2Mode,
             v2RecallRemembered: isRecall ? remembered : undefined,
             score: remembered ? 1 : 0,
             results: [remembered],

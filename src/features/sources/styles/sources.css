@@ -423,6 +423,77 @@ html.arborito-product-tour-sources-picker
     overflow: hidden;
 }
 
+/* Course catalog tabs — same consolidation in light + dark: track, raised active, muted idle. */
+.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab-bar {
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+    border-bottom-color: rgb(209 213 219);
+    background: rgb(241 245 249);
+    border-radius: 0.85rem 0.85rem 0 0;
+}
+.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab {
+    border-radius: 0;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin: 0;
+    box-shadow: none;
+    color: rgb(100 116 139);
+}
+.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab:first-child {
+    border-top-left-radius: 0.85rem;
+}
+.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab:last-child {
+    border-top-right-radius: 0.85rem;
+}
+.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab .arborito-tab__caption {
+    opacity: 0.7;
+}
+.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab:hover:not(:disabled):not(.arborito-tab--active):not([aria-selected='true']) {
+    background: rgb(255 255 255 / 0.55);
+    color: rgb(51 65 85);
+}
+.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab--active,
+.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab[aria-selected='true'] {
+    color: rgb(4 120 87);
+    background: rgb(255 255 255);
+    border-bottom-color: rgb(16 185 129);
+    position: relative;
+    z-index: 1;
+}
+.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab--active .arborito-tab__caption,
+.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab[aria-selected='true'] .arborito-tab__caption {
+    opacity: 0.9;
+    color: rgb(6 95 70);
+}
+
+html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab-bar {
+    border-bottom-color: rgb(71 85 105);
+    background: rgb(15 23 42);
+}
+html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab {
+    color: rgb(148 163 184);
+}
+html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab .arborito-tab__caption {
+    opacity: 0.65;
+}
+html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab:hover:not(:disabled):not(.arborito-tab--active):not([aria-selected='true']) {
+    background: rgb(30 41 59 / 0.85);
+    color: rgb(203 213 225);
+}
+html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab--active,
+html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab[aria-selected='true'] {
+    color: rgb(167 243 208);
+    background: rgb(30 41 59);
+    border-bottom-color: rgb(52 211 153);
+    z-index: 1;
+}
+html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab--active .arborito-tab__caption,
+html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab[aria-selected='true'] .arborito-tab__caption {
+    opacity: 0.9;
+    color: rgb(167 243 208);
+}
+
 .arborito-dock-hub-body__scroll > .arborito-sources-body {
     flex: 1 1 auto;
     min-height: 0;

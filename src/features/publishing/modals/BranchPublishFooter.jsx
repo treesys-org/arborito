@@ -10,13 +10,14 @@ import { resolvePublishHubFooterLabel } from '../api/publish-hub-chrome.js';
 import { MODAL_CTA_CANCEL, modalCtaConfirm } from '../../../shared/ui/modal-action-chrome.js';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 
-/** Outline danger — same size as Close, sits with the action row without stealing Publish. */
+/** Outline danger — full-width under the primary row. */
 const RETRACT_OUTLINE =
     'btn-cancel py-3 min-h-[44px] rounded-xl font-bold text-xs uppercase tracking-wider border border-rose-300/80 dark:border-rose-800/70 text-rose-800 dark:text-rose-200 bg-rose-50/40 dark:bg-rose-950/20 hover:bg-rose-100/70 dark:hover:bg-rose-950/40 transition-colors';
 
 /**
- * Publish hub footer: confirm + switches when publishing, then Close | Publish/Up to date,
- * with Unpublish as a full-width outline when a public copy exists.
+ * Publish hub footer:
+ * - Needs publish/update: Cancelar | Publicar/Actualizar (+ Despublicar if owner)
+ * - Already up to date: Listo (closes) (+ Despublicar) — no fake “Publicado” CTA
  */
 export function BranchPublishFooter({
     ui,
@@ -33,14 +34,24 @@ export function BranchPublishFooter({
     const [publishingBusy, setPublishingBusy] = useState(false);
     const [retractingBusy, setRetractingBusy] = useState(false);
     const publishingTree = useShellUiSlice((s) => s.publishingTree);
-    const publishCtx = useMemo(() => getActivePublishContext(activeSource), [activeSource]);
+    const { noChanges, noBaseline } = usePublishDiffState(
+        modal,
+        activeSource,
+        rawGraphData,
+        userStore
+    );
+    /* Recompute when graph/hashes change so Update vs Publish matches the dock. */
+    const publishCtx = useMemo(
+        () => getActivePublishContext(activeSource),
+        [activeSource, rawGraphData, userStore?.state?.branches, noChanges]
+    );
     const publishLocked = publishingBusy || retractingBusy || !!publishingTree;
-    const { noChanges } = usePublishDiffState(modal, activeSource, rawGraphData, userStore);
     const {
-        republish,
         confirmCopy,
         defaultIncludeForum,
         defaultListInDiscover,
+        liveIncludeForum,
+        liveListInDiscover,
     } = usePublishing();
 
     const [includeForum, setIncludeForum] = useState(() => defaultIncludeForum);
@@ -51,18 +62,39 @@ export function BranchPublishFooter({
     }, [defaultIncludeForum]);
 
     useEffect(() => {
-        setListInDiscover(true);
-    }, [defaultListInDiscover, republish]);
+        setListInDiscover(defaultListInDiscover);
+    }, [defaultListInDiscover]);
 
     const isFirstPublish = !publishCtx.hasPublishedBaseline;
-    const canPublish = isFirstPublish || !noChanges;
+    /*
+     * Never OR bare `!noChanges`: without a branch snapshot, noChanges is false and
+     * composed hubs would always show Publish/Update. Prefer shared dirty flags;
+     * only use structural diff when a real published snapshot exists.
+     */
+    const contentCanPublish =
+        isFirstPublish ||
+        publishCtx.isDraftDirty ||
+        (publishCtx.hasPublishedBaseline && !noBaseline && !noChanges);
+
+    const optionsDirty =
+        !!publishCtx.hasPublishedBaseline &&
+        (includeForum !== liveIncludeForum || listInDiscover !== liveListInDiscover);
+    /* Allow republish when only forum/Discover options changed (no content edits). */
+    const canPublish = contentCanPublish || optionsDirty;
+    const showUpdate = !isFirstPublish && canPublish;
+    const showPublishOptions = canPublish || !!publishCtx.hasPublishedBaseline;
     const canRetract =
         !!publishCtx.hasPublishedBaseline &&
         !!publishCtx.isPublishedOwner &&
         !!publishCtx.publishedNetworkUrl &&
         typeof revokePublicTreeInteractive === 'function';
 
-    const publishLabel = resolvePublishHubFooterLabel(ui, { isFirstPublish, noChanges });
+    const publishLabel = resolvePublishHubFooterLabel(ui, {
+        isFirstPublish,
+        noChanges: !canPublish,
+    });
+    const doneLabel = ui.publishHubDoneLabel || ui.dialogConfirmTitle || ui.done || 'Done';
+    const cancelLabel = ui.cancel || 'Cancel';
     const retractLabel =
         ui.publishHubRetractLink || ui.revokePublicTreeDockLabel || ui.revokePublicTreeConfirmButton || 'Unpublish';
     const unpublishCopy = useMemo(
@@ -70,17 +102,22 @@ export function BranchPublishFooter({
         [ui, publishCtx.kind]
     );
     const mobile = shouldShowMobileUI();
-    const publishEmoji =
-        canPublish && !isFirstPublish && !noChanges ? '🔄' : canPublish ? '🌐' : '✓';
+    const publishEmoji = showUpdate ? '🔄' : '🌐';
 
     const handlePublish = async (e) => {
         e.stopPropagation();
         if (!canPublish || publishLocked) return;
 
-        const flushed = flushMetadata?.();
-        if (flushed && !flushed.ok) {
-            notify?.(flushed.message || ui.publishMetaRequiredTitle || 'Course details required', true);
-            return;
+        if (typeof flushMetadata === 'function') {
+            const flushed = flushMetadata();
+            /* undefined = About form not mounted yet; interactive path still validates. */
+            if (flushed && !flushed.ok) {
+                notify?.(
+                    flushed.message || ui.publishMetaRequiredTitle || 'Course details required',
+                    true
+                );
+                return;
+            }
         }
 
         setPublishingBusy(true);
@@ -110,24 +147,37 @@ export function BranchPublishFooter({
         }
     };
 
+    const handleClose = (e) => {
+        e.stopPropagation();
+        onClose?.();
+    };
+
     return (
         <div className="arborito-modal-footer arborito-modal-footer--blend flex flex-col gap-3">
-            {canPublish ? (
+            {showPublishOptions ? (
                 <div className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/40 px-3 py-3 space-y-3">
-                    <p className="m-0 text-xs leading-snug text-slate-600 dark:text-slate-300 whitespace-pre-line">
-                        {confirmCopy.body}
-                    </p>
+                    {canPublish ? (
+                        <p className="m-0 text-xs leading-snug text-slate-600 dark:text-slate-300 whitespace-pre-line">
+                            {confirmCopy.body}
+                        </p>
+                    ) : (
+                        <p className="m-0 text-xs leading-snug text-slate-600 dark:text-slate-300">
+                            {ui.publicTreeUpToDateTooltip ||
+                                ui.sourcesPublishedUpToDate ||
+                                'Public copy is up to date.'}
+                        </p>
+                    )}
                     <SwitchRow
                         id="publish-hub-list-in-discover"
-                        label={ui.publicTreeListInDiscoverLabel || 'List in Discover'}
+                        label={ui.publicTreeListInDiscoverLabel || 'List in the forest'}
                         hint={
                             ui.publicTreeListInDiscoverHint ||
-                            'Your share code works the same without this. Discover only lists basic info on the servers you connected.'
+                            'When on, anyone can find this course in the forest (Discover). When off, only people with the link or share code can open it.'
                         }
                         checked={listInDiscover}
                         onChange={setListInDiscover}
-                        onAria={ui.publicTreeListInDiscoverSwitchOn || 'List in Discover'}
-                        offAria={ui.publicTreeListInDiscoverSwitchOff || 'Do not list in Discover'}
+                        onAria={ui.publicTreeListInDiscoverSwitchOn || 'List in the forest'}
+                        offAria={ui.publicTreeListInDiscoverSwitchOff || 'Do not list in the forest'}
                         className="py-0"
                     />
                     <SwitchRow
@@ -148,28 +198,33 @@ export function BranchPublishFooter({
                     />
                 </div>
             ) : null}
-            <div className={`arborito-action-row${mobile ? ' arborito-action-row--stack-mobile' : ''}`}>
+            {canPublish ? (
+                <div className={`arborito-action-row${mobile ? ' arborito-action-row--stack-mobile' : ''}`}>
+                    <button type="button" className={MODAL_CTA_CANCEL} onClick={handleClose}>
+                        {cancelLabel}
+                    </button>
+                    <button
+                        type="button"
+                        id="btn-construction-about-publish"
+                        className={`${modalCtaConfirm('emerald')} inline-flex items-center justify-center gap-2${publishLocked ? ' opacity-60 pointer-events-none' : ''}`}
+                        disabled={publishLocked}
+                        onClick={handlePublish}
+                    >
+                        <ChromeEmoji emoji={publishEmoji} className="text-sm leading-none" />
+                        <span>{publishLabel}</span>
+                    </button>
+                </div>
+            ) : (
                 <button
                     type="button"
-                    className={MODAL_CTA_CANCEL}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onClose?.();
-                    }}
+                    id="btn-construction-about-publish-done"
+                    className={`${modalCtaConfirm('emerald')} w-full inline-flex items-center justify-center gap-2`}
+                    onClick={handleClose}
                 >
-                    {ui.close || 'Close'}
+                    <ChromeEmoji emoji="✓" className="text-sm leading-none" />
+                    <span>{doneLabel}</span>
                 </button>
-                <button
-                    type="button"
-                    id="btn-construction-about-publish"
-                    className={`${modalCtaConfirm(canPublish ? 'emerald' : 'slate')} inline-flex items-center justify-center gap-2${!canPublish || publishLocked ? ' opacity-60 pointer-events-none' : ''}`}
-                    disabled={!canPublish || publishLocked}
-                    onClick={handlePublish}
-                >
-                    <ChromeEmoji emoji={publishEmoji} className="text-sm leading-none" />
-                    <span>{publishLabel}</span>
-                </button>
-            </div>
+            )}
             {canRetract ? (
                 <button
                     type="button"
@@ -190,7 +245,7 @@ export function BranchPublishFooter({
 export function BranchPublishFooterSkeleton({ ui }) {
     const mobile = shouldShowMobileUI();
     const publishLabel =
-        ui.publicTreeDockLabel || ui.constructionBranchPublishTitle || 'Publish branch';
+        ui.publicTreePublishOnlineLabel || ui.publicTreeDockLabel || 'Publish';
 
     return (
         <div
@@ -201,7 +256,7 @@ export function BranchPublishFooterSkeleton({ ui }) {
         >
             <div className={`arborito-action-row${mobile ? ' arborito-action-row--stack-mobile' : ''}`}>
                 <button type="button" className={MODAL_CTA_CANCEL} disabled>
-                    {ui.close || 'Close'}
+                    {ui.cancel || 'Cancel'}
                 </button>
                 <button
                     type="button"

@@ -10,6 +10,8 @@ import {
     defaultIncludeForumForPublish,
     defaultListInDiscoverForPublish,
     isRepublishForActiveSource,
+    liveIncludeForumForPublish,
+    liveListInDiscoverForPublish,
 } from '../api/publish-hub-confirm.js';
 
 /** Publicar, licencias, diff. */
@@ -39,10 +41,21 @@ export function usePublishing() {
         [republish, ui, rawGraphData, activeSource]
     );
     const defaultIncludeForum = useMemo(
-        () => defaultIncludeForumForPublish(getArboritoStore() || {}, republish),
-        [republish, rawGraphData?.meta?.forumEnabled]
+        () => defaultIncludeForumForPublish(getArboritoStore() || {}),
+        [rawGraphData?.meta?.forumEnabled, activeSource]
     );
-    const defaultListInDiscover = useMemo(() => defaultListInDiscoverForPublish(), [republish]);
+    const defaultListInDiscover = useMemo(
+        () => defaultListInDiscoverForPublish(getArboritoStore() || {}),
+        [rawGraphData?.meta?.listInDiscover, activeSource]
+    );
+    const liveIncludeForum = useMemo(
+        () => liveIncludeForumForPublish(getArboritoStore() || {}),
+        [rawGraphData?.meta?.forumEnabled, activeSource]
+    );
+    const liveListInDiscover = useMemo(
+        () => liveListInDiscoverForPublish(getArboritoStore() || {}),
+        [rawGraphData?.meta?.listInDiscover, activeSource]
+    );
 
     return {
         ui,
@@ -56,6 +69,8 @@ export function usePublishing() {
         confirmCopy,
         defaultIncludeForum,
         defaultListInDiscover,
+        liveIncludeForum,
+        liveListInDiscover,
         dismissModal,
         setModal,
         notify,

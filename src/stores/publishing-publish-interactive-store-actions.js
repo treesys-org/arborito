@@ -4,7 +4,7 @@ import { fileSystem } from '../features/backup-export/api/filesystem.js';
 import { generateTreeShareCode } from '../features/sources/api/share-code.js';
 import { randomUUIDSafe } from '../shared/lib/secure-web-crypto.js';
 import { ensureConnectedNostr } from '../shared/lib/connected-services/index.js';
-import { yieldToPaint, scheduleIdle } from '../shared/lib/yield-to-paint.js';
+import { yieldToPaint } from '../shared/lib/yield-to-paint.js';
 import { usesGlobalDirectoryPointerForTorrent } from '../features/p2p-webtorrent/api/global-directory-torrent-runtime.js';
 import { escHtml as esc } from '../shared/lib/html-escape.js';
 import { buildPublicShareAppUrl } from '../shared/lib/public-app-url.js';
@@ -12,10 +12,67 @@ import { branchIdFromBranchUrl } from '../shared/lib/branch-id.js';
 import { resolvePublishSuccessTitle } from '../features/publishing/api/resolve-publish-content-copy.js';
 import { getActivePublishContext } from '../features/editor/api/construction-scope-publish.js';
 import { shell, classifyPublishNetworkError, publishDialogLinkSectionHtml, showInteractivePublishFailureDialog } from './publishing-publish-revoke-helpers.js';
-import { isRepublishForActiveSource } from '../features/publishing/api/publish-hub-confirm.js';
 import { openPublishHub, requireSignInForPublish } from '../features/publishing/api/account-hub-gate.js';
 import { isArboritoDemoTree } from '../features/publishing/api/demo-tree-guard.js';
 import { DEMO_BRANCH_ID } from '../core/demo/arborito-demo-ids.js';
+import {
+    curriculumHasLocalMedia,
+} from '../features/tree-graph/api/tree-import-sanitize.js';
+import { collectLocalMediaLessonTitles } from '../features/learning/api/lesson-local-media-store.js';
+
+/** Confirm omit-local-media before locking the UI with publishingTree. */
+async function confirmLocalMediaBeforePublishLock(store) {
+    const ui = store.ui || {};
+    if (store.state.activeSource?.type === 'composed-tree') {
+        const tid = String(store.state.activeSource.treeId || '').trim();
+        const entry = tid ? store.userStore?.getTree?.(tid) : null;
+        const titles = [];
+        for (const ref of entry?.branchRefs || []) {
+            const bid = String(ref?.branchId || ref?.id || '').trim();
+            const data = bid ? store.userStore?.getBranchData?.(bid) : null;
+            if (data && curriculumHasLocalMedia(data)) {
+                for (const t of collectLocalMediaLessonTitles(data)) titles.push(t);
+            }
+        }
+        if (!titles.length) return true;
+        const unique = [...new Set(titles)];
+        const list = `\n\n• ${unique.slice(0, 12).join('\n• ')}${unique.length > 12 ? '\n• …' : ''}`;
+        const intro =
+            ui.publishLocalMediaOmitBody ||
+            'These lessons still use Local media (./media/). Replace with moderated links, or publish omitting Local media (those blocks will be empty online).';
+        return !!(await store.confirm(
+            `${intro}${list}`,
+            ui.publishLocalMediaOmitTitle || 'Local media found',
+            false,
+            ui.publishLocalMediaOmitConfirm || 'Publish without Local media'
+        ));
+    }
+
+    try {
+        if (typeof store.graphLogic?.materializeAllLazyLessonBodiesIntoRaw === 'function') {
+            await store.graphLogic.materializeAllLazyLessonBodiesIntoRaw();
+        }
+    } catch (e) {
+        console.warn('[Arborito] materialize before local-media check', e);
+    }
+    const bundle = store.buildArboritoBundleObject?.();
+    const tree = bundle?.tree || store.state.rawGraphData;
+    if (!curriculumHasLocalMedia(tree)) return true;
+    const lessons = collectLocalMediaLessonTitles(tree);
+    const list =
+        lessons.length > 0
+            ? `\n\n• ${lessons.slice(0, 12).join('\n• ')}${lessons.length > 12 ? '\n• …' : ''}`
+            : '';
+    const intro =
+        ui.publishLocalMediaOmitBody ||
+        'These lessons still use Local media (./media/). Replace with moderated links, or publish omitting Local media (those blocks will be empty online).';
+    return !!(await store.confirm(
+        `${intro}${list}`,
+        ui.publishLocalMediaOmitTitle || 'Local media found',
+        false,
+        ui.publishLocalMediaOmitConfirm || 'Publish without Local media'
+    ));
+}
 
 export async function publishTreePublicInteractiveAction(opts = {}) {
     const { includeForum = false, listInDiscover = true, hubConfirm = false } = opts || {};
@@ -52,10 +109,18 @@ export async function publishTreePublicInteractiveAction(opts = {}) {
         return;
     }
 
-    const republish = isRepublishForActiveSource(store);
+    const reuse = (() => {
+        const ref = (store.getPublishedTreeRefForActiveLocalSource && store.getPublishedTreeRefForActiveLocalSource());
+        if (!ref) return null;
+        const pair = store.getNostrPublisherPair(ref.pub);
+        if (!(pair && pair.priv)) return null;
+        return formatNostrTreeUrl(ref.pub, ref.universeId);
+    })();
 
-    // Optional: attach WebTorrent magnets (course bytes) while keeping the share-code UX unchanged.
-    // Stored in `bundle.meta.webtorrent` so clients can lazy-load nodes/content via WebTorrent.
+    /* Ask about Local media before locking construction / showing “Publishing…”. */
+    if (!(await confirmLocalMediaBeforePublishLock(store))) return;
+
+    // Optional WebTorrent magnets — only after media confirm so cancel does not dirty the draft.
     const wtBudgetMs = 50000;
     try {
         if ((store.webtorrent && store.webtorrent.available ? store.webtorrent.available() : false) && store.state.rawGraphData) {
@@ -79,13 +144,6 @@ export async function publishTreePublicInteractiveAction(opts = {}) {
     }
     }
 
-    const reuse = (() => {
-        const ref = (store.getPublishedTreeRefForActiveLocalSource && store.getPublishedTreeRefForActiveLocalSource());
-        if (!ref) return null;
-        const pair = store.getNostrPublisherPair(ref.pub);
-        if (!(pair && pair.priv)) return null;
-        return formatNostrTreeUrl(ref.pub, ref.universeId);
-    })();
     const publishBudgetMs = 240000;
     /* Publishing a course can take several seconds (chunk uploads to every
     * relay, directory bump, code claim). Without a visible "publishing"
@@ -99,10 +157,12 @@ export async function publishTreePublicInteractiveAction(opts = {}) {
     * Cleared in the `finally` so every error path also unlocks the UI. */
     store.update({ publishingTree: true, treeGrowingOverlay: true });
     let pubRes;
+    let publishSoftExit = false;
     const publishPromise = store.publishActiveTreeToNostrUniverse({
         reuseNostrTreeUrl: reuse,
         includeForum,
-        listInDiscover
+        listInDiscover,
+        skipLocalMediaConfirm: true,
     });
     try {
         try {
@@ -141,7 +201,8 @@ export async function publishTreePublicInteractiveAction(opts = {}) {
             }
         }
         if (!(pubRes && pubRes.publicTreeUrl)) {
-            await showInteractivePublishFailureDialog(store, ui, 'no-result', '');
+            /* Cancel / already-notified soft exits return null — do not show “no-result”. */
+            publishSoftExit = true;
             return;
         }
         try {
@@ -155,53 +216,76 @@ export async function publishTreePublicInteractiveAction(opts = {}) {
         } catch {
             /* ignore */
         }
-    } finally {
-        store.update({ publishingTree: false, treeGrowingOverlay: false });
-    }
-    const srcUrl = (store.state.activeSource && store.state.activeSource.url);
-    const localId = branchIdFromBranchUrl(srcUrl);
-    if (localId) {
-        store.userStore.setBranchPublishedNetworkUrl(localId, pubRes.publicTreeUrl, pubRes.shareCode || '');
-        try {
-            const entry = store.userStore.state.branches.find((t) => t.id === localId);
-            if (entry && pubRes.shareCode) {
-                entry.data = entry.data && typeof entry.data === 'object' ? entry.data : {};
-                entry.data.meta = entry.data.meta && typeof entry.data.meta === 'object' ? entry.data.meta : {};
-                entry.data.meta.shareCode = pubRes.shareCode;
+
+        /*
+         * Freeze the published baseline *now* (while still locked). Cloning only inside
+         * scheduleIdle races with edits and marks later drafts as already published.
+         */
+        const srcUrl = (store.state.activeSource && store.state.activeSource.url);
+        const localId = branchIdFromBranchUrl(srcUrl);
+        if (localId) {
+            let frozenSnapshot = null;
+            try {
+                frozenSnapshot = JSON.parse(JSON.stringify(store.state.rawGraphData));
+            } catch {
+                frozenSnapshot = store.state.rawGraphData;
+            }
+            store.userStore.setBranchPublishedNetworkUrl(
+                localId,
+                pubRes.publicTreeUrl,
+                pubRes.shareCode || '',
+                { bundleGen: pubRes.gen || undefined }
+            );
+            try {
+                const entry = store.userStore.state.branches.find((t) => t.id === localId);
+                if (entry && pubRes.shareCode) {
+                    entry.data = entry.data && typeof entry.data === 'object' ? entry.data : {};
+                    entry.data.meta = entry.data.meta && typeof entry.data.meta === 'object' ? entry.data.meta : {};
+                    entry.data.meta.shareCode = pubRes.shareCode;
+                }
+                if (entry && pubRes.inactivityPolicy) entry.publishedInactivityPolicy = pubRes.inactivityPolicy;
+                if (entry && frozenSnapshot) {
+                    try {
+                        entry.data = JSON.parse(JSON.stringify(frozenSnapshot));
+                    } catch {
+                        entry.data = frozenSnapshot;
+                    }
+                }
                 store.userStore.markBranchDirty(localId);
                 store.userStore.persist();
-            }
-            if (entry && pubRes.inactivityPolicy) entry.publishedInactivityPolicy = pubRes.inactivityPolicy;
-        } catch {
-            /* ignore */
-        }
-        // Snapshot the published baseline so the UI can show a Draft + diff vs published.
-        // Deferred so the success dialog opens immediately (large trees block the main thread).
-        const snapshotLocalId = localId;
-        const snapshotData = store.state.rawGraphData;
-        scheduleIdle(() => {
-            try {
-                store.userStore.setBranchPublishedSnapshot(snapshotLocalId, snapshotData);
-                const entry = store.userStore.state.branches.find((t) => t.id === snapshotLocalId);
-                if (entry) entry.draftHash = store.userStore.hashJson(entry.data);
             } catch {
                 /* ignore */
             }
-        });
-        /*
-         * Public mirror ≠ editable account draft. Keep a silent encrypted copy on the
-         * account so the author can continue from other devices (no extra prompt).
-         */
-        try {
-            if (typeof store.publishBranchAsPrivate === 'function') {
-                void store.publishBranchAsPrivate(localId, { silent: true }).catch((e) => {
-                    console.warn('[arborito] post-publish account draft sync failed', e);
-                });
+            if (frozenSnapshot) {
+                store.userStore.setBranchPublishedSnapshot(localId, frozenSnapshot);
             }
-        } catch (e) {
-            console.warn('[arborito] post-publish account draft sync failed', e);
+            /*
+             * Public mirror ≠ editable account draft. Keep a silent encrypted copy on the
+             * account so the author can continue from other devices (no extra prompt).
+             */
+            try {
+                if (typeof store.publishBranchAsPrivate === 'function') {
+                    void store.publishBranchAsPrivate(localId, { silent: true }).catch((e) => {
+                        console.warn('[arborito] post-publish account draft sync failed', e);
+                    });
+                }
+            } catch (e) {
+                console.warn('[arborito] post-publish account draft sync failed', e);
+            }
         }
+    } finally {
+        store.update({ publishingTree: false, treeGrowingOverlay: false });
     }
+    if (publishSoftExit || !(pubRes && pubRes.publicTreeUrl)) return;
+
+    try {
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('arborito-construction-scope-changed'));
+        }
+    } catch {
+        /* ignore */
+    }
+
     const shareCode = pubRes.shareCode || '';
     const publishKind = getActivePublishContext(store.state.activeSource)?.kind;
     const shortLink = shareCode ? buildPublicShareAppUrl(`?code=${encodeURIComponent(shareCode)}`) : '';

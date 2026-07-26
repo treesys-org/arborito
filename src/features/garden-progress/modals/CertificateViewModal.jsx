@@ -9,7 +9,7 @@ import { printCertificate } from '../api/print-certificate.js';
 import { resolveCertificateDisplayNode } from '../api/certificate-entries.js';
 import { resolvePdfSourceMeta } from '../../backup-export/api/export/resolve-pdf-source-meta.js';
 import { sanitizeLocaleRichHtml } from '../../../shared/lib/locale-rich-html.js';
-import { modalCtaConfirmFull } from '../../../shared/ui/modal-action-chrome.js';
+import { modalCtaConfirm, modalCtaConfirmFull, MODAL_CTA_CANCEL } from '../../../shared/ui/modal-action-chrome.js';
 import { isOnboardingWizardIncomplete } from '../../../shared/lib/onboarding-boot-gate.js';
 
 function formatCertDate(lang) {
@@ -141,27 +141,38 @@ export function ModalCertificateView() {
         />
     );
 
-    const toolbar = (
-        <div
-            className={`shrink-0 ${mobile ? 'px-3' : 'px-4'} pb-2 flex items-center justify-end gap-2`}
-        >
-            {!fromShare ? (
+    const footer = (
+        <div className="arborito-modal-footer arborito-modal-footer--blend flex flex-col gap-2">
+            {fromShare ? (
                 <button
                     type="button"
-                    className="arborito-cert-view__share px-4 py-2.5 rounded-xl text-xs font-black tracking-wide border-2 border-yellow-500/50 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors"
-                    onClick={onShare}
-                    aria-label={ui.certShareButton || 'Share certificate'}
+                    className={`${modalCtaConfirmFull('emerald')} inline-flex items-center justify-center gap-2`}
+                    onClick={onInvite}
                 >
-                    {ui.certShareButton || 'Share'}
+                    <ChromeEmoji emoji="🌳" className="text-sm leading-none" />
+                    <span>{ui.certShareInviteCta || 'Explore Arborito'}</span>
                 </button>
-            ) : null}
-            <button
-                type="button"
-                className="arborito-cert-view__print arborito-cta-blue px-5 py-2.5 rounded-xl text-xs font-black tracking-wide"
-                onClick={onPrint}
-            >
-                {ui.printCert || 'DOWNLOAD DIPLOMA'}
-            </button>
+            ) : (
+                <div
+                    className={`arborito-action-row${mobile ? ' arborito-action-row--stack-mobile' : ''}`}
+                >
+                    <button
+                        type="button"
+                        className={`${MODAL_CTA_CANCEL} arborito-cert-view__share inline-flex items-center justify-center`}
+                        onClick={onShare}
+                        aria-label={ui.certShareButton || 'Share certificate'}
+                    >
+                        {ui.certShareButton || 'Share'}
+                    </button>
+                    <button
+                        type="button"
+                        className={`${modalCtaConfirm('sky')} arborito-cert-view__print inline-flex items-center justify-center`}
+                        onClick={onPrint}
+                    >
+                        {ui.printCert || 'DOWNLOAD DIPLOMA'}
+                    </button>
+                </div>
+            )}
         </div>
     );
 
@@ -228,26 +239,17 @@ export function ModalCertificateView() {
             </div>
 
             {fromShare ? (
-                <div className="mt-3 shrink-0 space-y-2">
-                    <Callout
-                        tone="emerald"
-                        size="sm"
-                        title={ui.certShareInviteTitle || 'Learn with Arborito'}
-                        body={
-                            ui.certShareInviteBody ||
-                            'This diploma was earned on Arborito — free maps of knowledge you can explore on your own device.'
-                        }
-                        bodyClass="text-[11px] leading-snug"
-                    />
-                    <button
-                        type="button"
-                        className={`${modalCtaConfirmFull('emerald')} inline-flex items-center justify-center gap-2`}
-                        onClick={onInvite}
-                    >
-                        <ChromeEmoji emoji="🌳" className="text-sm leading-none" />
-                        <span>{ui.certShareInviteCta || 'Explore Arborito'}</span>
-                    </button>
-                </div>
+                <Callout
+                    tone="emerald"
+                    size="sm"
+                    title={ui.certShareInviteTitle || 'Learn with Arborito'}
+                    body={
+                        ui.certShareInviteBody ||
+                        'This diploma was earned on Arborito — free maps of knowledge you can explore on your own device.'
+                    }
+                    bodyClass="text-[11px] leading-snug"
+                    extraClass="mt-3 shrink-0"
+                />
             ) : null}
 
             {disclaimerHtml ? (
@@ -271,7 +273,7 @@ export function ModalCertificateView() {
                 layout="centered"
                 useDockChrome
                 hero={hero}
-                toolbar={toolbar}
+                footer={footer}
                 skipBodyWrap
                 shellOpts={{ rootFlags: 'arborito-modal--certificate-view' }}
                 onBackdropClick={close}

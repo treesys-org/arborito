@@ -346,6 +346,23 @@ export function updateUniversePresentationAction(patch) {
                     raw.universePresentation?.licenseUrl ||
                     'https://creativecommons.org/licenses/by-sa/4.0/',
             };
+            /* Keep language-root description in sync so Bosque rows and Discover
+             * prefer the same public blurb the author typed in About. */
+            if (Object.prototype.hasOwnProperty.call(p, 'description')) {
+                const desc = String(p.description ?? '').trim();
+                const langs = raw.languages && typeof raw.languages === 'object' ? raw.languages : null;
+                if (langs) {
+                    const editKey = String(store.state.curriculumEditLang || store.state.lang || '')
+                        .trim()
+                        .toUpperCase();
+                    const keys = Object.keys(langs);
+                    const target =
+                        keys.find((k) => String(k).trim().toUpperCase() === editKey) || keys[0];
+                    if (target && langs[target] && typeof langs[target] === 'object') {
+                        langs[target].description = desc;
+                    }
+                }
+            }
             syncReadmeFromUniversePresentation(raw, store.ui);
             store.update({ rawGraphData: raw });
             DataProcessor.process(store, raw, store.state.activeSource, { suppressReadmeAutoOpen: true });
@@ -413,13 +430,6 @@ export function validatePublicationMetadataAction() {
 
             const ui = store.ui;
             const { authorMin, descriptionMin } = store.getPublicationMetadataLimits();
-            const raw = store.state.rawGraphData;
-            const pres =
-                (raw && raw.universePresentation) && typeof raw.universePresentation === 'object'
-                    ? raw.universePresentation
-                    : {};
-            const author = String(pres.authorName || currentOnlineAccountUsername(store) || '').trim();
-            const desc = String(pres.description || '').trim();
             if (isArboritoDemoTree(store)) {
                 return {
                     ok: false,
@@ -427,6 +437,27 @@ export function validatePublicationMetadataAction() {
                         ui.publishDemoTreeBlocked ||
                         'The Arborito demo cannot be published. Duplicate it as your own branch first.',
                 };
+            }
+
+            let author = '';
+            let desc = '';
+            if (fileSystem.isLocalComposedTree?.()) {
+                const tid = fileSystem.composedTreeId?.();
+                const entry = tid ? store.userStore?.getTree?.(tid) : null;
+                const pres =
+                    entry?.presentation && typeof entry.presentation === 'object'
+                        ? entry.presentation
+                        : {};
+                author = String(pres.authorName || currentOnlineAccountUsername(store) || '').trim();
+                desc = String(pres.description || '').trim();
+            } else {
+                const raw = store.state.rawGraphData;
+                const pres =
+                    (raw && raw.universePresentation) && typeof raw.universePresentation === 'object'
+                        ? raw.universePresentation
+                        : {};
+                author = String(pres.authorName || currentOnlineAccountUsername(store) || '').trim();
+                desc = String(pres.description || '').trim();
             }
             if (author.length < authorMin) {
                 const tpl =
@@ -466,11 +497,12 @@ export function persistActiveBranchIfNeededAction() {
                     entry.releaseSnapshots[target.snapshotId] = rawCopy;
                 } else {
                     entry.data = rawCopy;
-                    try {
-                        entry.draftHash = store.userStore.hashJson(entry.data);
-                    } catch {
-                        /* ignore */
-                    }
+                }
+                try {
+                    /* Always refresh draftHash from the live curriculum being edited. */
+                    entry.draftHash = store.userStore.hashJson(rawCopy);
+                } catch {
+                    /* ignore */
                 }
                 entry.updated = Date.now();
                 store.userStore.state.branches = [...store.userStore.state.branches];
@@ -847,7 +879,8 @@ export async function materializeNetworkReleaseSnapshotAction(snapId) {
                 const data = await store.nostr.loadNostrSnapshotChunk({
                     pub: treeRef.pub,
                     universeId: treeRef.universeId,
-                    snapshotKey
+                    snapshotKey,
+                    gen: raw?.meta?.gen || null
                 });
                 if (!data || typeof data !== 'object') return null;
                 const nextRaw = JSON.parse(JSON.stringify(raw));

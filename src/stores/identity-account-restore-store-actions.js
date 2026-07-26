@@ -577,6 +577,105 @@ export function cancelPendingAccountSyncTimersAction() {
     }
 }
 
+/**
+ * Upload composed playlist (refs + presentation) as encrypted account draft.
+ * Member branch curricula stay on their own private sync / network URLs.
+ */
+export async function publishComposedTreeAsPrivateAction(treeId, opts = {}) {
+    const store = shell();
+    if (!store) return undefined;
+    const ui = store.ui;
+    const silent = !!opts.silent;
+    if (!store.isSignedIn()) {
+        throw new Error(ui.syncLoginNoAccount || 'Sign in with your account first.');
+    }
+    const name = String(store._authSession?.username || '').trim();
+    if (!name) {
+        throw new Error(ui.syncLoginNoAccount || 'Sign in with your account first.');
+    }
+    if (!isNostrNetworkAvailable()) {
+        throw new Error(ui.nostrNotLoadedHint || 'Nostr relays unavailable.');
+    }
+    if (typeof store.hasGdprNetworkConsent === 'function' && !store.hasGdprNetworkConsent()) {
+        throw new Error(
+            ui.privateTreesSyncNetworkHint ||
+                'Turn on the network in Privacy & data to sync this tree.'
+        );
+    }
+    const tid = String(treeId || store.state.activeSource?.treeId || '').trim();
+    const entry = tid ? store.userStore.getTree?.(tid) : null;
+    if (!entry) {
+        throw new Error(ui.privateTreesLocalMissing || 'That local tree is missing.');
+    }
+    const pair = await store.ensureNetworkUserPair();
+    if (!(pair && pair.pub)) {
+        throw new Error(ui.nostrNotLoadedHint || 'Could not derive your user key.');
+    }
+    const body = {
+        v: 1,
+        kind: 'composed-tree',
+        id: tid,
+        name: entry.name || tid,
+        branchRefs: Array.isArray(entry.branchRefs) ? entry.branchRefs : [],
+        presentation: entry.presentation || null,
+        forkOf: entry.forkOf || null,
+        updatedAt: new Date().toISOString(),
+    };
+    await store.nostr.putPrivateTreeBlob({ username: name, treeId: tid, pair, body });
+    store.userStore.markTreeAsPrivateSyncedFromAccount?.(tid);
+    store.sourceManager.refreshPrivateAccountSources?.();
+    notifyCommunityChanged(store);
+    notifyIdentityChanged(store);
+    if (!silent) {
+        store.notify(
+            ui.privateComposedTreePublishedOk ||
+                ui.privateTreesPublishedOk ||
+                'Tree playlist synced to your account.',
+            false
+        );
+    }
+}
+
+export async function unpublishPrivateComposedTreeAction(treeId) {
+    const store = shell();
+    if (!store) return undefined;
+    const id = String(treeId || '').trim();
+    if (!id || !store.isSignedIn()) return;
+    const name = String(store._authSession?.username || '').trim();
+    if (!name || !isNostrNetworkAvailable()) return;
+    const wasSynced = !!store.userStore?.isTreePrivateSyncedFromAccount?.(id);
+    store.userStore.unmarkTreePrivateSyncedFromAccount?.(id);
+    let partCount = 0;
+    try {
+        const list = await store.nostr.listPrivateTreeBlobsOnce(name);
+        const row = (list || []).find((r) => String(r.treeId) === id);
+        if (row) partCount = row.partCiphertexts?.length || 0;
+    } catch {
+        /* ignore */
+    }
+    try {
+        const ok = await store.nostr.clearPrivateTreeBlob({
+            username: name,
+            treeId: id,
+            partCount,
+            pair: await store.ensureNetworkUserPair?.(),
+        });
+        if (!ok) throw new Error('clearPrivateTreeBlob returned false');
+    } catch (e) {
+        if (wasSynced) {
+            try {
+                store.userStore.markTreeAsPrivateSyncedFromAccount?.(id);
+            } catch {
+                /* ignore */
+            }
+        }
+        throw e;
+    }
+    store.sourceManager.refreshPrivateAccountSources?.();
+    notifyCommunityChanged(store);
+    notifyIdentityChanged(store);
+}
+
 export async function unpublishPrivateBranchAction(treeId) {
     const store = shell();
     if (!store) return undefined;
@@ -689,10 +788,12 @@ export const storeAccountRestoreMethods = {
     loadPrivateTreesFromAccount: loadPrivateTreesFromAccountAction,
     publishBranchAsPrivate: publishBranchAsPrivateAction,
     publishActiveBranchAsPrivate: publishActiveBranchAsPrivateAction,
+    publishComposedTreeAsPrivate: publishComposedTreeAsPrivateAction,
     syncAllLocalPrivateBranchesToAccount: syncAllLocalPrivateBranchesToAccountAction,
     maybeSyncPrivateAccountBranches: maybeSyncPrivateAccountBranchesAction,
     cancelPendingAccountSyncTimers: cancelPendingAccountSyncTimersAction,
     unpublishPrivateBranch: unpublishPrivateBranchAction,
+    unpublishPrivateComposedTree: unpublishPrivateComposedTreeAction,
     _scheduleLoadOwnedTreesAfterSignIn: _scheduleLoadOwnedTreesAfterSignInAction,
     loadOwnedTreesFromDirectory: loadOwnedTreesFromDirectoryAction,
 };

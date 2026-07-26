@@ -131,7 +131,10 @@ async function runSearchIndexRebuild(store) {
         const treeRef = parseNostrTreeUrl(srcUrl);
         if (treeRef) {
             try {
-                const pack = await store.nostr.loadNostrSearchPack(treeRef);
+                const pack = await store.nostr.loadNostrSearchPack({
+                    ...treeRef,
+                    gen: raw?.meta?.gen || null
+                });
                 if (pack && Array.isArray(pack.entries)) {
                     nostrSearchPackEntries = pack.entries;
                 }

@@ -1,7 +1,7 @@
 import { useSources, useSourcesStore } from '../../hooks/useSources.js';
 import { formatNostrTreeUrl, parseNostrTreeUrl } from '../../../nostr/api/nostr-refs.js';
 import { findCommunitySourceByUrl } from '../../api/modals/logic/sources-helpers.js';
-import { pickTitleForLang } from '../../../../shared/lib/catalog-titles.js';
+import { pickTitleForLang, resolveCatalogDescription } from '../../../../shared/lib/catalog-titles.js';
 import { SourcesPill } from './SourcesPill.jsx';
 import { LanguagePills } from './LanguagePills.jsx';
 import { SourcesMoreButton, SourcesPublishedSocialToolbar } from './SourcesRowChrome.jsx';
@@ -53,9 +53,7 @@ export function SourcesSavedRow({
     const savedLangs =
         Array.isArray(source?.languages) && source.languages.length ? source.languages : [];
     const author = String(source?.listAuthorName || source?.authorName || '').trim();
-    const desc =
-        pickTitleForLang(source?.descriptions, lang, '') ||
-        String(source?.listDescription || source?.description || '').trim();
+    const desc = resolveCatalogDescription(source, lang, ui);
     const shareCode = String(source?.shareCode || '').trim();
     const rowKind = listingKind(source?.contentKind, treeRef?.universeId);
     const borderCls =

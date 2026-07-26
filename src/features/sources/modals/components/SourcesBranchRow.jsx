@@ -272,6 +272,20 @@ export function SourcesBranchRow({
                                 {ui.sourceRemove}
                             </button>
                         ) : null}
+                        {!isDemoBranch ? (
+                            <button
+                                type="button"
+                                className="arborito-sources-action-chip"
+                                onClick={() =>
+                                    onAction?.('reset-branch-progress', {
+                                        id: branch?.id,
+                                        name: branch?.name,
+                                    })
+                                }
+                            >
+                                {ui.sourcesResetBranchProgress || 'Reset progress'}
+                            </button>
+                        ) : null}
                     </div>
                 </div>
             ) : null}

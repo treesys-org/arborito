@@ -22,15 +22,20 @@ export async function computeBranchSetHash(branchRefs) {
         .join('');
 }
 
-/** Sync fallback when subtle crypto unavailable (tests). */
+/** Sync fingerprint used for local dirty detection (dock / Biblioteca). */
 export function computeBranchSetHashSync(branchRefs) {
     const refs = Array.isArray(branchRefs) ? branchRefs : [];
     const keys = refs
-        .map((r) => String(r?.networkUrl || r?.sourceUrl || r?.branchId || r?.refId || '').trim())
+        .map((r) => {
+            const net = String(r?.networkUrl || '').trim();
+            const src = String(r?.sourceUrl || '').trim();
+            const bid = String(r?.branchId || r?.refId || '').trim();
+            return net || src || bid;
+        })
         .filter(Boolean)
         .sort();
     let h = 0;
     const s = keys.join('|');
     for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
-    return `sync-${(h >>> 0).toString(16)}`;
+    return keys.length ? `sync-${(h >>> 0).toString(16)}` : '';
 }

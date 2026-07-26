@@ -34,7 +34,11 @@ export function leaveCertificatesViewOnStore(store, opts = {}) {
     /* Hide chrome immediately — React unmount of the list can lag. */
     hideCertificatesChromeNow();
 
-    store.update({ viewMode: 'explore', certificatesFromMobileMore: false });
+    store.update({
+        viewMode: 'explore',
+        certificatesFromMobileMore: false,
+        ...(store.state.modal?.type === 'certificate' ? { modal: null } : {}),
+    });
     if (fromMore && returnToMore) {
         const reopen = () => {
             const sb = getPanelRef('sidebar');

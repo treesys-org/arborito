@@ -48,7 +48,13 @@ export const treesMixin = {
         return entry;
     },
 
-    updateTree(treeId, patch) {
+    /**
+     * @param {string} treeId
+     * @param {object} patch
+     * @param {{ touchUpdated?: boolean }} [opts] - set touchUpdated:false for hash bookkeeping
+     *   that must not flip dock/Biblioteca into a false “Update” state.
+     */
+    updateTree(treeId, patch, opts = {}) {
         const entry = this.state.trees.find((t) => t.id === treeId);
         if (!entry) return false;
         if (patch.name != null) entry.name = String(patch.name).trim() || entry.name;
@@ -57,7 +63,7 @@ export const treesMixin = {
         if (patch.presentation !== undefined) entry.presentation = patch.presentation;
         if (patch.branchSetHash != null) entry.branchSetHash = String(patch.branchSetHash);
         if (patch.publishedBranchSetHash != null) entry.publishedBranchSetHash = String(patch.publishedBranchSetHash);
-        entry.updated = Date.now();
+        if (opts.touchUpdated !== false) entry.updated = Date.now();
         this.state.trees = [...this.state.trees];
         this.markTreeDirty(treeId);
         this.persist();
@@ -113,29 +119,61 @@ export const treesMixin = {
         return affected;
     },
 
-    setTreePublishedNetworkUrl(treeId, treeUrl, shareCode = null) {
+    /**
+     * @param {string} treeId
+     * @param {string} treeUrl
+     * @param {string|null} [shareCode]
+     * @param {{
+     *   branchSetHash?: string|null,
+     *   listInDiscover?: boolean,
+     *   forumEnabled?: boolean,
+     *   bindOnly?: boolean,
+     * }} [opts]
+     */
+    setTreePublishedNetworkUrl(treeId, treeUrl, shareCode = null, opts = {}) {
         const id = String(treeId || '').trim();
         const url = String(treeUrl || '').trim();
         if (!id || !url) return false;
         const entry = this.state.trees.find((t) => t.id === id);
         if (!entry) return false;
         entry.publishedNetworkUrl = url;
-        entry.publishedAt = Date.now();
         if (shareCode != null && String(shareCode).trim()) {
             entry.publishedShareCode = String(shareCode).trim();
         }
-        if (entry.branchSetHash) {
-            entry.publishedBranchSetHash = String(entry.branchSetHash);
+        if (opts.bindOnly) {
+            entry.publishPending = true;
+            delete entry.publishedAt;
+            delete entry.publishedBranchSetHash;
+        } else {
+            entry.publishedAt = Date.now();
+            delete entry.publishPending;
+            const hashOpt = opts?.branchSetHash != null ? String(opts.branchSetHash).trim() : '';
+            if (hashOpt) {
+                entry.branchSetHash = hashOpt;
+                entry.publishedBranchSetHash = hashOpt;
+            } else if (entry.branchSetHash) {
+                entry.publishedBranchSetHash = String(entry.branchSetHash);
+            }
+            if (typeof opts?.listInDiscover === 'boolean') {
+                entry.publishedListInDiscover = opts.listInDiscover;
+            }
+            if (typeof opts?.forumEnabled === 'boolean') {
+                entry.publishedForumEnabled = opts.forumEnabled;
+            }
+            if (opts.bundleGen != null && String(opts.bundleGen).trim()) {
+                entry.publishedBundleGen = String(opts.bundleGen).trim();
+            }
         }
         this.state.trees = [...this.state.trees];
         this.markTreeDirty(id);
         this.persist();
+        this.notifyCatalogChanged?.();
         return true;
     },
 
     getTreePublishedShareCode(treeId) {
         const entry = this.state.trees.find((t) => t.id === treeId);
-        if (!entry?.publishedNetworkUrl) return null;
+        if (!entry?.publishedNetworkUrl || entry.publishPending) return null;
         return entry?.publishedShareCode ? String(entry.publishedShareCode) : null;
     },
 
@@ -153,12 +191,50 @@ export const treesMixin = {
         delete entry.publishedAt;
         delete entry.publishedShareCode;
         delete entry.publishedBranchSetHash;
+        delete entry.publishedListInDiscover;
+        delete entry.publishedForumEnabled;
+        delete entry.publishPending;
+        delete entry.publishedBundleGen;
         if (entry.data?.meta && typeof entry.data.meta === 'object') {
             delete entry.data.meta.shareCode;
         }
         this.state.trees = [...this.state.trees];
         this.markTreeDirty(id);
         this.persist();
+        this.notifyCatalogChanged?.();
         return true;
+    },
+
+    markTreeAsPrivateSyncedFromAccount(treeId) {
+        const id = String(treeId || '').trim();
+        if (!id) return false;
+        const entry = this.state.trees.find((t) => t.id === id);
+        if (!entry) return false;
+        entry.privateSyncedFromAccount = true;
+        this.state.trees = [...this.state.trees];
+        this.markTreeDirty(id);
+        this.persist();
+        this.notifyCatalogChanged?.();
+        return true;
+    },
+
+    unmarkTreePrivateSyncedFromAccount(treeId) {
+        const id = String(treeId || '').trim();
+        if (!id) return false;
+        const entry = this.state.trees.find((t) => t.id === id);
+        if (!entry) return false;
+        delete entry.privateSyncedFromAccount;
+        this.state.trees = [...this.state.trees];
+        this.markTreeDirty(id);
+        this.persist();
+        this.notifyCatalogChanged?.();
+        return true;
+    },
+
+    isTreePrivateSyncedFromAccount(treeId) {
+        const id = String(treeId || '').trim();
+        if (!id) return false;
+        const entry = this.state.trees.find((t) => t.id === id);
+        return !!(entry && entry.privateSyncedFromAccount);
     },
 };

@@ -306,5 +306,82 @@ export const progressMixin = {
         } catch {
             return this.computeHash(String(Date.now()));
         }
+    },
+
+    /**
+     * Clear completion + recent lesson positions for nodes in a local branch.
+     * @param {string} branchId
+     * @returns {number} how many completion ids were removed
+     */
+    resetProgressForBranch(branchId) {
+        const id = String(branchId || '').trim();
+        if (!id) return 0;
+        const entry = (this.state.branches || []).find((t) => String(t?.id) === id);
+        if (!entry?.data) return 0;
+
+        const walk = (node, set) => {
+            if (!node || typeof node !== 'object') return;
+            if (node.id != null) set.add(String(node.id));
+            if (Array.isArray(node.children)) node.children.forEach((c) => walk(c, set));
+        };
+        const nodeIds = new Set();
+        const langs = entry.data?.languages && typeof entry.data.languages === 'object'
+            ? Object.keys(entry.data.languages)
+            : [];
+        for (const lang of langs) walk(entry.data.languages[lang], nodeIds);
+        if (!nodeIds.size) return 0;
+
+        const matches = (raw) => {
+            const s = String(raw || '');
+            if (!s) return false;
+            if (nodeIds.has(s)) return true;
+            const sep = s.indexOf('::');
+            if (sep >= 0 && nodeIds.has(s.slice(sep + 2))) return true;
+            return false;
+        };
+
+        let removed = 0;
+        for (const c of [...this.state.completedNodes]) {
+            if (!matches(c)) continue;
+            this.state.completedNodes.delete(c);
+            removed += 1;
+        }
+        if (this.state.xpAwardedNodes?.size) {
+            for (const c of [...this.state.xpAwardedNodes]) {
+                if (matches(c)) this.state.xpAwardedNodes.delete(c);
+            }
+        }
+        if (this.state.recentLessons && typeof this.state.recentLessons === 'object') {
+            for (const k of Object.keys(this.state.recentLessons)) {
+                if (matches(k)) delete this.state.recentLessons[k];
+            }
+            try {
+                localStorage.setItem('arborito-recent-lessons', JSON.stringify(this.state.recentLessons));
+            } catch {
+                /* ignore */
+            }
+        } else {
+            try {
+                const key = 'arborito-recent-lessons';
+                const raw = localStorage.getItem(key);
+                if (raw) {
+                    const map = JSON.parse(raw);
+                    if (map && typeof map === 'object') {
+                        let changed = false;
+                        for (const k of Object.keys(map)) {
+                            if (matches(k)) {
+                                delete map[k];
+                                changed = true;
+                            }
+                        }
+                        if (changed) localStorage.setItem(key, JSON.stringify(map));
+                    }
+                }
+            } catch {
+                /* ignore */
+            }
+        }
+        this.persist();
+        return removed;
     }
 };

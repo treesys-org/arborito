@@ -121,6 +121,15 @@ async function runSourceBoot(store) {
                 return;
             }
             if (!raced) queueMicrotask(() => store.maybePromptNoTree());
+            else if (source?._openTreeInfoAfterLoad) {
+                queueMicrotask(() => {
+                    try {
+                        store.openTreeInfoModal?.({ fromShare: true });
+                    } catch {
+                        /* ignore */
+                    }
+                });
+            }
             hideInitialLoader();
         } finally {
             clearTimeout(slowHintTimer);

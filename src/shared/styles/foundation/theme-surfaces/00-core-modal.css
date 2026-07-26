@@ -44,10 +44,11 @@
         --arborito-theme-scrim-sage: var(--arborito-theme-modal-scrim);
         --arborito-theme-scrim-game: rgb(0 0 0);
         --arborito-theme-tab-bar-border: rgb(226 232 240);
-        --arborito-theme-tab-fg: rgb(148 163 184);
-        --arborito-theme-tab-hover-fg: rgb(71 85 105);
-        --arborito-theme-tab-active-fg: rgb(30 41 59);
-        --arborito-theme-tab-active-indicator: rgb(30 41 59);
+        --arborito-theme-tab-fg: rgb(100 116 139);
+        --arborito-theme-tab-hover-fg: rgb(51 65 85);
+        --arborito-theme-tab-active-fg: rgb(6 95 70);
+        --arborito-theme-tab-active-indicator: rgb(16 185 129);
+        --arborito-theme-tab-active-bg: rgb(236 253 245 / 0.9);
         --arborito-theme-eyebrow-fg: rgb(100 116 139);
         --arborito-theme-eyebrow-sky-fg: rgb(12 74 110);
         --arborito-theme-eyebrow-strong-fg: rgb(51 65 85);
@@ -200,8 +201,9 @@ html.dark {
         --arborito-theme-scrim-game: rgb(0 0 0);
         --arborito-theme-tab-bar-border: rgb(51 65 85);
         --arborito-theme-tab-hover-fg: rgb(203 213 225);
-        --arborito-theme-tab-active-fg: rgb(255 255 255);
-        --arborito-theme-tab-active-indicator: rgb(255 255 255);
+        --arborito-theme-tab-active-fg: rgb(167 243 208);
+        --arborito-theme-tab-active-indicator: rgb(52 211 153);
+        --arborito-theme-tab-active-bg: rgb(6 78 59 / 0.35);
         --arborito-theme-eyebrow-fg: rgb(148 163 184);
         --arborito-theme-eyebrow-sky-fg: rgb(224 242 254);
         --arborito-theme-eyebrow-strong-fg: rgb(226 232 240);

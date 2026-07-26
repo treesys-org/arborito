@@ -14,7 +14,7 @@
 
 Pick a subject, explore a visual map at your own pace, plant your own course, translate lessons, or remix what others published. No subscription, no mandatory account, no ads.
 
-> **v0.1 alpha** at [arborito.org](https://arborito.org). Try it, tell us what confuses you, plant a tree, or contribute.
+> **v0.1 alpha** at [arborito.org](https://arborito.org). Try it, tell us what confuses you, plant a tree, or contribute. See [CHANGELOG.md](CHANGELOG.md) for tagged release notes (web deploys continuously; desktop installs follow release tags).
 
 **Knowledge is a right, not a privilege.** Arborito is a **community project**, not a product catalogue. The goal is a forest everyone tends together.
 
@@ -22,12 +22,12 @@ Pick a subject, explore a visual map at your own pace, plant your own course, tr
 
 **Easiest:** open **[arborito.org](https://arborito.org)** in your browser. Full app, no install.
 
-**Optional install** (same Arborito, plus local Sage AI and voice on desktop): **More → Download app** inside Arborito, or get **Flatpak / Windows / Android APK** from [GitHub Releases](https://github.com/treesys-org/arborito/releases) (tag `v0.1.0-alpha`).
+**Optional install** (same Arborito, plus local Sage AI and voice on desktop): **More → Download app** inside Arborito, or get **Windows / Android** from [GitHub Releases](https://github.com/treesys-org/arborito/releases) and **Linux Flatpak** via the Download button (opens the install ref on [arborito.org](https://arborito.org)).
 
 | Platform | Where |
 |----------|--------|
 | Web | [arborito.org](https://arborito.org) |
-| Linux | `.flatpak` on [Releases](https://github.com/treesys-org/arborito/releases) |
+| Linux | Flatpak install ref on [arborito.org](https://arborito.org) (also `.flatpak` on Releases) |
 | Windows | `.exe` installer on Releases |
 | Android | `.apk` on Releases (not Play Store yet) |
 

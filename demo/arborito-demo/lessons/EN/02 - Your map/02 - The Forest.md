@@ -1,6 +1,6 @@
 @info
 icon: 📚
-description: Open and import courses in the Forest
+description: Open and import courses in the catalog (your forest)
 @/info
 
 @section
@@ -8,42 +8,42 @@ index: 1
 title: The Forest
 @/section
 
-**Forest** is where you keep your courses: ones you open, import, or create.
+In the nav, **Courses** opens the **Course catalog**: that is where you keep what you open, import, or create. That catalog is your study **forest**.
 
 There are two tabs:
 
-- **Branches (course):** each card is **one full course**.
-- **Trees (combined courses):** a **tree** joins **several courses** into one path.
+- **Individual courses** (branches): each card is **one full course**.
+- **Combined courses** (trees): a **tree** joins **several courses** into one path.
 
 @image
 url: ./media/04-bosque-en.png
-caption: The Forest: your branches.
+caption: Course catalog: your branches.
 @/image
 
 @section
 index: 2
-title: Plant your branch
+title: Create your course
 @/section
 
-To create a course: **Create branch**. You start with an example folder and lesson, then edit them.
+To create a course: **Create course**. You start with an example folder and lesson, then edit them.
 
 You can also:
 
-- **Open** a branch you already have.
+- **Open** a course you already have.
 - **Import file** (a shared `.arborito`).
 
 @quiz
-concept: Forest actions
+concept: Catalog actions
 items:
   - question: Where do you import a .arborito course file?
-    answer: In the Forest
+    answer: In the course catalog
     modes: recall,multiple
     traps:
       - In Arcade
       - On the map
       - In Sage
   - question: How do you create a new course?
-    answer: Create branch in the Forest
+    answer: Create course in the catalog
     modes: multiple,recall
     traps:
       - Only from Classroom
@@ -53,26 +53,26 @@ items:
 
 @section
 index: 3
-title: Trees (combined courses)
+title: Combined courses (trees)
 @/section
 
 A **tree** is not a single course: it is **several courses (branches) combined** into one path.
 
 Use it when you want to study or share **more than one course together** (for example language + grammar, or several modules in a programme).
 
-In the Forest, open the **Trees (combined courses)** tab to create, open, or import a tree.
+In the catalog, open the **Combined courses** (Trees) tab to create, open, or import a tree.
 
 @quiz
 concept: Branch and tree
 items:
-  - question: What is a branch in the Forest?
+  - question: What is a branch in the catalog?
     answer: One full course
     modes: multiple,recall
     traps:
       - Several courses together
       - Only a game
       - Only Sage
-  - question: What is a tree in the Forest?
+  - question: What is a tree in the catalog?
     answer: Several courses combined into one path
     modes: multiple,recall
     traps:
@@ -80,7 +80,7 @@ items:
       - Arcade only
       - A voice file
   - question: Where do you manage trees?
-    answer: In Forest → Trees
+    answer: Catalog → Combined courses
     modes: recall,multiple
     traps:
       - Only in Arcade

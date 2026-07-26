@@ -3,7 +3,7 @@ import { useSources, useSourcesStore } from '../../hooks/useSources.js';
 import { formatNostrTreeUrl, parseNostrTreeUrl } from '../../../nostr/api/nostr-refs.js';
 import { findCommunitySourceByUrl } from '../../api/modals/logic/sources-helpers.js';
 import { computeDirectoryRowState } from '../../api/modals/logic/sources-directory-row-state.js';
-import { resolveDirectoryRowTitle, pickTitleForLang } from '../../../../shared/lib/catalog-titles.js';
+import { resolveDirectoryRowTitle, resolveCatalogDescription } from '../../../../shared/lib/catalog-titles.js';
 import { SourcesPill } from './SourcesPill.jsx';
 import { LanguagePills } from './LanguagePills.jsx';
 import {
@@ -91,9 +91,7 @@ export function SourcesInternetRow({
             ? 'border-violet-200/60 dark:border-violet-900/50'
             : 'border-emerald-200/60 dark:border-emerald-900/40';
     const author = String(row?.authorName || '').trim();
-    const desc =
-        pickTitleForLang(row?.descriptions, shell.lang, '') ||
-        String(row?.description || '').trim();
+    const desc = resolveCatalogDescription(row, shell.lang, ui);
     const votesRaw = Number.isFinite(Number(metrics?.votes)) ? Number(metrics.votes) : null;
     const liked = readLiked(shell, ownerPub, universeId);
     const votes = mergeDisplayedVotes(ownerPub, universeId, votesRaw, liked);

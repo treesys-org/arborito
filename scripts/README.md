@@ -18,6 +18,7 @@ Required for development and release. **Nothing here ships** inside the Electron
 | `vendor:deps` | Emoji + PDF vendoring (runs on `prebuild`) |
 | `check:quality` | Architecture, modals, file size, CSS, directory index |
 | `flatpak:sync` | Screenshots + AppStream metainfo |
+| `flatpak:publish-remote` | Import `.flatpak` → OSTree repo + `.flatpakref` / `.flatpakrepo` |
 | `flatpak -- <cmd>` | `setup`, `rebundle`, `verify`, `diagnose`, `test-launcher` |
 
 Run one gate: `npm run check:quality -- --only max-lines`

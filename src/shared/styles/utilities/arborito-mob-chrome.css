@@ -102,6 +102,12 @@ html.arborito-construction-mobile .construction-panel-host .arborito-mob-tab--ct
     background: var(--arborito-theme-construction-mob-tab--cta-amber-background);
 }
 
+html.arborito-construction-mobile .construction-panel-host .arborito-mob-tab--cta-published {
+    color: var(--arborito-theme-construction-mob-tab--cta-published-color);
+    border-color: var(--arborito-theme-construction-mob-tab--cta-published-border-color);
+    background: var(--arborito-theme-construction-mob-tab--cta-published-background);
+}
+
 html.arborito-construction-mobile .construction-panel-host .arborito-mob-tab--cta-danger {
     color: var(--arborito-theme-construction-mob-tab--cta-danger-color);
     border-color: var(--arborito-theme-construction-mob-tab--cta-danger-border-color);

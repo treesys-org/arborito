@@ -330,6 +330,24 @@ export async function exportBranchArchiveAction(treeId) {
     
 }
 
+/** Clear lesson completion for one local garden branch. */
+export function resetBranchProgressAction(branchId) {
+    const store = shell();
+    if (!store) return 0;
+    const n = store.userStore.resetProgressForBranch?.(branchId) || 0;
+    notifyUserProgressChanged(store);
+    store.dispatchEvent(new CustomEvent('graph-update'));
+    const ui = store.ui || {};
+    store.notify(
+        (ui.sourcesResetBranchProgressDone || 'Progress cleared for this branch ({n} items).').replace(
+            /\{n\}/g,
+            String(n)
+        ),
+        false
+    );
+    return n;
+}
+
 /** Store.prototype, explicit actions. */
 export const userProgressBundleMethods = {
     checkStreak: checkStreakAction,
@@ -341,6 +359,7 @@ export const userProgressBundleMethods = {
     markExamExemptSiblingLeaves: markExamExemptSiblingLeavesAction,
     markBranchComplete: markBranchCompleteAction,
     checkForModuleCompletion: checkForModuleCompletionAction,
+    resetBranchProgress: resetBranchProgressAction,
     getExportJson: getExportJsonAction,
     buildArboritoBundleObject: buildArboritoBundleObjectAction,
     exportBranchArchive: exportBranchArchiveAction,

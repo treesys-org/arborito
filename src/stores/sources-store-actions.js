@@ -94,10 +94,30 @@ export async function maybeAutoLoadCommunityAfterAddAction(addResult) {
 export function proceedWithUntrustedLoadAction() {
     const store = shell();
     if (!store) return;
-    const source = store.state.pendingUntrustedSource;
+    let source = store.state.pendingUntrustedSource;
     if (source) {
+        /* Shared links default to Install so the course stays in the garden. */
+        if (source._fromShareParam && source.url && store.sourceManager?.addCommunitySource) {
+            try {
+                const added = store.sourceManager.addCommunitySource(null, {
+                    resolvedNostrTreeUrl: source.url,
+                    codeLabel: source.shareCode || null,
+                });
+                if (added?.ok && added.source) {
+                    source = { ...added.source, _fromShareParam: true, _openTreeInfoAfterLoad: true };
+                } else if (added?.reason === 'duplicate' && added.existing) {
+                    source = { ...added.existing, _fromShareParam: true, _openTreeInfoAfterLoad: true };
+                }
+            } catch {
+                /* keep ephemeral source */
+            }
+        }
         store.update({ modal: null, pendingUntrustedSource: null });
-        loadDataAction(source);
+        void loadDataAction(source).then((ok) => {
+            if (ok && source._openTreeInfoAfterLoad) {
+                queueMicrotask(() => store.openTreeInfoModal?.({ fromShare: true }));
+            }
+        });
     }
 }
 

@@ -41,6 +41,29 @@ export function getComposedTreeSyncState(tree, { getNostrPublisherPair, branches
     if (publishedHash && currentHash && currentHash !== publishedHash) {
         return { mode: 'update', isOwner: true, canAct: true };
     }
+
+    const publishedAt = Number(tree?.publishedAt) || 0;
+    if (publishedAt && Number(tree?.updated) > publishedAt) {
+        return { mode: 'update', isOwner: true, canAct: true };
+    }
+
+    /* Member branch content newer than last composed publish → needs update. */
+    const localBranches = Array.isArray(branches) ? branches : [];
+    for (const ref of tree?.branchRefs || []) {
+        const bid = String(ref?.branchId || ref?.refId || ref?.id || '').trim();
+        if (!bid) continue;
+        const branch = localBranches.find((b) => String(b?.id || '') === bid);
+        if (!branch) continue;
+        const pubH = String(branch.publishedSnapshotHash || '').trim();
+        const draftH = String(branch.draftHash || '').trim();
+        if (pubH && draftH && draftH !== pubH) {
+            return { mode: 'update', isOwner: true, canAct: true };
+        }
+        if (publishedAt && Number(branch.updated) > publishedAt) {
+            return { mode: 'update', isOwner: true, canAct: true };
+        }
+    }
+
     return { mode: 'upToDate', isOwner: true, canAct: false };
 }
 
@@ -59,7 +82,7 @@ export function getBranchSyncState(branch, { getNostrPublisherPair } = {}) {
     }
 
     const snapHash = String(branch?.publishedSnapshotHash || '').trim();
-    const draftHash = String(branch?.draftHash || '').trim();
+    let draftHash = String(branch?.draftHash || '').trim();
     const data = branch?.data;
     const snap = branch?.publishedSnapshot;
     const langCount = (obj) =>
@@ -70,7 +93,11 @@ export function getBranchSyncState(branch, { getNostrPublisherPair } = {}) {
     if (!snapHash || (dataLangs === 0 && snapLangs > 0)) {
         return { mode: 'repair', isOwner: true, canAct: true };
     }
-    if (snapHash && draftHash && draftHash !== snapHash) {
+    /* Missing draftHash with a valid snap → treat as needing sync, not clean. */
+    if (!draftHash) {
+        return { mode: 'repair', isOwner: true, canAct: true };
+    }
+    if (draftHash !== snapHash) {
         return { mode: 'update', isOwner: true, canAct: true };
     }
     return { mode: 'upToDate', isOwner: true, canAct: false };

@@ -43,9 +43,13 @@ function modalType(state) {
     return typeof m === 'string' ? m : m?.type;
 }
 
-/** Logros dashboard (`viewMode === 'certificates'`), dock hub, not takeover. */
+/** Logros dashboard (`viewMode === 'certificates'`), dock hub, not takeover.
+ * Diploma viewer (`modal.type === 'certificate'`) must leave the hub so ModalHost can mount. */
 export function isMobileCertificatesHubOpen(state, mobUi) {
-    return !!mobUi && state?.viewMode === 'certificates';
+    if (!mobUi || state?.viewMode !== 'certificates') return false;
+    const t = typeof state?.modal === 'string' ? state.modal : state?.modal?.type;
+    if (t === 'certificate') return false;
+    return true;
 }
 
 /** Arcade / Foro / tree-info / Logros hub, sheet above dock. */
