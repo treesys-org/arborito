@@ -1,20 +1,10 @@
-import './shared/styles/main.entry.css';
-import './shared/styles/runtime-overrides/index.css';
-import './core/bootstrap.js';
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { App } from './app/App.jsx';
-import { runStartup } from './app/startup.js';
+import { gateShellBuildOrContinue, installStaleChunkReloadGuard } from './shared/lib/shell-build-refresh.js';
 
-runStartup();
+installStaleChunkReloadGuard();
 
-const rootEl = document.getElementById('root');
-if (!rootEl) {
-    throw new Error('[Arborito] #root missing, index.html must mount the React app');
+if (!(await gateShellBuildOrContinue())) {
+    /* Navigation to the fresh deploy is in flight — do not mount the stale shell. */
+    await new Promise(() => {});
 }
 
-createRoot(rootEl).render(
-    <StrictMode>
-        <App />
-    </StrictMode>
-);
+await import('./app-boot.jsx');

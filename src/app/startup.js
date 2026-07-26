@@ -32,7 +32,7 @@ import { getPanelRef } from '../app/panel-refs.js';
 import { initElectronWindowCloseGuard } from '../app/electron-window-close.js';
 import { initElectronAppUpdatePrompt } from '../app/electron-app-update.js';
 import { initCapacitorAppUpdatePrompt } from '../app/capacitor-app-update.js';
-import { startShellBuildRefresh } from '../shared/lib/shell-build-refresh.js';
+import { startShellBuildRefresh, installStaleChunkReloadGuard } from '../shared/lib/shell-build-refresh.js';
 import { flushConstructDraftToLocalStorage } from '../features/editor/api/logic/flush-construct-draft-on-exit.js';
 import { persistActiveComposedBranchFromRaw } from '../features/forest/api/persist-composed-branch-from-raw.js';
 import { fileSystem } from '../features/backup-export/api/filesystem.js';
@@ -110,6 +110,7 @@ export function runStartup() {
     applyArboritoTheme(resolveStoredTheme());
     ensureDeferredProductTourStyles();
     scheduleBootLoaderFallback();
+    installStaleChunkReloadGuard();
 
     try {
         const h = window.location?.hostname || '';

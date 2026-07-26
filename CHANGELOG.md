@@ -32,6 +32,7 @@ Arborito ships as **web** ([arborito.org](https://arborito.org), continuous depl
 - Local-media publish confirm appears before the publishing lock.
 - Finish lesson persists the last outline section; reset progress on a branch; shared links install into the garden by default with an Install switch in course info; composed trees can sync playlist metadata to the account.
 - Discover listings no longer show the private “My Private Garden” starter blurb as if it were a public course description.
+- Web deploy refresh: a cached older page no longer sticks on a blank screen after an update (build-id check before boot + one automatic reload if old script chunks are missing).
 
 ### Notes
 
