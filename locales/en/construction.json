@@ -244,13 +244,13 @@
   "treePresentationTitle": "About this tree",
   "treePresMobileCompactHint": "Public summary & support link, tap to edit",
   "treeReportOtherPlaceholder": "Short note (optional)",
-  "treeReportPolicyBody": "Your report is stored safely (reason and sender, protected by proof-of-work so bots cannot inflate volume). It does not delete lessons or remove the branch from the internet.\n\nCommunity reports are weighted (phishing/copyright weigh more; new accounts weigh less) and capped at 3 per week per person. If enough different people report the same branch in 14 days, it stops appearing in the in-app Discover list. Popular trees need a higher score (scaled by votes and usage). The affected publisher always sees score, threshold, and how to respond in Trees → row ⋯ (EU Digital Services Act, Art. 17).\n\nCopyright and other illegal content use a separate legal-notice flow (DSA Art. 16): the owner has ~48 hours to respond; two independent legal notices can hide the listing immediately.\n\nNormal reports do not email the distributor. For the operator, use only the options below.",
+  "treeReportPolicyBody": "This is a community report: who sent it and why is recorded. It does not delete lessons or remove the branch from the network. Fake or abusive reports weigh little and are capped (3 per week); only enough grounded reports from different people can hide the branch from Discover. The publisher always sees the outcome and can respond (DSA Art. 17). Copyright or serious illegal content: use the legal options below (separate Art. 16 flow), not this channel.",
   "treeReportReasonCopyright": "Copyright",
   "treeReportReasonIllegal": "Illegal content (legal notice)",
   "treeReportReasonOther": "Other",
   "treeReportReasonPhishing": "Phishing",
   "treeReportReasonSpam": "Spam",
-  "treeReportSheetHint": "Pick a reason. Sends are limited to prevent abuse.",
+  "treeReportSheetHint": "Pick a reason. Real cases only.",
   "treeReportSheetTitle": "Report",
   "conCurriculumLangRemoveAria": "Remove {code}"
 }

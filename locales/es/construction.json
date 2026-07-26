@@ -244,13 +244,13 @@
   "treePresMobileCompactHint": "Resumen público y enlace de apoyo, toca para editar",
   "treePresentationTitle": "Sobre este árbol",
   "treeReportOtherPlaceholder": "Nota breve (opcional)",
-  "treeReportPolicyBody": "Tu reporte queda guardado de forma segura (motivo y emisor, con prueba de trabajo para que los bots no inflen el volumen). No borra lecciones ni quita la rama de internet. Los reportes comunitarios tienen peso (phishing/copyright pesan más; cuentas nuevas pesan menos) y límite de 3 por semana por persona. Si bastantes personas distintas reportan la misma rama en 14 días, deja de mostrarse en Descubrir in-app. Las ramas populares necesitan más puntuación (escala con votos y uso). El publicador afectado siempre ve puntuación, umbral y cómo responder en Bosque → fila ⋯ (Ley de Servicios Digitales de la UE, art. 17). Para derechos de autor y otro contenido ilegal hay un trámite aparte (art. 16 DSA): el dueño tiene ~48 h para responder; dos avisos legales independientes pueden ocultar el listado de inmediato. Los reportes normales no mandan correo al distribuidor. Para el operador, usa solo las opciones de más abajo.",
+  "treeReportPolicyBody": "Esto es un reporte comunitario: queda registrado quién lo envía y por qué. No borra lecciones ni quita la rama de la red. Inventar motivos o abusar del canal tiene poco peso y un tope (3 por semana); solo varios reportes fundados de personas distintas pueden sacar la rama de Descubrir. El publicador siempre ve el resultado y puede responder (DSA art. 17). Copyright o contenido ilegal grave: usa las opciones legales de abajo (trámite aparte, art. 16), no este canal.",
   "treeReportReasonCopyright": "Copyright",
   "treeReportReasonIllegal": "Contenido ilegal (notificación legal)",
   "treeReportReasonOther": "Otro",
   "treeReportReasonPhishing": "Phishing",
   "treeReportReasonSpam": "Spam",
-  "treeReportSheetHint": "Elige un motivo. Hay límite de envíos para evitar abuso.",
+  "treeReportSheetHint": "Elige un motivo. Solo casos reales.",
   "treeReportSheetTitle": "Reporte",
   "conCurriculumLangRemoveAria": "Eliminar {code}"
 }
