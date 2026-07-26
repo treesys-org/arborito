@@ -11,7 +11,7 @@ import { buildPublicShareAppUrl } from '../../../shared/lib/public-app-url.js';
 import { SourcesShareCodeField } from '../../sources/modals/components/SourcesShareCodeField.jsx';
 import { resolveBranchRefDisplayNames } from '../../forest/api/tree-branch-labels.js';
 import { SwitchRow } from '../../../shared/ui/SwitchRow.jsx';
-import { getArboritoStore } from '../../../core/store-singleton.js';
+import { useSources } from '../../sources/hooks/useSources.js';
 
 function formatDate(ts) {
     if (!ts || !Number.isFinite(Number(ts))) return ': ';
@@ -33,7 +33,7 @@ export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
         communitySources,
         notify,
     } = useTreeGraph();
-    const sourceManager = getArboritoStore()?.sourceManager;
+    const { addCommunitySource, removeCommunitySource } = useSources();
     const ctx = resolveActiveShareContext(activeSource, userStore, rawGraphData);
     const { shareOpts, localEntry, publishedNetworkUrl } = ctx;
     const [shareCode, setShareCode] = useState(() => String(ctx.shareCode || '').trim());
@@ -56,9 +56,9 @@ export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
         communitySources.some((s) => String(s?.url || '').trim() === networkUrl);
 
     const toggleInstall = (next) => {
-        if (!sourceManager || !networkUrl) return;
+        if (!networkUrl) return;
         if (next) {
-            const added = sourceManager.addCommunitySource(null, {
+            const added = addCommunitySource(null, {
                 resolvedNostrTreeUrl: networkUrl,
                 codeLabel: shareCode && shareCode !== ': ' ? shareCode : null,
             });
@@ -73,7 +73,7 @@ export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
                 String(s?.url || '').trim() === String(activeSource?.url || '').trim()
         );
         if (row?.id) {
-            sourceManager.removeCommunitySource(row.id);
+            removeCommunitySource(row.id);
             notify?.(ui.sourcesUninstallDone || 'Removed from your garden.', false);
         }
     };

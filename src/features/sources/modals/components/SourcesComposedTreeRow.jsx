@@ -8,7 +8,7 @@ import { SourcesMoreButton, SourcesPublishedSocialToolbar } from './SourcesRowCh
 import { SourcesSocialMetrics } from './SourcesSocialMetrics.jsx';
 import { SourcesMenuPrefs } from './SourcesMenuPrefs.jsx';
 import { SwitchRow } from '../../../../shared/ui/SwitchRow.jsx';
-import { getArboritoStore } from '../../../../core/store-singleton.js';
+import { useSourcesStore } from '../../hooks/useSources.js';
 import { hasGdprNetworkConsent } from '../../../../shared/lib/connected-services/index.js';
 
 export function composedTreeRowKey(treeId) {
@@ -26,11 +26,14 @@ export function SourcesComposedTreeRow({
     onToggleRowActions,
     isPublishedOwner = false,
 }) {
-    const store = getArboritoStore();
+    const store = useSourcesStore();
     const signedIn = !!store?.isSignedIn?.();
     const networkOn = hasGdprNetworkConsent();
     const canToggleAccountSync = signedIn && networkOn;
-    const accountSynced = !!store?.userStore?.isTreePrivateSyncedFromAccount?.(tree?.id);
+    const accountSynced = !!(
+        tree?.privateSyncedFromAccount ||
+        store?.userStore?.isTreePrivateSyncedFromAccount?.(tree?.id)
+    );
     const isActive = !!(
         activeSource?.type === 'composed-tree' &&
         String(activeSource.treeId || '') === String(tree.id || '')

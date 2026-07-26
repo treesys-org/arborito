@@ -28,7 +28,14 @@ export function useSources() {
         (code) => sourcesActions.applyCurriculumPresetLanguage(code),
         []
     );
-    const addCommunitySource = useCallback((url) => sourcesActions.addCommunitySource(url), []);
+    const addCommunitySource = useCallback(
+        (url, opts) => sourcesActions.addCommunitySource(url, opts),
+        []
+    );
+    const removeCommunitySource = useCallback(
+        (id) => sourcesActions.removeCommunitySource(id),
+        []
+    );
     const notifyCommunityAddResult = useCallback((res) => sourcesActions.notifyCommunityAddResult(res), []);
     const maybeAutoLoadCommunityAfterAdd = useCallback(
         (res) => sourcesActions.maybeAutoLoadCommunityAfterAdd(res),
@@ -63,6 +70,7 @@ export function useSources() {
         proceedWithUntrustedLoad,
         applyCurriculumPresetLanguage,
         addCommunitySource,
+        removeCommunitySource,
         notifyCommunityAddResult,
         maybeAutoLoadCommunityAfterAdd,
         getExportCurriculumOptions,

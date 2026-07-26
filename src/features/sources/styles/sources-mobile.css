@@ -1,0 +1,166 @@
+/* Mobile sources hub surface (Biblioteca / Forest). */
+
+/* Biblioteca / Forest: one opaque surface — hero + body, no 1px forest slit. */
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-dock-modal-hero,
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sheet__hero--mmenu-sub.arborito-dock-modal-hero,
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-dock-hub-head {
+    background: var(--arborito-theme-surface-bg) !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin-inline: 0 !important;
+    border-radius: 0 !important;
+    box-sizing: border-box !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-modal-shell,
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-dock-hub-shell,
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-body,
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    #tab-content,
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    #tab-content-scroll {
+    background: var(--arborito-theme-surface-bg) !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin-inline: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Sticky search sits flush under the hero (kill subpixel hairline + right gutter). */
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-sticky-head {
+    margin-top: -1px;
+    padding-top: 1px;
+    padding-bottom: 0.5rem !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+    background: var(--arborito-theme-surface-bg) !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-sticky-card {
+    padding: 0.5rem !important;
+    border-radius: 0.85rem !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-search-bar__filters {
+    max-width: 5.75rem;
+    padding-left: 0.55rem;
+    padding-right: 0.55rem;
+    font-size: 0.625rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-search-bar__input {
+    min-height: 2.5rem;
+    font-size: 0.875rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    #sources-tab-foot,
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-tab-foot {
+    padding: 0.2rem 0.65rem max(0.25rem, env(safe-area-inset-bottom, 0px)) !important;
+    border-top-width: 1px !important;
+    border-top-style: solid !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-cta-bar__btn {
+    min-height: 2.2rem !important;
+    padding: 0.3rem 0.4rem !important;
+}
+
+/* Keep Load / Install inside the fixed action column (never full-bleed). */
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-row-aside {
+    --arborito-sources-cta-slot: 2.2rem;
+    flex: 0 0 8.75rem !important;
+    width: 8.75rem !important;
+    min-width: 8.75rem !important;
+    max-width: 8.75rem !important;
+    align-items: stretch !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-row-layout {
+    flex-direction: row !important;
+    align-items: flex-start !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-row-cta {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    flex: 1 1 auto !important;
+    min-height: 2.2rem !important;
+    padding: 0.3rem 0.45rem !important;
+    font-size: 0.6875rem !important;
+    border-radius: 0.65rem !important;
+    box-shadow: none !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-action-chip {
+    min-height: 2.2rem;
+    padding: 0.3rem 0.55rem;
+    font-size: 0.6875rem;
+    border-radius: 0.65rem;
+}
+
+/* Tighter card chrome — same density for local + online. */
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-list
+    .rounded-2xl.shadow-sm,
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-list
+    .arborito-kind-card {
+    padding: 0.75rem 0.85rem !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-list {
+    margin-top: 0.5rem !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+}

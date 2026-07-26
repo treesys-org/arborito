@@ -9,6 +9,7 @@ import {
     commitSourcesState,
     proceedWithUntrustedLoadAction,
 } from './sources-store-actions.js';
+import { removeCommunitySourceAction } from './sources-resolve-store-actions.js';
 
 /**
  * Piloto Zustand, slice de fuentes / biblioteca de árboles.
@@ -61,6 +62,7 @@ export const sourcesActions = {
     proceedWithUntrustedLoad: proceedWithUntrustedLoadAction,
     applyCurriculumPresetLanguage: applyCurriculumPresetLanguageAction,
     addCommunitySource: addCommunitySourceAction,
+    removeCommunitySource: removeCommunitySourceAction,
     notifyCommunityAddResult: (res) => store.notifyCommunityAddResult(res),
     maybeAutoLoadCommunityAfterAdd: (res) => store.maybeAutoLoadCommunityAfterAdd(res),
 };
