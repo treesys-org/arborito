@@ -57,12 +57,6 @@ export function LegalSection({ ui }) {
                 />
 
                 <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                    <div className="flex flex-row flex-nowrap items-center justify-start gap-2.5 mb-4 w-full pl-0.5">
-                        <div className="w-11 h-11 shrink-0 bg-white dark:bg-slate-900 rounded-xl shadow-sm flex items-center justify-center text-lg border border-slate-100 dark:border-slate-800">
-                            🌲
-                        </div>
-                        <p className="font-black text-slate-800 dark:text-white text-sm m-0 leading-none whitespace-nowrap">treesys.org</p>
-                    </div>
                     {ui.impressumIntro ? (
                         <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400 mb-3 italic">{ui.impressumIntro}</p>
                     ) : null}

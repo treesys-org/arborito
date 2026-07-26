@@ -2,16 +2,9 @@ import { useIdentityAuth } from '../hooks/useIdentityAuth.js';
 import { ArboritoLogoMark } from '../../shell-chrome/components/sidebar/SidebarMobileMoreMenu.jsx';
 import { shouldShowWebDownloadUi } from '../../../shared/ui/download-app-panel.js';
 import { GITHUB_REPO } from '../../../shared/lib/release-downloads.js';
-import { ARBORITO_APP_VERSION } from '../../../core/version.js';
+import { formatArboritoVersionLabel } from '../../../core/version.js';
 import { OnboardingLanguage } from './OnboardingLanguage.jsx';
 import { OnboardingMiniPreview } from './OnboardingMiniPreview.jsx';
-
-/** Display label from package semver, e.g. 0.1.1-alpha → 0.1.1 */
-function appVersionForBadge() {
-    const raw = String(ARBORITO_APP_VERSION || '').trim().replace(/^v/i, '');
-    const core = raw.replace(/-(alpha|beta|rc)(\.\d+)?$/i, '');
-    return core || raw || '0.1.1';
-}
 
 export function OnboardingWelcome({
     lang,
@@ -50,11 +43,7 @@ export function OnboardingWelcome({
     )
         .trim()
         .replace(/\s*›\s*$/u, '');
-    const ver = appVersionForBadge();
-    const alphaTpl = String(ui.onboardingBetaWarningHead || 'Alpha {version}').trim();
-    const alphaLbl = (alphaTpl.includes('{version}') ? alphaTpl : 'Alpha {version}')
-        .replace(/\{version\}/g, ver)
-        .trim();
+    const alphaLbl = formatArboritoVersionLabel(ui.onboardingBetaWarningHead || 'Alpha {version}');
     const githubTip = String(ui.onboardingGithubCollab || 'Contribute on GitHub').trim();
     const loadingLbl = String(ui.onboardingAdvancing || ui.loading || 'Loading…').trim();
     const showDownload = shouldShowWebDownloadUi();

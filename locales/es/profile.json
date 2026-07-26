@@ -9,6 +9,7 @@
   "aboutPrivacySeeLegalTab": "Ver pestaña Legal",
   "aboutPrivacyTabBlurb": "Por defecto tus datos de aprendizaje permanecen en este navegador. Lo siguiente explica el RGPD (GDPR), los árboles públicos en red (nostr://), el foro y la sincronización opcional en red, la IA opcional del Sabio y qué puedes hacer.",
   "aboutTreesysProductLine": "Arborito es el primer producto de Treesys: tecnología para la humanidad, empezando por la educación",
+  "aboutAppVersion": "Versión {version}",
   "aboutVisitTreesys": "Visitar Treesys",
   "achievementInProgress": "{pct}% · En camino",
   "achievementsSectionBranches": "Ramas completadas",

@@ -26,7 +26,7 @@ documentation, not legal advice; have counsel review the classification below.
 
 | DSA provision | Status | Where |
 |---------------|--------|-------|
-| **Art. 11**: point of contact for authorities | ✅ | Impressum block names the single contact (operator e-mail, languages DE/EN/ES): `locales/*/legal.json` → `impressumDetails`, `dsaContactBody`; rendered in `LegalSection.jsx` |
+| **Art. 11**: point of contact for authorities | ✅ | Impressum block names the single contact (operator e-mail): `locales/*/legal.json` → `impressumDetails`, `dsaContactBody`; rendered in `LegalSection.jsx` |
 | **Art. 12**: point of contact for recipients | ✅ | Same contact, explicitly stated for recipients (`dsaContactBody`) |
 | **Art. 13**: legal representative | N/A | Operator is established in the EU (Germany, per Impressum) |
 | **Art. 14**: terms: content-moderation policies, tools, algorithmic decision-making, in clear language | ✅ | `dsaModerationBody` (EN/ES) describes: read-side proof-of-work gating, report-threshold directory hiding, 48 h legal-dispute window, maintainer build blocklist, owner-moderated forums. Also summarised in the report dialog (`treeReportPolicyBody`) |

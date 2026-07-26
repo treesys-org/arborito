@@ -2,6 +2,7 @@
   "aboutPrivacySeeLegalTab": "See Legal tab",
   "aboutPrivacyTabBlurb": "By default your learning data stays in this browser. The sections below explain how GDPR applies to the app, public online trees (nostr://), forum and optional network sync, optional Sage AI, and what you can do.",
   "aboutTreesysProductLine": "Arborito is Treesys' first product: technology for humanity, starting with education",
+  "aboutAppVersion": "Version {version}",
   "aboutVisitTreesys": "Visit Treesys",
   "aboutCommunityHeading": "Community",
   "aboutCommunityMatrix": "Matrix (#arborito:matrix.org)",

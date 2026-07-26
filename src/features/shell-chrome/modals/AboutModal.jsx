@@ -7,6 +7,7 @@ import { DockModalShell } from '../../../app/components/ModalShell.jsx';
 import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
 import { TabBar } from '../../../app/components/TabBar.jsx';
 import treesysLogoUrl from '../../../../build/treesys-logo.png?url';
+import { formatArboritoVersionLabel } from '../../../core/version.js';
 import { ManifestoSection } from './about-sections/ManifestoSection.jsx';
 import { RoadmapSection } from './about-sections/RoadmapSection.jsx';
 import { PrivacySection } from './about-sections/PrivacySection.jsx';
@@ -20,7 +21,11 @@ function resolveInitialTab(embed, modal) {
     return VALID_TABS.has(tab) ? tab : 'manifesto';
 }
 
-function AboutTabContent({ activeTab, ui, onOpenLegalTab }) {
+function aboutVersionLine(ui) {
+    return formatArboritoVersionLabel(ui?.aboutAppVersion || 'Version {version}');
+}
+
+function AboutTabContent({ activeTab, ui, versionLabel, onOpenLegalTab }) {
     switch (activeTab) {
         case 'roadmap':
             return <RoadmapSection ui={ui} />;
@@ -29,7 +34,7 @@ function AboutTabContent({ activeTab, ui, onOpenLegalTab }) {
         case 'legal':
             return <LegalSection ui={ui} />;
         default:
-            return <ManifestoSection ui={ui} />;
+            return <ManifestoSection ui={ui} versionLabel={versionLabel} />;
     }
 }
 
@@ -41,6 +46,7 @@ export function ModalAbout({ embed }) {
     const rootRef = useRef(null);
     const setActiveTabRef = useRef(null);
     const [activeTab, setActiveTab] = useState(() => resolveInitialTab(embed, shell.modal));
+    const versionLabel = aboutVersionLine(ui);
 
     setActiveTabRef.current = setActiveTab;
 
@@ -82,14 +88,22 @@ export function ModalAbout({ embed }) {
         { id: 'legal', label: ui.tabLegal || 'Legal' },
     ];
 
-    const contentPad = embed ? 'p-3 sm:p-4' : mobile ? 'pb-12' : 'px-4 sm:px-6 pb-12';
+    const contentPad = embed ? 'p-3 sm:p-4' : 'pb-12';
     const tabRow = (
         <TabBar tabs={tabs} activeTab={activeTab} onTabChange={setTab} className="w-full shrink-0" />
     );
 
     const scrollContent = (
-        <div id="about-content-scroll" className={`${contentPad}${embed ? ' overflow-y-auto custom-scrollbar flex-1 min-h-0 pb-10' : mobile ? '' : ' overflow-y-auto custom-scrollbar flex-1 min-h-0'}`}>
-            <AboutTabContent activeTab={activeTab} ui={ui} onOpenLegalTab={() => setTab('legal')} />
+        <div
+            id="about-content-scroll"
+            className={`${contentPad}${embed ? ' overflow-y-auto custom-scrollbar flex-1 min-h-0 pb-10' : ''}`}
+        >
+            <AboutTabContent
+                activeTab={activeTab}
+                ui={ui}
+                versionLabel={versionLabel}
+                onOpenLegalTab={() => setTab('legal')}
+            />
         </div>
     );
 
@@ -109,12 +123,14 @@ export function ModalAbout({ embed }) {
         );
     }
 
+    const productLine = String(ui.aboutTreesysProductLine || '').trim();
+
     const hero = (
         <ModalHubHero
             ui={ui}
             mobile={mobile}
             title={ui.navAbout || 'About'}
-            subtitle={ui.aboutTreesysProductLine || ''}
+            subtitle={productLine}
             leadingIcon={(
                 <img
                     src={treesysLogoUrl}
@@ -130,23 +146,47 @@ export function ModalAbout({ embed }) {
     );
 
     const toolbar = mobile ? tabRow : undefined;
+    const desktopPad =
+        activeTab === 'manifesto' ? 'px-4 sm:px-6 pb-6 pt-1' : 'px-4 sm:px-6 pb-8';
+    const contentPadResolved = embed ? 'p-3 sm:p-4' : mobile ? 'pb-12' : desktopPad;
 
+    /* HUB footprint. skipBodyWrap: one scroll host (not DockHub + inner). */
     return (
         <DockModalShell
             mobile={mobile}
-            sizeTier="README"
-            layout={mobile ? 'dock' : 'centered'}
+            sizeTier="HUB"
+            skipBodyWrap
             shellOpts={{ panelClass: 'w-full', rootFlags: 'arborito-modal--about' }}
             onBackdropClick={close}
             hero={hero}
             toolbar={toolbar}
         >
             {mobile ? (
-                scrollContent
+                <div
+                    id="about-content-scroll"
+                    className={`${contentPadResolved} flex-1 min-h-0 overflow-y-auto custom-scrollbar`}
+                >
+                    <AboutTabContent
+                        activeTab={activeTab}
+                        ui={ui}
+                        versionLabel={versionLabel}
+                        onOpenLegalTab={() => setTab('legal')}
+                    />
+                </div>
             ) : (
                 <div className="flex flex-col flex-1 min-h-0 w-full">
                     <div className="shrink-0 w-full">{tabRow}</div>
-                    {scrollContent}
+                    <div
+                        id="about-content-scroll"
+                        className={`${contentPadResolved} overflow-y-auto custom-scrollbar flex-1 min-h-0`}
+                    >
+                        <AboutTabContent
+                            activeTab={activeTab}
+                            ui={ui}
+                            versionLabel={versionLabel}
+                            onOpenLegalTab={() => setTab('legal')}
+                        />
+                    </div>
                 </div>
             )}
         </DockModalShell>

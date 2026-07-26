@@ -254,3 +254,10 @@ html.arborito-desktop .arborito-desktop-community-wrap:focus-within .arborito-co
 .arborito-community-menu-list--about .arborito-community-menu-item__label {
     font-size: 0.9rem;
 }
+
+@media (min-width: 768px) {
+    .arborito-about-manifesto .arborito-community-menu-list--about .arborito-community-menu-item {
+        padding: 0.65rem 0.8rem;
+    }
+}
+

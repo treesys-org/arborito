@@ -50,7 +50,7 @@
   "lessonQuizRequired": "Aprueba al menos el 80% del cuestionario de esta sección para continuar.",
   "lessonQuizOptionalHint": "Hay un cuestionario. Tocá Siguiente otra vez para omitir.",
   "lockedCert": "Aún no desbloqueado",
-  "missionText": "Arborito es el <strong>primer producto de Treesys</strong>: software libre para aprender en mapas de lecciones. Treesys existe para usar la tecnología en problemas de la humanidad, <strong>empezando por la educación</strong> y ampliando después a más retos. Lleva cerca de <strong>dos años</strong> de trabajo de un mantenedor en este <strong>bosque público GPL</strong>; en esta alpha algunos borradores usaron <strong>herramientas de lenguaje</strong> y todo lo publicado pasó revisión humana. Explora el mapa, planta una lección o súmate: docentes, traductores y desarrolladores bienvenidos.",
+  "missionText": "Arborito es el <strong>primer producto de Treesys</strong>: software libre y de código abierto (GPL) para aprender en mapas de lecciones. Treesys existe para usar la tecnología en problemas de la humanidad, <strong>empezando por la educación</strong> y ampliando después a más retos. Explora el mapa, planta una lección o súmate: docentes, traductores y desarrolladores bienvenidos.",
   "printCert": "DESCARGAR DIPLOMA",
   "certDownloaded": "Diploma guardado en {path}",
   "certPrintError": "No se pudo guardar el diploma: {message}",

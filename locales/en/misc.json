@@ -50,7 +50,7 @@
   "lessonQuizRequired": "Score at least 80% on this section's quiz before continuing.",
   "lessonQuizOptionalHint": "There's a quiz here. Tap Next again to skip.",
   "lockedCert": "Certificate Locked",
-  "missionText": "Arborito is Treesys' <strong>first product</strong>: free software to learn on visual lesson maps. Treesys exists to use technology to address humanity's problems, <strong>starting with education</strong>, then growing into broader challenges. For about <strong>two years</strong> one maintainer has been building this <strong>public GPL forest</strong>; at this alpha stage some drafts used <strong>language-model tools</strong>, and everything published here is human-reviewed. Explore the map, plant a lesson, or join in: teachers, translators, and developers welcome.",
+  "missionText": "Arborito is Treesys' <strong>first product</strong>: free and open-source software (GPL) to learn on visual lesson maps. Treesys exists to use technology for humanity's problems, <strong>starting with education</strong>, then growing into broader challenges. Explore the map, plant a lesson, or join in — teachers, translators, and developers are welcome.",
   "printCert": "DOWNLOAD DIPLOMA",
   "certDownloaded": "Diploma saved to {path}",
   "certPrintError": "Could not save diploma: {message}",
