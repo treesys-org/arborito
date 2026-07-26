@@ -223,11 +223,20 @@ html.dark .arborito-dialog-summary-card {
 
 .arborito-dialog-choice-pick-list {
     width: 100%;
-    text-align: left;
+    text-align: center;
 }
 
-.arborito-dialog-choice-pick-list > button {
+.arborito-dialog-choice-pick-btn {
+    width: 100%;
+    max-width: 16.5rem;
     min-height: 2.75rem;
+    text-align: center;
+    text-transform: none;
+    letter-spacing: normal;
+    font-size: 0.875rem;
+    font-weight: 700;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 
 /* Profile-stack child sheets (QR, recovery…) — fill overlay, same body rhythm as dialog. */

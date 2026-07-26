@@ -246,7 +246,7 @@
   "treeReportOtherPlaceholder": "Short note (optional)",
   "treeReportPolicyBody": "This is a community report: who sent it and why is recorded. It does not delete lessons or remove the branch from the network. Fake or abusive reports weigh little and are capped (3 per week); only enough grounded reports from different people can hide the branch from Discover. The publisher always sees the outcome and can respond (DSA Art. 17). Copyright or serious illegal content: use the legal options below (separate Art. 16 flow), not this channel.",
   "treeReportReasonCopyright": "Copyright",
-  "treeReportReasonIllegal": "Illegal content (legal notice)",
+  "treeReportReasonIllegal": "Legal notice (illegal)",
   "treeReportReasonOther": "Other",
   "treeReportReasonPhishing": "Phishing",
   "treeReportReasonSpam": "Spam",

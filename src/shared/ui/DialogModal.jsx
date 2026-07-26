@@ -349,12 +349,12 @@ export function ModalDialog() {
             )}
 
             {choicePickList ? (
-                <div className="arborito-dialog-choice-pick-list flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto custom-scrollbar w-full">
+                <div className="arborito-dialog-choice-pick-list flex flex-col items-center gap-2 flex-1 min-h-0 overflow-y-auto custom-scrollbar w-full">
                     {choiceList.map((c) => (
                         <button
                             key={String(c.id)}
                             type="button"
-                            className={`${modalCtaConfirmFull('slate')} w-full text-left`}
+                            className={`${modalCtaConfirm('slate')} arborito-dialog-choice-pick-btn`}
                             onClick={() => finish(c.id)}
                         >
                             {c.label}
