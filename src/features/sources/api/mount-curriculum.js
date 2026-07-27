@@ -20,6 +20,7 @@ import { mountComposedTree } from '../../forest/api/mount-composed-tree.js';
 import { parseArboritoTreeBundle } from '../../forest/api/arborito-tree-bundle.js';
 import { importComposedTreeFromBundle } from '../../forest/api/import-composed-tree-bundle.js';
 import { refreshRemoteTreeBundleInBackground } from './remote-tree-swr-refresh.js';
+import { isUniverseRevokedError, promptStudentUniverseRevoked } from './universe-revoked.js';
 
 import { DataProcessor } from '../../tree-graph/api/data-processor.js';
 import { normalizeLoadedTreeJson } from '../../tree-graph/api/tree-load-pipeline.js';
@@ -342,6 +343,27 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
                             );
                             return false;
                         }
+                        if (isUniverseRevokedError(e)) {
+                            const ui = store.ui || {};
+                            store.update({
+                                error: String(
+                                    (e && e.message) ||
+                                        ui.nostrUniverseRevokedError ||
+                                        e
+                                ),
+                                loading: false,
+                                treeHydrating: false,
+                                treeGrowingOverlay: false,
+                            });
+                            queueMicrotask(() => {
+                                void promptStudentUniverseRevoked(store, {
+                                    source,
+                                    treeJson: earlyRemoteCache?.treeJson || null,
+                                    keepViewingCached: false,
+                                }).then(() => store.maybePromptNoTree());
+                            });
+                            return false;
+                        }
                         store.update({
                             error: String((e && e.message) || e),
                             loading: false,
@@ -563,14 +585,31 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
         scheduleAutoWebTorrentSeeder(store);
     } catch (e) {
         console.error('[Arborito] mountCurriculum', e);
-        store.update({
-            error: String((e && e.message) || e),
-            data: null,
-            rawGraphData: null,
-            loading: false
-        });
-        queueMicrotask(() => store.maybePromptNoTree());
-        success = false;
+        if (isUniverseRevokedError(e)) {
+            store.update({
+                error: String((e && e.message) || e),
+                data: null,
+                rawGraphData: null,
+                loading: false,
+            });
+            queueMicrotask(() => {
+                void promptStudentUniverseRevoked(store, {
+                    source,
+                    treeJson: earlyRemoteCache?.treeJson || earlyFrozen?.treeJson || null,
+                    keepViewingCached: false,
+                }).then(() => store.maybePromptNoTree());
+            });
+            success = false;
+        } else {
+            store.update({
+                error: String((e && e.message) || e),
+                data: null,
+                rawGraphData: null,
+                loading: false
+            });
+            queueMicrotask(() => store.maybePromptNoTree());
+            success = false;
+        }
     } finally {
         if (epoch === store._curriculumMountEpoch) {
             if (!success) {

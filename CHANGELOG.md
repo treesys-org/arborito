@@ -11,6 +11,7 @@ Arborito ships as **web** ([arborito.org](https://arborito.org), continuous depl
 - Linux Flatpak **install ref** and signed remote on arborito.org so Software / Discover can install and update the desktop app.
 - In-app update prompt on Linux packaged builds (opens the system installer for the new ref).
 - In-app update prompt on Android (opens the APK download; the system asks to confirm install).
+- When an author unpublishes a public course, students see a clear dialog and can save what is already on the device to My garden (or remove it from installed). Authors are told offline copies may remain.
 
 ### Fixed
 

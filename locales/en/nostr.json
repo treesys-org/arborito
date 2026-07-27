@@ -14,5 +14,17 @@
   "nostrPublicWarningConfirm": "I understand",
   "nostrPublicWarningTitle": "Course shared on the network",
   "nostrStructureEditHint": "Structure edits stay in this tab’s memory until you publish the course to the public network.",
-  "nostrUniverseRevokedError": "This public tree was retracted by the publisher."
+  "nostrUniverseRevokedError": "This public tree was retracted by the publisher.",
+  "universeRevokedStudentTitle": "Course unpublished",
+  "universeRevokedStudentBody": "The author removed this course from the public network. New opens from the link will not work.",
+  "universeRevokedStudentBodyCached": "The author removed this course from the public network. You still have a cached copy on this device.",
+  "universeRevokedStudentIncompleteNote": "Some lessons may be missing if they were never opened here.",
+  "universeRevokedStudentNoCacheNote": "This device has no local copy of the lessons to keep.",
+  "universeRevokedKeepGardenLabel": "Save to My garden",
+  "universeRevokedUninstallLabel": "Remove from installed",
+  "universeRevokedUninstalledToast": "Removed from your installed list.",
+  "universeRevokedKeepGardenPromptTitle": "Save local copy",
+  "universeRevokedKeepGardenPromptBody": "Choose a name for your copy in My garden.",
+  "universeRevokedKeepGardenPromptBodyIncomplete": "Choose a name for your copy in My garden. Some lessons may be incomplete.",
+  "universeRevokedKeptGardenToast": "Saved in My garden. It stays on this device only."
 }

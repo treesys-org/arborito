@@ -29,6 +29,7 @@ import {
     resolveLoadedBundleDisplayTitle,
     titlesFromTreeLanguages,
 } from '../../../shared/lib/catalog-titles.js';
+import { UniverseRevokedError } from './universe-revoked.js';
 
 const OFFICIAL_DOMAINS = ['localhost', '127.0.0.1'];
 
@@ -751,7 +752,12 @@ export class SourceManager {
                     });
                 }
                 const { revoked, bundle } = loadResult;
-                if (revoked) throw new Error(ui.nostrUniverseRevokedError || 'This public tree was retracted by the publisher.');
+                if (revoked) {
+                    throw new UniverseRevokedError(
+                        ui.nostrUniverseRevokedError ||
+                            'This public tree was retracted by the publisher.'
+                    );
+                }
                 if (!bundle) {
                     throw new Error(ui.nostrLoadFailedError || 'Failed to load public tree.');
                 }

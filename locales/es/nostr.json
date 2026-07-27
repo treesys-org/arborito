@@ -14,5 +14,17 @@
   "nostrPublicWarningConfirm": "Entiendo",
   "nostrPublicWarningTitle": "Curso compartido en la red",
   "nostrStructureEditHint": "Los cambios de estructura quedan en la memoria de esta pestaña hasta que publiques el curso en la red pública.",
-  "nostrUniverseRevokedError": "Este árbol público fue retirado por quien lo publicó."
+  "nostrUniverseRevokedError": "Este árbol público fue retirado por quien lo publicó.",
+  "universeRevokedStudentTitle": "Curso despublicado",
+  "universeRevokedStudentBody": "El autor retiró este curso de la red pública. Las aperturas nuevas con el enlace no funcionarán.",
+  "universeRevokedStudentBodyCached": "El autor retiró este curso de la red pública. Todavía tienes una copia en caché en este dispositivo.",
+  "universeRevokedStudentIncompleteNote": "Pueden faltar lecciones si nunca las abriste aquí.",
+  "universeRevokedStudentNoCacheNote": "En este dispositivo no hay una copia local de las lecciones para guardar.",
+  "universeRevokedKeepGardenLabel": "Guardar en Mi jardín",
+  "universeRevokedUninstallLabel": "Quitar de instalados",
+  "universeRevokedUninstalledToast": "Quitado de tu lista de instalados.",
+  "universeRevokedKeepGardenPromptTitle": "Guardar copia local",
+  "universeRevokedKeepGardenPromptBody": "Elige un nombre para tu copia en Mi jardín.",
+  "universeRevokedKeepGardenPromptBodyIncomplete": "Elige un nombre para tu copia en Mi jardín. Algunas lecciones pueden estar incompletas.",
+  "universeRevokedKeptGardenToast": "Guardado en Mi jardín. Queda solo en este dispositivo."
 }

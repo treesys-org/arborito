@@ -41,7 +41,7 @@ export function resolveUnpublishDialogCopy(ui = {}, kind) {
             confirmBody:
                 ui.revokePublicBranchConfirmBody ||
                 ui.revokePublicTreeConfirmBody ||
-                'Your branch will stop appearing on the public network. Old links may stop working. Unpublish?',
+                'Your branch will stop appearing on the public network. People who already saved an offline copy may keep it on their device. New opens and old links will stop working. Unpublish?',
             successTitle:
                 ui.revokePublicBranchSuccessTitle ||
                 ui.revokePublicTreeSuccessTitle ||
@@ -49,7 +49,7 @@ export function resolveUnpublishDialogCopy(ui = {}, kind) {
             successBody:
                 ui.revokePublicBranchSuccessBody ||
                 ui.revokePublicTreeSuccessBody ||
-                'The public network was asked to stop serving this branch. You can publish again with a new link anytime.',
+                'The public network was asked to stop serving this branch. Readers with an offline or cached copy may still keep it on their device. You can publish again with a new link anytime.',
             noKeyBody:
                 ui.revokePublicBranchNoKeyBody ||
                 ui.revokePublicTreeNoKeyBody ||
@@ -70,7 +70,7 @@ export function resolveUnpublishDialogCopy(ui = {}, kind) {
             confirmBody:
                 ui.revokePublicComposedConfirmBody ||
                 ui.revokePublicTreeConfirmBody ||
-                'Your tree (playlist) will stop appearing on the public network. Old links may stop working. Unpublish?',
+                'Your tree (playlist) will stop appearing on the public network. People who already saved an offline copy may keep it on their device. New opens and old links will stop working. Unpublish?',
             successTitle:
                 ui.revokePublicComposedSuccessTitle ||
                 ui.revokePublicTreeSuccessTitle ||
@@ -78,7 +78,7 @@ export function resolveUnpublishDialogCopy(ui = {}, kind) {
             successBody:
                 ui.revokePublicComposedSuccessBody ||
                 ui.revokePublicTreeSuccessBody ||
-                'The public network was asked to stop serving this tree. You can publish again with a new link anytime.',
+                'The public network was asked to stop serving this tree. Readers with an offline or cached copy may still keep it on their device. You can publish again with a new link anytime.',
             noKeyBody:
                 ui.revokePublicComposedNoKeyBody ||
                 ui.revokePublicTreeNoKeyBody ||
@@ -95,11 +95,11 @@ export function resolveUnpublishDialogCopy(ui = {}, kind) {
         confirmTitle: ui.revokePublicTreeConfirmTitle || 'Unpublish this public copy?',
         confirmBody:
             ui.revokePublicTreeConfirmBody ||
-            'Your public copy will stop appearing on the public network. Old links may stop working. Unpublish?',
+            'Your public copy will stop appearing on the public network. People who already saved an offline copy may keep it on their device. New opens and old links will stop working. Unpublish?',
         successTitle: ui.revokePublicTreeSuccessTitle || 'Unpublished',
         successBody:
             ui.revokePublicTreeSuccessBody ||
-            'The public network was asked to stop serving this public copy. You can publish again with a new link anytime.',
+            'The public network was asked to stop serving this public copy. Readers with an offline or cached copy may still keep it on their device. You can publish again with a new link anytime.',
         noKeyBody:
             ui.revokePublicTreeNoKeyBody ||
             'Unpublishing requires the same browser profile that published this public copy. If you cleared storage or use another device, you cannot sign the unpublish from here.',
