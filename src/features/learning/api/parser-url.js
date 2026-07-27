@@ -259,23 +259,23 @@ export function normalizeVideoEmbedUrl(raw) {
         const host = hostKey(u.hostname);
         if (host === 'youtu.be') {
             const id = u.pathname.replace(/^\//, '').split('/')[0];
-            return id ? `https://www.youtube-nocookie.com/embed/${id}` : '';
+            return id ? `https://www.youtube.com/embed/${id}` : '';
         }
         if (isYouTubeHost(host)) {
             if (u.pathname.startsWith('/embed/')) {
                 const id = u.pathname.replace(/^\/embed\//, '').split('/')[0];
-                return id ? `https://www.youtube-nocookie.com/embed/${id}${u.search}` : '';
+                return id ? `https://www.youtube.com/embed/${id}${u.search}` : '';
             }
             if (u.pathname.startsWith('/shorts/')) {
                 const id = u.pathname.replace(/^\/shorts\//, '').split('/')[0];
-                return id ? `https://www.youtube-nocookie.com/embed/${id}` : '';
+                return id ? `https://www.youtube.com/embed/${id}` : '';
             }
             if (u.pathname.startsWith('/live/')) {
                 const id = u.pathname.replace(/^\/live\//, '').split('/')[0];
-                return id ? `https://www.youtube-nocookie.com/embed/${id}` : '';
+                return id ? `https://www.youtube.com/embed/${id}` : '';
             }
             const id = u.searchParams.get('v');
-            if (id) return `https://www.youtube-nocookie.com/embed/${id}`;
+            if (id) return `https://www.youtube.com/embed/${id}`;
         }
         const vimeo = tryVimeoEmbedUrl(u);
         if (vimeo) return vimeo;
@@ -309,9 +309,12 @@ export function resolveVideoEmbedSrc(raw) {
     const embed = normalizeVideoEmbedUrl(raw) || String(raw || '').trim();
     if (!embed) return '';
     const ytId = extractYoutubeVideoId(raw) || extractYoutubeVideoId(embed);
-    if (ytId && typeof window !== 'undefined' && window.arboritoElectron) {
+    if (ytId) {
         const u = new URL(`https://www.youtube.com/embed/${encodeURIComponent(ytId)}`);
-        u.searchParams.set('origin', ELECTRON_YOUTUBE_EMBED_ORIGIN);
+        // Electron webview + youtube-nocookie often shows "refused to connect"; stay on youtube.com.
+        if (typeof window !== 'undefined' && window.arboritoElectron) {
+            u.searchParams.set('origin', ELECTRON_YOUTUBE_EMBED_ORIGIN);
+        }
         u.searchParams.set('rel', '0');
         u.searchParams.set('modestbranding', '1');
         return u.toString();
