@@ -42,8 +42,9 @@ html.arborito-lesson-open :is(arborito-content, [data-arborito-panel="content"])
     pointer-events: none;
 }
 
-/* Empty shell before the aside paints: host is PE-none with no children, so the
- * first swipe fell through to the tree. Capture gestures until content mounts. */
+/* Opening only (Content adds --pending while currentNode exists but aside empty).
+ * Closed empty host must NOT use --pending: with lesson-open still on for a frame,
+ * PE-auto here became a full-screen catcher and stole the first trunk pan. */
 html.arborito-lesson-open :is(arborito-content, [data-arborito-panel="content"]).arborito-content-shell--pending {
     pointer-events: auto;
 }

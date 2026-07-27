@@ -4,6 +4,7 @@ import { LessonVideoPlayer } from './LessonVideoPlayer.jsx';
 import { MathFormula } from './MathFormula.jsx';
 import { useResolvedLessonMediaSrc } from '../hooks/useResolvedLessonMediaSrc.js';
 import { fileSystem } from '../../backup-export/api/filesystem.js';
+import { youtubeWatchUrlFromEmbedOrRaw } from '../api/parser-url.js';
 
 function resolveLessonMediaBranchId(activeSource) {
     try {
@@ -65,6 +66,7 @@ function ExternalMediaPlaceholder({ b, ui, onRetry }) {
             : kind === 'audio'
               ? ui.mediaPlaceholderAudio || 'Audio'
               : ui.mediaPlaceholderImage || 'Image';
+    const youtubeWatch = kind === 'video' ? youtubeWatchUrlFromEmbedOrRaw(b?.src) : '';
     return (
         <div className="arborito-media-blocked my-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-6 text-center">
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">
@@ -75,17 +77,29 @@ function ExternalMediaPlaceholder({ b, ui, onRetry }) {
                 {kind === 'video' ? '▶' : kind === 'audio' ? '🎵' : '🖼'}
             </span>
             <p className="text-xs text-slate-400 dark:text-slate-500 mb-4">{label}</p>
-            <button
-                type="button"
-                className="arborito-media-consent-retry arborito-cta-sky btn px-4 py-2 rounded-lg text-sm font-bold"
-                onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onRetry?.();
-                }}
-            >
-                {ui.mediaBlockedRetry || 'Load options'}
-            </button>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+                <button
+                    type="button"
+                    className="arborito-media-consent-retry arborito-cta-sky btn px-4 py-2 rounded-lg text-sm font-bold"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onRetry?.();
+                    }}
+                >
+                    {ui.mediaBlockedRetry || 'Load options'}
+                </button>
+                {youtubeWatch ? (
+                    <a
+                        href={youtubeWatch}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-semibold underline text-slate-600 dark:text-slate-300"
+                    >
+                        {ui.mediaWatchOnYoutube || 'Watch on YouTube'}
+                    </a>
+                ) : null}
+            </div>
         </div>
     );
 }

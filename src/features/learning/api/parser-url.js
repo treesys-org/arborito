@@ -306,31 +306,6 @@ export const ELECTRON_YOUTUBE_EMBED_ORIGIN = 'https://arborito.org';
 /** Persist partition for lesson-video `<webview>` guests (must match LessonVideoPlayer). */
 export const ELECTRON_LESSON_VIDEO_PARTITION = 'persist:arborito-lesson-video';
 
-function escapeHtmlAttr(value) {
-    return String(value || '')
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-}
-
-/**
- * YouTube requires a real HTTP Referer on embeds (Error 153 / "refused to connect").
- * Loading `/embed/…` as the webview *top-level* URL has no parent page → blocked.
- * Load a tiny https://arborito.org page that iframes the player instead.
- * @returns {{ dataUrl: string, baseURLForDataURL: string } | null}
- */
-export function buildElectronLessonVideoGuestLoad(embedSrc) {
-    const embed = String(embedSrc || '').trim();
-    if (!embed || !isThirdPartyVideoEmbedUrl(embed)) return null;
-    const src = escapeHtmlAttr(embed);
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="referrer" content="strict-origin-when-cross-origin"><style>html,body{margin:0;height:100%;background:#000;overflow:hidden}iframe{border:0;position:absolute;inset:0;width:100%;height:100%}</style></head><body><iframe src="${src}" title="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></body></html>`;
-    return {
-        dataUrl: `data:text/html;charset=utf-8,${encodeURIComponent(html)}`,
-        baseURLForDataURL: `${ELECTRON_YOUTUBE_EMBED_ORIGIN}/`,
-    };
-}
-
 export function resolveVideoEmbedSrc(raw) {
     const local = resolveLocalLessonMediaPath(raw, 'video');
     if (local) return local;
@@ -338,9 +313,15 @@ export function resolveVideoEmbedSrc(raw) {
     if (!embed) return '';
     const ytId = extractYoutubeVideoId(raw) || extractYoutubeVideoId(embed);
     if (ytId) {
-        const u = new URL(`https://www.youtube.com/embed/${encodeURIComponent(ytId)}`);
-        // Electron webview + youtube-nocookie often shows "refused to connect"; stay on youtube.com.
-        if (typeof window !== 'undefined' && window.arboritoElectron) {
+        // Web: Privacy Enhanced Mode. Desktop: youtube.com — guest data-URL loads were
+        // leaving an empty black webview; session Referer fix covers Error 153 there.
+        const electron =
+            typeof window !== 'undefined' && window.arboritoElectron;
+        const host = electron
+            ? 'https://www.youtube.com'
+            : 'https://www.youtube-nocookie.com';
+        const u = new URL(`${host}/embed/${encodeURIComponent(ytId)}`);
+        if (electron) {
             u.searchParams.set('origin', ELECTRON_YOUTUBE_EMBED_ORIGIN);
         }
         u.searchParams.set('rel', '0');
@@ -348,6 +329,12 @@ export function resolveVideoEmbedSrc(raw) {
         return u.toString();
     }
     return embed;
+}
+
+/** Canonical watch URL when embed is blocked or unavailable. */
+export function youtubeWatchUrlFromEmbedOrRaw(raw) {
+    const id = extractYoutubeVideoId(raw);
+    return id ? `https://www.youtube.com/watch?v=${encodeURIComponent(id)}` : '';
 }
 
 export function extractYoutubeVideoId(raw) {

@@ -26,6 +26,7 @@ import { useContentPanelNavigation } from './useContentPanelNavigation.js';
 import { useContentPanelStoreSync } from './useContentPanelStoreSync.js';
 import { useContentPanelRender } from './useContentPanelRender.js';
 import { useContentPanelTocActions } from './useContentPanelTocActions.js';
+import { armPostClosePointerGuard } from '../../../stores/shell-dialog-lifecycle.js';
 
 /** Main content panel state + actions (replaces ArboritoContent + content-mixins). */
 export function useContentPanel({ rootRef, contentAreaRef, editorRef, tocNavRef, tocScrollRef }) {
@@ -292,6 +293,10 @@ export function useContentPanel({ rootRef, contentAreaRef, editorRef, tocNavRef,
     const handleClose = useCallback(async () => {
         const ok = await confirmPanelLeaveIfNeeded();
         if (!ok) return;
+        /* Click-only ghost guard: arm after leave is confirmed, before persist/unmount,
+         * so a slow save cannot let the synthetic click hit a path knot. Safe for trunk
+         * pan (guard no longer touches touchend/pointerup). */
+        armPostClosePointerGuard(550);
         if (panel.currentNode) {
             const bookmark = store.getBookmark(panel.currentNode.id, panel.currentNode.content);
             if (bookmark && bookmark.index === panel.activeSectionIndex) {

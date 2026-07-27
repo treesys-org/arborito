@@ -282,7 +282,20 @@ const panelApi = useContentPanel({
 
     const renderData = getLessonRenderData();
     
-    if (!panel.currentNode || renderData.empty) {
+    /* Closed: no pending class — with arborito-lesson-open briefly still on, pending
+     * makes the empty host a full-screen PE-auto catcher and steals the first trunk pan.
+     * Opening / empty render: pending captures swipes until the aside mounts. */
+    if (!panel.currentNode) {
+        return (
+            <div
+                ref={rootRef}
+                data-arborito-panel="content"
+                data-embed={embed ? '1' : undefined}
+                className="w-full h-full"
+            />
+        );
+    }
+    if (renderData.empty) {
         return (
             <div
                 ref={rootRef}

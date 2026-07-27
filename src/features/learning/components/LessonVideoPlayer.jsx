@@ -1,8 +1,6 @@
-import { useEffect, useRef } from 'react';
 import { isElectronDesktop } from '../api/electron-bridge.js';
 import {
     ELECTRON_LESSON_VIDEO_PARTITION,
-    buildElectronLessonVideoGuestLoad,
     isThirdPartyVideoEmbedUrl,
     resolveVideoEmbedSrc,
 } from '../api/parser-url.js';
@@ -11,40 +9,23 @@ import { useResolvedLessonMediaSrc } from '../hooks/useResolvedLessonMediaSrc.js
 /**
  * Lesson video: iframe on web; Electron <webview> for embeds; <video> for local files.
  *
- * Electron: do not navigate the guest to youtube.com/embed as top-level — YouTube's
- * Referer policy (Error 153) blocks that. Load a small arborito.org page that iframes it.
+ * Web: youtube-nocookie.com (Privacy Enhanced Mode).
+ * Desktop: youtube.com/embed in a <webview>; main-process session injects Referer (Error 153).
  */
 export function LessonVideoPlayer({ src, branchId = '' }) {
     const embed = resolveVideoEmbedSrc(src);
     const localResolved = useResolvedLessonMediaSrc(embed || src, branchId);
-    const webviewRef = useRef(null);
-    const electronEmbed = isElectronDesktop() && isThirdPartyVideoEmbedUrl(embed);
-
-    useEffect(() => {
-        if (!electronEmbed || !embed) return undefined;
-        const wv = webviewRef.current;
-        if (!wv || typeof wv.loadURL !== 'function') return undefined;
-        const guest = buildElectronLessonVideoGuestLoad(embed);
-        if (!guest) return undefined;
-        try {
-            wv.loadURL(guest.dataUrl, { baseURLForDataURL: guest.baseURLForDataURL });
-        } catch {
-            /* ignore */
-        }
-        return undefined;
-    }, [electronEmbed, embed]);
-
     if (!embed && !localResolved) return null;
 
     const isEmbed = isThirdPartyVideoEmbedUrl(embed);
+    const electronEmbed = isElectronDesktop() && isEmbed;
     const fileSrc = isEmbed ? embed : localResolved || embed;
 
     const shell = (
         <div className="relative w-full pb-[56.25%] h-0 rounded-xl overflow-hidden shadow-lg bg-black">
             {electronEmbed ? (
                 <webview
-                    ref={webviewRef}
-                    src="about:blank"
+                    src={embed}
                     partition={ELECTRON_LESSON_VIDEO_PARTITION}
                     className="absolute top-0 left-0 w-full h-full"
                     allowpopups="true"

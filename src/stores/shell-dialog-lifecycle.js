@@ -37,16 +37,22 @@ function modalIsDialog(modal) {
     return typeof modal === 'object' && modal.type === 'dialog';
 }
 
-/** Swallow the synthetic click / pointer that would land on UI under a just-closed dialog. */
+/**
+ * Swallow the synthetic *click* that would land on UI under a just-closed overlay
+ * (lesson Back, dialog OK). Do NOT intercept touchend/pointerup: preventDefault on
+ * those in capture phase leaves mobile WebKit’s trunk scroller needing a second
+ * finger-drag (or a full reload) before pan-y works again.
+ */
 let _postCloseGuardUntil = 0;
 let _postCloseGuardOn = false;
+let _postCloseGuardTimer = 0;
 
 function postClosePointerGuard(e) {
     if (Date.now() >= _postCloseGuardUntil) {
         teardownPostClosePointerGuard();
         return;
     }
-    if (e.type !== 'click' && e.type !== 'pointerup' && e.type !== 'touchend') return;
+    if (e.type !== 'click') return;
     try {
         e.preventDefault();
     } catch {
@@ -67,21 +73,27 @@ function postClosePointerGuard(e) {
 }
 
 function teardownPostClosePointerGuard() {
+    if (_postCloseGuardTimer) {
+        clearTimeout(_postCloseGuardTimer);
+        _postCloseGuardTimer = 0;
+    }
     if (!_postCloseGuardOn) return;
     _postCloseGuardOn = false;
     document.removeEventListener('click', postClosePointerGuard, true);
-    document.removeEventListener('pointerup', postClosePointerGuard, true);
-    document.removeEventListener('touchend', postClosePointerGuard, true);
 }
 
-/** Swallow the synthetic click / pointer that would land on UI under a just-closed overlay. */
+/** Swallow ghost clicks under a just-closed overlay (lesson / dialog). */
 export function armPostClosePointerGuard(ms = 400) {
-    _postCloseGuardUntil = Date.now() + ms;
+    const dur = Math.max(0, Number(ms) || 0);
+    _postCloseGuardUntil = Date.now() + dur;
+    if (_postCloseGuardTimer) clearTimeout(_postCloseGuardTimer);
+    _postCloseGuardTimer = setTimeout(() => {
+        _postCloseGuardTimer = 0;
+        teardownPostClosePointerGuard();
+    }, dur + 32);
     if (_postCloseGuardOn) return;
     _postCloseGuardOn = true;
     document.addEventListener('click', postClosePointerGuard, true);
-    document.addEventListener('pointerup', postClosePointerGuard, { capture: true, passive: false });
-    document.addEventListener('touchend', postClosePointerGuard, { capture: true, passive: false });
 }
 
 /** @param {import('./shell-store.js').ShellStore} store */

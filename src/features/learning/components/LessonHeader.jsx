@@ -6,16 +6,13 @@ import { LessonEditorToolbarBridge } from '../../editor/components/LessonEditorT
 import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 import { useBindMobileTapRef } from '../../../shared/ui/useBindMobileTap.js';
 import { NODE_PROPERTY_EMOJIS } from '../../tree-graph/api/node-property-emojis.js';
-import { armPostClosePointerGuard } from '../../../stores/shell-dialog-lifecycle.js';
 
 function MobileLessonBackButton({ ui, onClose }) {
     const mobile = shouldShowMobileUI();
     const btnRef = useRef(null);
-    const handleClose = useCallback(() => {
-        /* Arm before async close work so the synthetic click cannot hit a path knot. */
-        armPostClosePointerGuard(550);
-        onClose?.();
-    }, [onClose]);
+    /* Ghost-click guard is armed in closeContentAction once leave confirms —
+     * arming here before async confirm/persist used to swallow the next trunk pan. */
+    const handleClose = useCallback(() => onClose?.(), [onClose]);
     useBindMobileTapRef(btnRef, handleClose, mobile);
     const label = ui.navBack || ui.close || 'Back';
     return (

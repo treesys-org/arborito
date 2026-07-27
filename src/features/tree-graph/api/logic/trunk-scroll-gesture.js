@@ -43,3 +43,12 @@ export function markTrunkGestureEnd() {
     if (!userGesturing) return;
     armGestureCooldown();
 }
+
+/** Force-clear (e.g. after lesson overlay closes mid-gesture / swallowed touchend). */
+export function resetTrunkUserGesture() {
+    if (gestureEndTimer) {
+        clearTimeout(gestureEndTimer);
+        gestureEndTimer = 0;
+    }
+    userGesturing = false;
+}
