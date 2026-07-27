@@ -27,7 +27,7 @@ Arborito is, above all, a place to **share knowledge**. If you know about someth
 - Lessons can be in **any language**.
 
 A short walkthrough lives in [`docs/AUTHORING.md`](docs/AUTHORING.md).
-Folder / `.arborito` format (all `@` tags, quizzes, bilingual layout): same doc. Exports also ship author guides as `files/AUTHOR-GUIDE.md` / `files/AUTORIA.md`.
+Folder / `.arborito` format (all `@` tags, quizzes, bilingual layout): same doc. Each export also ships an in-archive author guide under `files/`: `AUTHOR-GUIDE.md` (English UI) or `AUTORIA.md` (Spanish UI). Those are for authors opening the package in the app, not extra GitHub docs to maintain.
 
 #### Four authoring principles
 
@@ -52,24 +52,24 @@ Each leaf lesson can include a fenced `@quiz` … `@/quiz` block with `concept`,
 | **recall** | Recall the answer (then confirm). | `concept`, `answer` |
 | **cloze** | Fill in a blank in the definition. | `definition` with `{phrase}` markers (multi-word phrases allowed) |
 | **chips** | Tap words in order to form the answer. | `answer` with **several words** (spaces) |
-| **steps** | Tap steps in the right order. | `steps:` list with two or more entries (wizard: **Order concepts**) |
+| **steps** | Tap steps in the right order. | `steps:` list with two or more entries (wizard: **Order steps**) |
 
-**Exam nodes (`@exam`):** one node can hold **many** `@quiz` blocks in sequence (useful for long drills). Games and the SDK should read **all** challenges via `lesson.challenges`, not only the first.
+**Exam nodes (`type: exam`):** one node can hold **many** `@quiz` blocks in sequence (useful for long drills). Games and the SDK should read **all** challenges via `challenge.fromLesson(lesson)` (or `lesson.challenges`), not only the first block.
 
-Optional flags inside the `@quiz` block: `pass_rate: 75` (default **80** when omitted), `modes: recall,multiple` (comma-separated list to limit modes). Modes also follow filled fields (traps → multiple, steps → order). See [`src/features/learning/api/quiz-schema.js`](src/features/learning/api/quiz-schema.js) and [`docs/AUTHORING.md`](docs/AUTHORING.md) for the Construction wizard layout.
+Optional flags inside the `@quiz` block: `pass_rate: 75` (default **80** when omitted), `modes: recall,multiple` (comma-separated list to limit modes). Modes also follow filled fields (traps → multiple, steps list → steps). See [`src/features/learning/api/quiz-schema.js`](src/features/learning/api/quiz-schema.js) and [`docs/AUTHORING.md`](docs/AUTHORING.md) for the Construction wizard layout.
 
 Example:
 
 ```
 @quiz
 concept: GNU/Linux
-definition: {Sistema operativo} libre basado en el {kernel} Linux y herramientas {GNU}
-question: ¿Qué es GNU/Linux?
-answer: Un sistema operativo de código abierto basado en el kernel Linux
+definition: {Free operating system} based on the Linux {kernel} and {GNU} tools
+question: What is GNU/Linux?
+answer: An open-source operating system based on the Linux kernel
 modes: cloze,multiple,recall,chips
 traps:
-- Un editor de texto
-- Una base de datos relacional
+- A text editor
+- A relational database
 @/quiz
 ```
 
@@ -86,7 +86,7 @@ Arborito ships in **English** and **Spanish** today, and we want every language.
 - **UI translation:** the strings live in [`locales/`](locales/) as JSON files. Copy `en/` to your language code, translate the values (not the keys), and open a PR. There's a `manifest.json` listing the files.
 - **Lesson translation:** open a tree in the app and translate lessons one at a time, or fork a tree.
 
-If a sentence sounds robotic in your language, **trust your instinct** and rephrase it, we'd rather have natural local phrasing than a literal translation.
+If a sentence sounds robotic in your language, **trust your instinct** and rephrase it. We'd rather have natural local phrasing than a literal translation.
 
 ### 🎨 Design and accessibility
 
