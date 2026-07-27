@@ -230,22 +230,29 @@ export function buildNostrBundleSkeleton(slimBundle) {
     const stripBodiesForEarlyPaint = (node) => {
         if (!node || typeof node !== 'object') return;
         const t = node.type;
+        /* Drop map-noise fields so large bilingual courses still fit (or chunk tightly). */
+        delete node.path;
+        delete node.description;
+        delete node.expanded;
+        delete node.order;
         if (t === 'root' || t === 'branch') {
-            if ('content' in node) node.content = '';
+            delete node.content;
             delete node.treeLazyContent;
             delete node.treeContentKey;
         } else if (t === 'leaf' || t === 'exam') {
             const id = node.id != null ? String(node.id) : '';
             if (id && typeof node.content === 'string' && node.content.length > 0) {
                 const key = nostrMainLessonChunkKey(id);
-                node.content = '';
+                delete node.content;
                 node.treeLazyContent = true;
                 node.treeContentKey = key;
-            } else if (id && !node.treeContentKey) {
-                /* Body already empty in slim — still point at the chunk slot if we publish one. */
+            } else {
+                delete node.content;
                 delete node.treeLazyContent;
                 delete node.treeContentKey;
             }
+        } else {
+            delete node.content;
         }
         if (Array.isArray(node.children)) {
             for (const ch of node.children) stripBodiesForEarlyPaint(ch);

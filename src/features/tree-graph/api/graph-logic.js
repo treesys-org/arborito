@@ -9,6 +9,7 @@ import { schedulePersistTreeUiState } from './tree-ui-persist.js';
 import { getCachedLessonText, putCachedLessonText } from '../../learning/api/lesson-content-cache.js';
 import { resolveMutableBranchCurriculum } from '../../../core/user-store/branch-curriculum-target.js';
 import { mapWithConcurrency } from '../../../shared/lib/map-with-concurrency.js';
+import { armPostClosePointerGuard } from '../../../stores/shell-dialog-lifecycle.js';
 
 function nodeNeedsLazyNetworkLesson(node) {
     return !!(
@@ -178,10 +179,8 @@ export class GraphLogic {
         if (mobileIds.length === 0 && root) {
             mobileIds = [root.id];
         }
-        this.store.dispatchEvent(new CustomEvent('arborito-set-mobile-path', { detail: { ids: mobileIds } }));
 
         if (target.type === 'leaf' || target.type === 'exam') {
-            this.store.rememberLastMapFocus?.(target.id);
             const current = this.store.state.selectedNode;
             if (
                 current &&
@@ -190,12 +189,6 @@ export class GraphLogic {
             ) {
                 const ok = await this.store.confirmLeaveActiveQuizIfNeeded();
                 if (!ok) return;
-            }
-            if (
-                !target.content &&
-                nodeNeedsLazyNetworkLesson(target)
-            ) {
-                await this.loadNodeContent(target);
             }
             const lessonOpenHint =
                 nodeData && typeof nodeData.bookmarkIndex === 'number'
@@ -215,13 +208,27 @@ export class GraphLogic {
                                 : [],
                         }
                       : null;
+            /* Cover the map immediately so ghost clicks / path sync cannot jump the trunk
+             * while content is still loading. */
+            armPostClosePointerGuard(550);
             this.store.update({
                 selectedNode: target,
                 previewNode: null,
                 modal: null,
                 lessonOpenHint,
             });
+            this.store.dispatchEvent(
+                new CustomEvent('arborito-set-mobile-path', { detail: { ids: mobileIds } })
+            );
+            this.store.rememberLastMapFocus?.(target.id);
+            if (!target.content && nodeNeedsLazyNetworkLesson(target)) {
+                await this.loadNodeContent(target);
+                this.store.update({ selectedNode: target });
+            }
         } else {
+            this.store.dispatchEvent(
+                new CustomEvent('arborito-set-mobile-path', { detail: { ids: mobileIds } })
+            );
             this.store.update({ path: chain });
             target.expanded = true;
         }

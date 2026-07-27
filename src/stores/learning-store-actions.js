@@ -50,7 +50,7 @@ export async function closeContentAction(opts = {}) {
     }
     /* Same ghost-click guard as dialogs: Back touchend unmounts the lesson, then the
      * synthetic click can hit a path knot/label and recenter the mobile trunk. */
-    armPostClosePointerGuard();
+    armPostClosePointerGuard(550);
     commitLearningState({ selectedNode: null });
 }
 

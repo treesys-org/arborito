@@ -2,13 +2,17 @@
  * Trunk scroll policy, root grounded on floor, active branch centered.
  * Uses React host refs (no graph engine).
  */
-import { getArboritoStore as store } from '../../../../core/store-singleton.js';
 import { layoutOffsetTop } from './path-geometry.js';
-import { getMobilePath } from '../graph-ui-accessors.js';
 import { isTrunkUserGesturing } from './trunk-scroll-gesture.js';
 
 /** Root clover SVG bleeds below its layout box (translateY + lobes + glow). */
 export const ROOT_KNOT_VISUAL_OVERFLOW_PX = 28;
+
+/** Lesson reader covers the map — do not rewrite trunk scroll underneath it. */
+function isLessonOverlayOpen() {
+    if (typeof document === 'undefined') return false;
+    return document.documentElement.classList.contains('arborito-lesson-open');
+}
 
 function isDesktopPathUi() {
     return typeof document !== 'undefined' && document.documentElement.classList.contains('arborito-desktop');
@@ -134,20 +138,6 @@ function scrollMobilePathToActiveBranch(hosts, lockRef) {
     applyBranchScrollWithGroundedRoot(hosts, branchScroll, lockRef);
 }
 
-function resolvePathNodesFromStore() {
-    const dataRoot = store.value?.data;
-    if (!dataRoot) return [];
-    const mobilePath = getMobilePath();
-    if (!mobilePath.length) return [dataRoot];
-    const pathNodes = [dataRoot];
-    for (let i = 1; i < mobilePath.length; i++) {
-        const next = store.findNode(mobilePath[i]);
-        if (!next) break;
-        pathNodes.push(next);
-    }
-    return pathNodes;
-}
-
 /** @param {object} hostRefs React refs bag */
 export function resolveScrollHosts(hostRefs) {
     const trunkBody = hostRefs?.trunkBody?.current;
@@ -165,7 +155,7 @@ export function resolveScrollHosts(hostRefs) {
  * @param {{ current: boolean }} lockRef
  */
 export function clampMobileTrunkScrollForVisibleRoot(hosts, lockRef = { current: false }) {
-    if (lockRef.current || isTrunkUserGesturing()) return;
+    if (lockRef.current || isTrunkUserGesturing() || isLessonOverlayOpen()) return;
     const container = hosts.trunkContainer;
     const sc = hosts.scrollContent;
     const rootWrap = getMobileRootWrap(hosts);
@@ -199,14 +189,16 @@ export function clampTrunkScroll(hosts, lockRef) {
     clampMobileTrunkScrollForVisibleRoot(hosts, lockRef);
 }
 
-/** Re-anchor trunk scroll after layout changes. */
+/**
+ * After layout/viewport changes: only enforce the ground clamp.
+ * Full recenter belongs to path changes (`useMobileTrunkScroll` + syncScroll).
+ * Recentering here made open/close lesson feel like a rogue trunk jump.
+ */
 export function regroundMobileTrunkScroll(hostRefs, lockRef = { current: false }) {
     const hosts = resolveScrollHosts(hostRefs);
-    if (!hosts.trunkContainer) return;
-    const pathNodes = resolvePathNodesFromStore();
-    if (!pathNodes.length) return;
+    if (!hosts.trunkContainer || isLessonOverlayOpen()) return;
     requestAnimationFrame(() => {
-        syncMobilePathScroll(hosts, pathNodes, lockRef);
+        clampMobileTrunkScrollForVisibleRoot(hosts, lockRef);
     });
 }
 

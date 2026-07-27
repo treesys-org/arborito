@@ -16,6 +16,12 @@ export function useMobileTrunkScroll({ model, scroll, hostRefs }) {
 
     useLayoutEffect(() => {
         if (!model?.pathNodes?.length || !scroll) return undefined;
+        const lessonOpen =
+            typeof document !== 'undefined' &&
+            document.documentElement.classList.contains('arborito-lesson-open');
+        /* Under the lesson overlay, skip layout clamps (they look like jumps on close).
+         * Still allow syncScroll when the path actually changed while opening a lesson. */
+        if (lessonOpen && !scroll.syncScroll) return undefined;
 
         const hosts = resolveScrollHosts(hostRefs);
         const trunkContainer = hosts.trunkContainer;
@@ -28,6 +34,10 @@ export function useMobileTrunkScroll({ model, scroll, hostRefs }) {
         raf1 = requestAnimationFrame(() => {
             raf2 = requestAnimationFrame(() => {
                 if (isTrunkUserGesturing()) return;
+                const stillLesson =
+                    typeof document !== 'undefined' &&
+                    document.documentElement.classList.contains('arborito-lesson-open');
+                if (stillLesson && !scroll.syncScroll) return;
                 if (scroll.syncScroll) {
                     syncMobilePathScroll(hosts, scroll.pathNodes, scrollLockRef);
                 } else {

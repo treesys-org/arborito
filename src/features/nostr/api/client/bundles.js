@@ -26,6 +26,7 @@ import { hasArbRoot, splitUtf8Chunks, tagValue, QUERY_MS_LONG } from './_shared.
 import {
     bundleMainChunkDTagGen,
     bundleSkeletonDTagGen,
+    bundleSkeletonPartDTagGen,
     forumPackChunkDTagGen,
     forumPackDTagGen,
     lessonChunkDTag,
@@ -36,6 +37,38 @@ import {
     snapChunkDTag,
     snapPartDTag,
 } from './bundle-addressing.js';
+
+/**
+ * Relays hold independent replaceable state. Prefer the newest bundle header
+ * across peers (updatedAt, then created_at) so a stale mirror cannot win the race.
+ * @param {import('nostr-tools').Event[]} events
+ * @param {string} expectedPub
+ */
+function pickNewestBundleHeader(events, expectedPub) {
+    const pub = String(expectedPub || '');
+    const list = (Array.isArray(events) ? events : []).filter(
+        (ev) => ev && String(ev.pubkey) === pub
+    );
+    if (!list.length) return null;
+    let best = null;
+    let bestKey = '';
+    for (const ev of list) {
+        let updated = '';
+        try {
+            const meta = JSON.parse(ev.content || 'null');
+            updated = String(meta?.updatedAt || '').trim();
+        } catch {
+            updated = '';
+        }
+        const created = String(Math.max(0, Number(ev.created_at) || 0)).padStart(16, '0');
+        const key = `${updated}\0${created}\0${String(ev.id || '')}`;
+        if (!best || key > bestKey) {
+            best = ev;
+            bestKey = key;
+        }
+    }
+    return best;
+}
 
 export const bundlesMixin = {
     async isUniverseRevoked({ pub, universeId }) {
@@ -120,22 +153,22 @@ export const bundlesMixin = {
             kinds: [KIND_BUNDLE_HEADER],
             authors: [String(pub)],
             '#d': [bundleHeaderDTag(pub, universeId)],
-            limit: 1
+            limit: 8
         };
-        /* Revocation check and first header race in parallel — saves a relay RTT on cold open. */
-        const [revoked, hdrFast] = await Promise.all([
+        /* Revocation check and header merge in parallel — saves a relay RTT on cold open. */
+        const [revoked, hdrEvsFast] = await Promise.all([
             this.isUniverseRevoked({ pub, universeId }),
-            this._getFast(headerFilter, t.headerMs),
+            this._queryFast(headerFilter, t.headerMs),
         ]);
         if (revoked) return { revoked: true, bundle: null };
-        let hdr = hdrFast;
+        let hdr = pickNewestBundleHeader(hdrEvsFast, pub);
         if (!hdr) {
             this._unpauseAllRelays();
-            hdr = await this._get(headerFilter, t.headerRetryMs);
+            hdr = pickNewestBundleHeader(await this._query(headerFilter, t.headerRetryMs), pub);
         }
         if (!hdr) {
             this._unpauseAllRelays();
-            hdr = await this._get(headerFilter, t.headerFinalMs);
+            hdr = pickNewestBundleHeader(await this._query(headerFilter, t.headerFinalMs), pub);
         }
         if (!hdr) return { revoked: false, bundle: null };
         /* The pool already verified the signature; bind the author explicitly so
@@ -184,6 +217,7 @@ export const bundlesMixin = {
                 try {
                     const d = bundleSkeletonDTagGen(pub, universeId, genForSkel);
                     if (!d) return;
+                    const skelMs = Math.min(t.chunkMs || 4000, 3000);
                     const ev = await this._getFast(
                         {
                             kinds: [KIND_BUNDLE_CHUNK_JSON],
@@ -191,17 +225,59 @@ export const bundlesMixin = {
                             '#d': [d],
                             limit: 1,
                         },
-                        Math.min(t.chunkMs || 4000, 3000)
+                        skelMs
                     );
                     if (!ev || String(ev.pubkey) !== String(pub)) return;
                     if (!hasArbRoot(ev, pub, universeId)) return;
+                    let skelText = String(ev.content || '');
+                    let maybeIndex = null;
+                    try {
+                        maybeIndex = JSON.parse(skelText);
+                    } catch {
+                        maybeIndex = null;
+                    }
+                    /* Cap parts: a huge claimed count would fan out REQs (DoS). Real courses need ~2–8. */
+                    const MAX_SKELETON_PARTS = 32;
+                    let partN = Math.max(
+                        0,
+                        Math.floor(Number(meta?.skeletonParts) || 0) ||
+                            Math.floor(Number(maybeIndex?.chunkCount) || 0)
+                    );
+                    if (partN > MAX_SKELETON_PARTS) return;
+                    if (
+                        partN > 1 &&
+                        maybeIndex &&
+                        typeof maybeIndex === 'object' &&
+                        Number(maybeIndex.chunkCount) > 1
+                    ) {
+                        const pieces = await Promise.all(
+                            Array.from({ length: partN }, async (_, idx) => {
+                                const pd = bundleSkeletonPartDTagGen(pub, universeId, genForSkel, idx);
+                                if (!pd) return null;
+                                const pev = await this._getFast(
+                                    {
+                                        kinds: [KIND_BUNDLE_CHUNK_JSON],
+                                        authors: [String(pub)],
+                                        '#d': [pd],
+                                        limit: 1,
+                                    },
+                                    skelMs
+                                );
+                                if (!pev || String(pev.pubkey) !== String(pub)) return null;
+                                if (!hasArbRoot(pev, pub, universeId)) return null;
+                                return String(pev.content || '');
+                            })
+                        );
+                        if (pieces.some((p) => p == null)) return;
+                        skelText = pieces.join('');
+                    }
                     let skel;
                     try {
-                        skel = JSON.parse(ev.content || 'null');
+                        skel = JSON.parse(skelText || 'null');
                     } catch {
                         return;
                     }
-                    if (!skel || typeof skel !== 'object') return;
+                    if (!skel || typeof skel !== 'object' || skel.chunkCount) return;
                     stampSkeletonMeta(skel);
                     skel.meta = skel.meta && typeof skel.meta === 'object' ? skel.meta : {};
                     skel.meta.skeleton = true;
@@ -576,16 +652,16 @@ export const bundlesMixin = {
         const gen = randomUUIDSafe().replace(/-/g, '').slice(0, 16);
         const skelBundle = buildNostrBundleSkeleton(slimBundle);
         let skeletonText = '';
+        let skeletonUtf8Parts = [];
         let publishSkeleton = false;
         if (skelBundle) {
             try {
                 skeletonText = JSON.stringify(skelBundle);
-                const skelBytes = new TextEncoder().encode(skeletonText).length;
-                if (skelBytes > 0 && skelBytes <= NOSTR_CHUNK_CONTENT_MAX) {
-                    publishSkeleton = true;
-                }
+                skeletonUtf8Parts = skeletonText ? splitUtf8Chunks(skeletonText) : [];
+                publishSkeleton = skeletonUtf8Parts.length > 0;
             } catch {
                 publishSkeleton = false;
+                skeletonUtf8Parts = [];
             }
         }
         const meta = {
@@ -596,7 +672,14 @@ export const bundlesMixin = {
             updatedAt: new Date().toISOString(),
             format: (slimBundle && slimBundle.format) || 'arborito-bundle',
             shareCode: ((slimBundle && slimBundle.meta) ? slimBundle.meta.shareCode : undefined) || null,
-            ...(publishSkeleton ? { hasSkeleton: true } : {}),
+            ...(publishSkeleton
+                ? {
+                      hasSkeleton: true,
+                      ...(skeletonUtf8Parts.length > 1
+                          ? { skeletonParts: skeletonUtf8Parts.length }
+                          : {}),
+                  }
+                : {}),
         };
         const headerEv = this._finalize(pair, {
             kind: KIND_BUNDLE_HEADER,
@@ -690,24 +773,62 @@ export const bundlesMixin = {
             }
         }
         if (lessonEvents.length) await this._publishBurst(lessonEvents, 5);
-        /* Skeleton after lesson chunks so early open can fetch bodies if needed. */
-        if (publishSkeleton && skeletonText) {
+        /* Skeleton after lesson chunks so early open can fetch bodies if needed.
+         * Large trees exceed one event — UTF-8 parts + index (search-pack pattern). */
+        if (publishSkeleton && skeletonUtf8Parts.length) {
             const skelD = bundleSkeletonDTagGen(pair.pub, universeId, gen);
             if (skelD) {
-                await this._publish(
-                    this._finalize(pair, {
-                        kind: KIND_BUNDLE_CHUNK_JSON,
-                        created_at: Math.floor(Date.now() / 1000),
-                        tags: [
-                            ['d', skelD],
-                            ['e', headerEv.id, '', 'root'],
-                            ['g', gen],
-                            ['slot', 'skeleton'],
-                            arbRootTag(pair.pub, universeId),
-                        ],
-                        content: skeletonText,
-                    })
-                );
+                if (skeletonUtf8Parts.length === 1) {
+                    await this._publish(
+                        this._finalize(pair, {
+                            kind: KIND_BUNDLE_CHUNK_JSON,
+                            created_at: Math.floor(Date.now() / 1000),
+                            tags: [
+                                ['d', skelD],
+                                ['e', headerEv.id, '', 'root'],
+                                ['g', gen],
+                                ['slot', 'skeleton'],
+                                arbRootTag(pair.pub, universeId),
+                            ],
+                            content: skeletonUtf8Parts[0],
+                        })
+                    );
+                } else {
+                    const skelPartEvents = skeletonUtf8Parts.map((content, i) =>
+                        this._finalize(pair, {
+                            kind: KIND_BUNDLE_CHUNK_JSON,
+                            created_at: Math.floor(Date.now() / 1000),
+                            tags: [
+                                ['d', bundleSkeletonPartDTagGen(pair.pub, universeId, gen, i)],
+                                ['e', headerEv.id, '', 'root'],
+                                ['g', gen],
+                                ['slot', 'skeleton'],
+                                ['i', String(i)],
+                                ['n', String(skeletonUtf8Parts.length)],
+                                arbRootTag(pair.pub, universeId),
+                            ],
+                            content,
+                        })
+                    );
+                    await this._publishBurst(skelPartEvents, 5);
+                    await this._publish(
+                        this._finalize(pair, {
+                            kind: KIND_BUNDLE_CHUNK_JSON,
+                            created_at: Math.floor(Date.now() / 1000),
+                            tags: [
+                                ['d', skelD],
+                                ['e', headerEv.id, '', 'root'],
+                                ['g', gen],
+                                ['slot', 'skeleton'],
+                                arbRootTag(pair.pub, universeId),
+                            ],
+                            content: JSON.stringify({
+                                version: 1,
+                                chunkCount: skeletonUtf8Parts.length,
+                            }),
+                        })
+                    );
+                }
             }
         }
 
@@ -839,12 +960,12 @@ export const bundlesMixin = {
             kinds: [KIND_BUNDLE_HEADER],
             authors: [String(pub)],
             '#d': [bundleHeaderDTag(pub, universeId)],
-            limit: 1
+            limit: 8
         };
-        let hdr = await this._getFast(headerFilter, 6000);
+        let hdr = pickNewestBundleHeader(await this._queryFast(headerFilter, 6000), pub);
         if (!hdr) {
             this._unpauseAllRelays?.();
-            hdr = await this._get(headerFilter, 10000);
+            hdr = pickNewestBundleHeader(await this._query(headerFilter, 10000), pub);
         }
         if (!hdr || String(hdr.pubkey) !== String(pub)) return null;
         try {

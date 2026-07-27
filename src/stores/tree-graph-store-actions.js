@@ -83,6 +83,13 @@ export function navigateMobilePathAction(ids) {
     const next = Array.isArray(ids) ? ids.map(String) : [];
     const g = graphUiOf(store);
     const prev = Array.isArray(g.mobilePath) ? g.mobilePath.map(String) : [];
+    const samePath =
+        next.length === prev.length && next.every((id, i) => String(id) === String(prev[i]));
+    /* Opening a lesson re-dispatches the current folder path — skip so trunk does not churn. */
+    if (samePath) {
+        schedulePersistTreeUiState(store);
+        return;
+    }
     patchGraphUiAction({ mobilePath: next, revision: (g.revision || 0) + 1 });
     if (typeof store.syncTreeContextFromMobilePath === 'function') {
         store.syncTreeContextFromMobilePath();

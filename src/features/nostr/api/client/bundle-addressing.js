@@ -25,6 +25,14 @@ export function bundleSkeletonDTagGen(ownerPubHex, universeId, gen) {
     return bundleSkeletonDTag(ownerPubHex, universeId, g);
 }
 
+/** UTF-8 part of a structure skeleton that exceeds one Nostr event. */
+export function bundleSkeletonPartDTagGen(ownerPubHex, universeId, gen, index) {
+    const g = String(gen || '').trim();
+    if (!g) return '';
+    const i = Math.max(0, Math.floor(Number(index)) || 0);
+    return `arborito:bundle:skel:${String(ownerPubHex)}:${String(universeId)}:${g}:c:${i}`;
+}
+
 export function lessonChunkDTag(pub, universeId, key, gen) {
     const g = String(gen || '').trim();
     const ck = String(key || '');
