@@ -20,6 +20,7 @@ import { metricsMixin } from './metrics.js';
 import { governanceMixin } from './governance.js';
 import { accountsMixin } from './accounts.js';
 import { bundlesMixin } from './bundles.js';
+import { bundleShareCodesMixin } from './bundle-share-codes.js';
 import { forumMixin } from './forum.js';
 import { deletionMixin } from './deletion.js';
 import { progressPresenceMixin } from './progress-presence.js';
@@ -59,6 +60,7 @@ applyPrototypeMethods(
     governanceMixin,
     accountsMixin,
     bundlesMixin,
+    bundleShareCodesMixin,
     forumMixin,
     deletionMixin,
     progressPresenceMixin
