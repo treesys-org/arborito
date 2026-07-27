@@ -276,6 +276,13 @@ export function makeBlockSessionKey(nodeId, sectionIndex, blockId) {
     return `${nodeId ?? ''}:${sectionIndex}:${blockId || 'quiz'}`;
 }
 
+/** Block id segment from `makeBlockSessionKey` (`nodeId:sectionIndex:blockId`). */
+export function blockIdFromSessionKey(sessionKey) {
+    if (!sessionKey) return '';
+    const m = String(sessionKey).match(/^[^:]*:\d+:(.*)$/);
+    return m ? m[1] : '';
+}
+
 /** Expanded question ids for a single @quiz block (items[] flattened). */
 export function getExpandedQuestionIdsForQuizBlock(block) {
     if (!block || block.type !== 'quiz') return [];

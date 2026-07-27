@@ -18,6 +18,7 @@ import {
     canAdvanceSession,
     createQuestionSession
 } from '../api/question-session.js';
+import { blockIdFromSessionKey } from '../api/content-toc.js';
 
 export function useContentPanelQuizActions({
     panel,
@@ -121,8 +122,12 @@ export function useContentPanelQuizActions({
             });
             lastRenderKeyRef.current = null;
             scheduleUpdate(true);
+            const quizBlockId = blockIdFromSessionKey(blockKey);
             queueMicrotask(() =>
-                scrollLessonContentToQuiz(contentAreaRef?.current, { attention: true })
+                scrollLessonContentToQuiz(contentAreaRef?.current, {
+                    attention: true,
+                    blockId: quizBlockId || null,
+                })
             );
         },
         [panel, parseApi, patchPanel, scheduleUpdate, contentAreaRef, lastRenderKeyRef]

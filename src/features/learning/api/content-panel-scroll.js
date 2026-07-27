@@ -4,8 +4,22 @@ const ATTENTION_MS = 2700;
 const SCROLL_BOTTOM_PAD = 120;
 const SCROLL_TOP_PAD = 24;
 
-function findPendingInlineQuiz(contentArea) {
+function findInlineQuizByBlockId(contentArea, blockId) {
+    if (!contentArea || blockId == null || blockId === '') return null;
+    const want = String(blockId);
+    for (const el of contentArea.querySelectorAll('.arborito-inline-quiz[data-quiz-block-id]')) {
+        if (el.getAttribute('data-quiz-block-id') === want) return el;
+    }
+    return null;
+}
+
+/** First incomplete quiz in document order, or a specific block when `blockId` is set. */
+function findPendingInlineQuiz(contentArea, { blockId } = {}) {
     if (!contentArea) return null;
+    if (blockId != null && blockId !== '') {
+        const targeted = findInlineQuizByBlockId(contentArea, blockId);
+        if (targeted) return targeted;
+    }
     const incompleteSelectors = [
         '.arborito-inline-quiz--incomplete',
         '.arborito-inline-quiz--idle',
@@ -78,12 +92,12 @@ function scrollElementIntoViewWithPadding(
 
 export function scrollLessonContentToQuiz(
     contentArea,
-    { behavior = 'smooth', focus = 'auto', force = false, attention = false } = {}
+    { behavior = 'smooth', focus = 'auto', force = false, attention = false, blockId = null } = {}
 ) {
     if (!contentArea) return;
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-            const quiz = findPendingInlineQuiz(contentArea);
+            const quiz = findPendingInlineQuiz(contentArea, { blockId });
             if (!quiz) {
                 contentArea.scrollTop = 0;
                 return;
