@@ -394,10 +394,14 @@ export const bundlesMixin = {
                 return null;
             }
         };
-        /* Relays often lag right after publish — a few short retries beat a sticky empty lesson. */
-        const backoffsMs = [0, 400, 1200];
+        /* Relays often lag right after publish / across peers — longer retries beat a sticky miss.
+         * Callers must treat `null` as "not found yet", not as an empty lesson body. */
+        const backoffsMs = [0, 600, 1800, 4000];
         for (let i = 0; i < backoffsMs.length; i++) {
             if (backoffsMs[i]) await new Promise((r) => setTimeout(r, backoffsMs[i]));
+            if (i > 0 && typeof this._unpauseAllRelays === 'function') {
+                this._unpauseAllRelays();
+            }
             if (g) {
                 const gotGen = await tryOnce(true);
                 if (gotGen) return gotGen;
@@ -542,6 +546,33 @@ export const bundlesMixin = {
             bundle,
             { includeForum: includeForum !== false }
         );
+        /* Inline bodies in the main JSON are the reliability path — refuse to ship empty. */
+        {
+            let inlineLessons = 0;
+            const countInline = (node) => {
+                if (!node || typeof node !== 'object') return;
+                if (
+                    (node.type === 'leaf' || node.type === 'exam') &&
+                    typeof node.content === 'string' &&
+                    node.content.length > 0
+                ) {
+                    inlineLessons += 1;
+                }
+                if (Array.isArray(node.children)) node.children.forEach(countInline);
+            };
+            const langs = slimBundle?.tree?.languages;
+            if (langs && typeof langs === 'object') {
+                for (const lk of Object.keys(langs)) countInline(langs[lk]);
+            }
+            const chunkN = Object.keys(lessonChunks || {}).filter((k) =>
+                String(k).startsWith('m__')
+            ).length;
+            if (chunkN > 0 && inlineLessons < chunkN) {
+                throw new Error(
+                    `Publish refused: ${chunkN - inlineLessons} main lesson(s) missing inline body in main bundle`
+                );
+            }
+        }
         const mainJson = JSON.stringify(slimBundle);
         const parts = splitUtf8Chunks(mainJson);
         /* New generation address for main chunks. Header is published LAST so a
@@ -593,26 +624,6 @@ export const bundlesMixin = {
             })
         );
         await this._publishBurst(mainChunkEvents, 5);
-
-        if (publishSkeleton && skeletonText) {
-            const skelD = bundleSkeletonDTagGen(pair.pub, universeId, gen);
-            if (skelD) {
-                await this._publish(
-                    this._finalize(pair, {
-                        kind: KIND_BUNDLE_CHUNK_JSON,
-                        created_at: Math.floor(Date.now() / 1000),
-                        tags: [
-                            ['d', skelD],
-                            ['e', headerEv.id, '', 'root'],
-                            ['g', gen],
-                            ['slot', 'skeleton'],
-                            arbRootTag(pair.pub, universeId),
-                        ],
-                        content: skeletonText,
-                    })
-                );
-            }
-        }
 
         const makeJsonChunkEvent = (slot, key, obj) => {
             const d =
@@ -683,6 +694,26 @@ export const bundlesMixin = {
             }
         }
         if (lessonEvents.length) await this._publishBurst(lessonEvents, 5);
+        /* Skeleton after lesson chunks so early open can fetch bodies if needed. */
+        if (publishSkeleton && skeletonText) {
+            const skelD = bundleSkeletonDTagGen(pair.pub, universeId, gen);
+            if (skelD) {
+                await this._publish(
+                    this._finalize(pair, {
+                        kind: KIND_BUNDLE_CHUNK_JSON,
+                        created_at: Math.floor(Date.now() / 1000),
+                        tags: [
+                            ['d', skelD],
+                            ['e', headerEv.id, '', 'root'],
+                            ['g', gen],
+                            ['slot', 'skeleton'],
+                            arbRootTag(pair.pub, universeId),
+                        ],
+                        content: skeletonText,
+                    })
+                );
+            }
+        }
 
         const snapEvents = [];
         for (const sk2 of Object.keys(snapshotChunks)) {

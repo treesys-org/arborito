@@ -3,11 +3,19 @@
  * - Windows: electron-updater + GitHub Releases (download + quiet install).
  * - Linux: compare GitHub latest tag; open .flatpakref in the system installer.
  * Version check runs only when the renderer asks (after privacy consent).
+ *
+ * Note: Arborito ships `*-alpha` tags as GitHub *prereleases*. `/releases/latest`
+ * ignores those, so Windows must allowPrerelease and Linux must fall back to the
+ * releases list — otherwise users never see an update prompt.
  */
 'use strict';
 
 const { BrowserWindow, net } = require('electron');
-const { FLATPAK_REF_URL, GITHUB_RELEASES_LATEST_API } = require('./flatpak-remote-urls.cjs');
+const {
+  FLATPAK_REF_URL,
+  GITHUB_RELEASES_LATEST_API,
+  GITHUB_RELEASES_LIST_API,
+} = require('./flatpak-remote-urls.cjs');
 
 const CHECK_DELAY_MS = 2_000;
 
@@ -82,6 +90,27 @@ function fetchJson(url) {
 }
 
 /**
+ * Latest GitHub release including prereleases (alpha tags).
+ * @returns {Promise<{ tag_name?: string, name?: string }|null>}
+ */
+async function fetchNewestGithubRelease() {
+  try {
+    const latest = await fetchJson(GITHUB_RELEASES_LATEST_API);
+    if (latest && (latest.tag_name || latest.name)) return latest;
+  } catch {
+    /* /latest omits prereleases — fall through */
+  }
+  const list = await fetchJson(GITHUB_RELEASES_LIST_API);
+  const rows = Array.isArray(list) ? list : [];
+  const usable = rows.filter((r) => r && !r.draft && (r.tag_name || r.name));
+  if (!usable.length) return null;
+  usable.sort((a, b) =>
+    compareSemverLike(String(b.tag_name || b.name || ''), String(a.tag_name || a.name || ''))
+  );
+  return usable[0];
+}
+
+/**
  * @param {import('electron').IpcMain} ipcMain
  * @param {(event: import('electron').IpcMainInvokeEvent) => boolean} isTrustedRenderer
  * @param {import('electron').App} app
@@ -131,7 +160,7 @@ function registerAppUpdateIpc(ipcMain, isTrustedRenderer, app, deps = {}) {
 
   async function checkLinuxUpdate() {
     try {
-      const data = await fetchJson(GITHUB_RELEASES_LATEST_API);
+      const data = await fetchNewestGithubRelease();
       const tag = String(data?.tag_name || data?.name || '').trim();
       const remote = tag.replace(/^v/i, '');
       const local = String(app.getVersion() || '').trim();
@@ -157,8 +186,11 @@ function registerAppUpdateIpc(ipcMain, isTrustedRenderer, app, deps = {}) {
     const { autoUpdater } = require('electron-updater');
     autoUpdater.autoDownload = false;
     autoUpdater.autoInstallOnAppQuit = false;
+    /* Alpha builds publish as GitHub prereleases; without this, check sees no latest. */
+    autoUpdater.allowPrerelease = true;
 
     autoUpdater.on('update-available', (info) => {
+      checkScheduled = false;
       pendingInfo = info || null;
       pendingKind = 'windows';
       const version = String(info?.version || '').trim();
@@ -167,11 +199,13 @@ function registerAppUpdateIpc(ipcMain, isTrustedRenderer, app, deps = {}) {
     });
 
     autoUpdater.on('update-not-available', () => {
+      checkScheduled = false;
       pendingInfo = null;
       pendingKind = null;
     });
 
     autoUpdater.on('error', (err) => {
+      checkScheduled = false;
       downloading = false;
       const msg = err && err.message ? err.message : String(err || 'update error');
       console.warn('[Arborito] autoUpdater:', msg);
@@ -198,6 +232,7 @@ function registerAppUpdateIpc(ipcMain, isTrustedRenderer, app, deps = {}) {
           checkScheduled = false;
           const msg = e && e.message ? e.message : String(e);
           console.warn('[Arborito] checkForUpdates failed:', msg);
+          sendToRenderers('arborito-app-update-error', { error: msg });
         });
       }, CHECK_DELAY_MS);
       return { ok: true, scheduled: true };
@@ -244,4 +279,4 @@ function registerAppUpdateIpc(ipcMain, isTrustedRenderer, app, deps = {}) {
   });
 }
 
-module.exports = { registerAppUpdateIpc, compareSemverLike };
+module.exports = { registerAppUpdateIpc, compareSemverLike, fetchNewestGithubRelease };

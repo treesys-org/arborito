@@ -46,9 +46,14 @@ function walkTreeNode(node, lessonChunks, makeKey, seen) {
     if ((t === 'leaf' || t === 'exam') && typeof node.content === 'string' && node.content.length > 0) {
         const key = makeKey(node.id);
         lessonChunks[key] = { content: node.content };
-        node.content = '';
-        node.treeLazyContent = true;
-        node.treeContentKey = key;
+        /*
+         * Keep the body in the main bundle. Per-lesson chunk events are still
+         * published (skeleton / older clients), but readers that already fetched
+         * the index must not depend on a second relay round-trip that can miss
+         * forever across peers.
+         */
+        delete node.treeLazyContent;
+        delete node.treeContentKey;
     } else {
         delete node.treeLazyContent;
         delete node.treeContentKey;
@@ -209,7 +214,8 @@ export function prepareNostrSplitBundleV2(bundle, { includeForum = true } = {}) 
 
 /**
  * Compact structure-only copy of a v2 slim bundle for early paint (one 30151 event).
- * Strips folder README bodies; leaves stay as lazy stubs. Omits release snapshots.
+ * Strips folder README bodies and lesson bodies (lazy stubs); full main keeps text inline.
+ * Omits release snapshots.
  * @param {object} slimBundle
  * @returns {object|null}
  */
@@ -221,16 +227,28 @@ export function buildNostrBundleSkeleton(slimBundle) {
     } catch {
         return null;
     }
-    const stripFolderBodies = (node) => {
+    const stripBodiesForEarlyPaint = (node) => {
         if (!node || typeof node !== 'object') return;
         const t = node.type;
         if (t === 'root' || t === 'branch') {
             if ('content' in node) node.content = '';
             delete node.treeLazyContent;
             delete node.treeContentKey;
+        } else if (t === 'leaf' || t === 'exam') {
+            const id = node.id != null ? String(node.id) : '';
+            if (id && typeof node.content === 'string' && node.content.length > 0) {
+                const key = nostrMainLessonChunkKey(id);
+                node.content = '';
+                node.treeLazyContent = true;
+                node.treeContentKey = key;
+            } else if (id && !node.treeContentKey) {
+                /* Body already empty in slim — still point at the chunk slot if we publish one. */
+                delete node.treeLazyContent;
+                delete node.treeContentKey;
+            }
         }
         if (Array.isArray(node.children)) {
-            for (const ch of node.children) stripFolderBodies(ch);
+            for (const ch of node.children) stripBodiesForEarlyPaint(ch);
         }
     };
     if (skel.tree && typeof skel.tree === 'object') {
@@ -239,7 +257,7 @@ export function buildNostrBundleSkeleton(slimBundle) {
         delete skel.tree.forum;
         const langs = skel.tree.languages;
         if (langs && typeof langs === 'object') {
-            for (const lk of Object.keys(langs)) stripFolderBodies(langs[lk]);
+            for (const lk of Object.keys(langs)) stripBodiesForEarlyPaint(langs[lk]);
         }
     }
     delete skel.forum;

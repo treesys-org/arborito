@@ -8,6 +8,7 @@ import { readArboritoArchive } from '../../../shared/lib/arborito-archive.js';
 import { computeBranchSetHashSync } from './branch-set-hash.js';
 import { findLocalTreeWithSameHash } from './tree-dedup.js';
 import { importLessonMediaFiles } from '../../learning/api/lesson-local-media-store.js';
+import { isPlaceholderCommunitySourceName } from '../../../shared/lib/catalog-titles.js';
 
 /**
  * Ensure branch refs can be resolved when opening a composed tree.
@@ -29,8 +30,14 @@ export async function enrichBranchRefsForLoad(store, branchRefs) {
                 );
                 if (!installed) {
                     try {
-                        await store.addCommunitySource(networkUrl, {
-                            listMeta: { title: ref.displayName || branchId },
+                        const label = String(ref.displayName || '').trim();
+                        const listMeta =
+                            label && !isPlaceholderCommunitySourceName(label)
+                                ? { title: label }
+                                : null;
+                        await store.addCommunitySource(null, {
+                            resolvedNostrTreeUrl: networkUrl,
+                            ...(listMeta ? { listMeta } : {}),
                         });
                     } catch {
                         /* branch may still load via networkUrl */

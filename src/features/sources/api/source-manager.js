@@ -24,6 +24,11 @@ import {
     localActiveSourceStillExists,
 } from './active-source-pointer.js';
 import { bundledDemoBootSource } from '../../../core/demo/seed-arborito-demo.js';
+import {
+    isPlaceholderCommunitySourceName,
+    resolveLoadedBundleDisplayTitle,
+    titlesFromTreeLanguages,
+} from '../../../shared/lib/catalog-titles.js';
 
 const OFFICIAL_DOMAINS = ['localhost', '127.0.0.1'];
 
@@ -360,7 +365,9 @@ export class SourceManager {
                 id: crypto.randomUUID(),
                 name:
                     titleFromList ||
-                    (opts.codeLabel ? `Code ${opts.codeLabel}` : `Public · ${String(treeRef.pub).slice(0, 10)}…`),
+                    (opts.codeLabel
+                        ? `Code ${opts.codeLabel}`
+                        : `Public · ${String(treeRef.pub).slice(0, 10)}…`),
                 url,
                 isTrusted: this.isUrlTrusted(url),
                 isOfficial: false,
@@ -382,6 +389,14 @@ export class SourceManager {
                     : {}),
                 ...(relayHint.length ? { recommendedRelays: relayHint } : {})
             };
+            /* Never plant brn-/tre- as the lasting catalog name. */
+            if (isPlaceholderCommunitySourceName(newSource.name) && titleFromList) {
+                newSource.name = titleFromList;
+            } else if (/^(brn|tre)-/i.test(String(newSource.name || ''))) {
+                newSource.name = opts.codeLabel
+                    ? `Code ${opts.codeLabel}`
+                    : `Public · ${String(treeRef.pub).slice(0, 10)}…`;
+            }
             return this._appendSource(newSource);
         }
 
@@ -414,6 +429,11 @@ export class SourceManager {
             Array.isArray(opts.recommendedRelays) ? opts.recommendedRelays : []
         );
         const nostrRelays = parsedNostr && relayHintPaste.length ? { recommendedRelays: relayHintPaste } : {};
+        const lm2 = opts.listMeta && typeof opts.listMeta === 'object' ? opts.listMeta : null;
+        const titleFromList2 = lm2 && String(lm2.title || '').trim();
+        if (titleFromList2 && !isPlaceholderCommunitySourceName(titleFromList2)) {
+            name = titleFromList2;
+        }
         return this._appendSource({
             id: crypto.randomUUID(),
             name,
@@ -422,6 +442,7 @@ export class SourceManager {
             isOfficial: false,
             type: 'community',
             origin,
+            ...(lm2?.titles && typeof lm2.titles === 'object' ? { titles: lm2.titles } : {}),
             ...nostrRelays
         });
     }
@@ -749,9 +770,65 @@ export class SourceManager {
                 await store.maybeNotifyNetworkAccountRemoved(treeRef);
                 this.update({ availableReleases: [] });
                 const shareCode = ((bundle && bundle.meta) ? bundle.meta.shareCode : undefined) || null;
+                const uiLang = store.state?.lang || store.value?.lang || '';
+                const displayTitle = resolveLoadedBundleDisplayTitle(bundle, uiLang);
+                const titlesMap =
+                    (bundle?.meta?.titles && typeof bundle.meta.titles === 'object'
+                        ? bundle.meta.titles
+                        : null) ||
+                    titlesFromTreeLanguages(bundle?.tree) ||
+                    null;
+                let finalSource = {
+                    ...source,
+                    origin: 'nostr',
+                    isTrusted: source.isTrusted === true,
+                    shareCode: shareCode || source.shareCode || null,
+                };
+                /* Mirror HTTPS: replace Code/brn placeholders once the real title is known. */
+                if (
+                    displayTitle &&
+                    (isPlaceholderCommunitySourceName(source.name) ||
+                        String(source.name || '').trim() !== displayTitle)
+                ) {
+                    const shouldRename =
+                        isPlaceholderCommunitySourceName(source.name) ||
+                        !String(source.name || '').trim();
+                    if (shouldRename) {
+                        finalSource = {
+                            ...finalSource,
+                            name: displayTitle,
+                            ...(titlesMap && Object.keys(titlesMap).length
+                                ? { titles: titlesMap }
+                                : {}),
+                        };
+                        const updated = this.state.communitySources.map((s) =>
+                            s.id === source.id
+                                ? {
+                                      ...s,
+                                      name: displayTitle,
+                                      shareCode: finalSource.shareCode,
+                                      ...(titlesMap && Object.keys(titlesMap).length
+                                          ? { titles: titlesMap }
+                                          : {}),
+                                  }
+                                : s
+                        );
+                        this.update({ communitySources: updated });
+                        this.state.communitySources = updated;
+                        this._persistCommunitySources();
+                    } else if (titlesMap && Object.keys(titlesMap).length && !source.titles) {
+                        finalSource = { ...finalSource, titles: titlesMap };
+                        const updated = this.state.communitySources.map((s) =>
+                            s.id === source.id ? { ...s, titles: titlesMap } : s
+                        );
+                        this.update({ communitySources: updated });
+                        this.state.communitySources = updated;
+                        this._persistCommunitySources();
+                    }
+                }
                 return {
                     json: bundle,
-                    finalSource: { ...source, origin: 'nostr', isTrusted: source.isTrusted === true, shareCode }
+                    finalSource
                 };
             } catch (e) {
                 throw e instanceof Error ? e : new Error(String((e && e.message) || e));

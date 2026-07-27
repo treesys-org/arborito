@@ -7,6 +7,7 @@ import {
 import { ARBORITO_APP_VERSION } from '../core/version.js';
 import {
     GITHUB_RELEASES_LATEST_API,
+    GITHUB_RELEASES_LIST_API,
     getReleaseDownloadPlatforms,
 } from '../shared/lib/release-downloads.js';
 
@@ -47,14 +48,46 @@ function compareSemverLike(a, b) {
 }
 
 async function fetchLatestRelease() {
-    const res = await fetch(GITHUB_RELEASES_LATEST_API, {
-        headers: {
-            Accept: 'application/vnd.github+json',
-            'User-Agent': 'Arborito',
-        },
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    const headers = {
+        Accept: 'application/vnd.github+json',
+        'User-Agent': 'Arborito',
+    };
+    try {
+        const res = await fetch(GITHUB_RELEASES_LATEST_API, { headers });
+        if (res.ok) {
+            const data = await res.json();
+            if (data?.tag_name || data?.name) return data;
+        }
+        /* 404 when every release is a prerelease — continue to list. */
+    } catch {
+        /* network / CORS — try list */
+    }
+    const listRes = await fetch(GITHUB_RELEASES_LIST_API, { headers });
+    if (!listRes.ok) throw new Error(`HTTP ${listRes.status}`);
+    const list = await listRes.json();
+    const rows = Array.isArray(list) ? list : [];
+    const usable = rows.filter((r) => r && !r.draft && (r.tag_name || r.name));
+    if (!usable.length) throw new Error('No GitHub releases found');
+    usable.sort((a, b) =>
+        compareSemverLike(String(b.tag_name || b.name || ''), String(a.tag_name || a.name || ''))
+    );
+    return usable[0];
+}
+
+/**
+ * Prefer the real APK asset on the release; fall back to the conventional name.
+ * @param {object} release
+ * @param {string} version
+ */
+function resolveAndroidApkUrl(release, version) {
+    const assets = Array.isArray(release?.assets) ? release.assets : [];
+    const want = `arborito-${String(version || '').replace(/^v/i, '')}.apk`.toLowerCase();
+    const exact = assets.find((a) => String(a?.name || '').toLowerCase() === want);
+    const anyApk = assets.find((a) => /\.apk$/i.test(String(a?.name || '')));
+    const fromAsset = String(exact?.browser_download_url || anyApk?.browser_download_url || '').trim();
+    if (fromAsset) return fromAsset;
+    const platforms = getReleaseDownloadPlatforms(version);
+    return platforms.find((p) => p.id === 'android')?.url || '';
 }
 
 function openApkUrl(url) {
@@ -148,7 +181,7 @@ export function initCapacitorAppUpdatePrompt() {
 
             const platforms = getReleaseDownloadPlatforms(remote);
             const android = platforms.find((p) => p.id === 'android');
-            const url = android?.url || '';
+            const url = resolveAndroidApkUrl(data, remote) || android?.url || '';
             if (!url || !openApkUrl(url)) {
                 const err =
                     ui.appUpdateFailedAndroid ||

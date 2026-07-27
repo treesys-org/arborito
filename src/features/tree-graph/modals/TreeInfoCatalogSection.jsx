@@ -12,6 +12,12 @@ import { SourcesShareCodeField } from '../../sources/modals/components/SourcesSh
 import { resolveBranchRefDisplayNames } from '../../forest/api/tree-branch-labels.js';
 import { SwitchRow } from '../../../shared/ui/SwitchRow.jsx';
 import { useSources } from '../../sources/hooks/useSources.js';
+import {
+    isPlaceholderCommunitySourceName,
+    pickTitleForLang,
+    titlesFromTreeLanguages,
+} from '../../../shared/lib/catalog-titles.js';
+import { getArboritoStore } from '../../../core/store-singleton.js';
 
 function formatDate(ts) {
     if (!ts || !Number.isFinite(Number(ts))) return ': ';
@@ -58,9 +64,32 @@ export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
     const toggleInstall = (next) => {
         if (!networkUrl) return;
         if (next) {
+            const arborito = getArboritoStore();
+            const uiLang = String(arborito?.state?.lang || arborito?.value?.lang || '').trim();
+            const titleRaw =
+                pickTitleForLang(
+                    rawGraphData?.meta?.titles || titlesFromTreeLanguages(rawGraphData),
+                    uiLang,
+                    ''
+                ) ||
+                String(rawGraphData?.meta?.title || rawGraphData?.universeName || '').trim();
+            const title =
+                titleRaw && !isPlaceholderCommunitySourceName(titleRaw) ? titleRaw : '';
+            const titles =
+                (rawGraphData?.meta?.titles && typeof rawGraphData.meta.titles === 'object'
+                    ? rawGraphData.meta.titles
+                    : null) || titlesFromTreeLanguages(rawGraphData);
             const added = addCommunitySource(null, {
                 resolvedNostrTreeUrl: networkUrl,
                 codeLabel: shareCode && shareCode !== ': ' ? shareCode : null,
+                ...(title
+                    ? {
+                          listMeta: {
+                              title,
+                              ...(titles && Object.keys(titles).length ? { titles } : {}),
+                          },
+                      }
+                    : {}),
             });
             if (added?.ok || added?.reason === 'duplicate') {
                 notify?.(ui.sourcesInstallDone || ui.sourcesGlobalInstalled || 'Saved in your garden.', false);

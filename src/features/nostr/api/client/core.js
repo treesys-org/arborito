@@ -450,7 +450,7 @@ export const coreMixin = {
                 try {
                     const accepted = await publishOne(relay);
                     this._bundlePublishRelay = accepted;
-                    this._mirrorEventToRemainingRelays(ev, targets, accepted);
+                    await this._mirrorEventToRemainingRelays(ev, targets, accepted);
                     return accepted;
                 } catch (e) {
                     reasons.push(`${relay}: ${(e && e.message) || e}`);
@@ -462,7 +462,7 @@ export const coreMixin = {
             try {
                 const relay = await publishOne(pin);
                 this._bundlePublishRelay = relay;
-                this._mirrorEventToRemainingRelays(ev, targets, relay);
+                await this._mirrorEventToRemainingRelays(ev, targets, relay);
                 return relay;
             } catch {
                 /* pinned relay failed — try the rest */
@@ -476,9 +476,9 @@ export const coreMixin = {
         try {
             const relay = await Promise.any(attempts);
             this._bundlePublishRelay = relay;
-            /* Readers assume redundancy across configured relays; fan out after
-             * the first accept so a single-relay publish does not orphan the tree. */
-            this._mirrorEventToRemainingRelays(ev, targets, relay);
+            /* Readers assume redundancy across configured relays; wait for fan-out so
+             * a single-relay publish does not orphan lesson chunks on other peers. */
+            await this._mirrorEventToRemainingRelays(ev, targets, relay);
             return relay;
         } catch (err) {
             const reasons = (err.errors || [err]).map((e) => String((e && e.message) || e));
@@ -491,11 +491,12 @@ export const coreMixin = {
      * @param {import('core.js').Event} ev
      * @param {string[]} relays
      * @param {string} acceptedRelay
+     * @returns {Promise<void>}
      */
-    _mirrorEventToRemainingRelays(ev, relays, acceptedRelay) {
+    async _mirrorEventToRemainingRelays(ev, relays, acceptedRelay) {
         const rest = (Array.isArray(relays) ? relays : []).filter((r) => r && r !== acceptedRelay);
         if (!rest.length || !ev) return;
-        void Promise.allSettled(
+        await Promise.allSettled(
             rest.map((relay) =>
                 Promise.race([
                     this._pool.publish([relay], ev)[0],

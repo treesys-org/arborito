@@ -1,5 +1,5 @@
 /** Slack pixels before treating the touch as a scroll (Android often moves more than 14px). */
-const MOBILE_TAP_SLOP_PX = 26;
+const MOBILE_TAP_SLOP_PX = 36;
 
 /**
  * Mark an element as a tap target so WebKit/Blink fire `click` eagerly:
@@ -63,7 +63,7 @@ export function bindMobileTap(el, handler, opts = {}) {
      * the click, symptom: "trees won't install on mobile when tapping". */
     const stateKey = '__arboritoTapState';
     if (!el[stateKey]) {
-        el[stateKey] = { touchStartX: 0, touchStartY: 0, lastTouchFireAt: 0 };
+        el[stateKey] = { touchStartX: 0, touchStartY: 0, lastTouchFireAt: 0, hasStart: false };
     }
     const state = el[stateKey];
 
@@ -72,15 +72,44 @@ export function bindMobileTap(el, handler, opts = {}) {
         if (!t) return;
         state.touchStartX = t.clientX;
         state.touchStartY = t.clientY;
+        state.hasStart = true;
+        /* Survive React remount mid-gesture (graph-update / virtualization): stash by touch id. */
+        try {
+            const bag = (globalThis.__arboritoTapById = globalThis.__arboritoTapById || new Map());
+            bag.set(t.identifier, { x: t.clientX, y: t.clientY, at: Date.now() });
+        } catch {
+            /* noop */
+        }
     };
 
     const onTouchEnd = (e) => {
         if (!(e.changedTouches && e.changedTouches.length)) return;
         const t = e.changedTouches[0];
-        if (
-            Math.abs(t.clientX - state.touchStartX) > slopPx ||
-            Math.abs(t.clientY - state.touchStartY) > slopPx
-        ) {
+        let sx = state.touchStartX;
+        let sy = state.touchStartY;
+        let hadStart = !!state.hasStart;
+        if (!hadStart) {
+            try {
+                const bag = globalThis.__arboritoTapById;
+                const stashed = bag && bag.get(t.identifier);
+                if (stashed && Date.now() - stashed.at < 2500) {
+                    sx = stashed.x;
+                    sy = stashed.y;
+                    hadStart = true;
+                }
+            } catch {
+                /* noop */
+            }
+        }
+        try {
+            globalThis.__arboritoTapById?.delete?.(t.identifier);
+        } catch {
+            /* noop */
+        }
+        state.hasStart = false;
+        /* No start on this node and no stashed coords (remount / rewired listeners) → drop. */
+        if (!hadStart) return;
+        if (Math.abs(t.clientX - sx) > slopPx || Math.abs(t.clientY - sy) > slopPx) {
             return;
         }
         try {

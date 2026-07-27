@@ -443,6 +443,7 @@ export class GraphLogic {
             }
         }
 
+        const stillMissing = [];
         const clearLazy = (node) => {
             if (!node || typeof node !== 'object') return;
             if (node.type === 'leaf' || node.type === 'exam') {
@@ -451,6 +452,12 @@ export class GraphLogic {
                     delete node.treeContentKey;
                 } else if (node.content === emptyPh || node.content === errPh) {
                     delete node.content;
+                    stillMissing.push(node.id);
+                } else if (
+                    !node.content &&
+                    ((node.treeLazyContent && node.treeContentKey) || node.contentPath)
+                ) {
+                    stillMissing.push(node.id);
                 }
             }
             if (Array.isArray(node.children)) {
@@ -461,6 +468,11 @@ export class GraphLogic {
             clearLazy(raw.languages[lang]);
         }
         this.store.dispatchEvent(new CustomEvent('graph-update'));
+        if (stillMissing.length) {
+            throw new Error(
+                `Could not load ${stillMissing.length} lesson(s) from the network before publishing`
+            );
+        }
     }
 
     /**
@@ -513,8 +525,17 @@ export class GraphLogic {
                     gen: this.store.state.rawGraphData?.meta?.gen || null
                 });
                 const ui = this.store.ui || {};
-                const text = typeof (raw && raw.content) === 'string' ? raw.content : '';
-                node.content = text || ui.nostrLessonLoadEmpty || '(Lesson could not be loaded.)';
+                /* `null` = chunk not on relays yet (or failed parts) — not “authored empty”. */
+                if (!raw || typeof raw !== 'object') {
+                    node.content = ui.nostrLessonLoadError || errPh;
+                } else if (typeof raw.content === 'string') {
+                    node.content =
+                        raw.content ||
+                        ui.nostrLessonLoadEmpty ||
+                        '(This lesson had no text on the network.)';
+                } else {
+                    node.content = ui.nostrLessonLoadError || errPh;
+                }
             } catch (e) {
                 console.error('Nostr lesson load failed', e);
                 const ui = this.store.ui || {};

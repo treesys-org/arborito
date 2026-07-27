@@ -153,3 +153,46 @@ export function catalogTitlesSearchBlob(row) {
     }
     return parts.filter(Boolean).join(' ');
 }
+
+/**
+ * Placeholder names used when a share code / pub / branch id is planted before the
+ * bundle title is known. Forest must replace these once the course loads.
+ * @param {unknown} name
+ */
+export function isPlaceholderCommunitySourceName(name) {
+    const n = String(name || '').trim();
+    if (!n) return true;
+    if (/^Code\s*#?\s*/i.test(n)) return true;
+    if (/^Public\s*[·•]/i.test(n)) return true;
+    if (/^(brn|tre)-/i.test(n)) return true;
+    return false;
+}
+
+/**
+ * Best display title for a loaded arborito / arborito-tree bundle (or raw tree).
+ * @param {object|null|undefined} bundleOrTree
+ * @param {string} [uiLang]
+ * @returns {string}
+ */
+export function resolveLoadedBundleDisplayTitle(bundleOrTree, uiLang) {
+    if (!bundleOrTree || typeof bundleOrTree !== 'object') return '';
+    const isBundle =
+        bundleOrTree.format === 'arborito-bundle' ||
+        bundleOrTree.format === 'arborito-tree' ||
+        (bundleOrTree.meta && bundleOrTree.tree);
+    const meta = isBundle ? bundleOrTree.meta || {} : {};
+    const tree = isBundle ? bundleOrTree.tree || null : bundleOrTree;
+    const fromMap = pickTitleForLang(
+        meta.titles || titlesFromTreeLanguages(tree),
+        uiLang,
+        ''
+    );
+    if (fromMap && !isPlaceholderCommunitySourceName(fromMap)) return fromMap;
+    const metaTitle = String(meta.title || '').trim();
+    if (metaTitle && !isPlaceholderCommunitySourceName(metaTitle)) return metaTitle;
+    const universe = String(tree?.universeName || '').trim();
+    if (universe && !isPlaceholderCommunitySourceName(universe)) return universe;
+    const fromLangs = pickTitleForLang(titlesFromTreeLanguages(tree), uiLang, '');
+    if (fromLangs && !isPlaceholderCommunitySourceName(fromLangs)) return fromLangs;
+    return '';
+}

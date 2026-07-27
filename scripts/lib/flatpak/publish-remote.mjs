@@ -119,8 +119,17 @@ function main() {
         run('ostree', ['init', `--repo=${repoDir}`, '--mode=archive-z2']);
     }
 
+    const passphrase = String(process.env.FLATPAK_GPG_PASSPHRASE || '');
+    const env = { ...process.env };
+    if (passphrase) {
+        env.GPG_TTY = '';
+        /* flatpak invokes gpg; pinentry loopback via gpg.conf in CI step is preferred */
+    }
+
     console.log(`[publish-flatpak-remote] importing ${bundlePath}`);
-    run('flatpak', ['build-import-bundle', repoDir, bundlePath]);
+    /* Sign the OSTree commit itself — build-update-repo alone signs the summary,
+     * and clients then fail with: "GPG verification enabled, but no signatures found". */
+    run('flatpak', ['build-import-bundle', `--gpg-sign=${keyId}`, repoDir, bundlePath], { env });
 
     const updateArgs = [
         'build-update-repo',
@@ -131,15 +140,29 @@ function main() {
         repoDir,
     ];
 
-    const passphrase = String(process.env.FLATPAK_GPG_PASSPHRASE || '');
-    const env = { ...process.env };
-    if (passphrase) {
-        env.GPG_TTY = '';
-        /* flatpak invokes gpg; pinentry loopback via gpg.conf in CI step is preferred */
-    }
-
     console.log('[publish-flatpak-remote] build-update-repo (prune-depth=1)');
     run('flatpak', updateArgs, { env });
+
+    const ref = `app/${APP_ID}/x86_64/${BRANCH}`;
+    const rev = spawnSync('ostree', [`--repo=${repoDir}`, 'rev-parse', ref], {
+        encoding: 'utf8',
+    });
+    if (rev.status !== 0) {
+        die(`ostree rev-parse ${ref} failed: ${rev.stderr || rev.stdout}`);
+    }
+    const commit = String(rev.stdout || '').trim();
+    const show = spawnSync('ostree', [`--repo=${repoDir}`, 'show', commit], {
+        encoding: 'utf8',
+        maxBuffer: 4 * 1024 * 1024,
+    });
+    const showOut = `${show.stdout || ''}\n${show.stderr || ''}`;
+    if (show.status !== 0 || !/signature/i.test(showOut)) {
+        die(
+            `OSTree commit ${commit || '(unknown)'} has no GPG signature after import/update-repo. ` +
+                `Check FLATPAK_GPG_KEY_ID / passphrase. ostree show:\n${showOut.slice(0, 1500)}`
+        );
+    }
+    console.log(`[publish-flatpak-remote] verified GPG signature on ${commit.slice(0, 12)}…`);
 
     const gpgKeyB64 = exportGpgKeyBase64(keyId);
     writeRefFiles(flatpakDir, gpgKeyB64);

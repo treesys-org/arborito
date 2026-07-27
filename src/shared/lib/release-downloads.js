@@ -4,6 +4,9 @@ export const GITHUB_RELEASES = 'https://github.com/treesys-org/arborito/releases
 export const GITHUB_RELEASES_LATEST = 'https://github.com/treesys-org/arborito/releases/latest';
 export const GITHUB_RELEASES_LATEST_API =
     'https://api.github.com/repos/treesys-org/arborito/releases/latest';
+/** Includes prereleases (alpha tags); `/latest` does not. */
+export const GITHUB_RELEASES_LIST_API =
+    'https://api.github.com/repos/treesys-org/arborito/releases?per_page=15';
 export const YOUTUBE_TREESYS_CHANNEL = 'https://www.youtube.com/@Treesys-org';
 
 /** Hosted OSTree remote + install ref (GitHub Pages under arborito.org). */

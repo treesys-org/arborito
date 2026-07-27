@@ -249,7 +249,8 @@ export function buildArboritoBundleObjectAction() {
         const src = store.state.activeSource;
         if (!raw || !src) return null;
         const rawCopy = JSON.parse(JSON.stringify(raw));
-        /* Copy hydrated lesson bodies from the live graph into the publish payload. */
+        /* Copy hydrated lesson bodies from the live graph into the *active* language only.
+         * Node ids are shared across languages — never clobber translations. */
         const liveById = new Map();
         const collect = (n) => {
             if (!n || typeof n !== 'object') return;
@@ -271,7 +272,12 @@ export function buildArboritoBundleObjectAction() {
             }
             if (Array.isArray(n.children)) n.children.forEach(applyLive);
         };
-        for (const lang of Object.keys(rawCopy.languages || {})) applyLive(rawCopy.languages[lang]);
+        const activeLang =
+            (typeof store.getCurrentContentLangKey === 'function' && store.getCurrentContentLangKey()) ||
+            Object.keys(rawCopy.languages || {})[0];
+        if (activeLang && rawCopy.languages?.[activeLang]) {
+            applyLive(rawCopy.languages[activeLang]);
+        }
         syncReadmeFromUniversePresentation(rawCopy, store.ui);
         return buildArboritoBundle({
             rawGraphData: rawCopy,
@@ -318,7 +324,13 @@ export async function exportBranchArchiveAction(treeId) {
                 }
                 if (Array.isArray(n.children)) n.children.forEach(applyLive);
             };
-            for (const lang of Object.keys(treeCopy.languages || {})) applyLive(treeCopy.languages[lang]);
+            const activeLang =
+                (typeof store.getCurrentContentLangKey === 'function' &&
+                    store.getCurrentContentLangKey()) ||
+                Object.keys(treeCopy.languages || {})[0];
+            if (activeLang && treeCopy.languages?.[activeLang]) {
+                applyLive(treeCopy.languages[activeLang]);
+            }
         }
         syncReadmeFromUniversePresentation(treeCopy, store.ui);
         const curriculumOnly = sanitizeCurriculumForArboritoArchive(treeCopy);
