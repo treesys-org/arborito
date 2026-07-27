@@ -14,6 +14,8 @@ import {
     safeMediaFilename,
 } from '../../../learning/api/lesson-local-media-store.js';
 import {
+    ELECTRON_LESSON_VIDEO_PARTITION,
+    buildElectronLessonVideoGuestLoad,
     isThirdPartyVideoEmbedUrl,
     resolveVideoEmbedSrc,
     validateLessonMediaUrl,
@@ -26,11 +28,26 @@ function mountElectronWebviewPreview(preview, embed) {
     wrap.className =
         'media-preview__video relative w-full pb-[56.25%] h-0 rounded-lg overflow-hidden bg-black';
     const wv = document.createElement('webview');
-    wv.src = embed;
+    wv.src = 'about:blank';
     wv.className = 'absolute inset-0 w-full h-full';
     wv.setAttribute('allowpopups', 'true');
+    wv.setAttribute('partition', ELECTRON_LESSON_VIDEO_PARTITION);
+    wv.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
     wrap.appendChild(wv);
     preview.replaceChildren(wrap);
+    const guest = buildElectronLessonVideoGuestLoad(embed);
+    if (guest && typeof wv.loadURL === 'function') {
+        const run = () => {
+            try {
+                wv.loadURL(guest.dataUrl, { baseURLForDataURL: guest.baseURLForDataURL });
+            } catch {
+                /* ignore */
+            }
+        };
+        wv.addEventListener('dom-ready', run, { once: true });
+        // Guest may already be ready after about:blank.
+        queueMicrotask(run);
+    }
 }
 
 function setWhyOpen(block, open) {

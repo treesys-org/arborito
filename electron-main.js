@@ -420,8 +420,17 @@ function resolveAppIndex() {
   return path.join(__dirname, 'index.html');
 }
 
-/** YouTube Error 153: inject Referer/Origin for file:// shells; strip X-Frame-Options on embed responses. */
-function registerVideoEmbedSessionFix() {
+/** Sessions that already have the YouTube/Vimeo embed header fix (avoid stacking handlers). */
+const videoEmbedSessionsFixed = new WeakSet();
+
+/**
+ * YouTube Error 153 / "refused to connect": embeds need a real HTTP Referer.
+ * Apply to every session — `<webview>` guests often are NOT defaultSession.
+ */
+function registerVideoEmbedSessionFix(targetSession = session.defaultSession) {
+  if (!targetSession || videoEmbedSessionsFixed.has(targetSession)) return;
+  videoEmbedSessionsFixed.add(targetSession);
+
   const filter = {
     urls: [
       '*://*.youtube.com/*',
@@ -436,7 +445,7 @@ function registerVideoEmbedSessionFix() {
   const embedReferer = 'https://arborito.org/';
   const ytPlayerReferer = 'https://www.youtube.com/';
 
-  session.defaultSession.webRequest.onBeforeSendHeaders(filter, (details, callback) => {
+  targetSession.webRequest.onBeforeSendHeaders(filter, (details, callback) => {
     const headers = { ...details.requestHeaders };
     const url = details.url || '';
     const existing = headers.Referer || headers.referer || '';
@@ -450,7 +459,7 @@ function registerVideoEmbedSessionFix() {
     callback({ requestHeaders: headers });
   });
 
-  session.defaultSession.webRequest.onHeadersReceived(filter, (details, callback) => {
+  targetSession.webRequest.onHeadersReceived(filter, (details, callback) => {
     const headers = { ...details.responseHeaders };
     for (const key of Object.keys(headers)) {
       if (/^x-frame-options$/i.test(key)) delete headers[key];
@@ -622,7 +631,12 @@ app.whenReady().then(async () => {
     );
   }
   await clearStaleServiceWorkers();
-  registerVideoEmbedSessionFix();
+  registerVideoEmbedSessionFix(session.defaultSession);
+  // Same partition as LessonVideoPlayer / editor media preview webviews.
+  registerVideoEmbedSessionFix(session.fromPartition('persist:arborito-lesson-video'));
+  app.on('session-created', (ses) => {
+    registerVideoEmbedSessionFix(ses);
+  });
   session.defaultSession.setPermissionRequestHandler((_wc, permission, callback) => {
     if (
       permission === 'media' ||
