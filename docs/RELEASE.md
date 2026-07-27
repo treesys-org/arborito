@@ -59,7 +59,7 @@ Output in `dist/`. Icons from `build/arborito-app-logo.png` → `npm run ensure:
 | No Wine | `sudo dnf install wine` or `--flatpak --android` only |
 | Wrong icon | Replace `build/arborito-app-logo.png` + `npm run ensure:icon` |
 
-Freeze on desktop: [`PRODUCT_GUIDE.md`](PRODUCT_GUIDE.md#freeze-vs-versions-the-most-confusing-part).
+Offline copies on desktop: [`PRODUCT_GUIDE.md`](PRODUCT_GUIDE.md#offline-vs-versions-the-most-confusing-part).
 
 ## QA before tagging a version
 

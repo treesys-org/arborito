@@ -18,7 +18,7 @@ The goal here is to **reduce confusion** among end users and to **clarify expect
 - **Names “Treesys” and “Arborito”:** use them **truthfully** (e.g. “based on Arborito”, “unofficial”). Do **not** suggest **endorsement** or that you **are** Treesys when you are not.
 - **Arborito** as a project also has **copyright** in code and assets. **GPL v3** is not a blanket trade-mark licence.
 
-If you need a one-line notice on your own site, something like **“Treesys and the Treesys logo are trade marks used with permission”** (only where true) or **“Treesys logo is a registered trade mark; unauthorised use prohibited”** is enough for many pages, have it **checked** against your actual register entry if you want maximum safety.
+If you need a one-line notice on your own site, something like **“Treesys and the Treesys logo are trade marks used with permission”** (only where true) or **“Treesys logo is a registered trade mark; unauthorised use prohibited”** is enough for many pages; have it **checked** against your actual register entry if you want maximum safety.
 
 ### Rules for everyone else (forks, mirrors, repackagers)
 

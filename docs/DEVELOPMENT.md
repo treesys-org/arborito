@@ -41,7 +41,7 @@ One rule: **each piece lives next to what it means** (`src/features/<domain>/`).
 
 ```
 src/
-├── main.jsx, app/ # React shell (App, ModalHost)
+├── main.jsx, app/ # React shell (App, HeavyShell, OverlayShell)
 ├── core/ # store singleton, bootstrap, user-store, i18n
 ├── stores/ # *-store-actions.js + Zustand
 ├── shared/ # ui, lib, styles (main.entry.css → main.css)
@@ -54,11 +54,12 @@ src/
 | `learning` | Reader, quiz, Sage |
 | `editor` | Construction mode |
 | `garden-progress` | Backpack |
-| `sources` | Forest |
+| `sources` | Forest hub (Courses nav, library + Discover) |
+| `forest` | Composed-tree / playlist helpers |
 | `nostr` + `p2p-webtorrent` | Public network |
 | `arcade` | Games (`window.arborito`) |
 
-Boot: `index.html` → `main.jsx` → `bootstrap.js` → `App.jsx` → `HeavyShell` + `ModalHost`.
+Boot: `index.html` → `main.jsx` → `bootstrap.js` → `App.jsx` → `HeavyShell` + `OverlayShell` (hosts `ModalHost`).
 
 ## Golden rule (React)
 
@@ -83,7 +84,7 @@ Lesson body is `contentEditable` (not React). Hooks: `useEditor()`, `useConstruc
 
 Read [`MODAL_STANDARDS.md`](MODAL_STANDARDS.md) before changing modal UI.
 
-Open via `modal-open.js`. `construction-about` is **eager**; `sources`, `forum`, `arcade` are **lazy** (chunk).
+Open via `modal-open.js`. Many chrome modals are **eager** (`eager-modal-types.js`); heavier hubs such as `sources`, `forum`, and `arcade` are **lazy** (chunk).
 
 ## Conventions
 
@@ -94,15 +95,15 @@ Open via `modal-open.js`. `construction-about` is **eager**; `sources`, `forum`,
 | CSS in `main.entry.css` or `features/*/styles/` | editing `main.css` by hand |
 | Files ≤ 1000 lines | monoliths |
 
-**Single network path:** Nostr via `ensureConnectedNostr` / `runBibliotecaNetworkLoad` in `connected-services/`. No parallel pools.
+**Single network path:** Nostr via `ensureConnectedNostr` / `runBibliotecaNetworkLoad` in `src/shared/lib/connected-services/`. No parallel pools.
 
 **Local data (dev):**
 
 | Store | Contents |
 |-------|----------|
 | IndexedDB `arborito_catalog_v2` | Branches, trees, network refs |
-| `localStorage` `arborito-progress` | Progress, SRS, freeze flags |
-| `localStorage` auth | Online session; see [`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md) |
+| `localStorage` `arborito-progress` | Progress, SRS, offline flags |
+| `localStorage` `arborito-auth-session-v1` | Online session; see [`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md) |
 
 ## CI and PR
 
@@ -117,7 +118,7 @@ Checklist: only `useX` in `.jsx`? New action in `*-store-actions.js`? Ran `local
 | Repo | Role |
 |------|------|
 | **arborito** | This app |
-| **arborito-sdk** | Python CLI (**0.2.2**), [`PYTHON_SDK.md`](PYTHON_SDK.md) |
+| **arborito-sdk** | Python CLI (**0.2.5**), [`PYTHON_SDK.md`](PYTHON_SDK.md) |
 | **arborito-games** | Arcade cartridges |
 
-See also: [`MODAL_STANDARDS.md`](MODAL_STANDARDS.md) · [`NETWORK.md`](NETWORK.md) · [`scripts/README.md`](./scripts/README.md) · [`CONTRIBUTING.md`](./CONTRIBUTING.md)
+See also: [`MODAL_STANDARDS.md`](MODAL_STANDARDS.md) · [`NETWORK.md`](NETWORK.md) · [`../scripts/README.md`](../scripts/README.md) · [`../CONTRIBUTING.md`](../CONTRIBUTING.md)

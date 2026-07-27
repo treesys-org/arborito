@@ -4,7 +4,7 @@ How to create and edit content in Arborito without a terminal.
 
 ## Recommended flow (in the app)
 
-1. Turn on **Construction** (helmet icon in the sidebar).
+1. Turn on **Construction** (👷 / 🏗️ in the sidebar).
 2. Tap a node on the map to edit it.
 3. **Leaves** open the lesson editor; **folders** organize modules.
 4. Use **Sage → Tour** for a step-by-step walkthrough.
@@ -12,10 +12,12 @@ How to create and edit content in Arborito without a terminal.
 
 **Optional terminal:** `pip install 'arborito-sdk[tui]'` → `arborito-cli edit`. Same on-disk format. See [`PYTHON_SDK.md`](PYTHON_SDK.md).
 
+Short leaves that stand on their own tend to work best with the map and Care; see the soft tips in [`../CONTRIBUTING.md`](../CONTRIBUTING.md#tips-that-play-well-with-arborito). Write however you teach.
+
 ## `.arborito` format (folders)
 
-| Rule | Detail |
-|------|--------|
+| Layout | Detail |
+|--------|--------|
 | Languages | Parallel `lessons/ES/` and `lessons/EN/` with matching numbering (`01/02`) |
 | Lesson / folder title | Text after `NN -` in folder/file names |
 | Course title | `meta.titles` per language — in Construction, rename the **root** after switching curriculum language |
@@ -31,10 +33,10 @@ How to create and edit content in Arborito without a terminal.
 | `@quiz` … `@/quiz` | Interactive questions (Care, Arcade, practice) |
 | `@image`, `@video`, `@audio`, `@game`, `@math` | Media, Arcade link, formula |
 | Pipe table (`\| … \|`) | Comparison / data grid (hand-editable Markdown) |
-| `{{lg}}` … `{{/lg}}` | Large in-lesson title (construct WYSIWYG) |
+| `{{lg}}` … `{{/lg}}` | Large in-lesson title (Construction WYSIWYG) |
 | Plain `##` / `###` | Content titles inside a section (not TOC once `index:` exists) |
 
-Full syntax also ships as `files/AUTHOR-GUIDE.md` / `files/AUTORIA.md` on export. Archive layout: [`ARBORITO_ARCHIVE.md`](ARBORITO_ARCHIVE.md).
+Full syntax also ships as `files/AUTHOR-GUIDE.md` (English UI) / `files/AUTORIA.md` (Spanish UI) on export. Archive layout: [`ARBORITO_ARCHIVE.md`](ARBORITO_ARCHIVE.md).
 
 ### Complete lesson example
 
@@ -115,7 +117,7 @@ items:
     traps:
       - Goodbye
       - Thanks
-pass: 80
+pass_rate: 80
 @/quiz
 
 @section
@@ -140,7 +142,7 @@ topics: classroom, memory
 | Part | Role |
 |------|------|
 | `@info` | Lesson metadata (not a TOC row) |
-| `@section` + `index` + `title` | Temario / sidebar index (`1.1` nests under `1`) |
+| `@section` + `index` + `title` | Syllabus / sidebar index (`1.1` nests under `1`) |
 | `{{lg}}…{{/lg}}` | Large title inside the lesson body |
 | Prose, lists, `##`, pipe tables | What the learner reads |
 | `@image` / `@video` / `@audio` / `@math` / `@game` | Embeds |
@@ -167,24 +169,24 @@ Tips: keep a space after each `|`; put a literal `|` inside a cell as `\|`. Unev
 | **Defined in** | `@quiz` block in `.md` | `type: exam` on the tree (no `@exam` block) |
 | **Typical use** | Per-lesson practice | Final evaluation with many quizzes in sequence |
 
-**Practice modes** (app picks a playable one from your fields): multiple, recall, cloze, chips, steps. Field reference: [`CONTRIBUTING.md`](./CONTRIBUTING.md#lesson-quiz-the-quiz-block-five-practice-modes) and `src/features/learning/api/quiz-schema.js`.
+**Practice modes** (app picks a playable one from your fields): multiple, recall, cloze, chips, steps. Field reference: [`../CONTRIBUTING.md`](../CONTRIBUTING.md#lesson-quiz-the-quiz-block-five-practice-modes) and [`../src/features/learning/api/quiz-schema.js`](../src/features/learning/api/quiz-schema.js).
 
-In Construction, the quiz wizard (**F2**) guides concept, question, traps, and pass % (default 80).
+In Construction, the lesson toolbar **Insert quiz** opens the questionnaire wizard (concept, question, traps, pass %). Default pass rate is **80**. (The **F2** shortcut applies to the optional `arborito-cli edit` TUI, not the in-app editor.)
 
-## Optional diplomas
+## Optional folder achievements
 
-By default the learner earns a trophy for finishing the whole course. For a diploma on one folder:
+By default the learner can earn a trophy for finishing a course (standalone branch or playlist). For an achievement on one **folder**:
 
 1. Construction → select the folder.
-2. **Trophy** button next to Move, or **Properties → Issue diploma**.
+2. Map tool **Enable achievement**, or **Properties → Enable achievement**.
 
-See [`PRODUCT_GUIDE.md`](PRODUCT_GUIDE.md#trophies-and-diplomas).
+See [`PRODUCT_GUIDE.md`](PRODUCT_GUIDE.md#trophies-and-achievements).
 
 ## Publishing
 
 - **Nostr (open network):** Construction → publish. Arborito assigns a **new random network id** on first publish. Technical format: [`NETWORK.md`](NETWORK.md).
 - **Catalog title in Forest:** follows the viewer’s **UI language** via `meta.titles` (set by renaming the root per curriculum language).
-- **Export file:** Forest → Export → `.arborito`.
+- **Export file:** Forest (Courses) → Export → `.arborito` (optional: include all saved versions under `versions/`).
 - **Local only:** import and study without publishing.
 
 Full archive layout: [`ARBORITO_ARCHIVE.md`](ARBORITO_ARCHIVE.md). Shipped author guides in each export: `files/AUTHOR-GUIDE.md` (EN) / `files/AUTORIA.md` (ES).

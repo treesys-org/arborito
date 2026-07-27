@@ -20,27 +20,27 @@ The lesson body lives in a **contentEditable** host:
 
 ```
 features/editor/
- components/ ← JSX: ConstructionPanel, toolbars, LessonConstructDnD
- modals/ ← JSX: ConstructionAboutModal, QuizWizardModal, …
- hooks/ ← useEditor, useConstructionAbout, useConstructionPanel, useLessonEditor
+ components/ ← JSX: ConstructionPanel, toolbars, LessonConstructDnD, QuizWizardModal
+ modals/ ← JSX: ConstructionAboutModal, ConstructionHistoryModal, …
+ hooks/ ← useEditor, useConstructionAbout, useConstructionPanel, useLessonEditor, useQuizWizard
  api/
- logic/ ← flushConstructEditor, editor-serialize.js, DnD helpers
- actions/ ← enter-flow and panel helpers (getPanelRef allowed)
- editor-engine.js ← bridge to contentEditable host
+  logic/ ← flushConstructEditor, editor-serialize.js, DnD helpers
+  construction-enter-flow.js ← enter-flow helpers
+  editor-engine.js ← bridge to contentEditable host
 ```
 
-Lesson TOC UI lives under `features/learning/` (`LessonToc`, `LessonTocSheet`). Construct outline mutations go through `lesson-toc-bridge.js` after `flushConstructEditor`.
+Lesson TOC UI lives under `features/learning/` (`LessonToc`, `LessonTocSheet`). Construction outline mutations go through `lesson-toc-bridge.js` after `flushConstructEditor`.
 
 ### Syllabus vs lesson writing
 
 | Role | Markers | Code |
 |------|---------|------|
-| Temario (TOC) | `@section` + `index:` + `title:` | `lesson-syllabus.js`, `lesson-toc-mutations.js` |
-| Lesson prose | Paragraphs, lists, `@quiz`, media, in-lesson `{{lg}}` titles | `lesson-section-slices.js`, construct WYSIWYG |
+| Syllabus (TOC) | `@section` + `index:` + `title:` | `lesson-syllabus.js`, `lesson-toc-mutations.js` |
+| Lesson prose | Paragraphs, lists, `@quiz`, media, in-lesson `{{lg}}` titles | `lesson-section-slices.js`, Construction WYSIWYG |
 
-Nest depth = segments of `index` (`1.1` under `1`). Construct moves and renumber read and write `index:` on those fences. Old `#path} Title` lines are accepted on ingest and converted. Pathless `##` / `###` are content titles in the reading view once the body has `index:` rows. Construct keeps visible titles as `{{lg}}` so the editor cannot invent TOC rows.
+Nest depth = segments of `index` (`1.1` under `1`). Construction move and renumber operations read and write `index:` on those fences. Old `#path} Title` lines are accepted on ingest and converted. Pathless `##` / `###` are content titles in the reading view once the body has `index:` rows. Construction keeps visible titles as `{{lg}}` so the editor cannot invent TOC rows.
 
-### Construct outline invariants
+### Construction outline invariants
 
 | Rule | Meaning |
 |------|---------|
@@ -57,7 +57,7 @@ Nest depth = segments of `index` (`1.1` under `1`). Construct moves and renumber
 |------|-------|-------|
 | Lesson body | `#lesson-visual-editor` (contentEditable) | No |
 | Toolbar / TOC | `components/` | Yes |
-| Inline quiz | `QuizWizardModal.jsx` + `useQuizWizard.jsx` mounts UI in block | Hybrid |
+| Inline quiz | `components/QuizWizardModal.jsx` + `hooks/useQuizWizard.jsx` mounts UI in block | Hybrid |
 | Construction | `ConstructionPanel.jsx` + `useRegisterPanel('construction-panel')` | Yes |
 | Enter lesson flow | `api/construction-enter-flow.js` | Imperative OK |
 
@@ -65,7 +65,7 @@ Nest depth = segments of `index` (`1.1` under `1`). Construct moves and renumber
 
 ## Rules for contributors editing the editor
 
-**Start here:** [`DEVELOPMENT.md`](./DEVELOPMENT.md) § Editor hooks.
+**Start here:** [`DEVELOPMENT.md`](./DEVELOPMENT.md) § Editor (documented exception).
 
 **You may:**
 
@@ -76,7 +76,7 @@ Nest depth = segments of `index` (`1.1` under `1`). Construct moves and renumber
 **Do not copy outside the editor:**
 
 - `querySelector` on `#lesson-visual-editor` (only CI-allowlisted hooks).
-- `.innerHTML =` in features, exceptions here in `editor-serialize.js` and engine.
+- `.innerHTML =` in features; exceptions here are in `editor-serialize.js` and engine.
 - Mount widgets with `bindMobileTap`.
 
 ---

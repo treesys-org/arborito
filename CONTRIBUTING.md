@@ -29,14 +29,14 @@ Arborito is, above all, a place to **share knowledge**. If you know about someth
 A short walkthrough lives in [`docs/AUTHORING.md`](docs/AUTHORING.md).
 Folder / `.arborito` format (all `@` tags, quizzes, bilingual layout): same doc. Each export also ships an in-archive author guide under `files/`: `AUTHOR-GUIDE.md` (English UI) or `AUTORIA.md` (Spanish UI). Those are for authors opening the package in the app, not extra GitHub docs to maintain.
 
-#### Four authoring principles
+#### Tips that play well with Arborito
 
-These come from the way Arborito reads trees and how its Spaced Repetition System (SRS) reinforces what you study. They are not rules, they are heuristics that make lessons more useful:
+Arborito’s map and Care (spaced repetition) reward small, reusable leaves. These are **suggestions**, not the style police — write however you teach:
 
-- **Atomic.** Each leaf lesson should cover **one concept**. If a lesson is really two ideas, split it into siblings.
-- **Modular.** Don't write long, linear "books". A learner might arrive at your lesson from any branch, so avoid sentences like "as we saw in chapter 3". Reference by topic, not by order.
-- **Self-contained.** Each leaf should deliver a complete (if small) piece of value on its own, so a learner who only opens that node still walks away with something.
-- **Universal.** Write simply and clearly. Avoid unnecessary jargon, or define it the first time it appears. Translation is a first-class citizen.
+- **One idea per leaf.** If a lesson is really two topics, sibling nodes are often easier to review later.
+- **Arrive from anywhere.** Learners may open a node out of order, so “as we saw in chapter 3” can confuse; a short reminder or a link by topic usually ages better than a linear “book”.
+- **Useful on its own.** Even a short leaf that stands alone helps someone who only opens that node.
+- **Clear language.** Simple wording (or a quick definition of jargon) also makes translation easier. English and Spanish ship side by side in many trees.
 
 Published lessons stay under **CC BY-SA 4.0**.
 

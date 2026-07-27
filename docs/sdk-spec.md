@@ -29,7 +29,7 @@ The **user** picks the tree, not the game. The flow is:
 
 1. The user opens Arborito and switches to one of their local or public trees (the "active source").
 2. The user opens a module (any non-leaf node) and launches a game from the in-app Arcade.
-3. The host (`useGamePlayerModal.js`) collects every leaf and `@exam` node under the selected module into an ordered **playlist** and starts the cartridge.
+3. The host (`useGamePlayerModal.js`) collects every leaf and `type: exam` node under the selected module into an ordered **playlist** and starts the cartridge.
 4. The cartridge calls `window.arborito.lesson.next()`, `.list()`, or `.at(i)` against that playlist via the bridge.
 
 Practical consequences for cartridge authors:
@@ -41,7 +41,7 @@ Practical consequences for cartridge authors:
 
 **Arcade catalog CDN:** when the host loads games from `cdn.jsdelivr.net/gh/treesys-org/arborito-games@main/…`, it rewrites `@main` to the **latest GitHub commit SHA** (short TTL cache in `arcade-games-cdn.js`) so edge caches do not serve stale cartridge JS after a merge. Cartridge authors should bump `meta.json` `version` when behaviour changes.
 
-If your game **needs a fixed curriculum** (e.g. a Pygame title that ships with one course), ship it as a Python SDK app instead, see B.
+If your game **needs a fixed curriculum** (e.g. a Pygame title that ships with one course), ship it as a Python SDK app instead; see B.
 
 ### B. Python SDK (independent games and apps, outside the browser)
 
@@ -51,7 +51,7 @@ Three loaders are supported:
 
 | Loader | Constructor | What you provide | When to use |
 |--------|-------------|------------------|-------------|
-| Exported tree file | `Arborito.from_arborito("course.arborito", lang="ES")` | A `*.arborito` archive exported from the app (**Sources → branch → Export**). It is a **ZIP** with `manifest.json` (`meta.titles` / `meta.descriptions` per curriculum language) plus one markdown file per lesson under `lessons/<LANG>/…` (quizzes/games live inside the markdown as `@quiz` / `@game` blocks). | Shipping a frozen course bundled with your game. **Default offline path**: no network call. |
+| Exported tree file | `Arborito.from_arborito("course.arborito", lang="ES")` | A `*.arborito` archive exported from the app (**Forest / Courses → branch → Export**). It is a **ZIP** with `manifest.json` (`meta.titles` / `meta.descriptions` per curriculum language) plus one markdown file per lesson under `lessons/<LANG>/…` (quizzes/games live inside the markdown as `@quiz` / `@game` blocks). | Shipping a frozen course bundled with your game. **Default offline path**: no network call. |
 | Static `data/` folder | `Arborito.from_static_data("/path/to/data", lang="EN")` | A directory laid out like Arborito's static HTTPS source (`meta.json`, lesson markdown, optional `arborito-index.json`). | When the same tree is also self-hosted as a static site and you want both to read from one source on disk. |
 | Public Nostr share code | `Arborito.from_share_code("ABCD-EF23", lang="ES", relays=None)` | An 8-character public **share code** (format `XXXX-XXXX`, alphabet `23456789ABCDEFGHJKLMNPQRSTUVWXYZ`) that some other Arborito user published from their app. Optionally a list of `wss://` relay URLs; otherwise the SDK uses the same defaults as the app (Germany / EU). | Joining a tree someone publishes publicly on Nostr, typically because the player (not you) typed the code, or because you want the latest published version instead of pinning a file. **Requires network and user consent.** |
 
@@ -74,8 +74,8 @@ Pick whichever fits your game; both are valid.
 
 The shortest honest path from "I want my game to use course X" to "the SDK is reading it":
 
-1. **Open the tree in Arborito** (or author it there). This can be your own local tree or one you joined via share code / Nostr, the app normalizes both into your local garden.
-2. **Export it** from **Sources → select branch → Export**. You get an `arborito-branch-<name>.arborito` file with the **current** curriculum (release snapshots never travel inside the ZIP, pin versions by re-exporting when you cut a release).
+1. **Open the tree in Arborito** (or author it there). This can be your own local tree or one you joined via share code / Nostr; the app normalizes both into your local Forest library.
+2. **Export it** from **Forest (Courses) → select branch → Export**. You get an `arborito-branch-<name>.arborito` file with the **current** curriculum by default. Optionally choose **All saved versions** to nest snapshots under `versions/` in the same ZIP; otherwise pin an edition by re-exporting when you cut a release.
 3. **Commit that file into your game's repository** (e.g. `assets/courses/spanish-a1.arborito`) so the course version your game targets is reproducible and pinned. Treat it like any other game asset.
 4. **Load it at startup** and read lessons exactly as a browser cartridge would:
 
@@ -187,7 +187,7 @@ Legend: ✅ first-class · ⚠️ supported with caveats · ❌ out of scope on 
 | SRS (`memory.due`, `memory.report`, `memory.getStatus`) | ✅ App Care schedule; reviews affect the Care tab. | ✅ In-process SM-2; with `login` + Nostr tree, `memory.pull` / `push` / `sync` share Care with the app. |
 | Profile XP (`xp`) | ✅ Increments Arborito profile XP. | ❌ No host profile in a standalone process. |
 | Per-game persistence (`save` / `load`) | ⚠️ Scoped to `gameId` in IndexedDB; hard cap **~195 KB per game**. Throws `GAME_QUOTA_EXCEEDED` past that. | ❌ Host shims; use local files / SQLite / your backend. |
-| Publish course to Nostr | ✅ From the Arborito app (Sources / Construction). | ✅ `arborito-cli branch publish` with `[nostr]` (after `session` login when required). |
+| Publish course to Nostr | ✅ From the Arborito app (Forest / Courses, or Construction → publish). | ✅ `arborito-cli branch publish` with `[nostr]` (after `session` login when required). |
 | Care progress on Nostr | ✅ Automatic when cloud sync is on. | ✅ Explicit `memory.pull` / `push` / `sync` after `api.login` (or CLI `session login`). |
 | AI (`ask.json`, `ask.chat`) | ✅ Host `aiService`: native llama.cpp on desktop; Expert API in browser. | ⚠️ Local `llama-server` at `LLAMA_CPP_HOST` (default `http://127.0.0.1:8080`). You ship/start it; else static fallback. |
 | Static-mode helpers (`quiz`, `matchPairs`, Quiz V2 parsing, `buildDuelDeck`) | ✅ Same implementation. | ✅ Same implementation, ported. |
@@ -220,9 +220,9 @@ So cartridges **can** use scripts, popups, forms, pointer lock, modals, fullscre
 - Use camera, microphone, or screen capture (no `camera`, `microphone`, `display-capture` permissions).
 - Use geolocation, WebUSB, WebBluetooth, WebSerial, payment APIs (none granted).
 - Navigate the top frame (`allow-top-navigation` is not in the sandbox list).
-- Register service workers or open IndexedDB databases at their own origin, they run from `srcdoc`, so they have no stable origin of their own. The only persistent storage you have is `save(key, value)` (≤195 KB total per game).
-- `import` from external CDNs, the cartridge bundler (`utils/game-bundle.js`) only follows **relative** module imports (`./foo.js`, `./bar.js`). Anything else (`import x from "https://…"`) is ignored at bundle time, so it will fail to resolve at runtime. Vendor your dependencies into the cartridge tree.
-- Load `<img>` / `<audio>` / `<video>` / `<link>` from external URLs reliably in offline mode, they get rewritten to blob URLs from the cached bundle.
+- Register service workers or open IndexedDB databases at their own origin — they run from `srcdoc`, so they have no stable origin of their own. The only persistent storage you have is `save(key, value)` (≤195 KB total per game).
+- `import` from external CDNs: the cartridge bundler (`utils/game-bundle.js`) only follows **relative** module imports (`./foo.js`, `./bar.js`). Anything else (`import x from "https://…"`) is ignored at bundle time, so it will fail to resolve at runtime. Vendor your dependencies into the cartridge tree.
+- Load `<img>` / `<audio>` / `<video>` / `<link>` from external URLs reliably in offline mode; they get rewritten to blob URLs from the cached bundle.
 
 ### Hard constraints unique to the Python SDK
 
@@ -259,11 +259,11 @@ Quiz V2 (the lesson questionnaire format authored in the app) has **five student
 | `chips` | Tap words in the correct order to compose the answer. | `correct_answer` (multi-word) |
 | `steps` | Tap procedural steps in the right order. | `steps[]`, `answer_mode: "steps"` |
 
-Canonical reference: [`src/features/learning/api/quiz-schema.js`](./src/features/learning/api/quiz-schema.js) (`ALL_QUIZ_MODES`, `getPlayableModes`, `pickStudyQuizMode`, `modeIsPlayable` is the file-private predicate behind `getPlayableModes`).
+Canonical reference: [`src/features/learning/api/quiz-schema.js`](../src/features/learning/api/quiz-schema.js) (`ALL_QUIZ_MODES`, `getPlayableModes`, `pickStudyQuizMode`, `modeIsPlayable` is the file-private predicate behind `getPlayableModes`).
 
 ### What the SDK exposes for game authors
 
-The SDK (browser cartridge and Python) shares the same modality logic as the in-app Care/Study view. Canonical implementation: [`src/features/learning/api/quiz-schema.js`](./src/features/learning/api/quiz-schema.js) (imported in the host; inlined in [`inject-game-sdk.js`](./src/features/arcade/api/inject-game-sdk.js) for iframe cartridges).
+The SDK (browser cartridge and Python) shares the same modality logic as the in-app Care/Study view. Canonical implementation: [`src/features/learning/api/quiz-schema.js`](../src/features/learning/api/quiz-schema.js) (imported in the host; inlined in [`inject-game-sdk.js`](../src/features/arcade/api/inject-game-sdk.js) for iframe cartridges).
 
 | Capability | Browser (`window.arborito.challenge`) | Python (`api.challenge`) |
 |------------|--------------------------------------|--------------------------|
@@ -280,7 +280,7 @@ The SDK (browser cartridge and Python) shares the same modality logic as the in-
 | Memory pairs (not a Quiz V2 mode) | ✅ `matchPairs(lesson, …)` | ✅ `matchPairs(lesson, …)` |
 | Duel deck (multiple-choice only) | ✅ `buildDuelDeck(lesson)` | ✅ `buildDuelDeck(lesson)` |
 
-**Exam nodes (`@exam`):** a single lesson node can contain **many** Quiz V2 blocks. Use `challenge.fromLesson(lesson)` and iterate every entry, do not rely on `lesson.challenge` alone (that field is only the first block).
+**Exam nodes (`type: exam`):** a single lesson node can contain **many** Quiz V2 blocks. Use `challenge.fromLesson(lesson)` and iterate every entry, do not rely on `lesson.challenge` alone (that field is only the first block).
 
 ### Example games and cartridges
 
@@ -299,9 +299,9 @@ The SDK (browser cartridge and Python) shares the same modality logic as the in-
 
 - **All five modes:** call `challenge.modes.buildCard(..)` (or `buildStudyCard`) per challenge. The `arborito-cli quiz` command shows a minimal terminal renderer.
 - **Multiple-choice only is enough:** `quiz()` remains the shortest path (~10 lines).
-- **Many questions in one node:** loop `challenge.fromLesson(lesson)`, typical for `@exam` nodes authored in Construction mode.
+- **Many questions in one node:** loop `challenge.fromLesson(lesson)`, typical for `type: exam` nodes authored in Construction mode.
 - **Arcade-style rounds from the syllabus:** call `quiz.pool({ count })` then `quiz.pick(pool, usedSet)` for session dedup. Build on-screen options with `quiz.buildOptions(item)`: never roll your own shuffle that might drop the correct answer.
-- **Fix quiz bugs in the SDK, not in cartridges.** If items repeat, options are wrong, or traps duplicate questions, patch [`game-sdk-lesson.js`](./src/features/arcade/api/game-sdk-inject/game-sdk-lesson.js) (browser) or `arborito-sdk/arborito_sdk/quiz_v2.py` (Python). Games should only add gameplay (scoring, UI, NPC logic).
+- **Fix quiz bugs in the SDK, not in cartridges.** If items repeat, options are wrong, or traps duplicate questions, patch [`game-sdk-lesson.js`](../src/features/arcade/api/game-sdk-inject/game-sdk-lesson.js) (browser) or `arborito-sdk/arborito_sdk/quiz_v2.py` (Python). Games should only add gameplay (scoring, UI, NPC logic).
 
 See [Quiz helpers: `quiz`](#quiz-helpers-quiz) for the full contract.
 
@@ -380,7 +380,7 @@ Python parity: only `label` is mirrored. The other helpers (`className`, `isOrde
 
 ## Quiz helpers: `quiz`
 
-The callable `quiz(lesson, opts)` is the entry point for quick multiple-choice items. The same function object also exposes helpers for **pool building**, **session dedup**, and **option lists**. Browser implementation: [`game-sdk-lesson.js`](./src/features/arcade/api/game-sdk-inject/game-sdk-lesson.js) (attached in [`game-sdk-api.js`](./src/features/arcade/api/game-sdk-inject/game-sdk-api.js)). Python: `arborito-sdk/arborito_sdk/quiz_v2.py` + `client.py`.
+The callable `quiz(lesson, opts)` is the entry point for quick multiple-choice items. The same function object also exposes helpers for **pool building**, **session dedup**, and **option lists**. Browser implementation: [`game-sdk-lesson.js`](../src/features/arcade/api/game-sdk-inject/game-sdk-lesson.js) (attached in [`game-sdk-api.js`](../src/features/arcade/api/game-sdk-inject/game-sdk-api.js)). Python: `arborito-sdk/arborito_sdk/quiz_v2.py` + `client.py`.
 
 ### Design rule: SDK owns quiz correctness
 
@@ -421,7 +421,7 @@ Builds a shuffled multiple-choice list for one item.
 |--------|---------|-------------|
 | `count` | `4` | Target option count (clamped 2–6). |
 
-Collects distractors from `wrong`, `options`, and `traps`, dedupes case-insensitively, pads with harmless fallbacks if needed, and **always includes `correct`** when it is non-empty. Same rules as the host’s `buildOptionsPool` in [`game-quiz-cards.js`](./src/features/arcade/api/game-quiz-cards.js).
+Collects distractors from `wrong`, `options`, and `traps`, dedupes case-insensitively, pads with harmless fallbacks if needed, and **always includes `correct`** when it is non-empty. Same rules as the host’s `buildOptionsPool` in [`game-quiz-cards.js`](../src/features/arcade/api/game-quiz-cards.js).
 
 ### `quiz.pool(opts?)`
 
@@ -530,7 +530,7 @@ Prefer **`lesson.contextForAi(lesson)`** in the prompt body and pass the same `l
 
 Resolves full lesson content from a playlist node id (e.g. items from `quiz.pool` include `lessonId`). Returns `null` / `None` when not found.
 
-### Browser `lesson.plainText(lessonOrRaw)` · Python (use cleaned `lesson["text"]`)
+### Browser `lesson.plainText(lessonOrRaw)` · Python `lesson.plainText` / cleaned `lesson["text"]`
 
 Returns **student-facing prose only**: strips `@info`, `@quiz`, `@section`, markdown headings, etc. Use for **dialogue, TTS, and HUD text** in narrative cartridges (Starship, Classroom NPC lines). Do **not** paste raw `lesson.raw` into UI.
 
@@ -582,7 +582,7 @@ Games own their UI and scoring. The SDK provides lesson data and quiz primitives
 | **Missions from questionnaires** (terminal, classroom, duel) | `challenge.tasksFromLesson(lesson)` + `quiz.matchesAny` | Optional: `quiz.gradeAnswer` for open text |
 | **NPC or tutor chat** | `ask.lessonAction(lesson, playerSaid, { persona, authorLine? })` | Yes |
 | **Multiple-choice rounds** | `quiz(lesson, { count })` or `quiz.pool` + `quiz.pick` | Fills missing slots from branch content |
-| **Full custom AI** (any genre) | `ask.json(yourPrompt)` or `ask.chat(messages)` | Yes. you own the prompt |
+| **Full custom AI** (any genre) | `ask.json(yourPrompt)` or `ask.chat(messages)` | Yes — you own the prompt |
 
 **Content priority (always):** author questionnaires → lesson body → branch playlist → AI fills gaps. Teachers need only **one** complete questionnaire; games and dynamic AI reuse it.
 
@@ -737,7 +737,7 @@ CLI study: `read`, `quiz` (no dedicated `narrative` command).
 
 1. **Author questionnaire** (`staticQuizFromLesson` facts in the prompt)
 2. **Lesson body + challenge fields** (`lessonContextBlockForAi`)
-3. **Persona** (dev-defined scene. does not replace lesson grounding)
+3. **Persona** (dev-defined scene; does not replace lesson grounding)
 
 Teachers are **not** required to fill every Quiz V2 mode. One complete questionnaire is enough; games use whatever modes are playable and AI fills the rest in dynamic mode.
 
@@ -794,11 +794,11 @@ Package: **`arborito-sdk`** (import `arborito_sdk`, CLI **`arborito-cli`**): for
 | Direct Nostr address | `Arborito.from_nostr(pub, universe_id, lang="ES", relays=None)` | Same as share-code path when you already know `pub` + `universeId`. |
 
 - **`lesson` / `ask.json` / `quiz` / `matchPairs` / `challenge` / `getAIMode()`:** same logical API as `window.arborito` (quiz/ask helpers prefer `snake_case`, with camelCase aliases; `lesson.plainText` for NPC prose); curriculum text matches the Arcade.
-- **`challenge.modes` / `challenge.tasksFromLesson`:** Arcade parity, `playable`, `pick`, `buildCard`, `buildStudyCard`, all five Quiz V2 modalities (see [Quiz V2 modalities](#quiz-modalities-coverage-today)).
+- **`challenge.modes` / `challenge.tasksFromLesson`:** Arcade parity, `playable`, `pick`, `buildCard`, `buildStudyCard`, all five Quiz V2 modalities (see [Quiz V2 modalities](#quiz-v2-modalities-coverage-today)).
 - **Static mode:** `quiz()` and `matchPairs()` read Quiz V2 from lessons (no LLM). Set `ai_mode="static"` or use `from_arborito`.
 - **Dynamic mode:** `ask.json` calls a local **llama.cpp** server (`llama-server`) over the OpenAI-compatible `/v1/chat/completions` endpoint. Configure via `LLAMA_CPP_HOST` (default `http://127.0.0.1:8080`) and optionally `LLAMA_CPP_MODEL`.
 - **Network defaults:** `from_share_code` / `from_nostr` connect to the same Nostr relays the Arborito app uses by default (independent operators in Germany / EU). Override per-call with `relays=[..]` or globally with the `ARBORITO_NOSTR_RELAYS` environment variable. See [`NETWORK.md`](./NETWORK.md#nostr-relays).
-- **Live updates:** `arb.subscribe(on_update=fn)` / `arb.unsubscribe()` keep the tree in sync with the publisher's latest bundle; signature is verified against `ownerPub` before any replacement. Bundles never auto-apply mid-frame. the callback is the signal; your game decides when to swap. `arb.refresh()` does the same check once without holding open connections.
+- **Live updates:** `arb.subscribe(on_update=fn)` / `arb.unsubscribe()` keep the tree in sync with the publisher's latest bundle; signature is verified against `ownerPub` before any replacement. Bundles never auto-apply mid-frame. The callback is the signal; your game decides when to swap. `arb.refresh()` does the same check once without holding open connections.
 - **Publish / session:** `arborito-cli` with `[nostr]`: `session register|login`, `branch publish` (share code on first publish).
 - **Care sync:** `api.login` then `memory.pull` / `push` / `sync` (or CLI `memory pull|push|sync`) on a Nostr tree; same packed progress as the app.
 - **`memory.*`:** in-process SM-2 (+ optional network sync above). **`xp` / `save` / `load`:** host shims (profile XP and IndexedDB belong to the Arborito app / cartridge).

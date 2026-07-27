@@ -1,6 +1,6 @@
 # Python SDK
 
-Package: **[arborito-sdk](https://github.com/treesys-org/arborito-sdk)** · version **0.2.2** (initial release)
+Package: **[arborito-sdk](https://github.com/treesys-org/arborito-sdk)** · version **0.2.5**
 
 ## Who are you?
 
@@ -8,7 +8,7 @@ Package: **[arborito-sdk](https://github.com/treesys-org/arborito-sdk)** · vers
 |----------|------------|
 | **Python game / tool dev** | This doc + [arborito-sdk README](https://github.com/treesys-org/arborito-sdk) |
 | **Arcade HTML cartridge dev** | [arborito-games](https://github.com/treesys-org/arborito-games) |
-| **Course author (app)** | Arborito Construction mode. export `.arborito` |
+| **Course author (app)** | Arborito Construction mode; export `.arborito` |
 | **Course author (terminal)** | `pip install 'arborito-sdk[tui]'` → `arborito-cli edit` |
 
 ## Install
@@ -123,7 +123,7 @@ Examples: `examples/minimal_quiz.py` (static), `examples/ai_tutor.py` (AI tutor 
 | **`arborito-cli edit`** | Enriched TUI / block forms | Terminal, scripts, local `.arborito` |
 | **`edit --raw`** | `$EDITOR` on markdown | Power users, bulk search-replace |
 
-Same file format everywhere: syllabus `@section` with `index:` + `title:` (nest depth = index segments), `@info`, `@quiz`, `@image`, `@game`. Construct TOC math lives in `arborito_sdk.lesson_toc_mutations` (parity with Arborito).
+Same file format everywhere: syllabus `@section` with `index:` + `title:` (nest depth = index segments), `@info`, `@quiz`, `@image`, `@game`. Construction TOC math lives in `arborito_sdk.lesson_toc_mutations` (parity with Arborito).
 
 ## Arcade vs Python
 

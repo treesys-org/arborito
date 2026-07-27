@@ -81,7 +81,7 @@ export function isSubtreeComplete(node, completedNodes) {
 
 /**
  * Tree-level trophy for composed trees (playlist). Standalone curricula use a branch trophy instead.
- * See `docs/terminology.md`.
+ * See `docs/PRODUCT_GUIDE.md` (trophies and achievements).
  */
 export function shouldShowTreeCertificate(store) {
     if (!store?.state?.data) return false;

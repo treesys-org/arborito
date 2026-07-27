@@ -1,6 +1,6 @@
 /**
  * Global Nostr indexes (`directoryIndex`) + bumps (`directoryBump`).
- * See `docs/DIRECTORY_INDEX_AGGREGATOR.md`.
+ * Caps and client limits for Courses / Discover; see `docs/NETWORK.md`.
  */
 
 /** Max rows per snapshot (`recent` / `top`) written by the aggregator and read by clients. */

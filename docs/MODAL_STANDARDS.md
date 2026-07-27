@@ -9,7 +9,7 @@
 | Component | File | Use |
 |-----------|------|-----|
 | `ModalShell` | `src/app/components/ModalShell.jsx` | Backdrop + centered panel |
-| `DockModalShell` | same file | Hub dock (`layout="dock"`), Arcade, Forest, certificates |
+| `DockModalShell` | same file | Hub dock (`layout="dock"`), Arcade, Forest (Courses), certificates |
 | `ModalCenteredShell` | same file | Centered / bottom-sheet without dock hub chrome |
 | `DockHubSheet` | `src/shared/ui/DockHubSheet.jsx` | Dock-tab sheet (backdrop + sheet above dock); Backpack, construction hubs |
 | `MobMoreSheet` | `src/shared/ui/MobMoreSheet.jsx` | More menu drill (backdrop + hero + scroll host) |
@@ -31,9 +31,9 @@
 
 **Good examples:**
 
-- Compact modal: [`LanguageModal.jsx`](./src/features/shell-chrome/modals/LanguageModal.jsx)
-- Hub dock: [`ArcadeModal.jsx`](./src/features/arcade/modals/ArcadeModal.jsx)
-- Settings with hook: [`SageSettings.jsx`](./src/features/learning/modals/SageSettings.jsx) + [`useSageSettings.jsx`](./src/features/learning/modals/hooks/useSageSettings.jsx)
+- Compact modal: [`LanguageModal.jsx`](../src/features/shell-chrome/modals/LanguageModal.jsx)
+- Hub dock: [`ArcadeModal.jsx`](../src/features/arcade/modals/ArcadeModal.jsx)
+- Settings with hook: [`SageSettings.jsx`](../src/features/learning/modals/SageSettings.jsx) + [`useSageSettings.jsx`](../src/features/learning/modals/hooks/useSageSettings.jsx)
 
 ---
 
@@ -44,7 +44,7 @@ In `src/features/**/modals/*.jsx` and `components/*.jsx`:
 1. **No** `className="fixed inset-0 …"` as your own shell → `ModalShell` / `DockModalShell`.
 2. **No** `dangerouslySetInnerHTML` → `ModalHtml`, `Callout`, `LocaleRichText`, `ChromeEmoji`.
 3. **No** `bindMobileTap` / `wireArboritoSwitch` → React `onClick` or shell props.
-4. **No** `modalShellHtml` / `modalHeroHtml` / `calloutHtml` in features, use React components from §1.
+4. **No** `modalShellHtml` / `modalHeroHtml` / `calloutHtml` in features — use React components from §1.
 5. **Width:** use `panelSize` prop (`compact`, `content`, `dock-hub`, …), see `modal-panel-size.js`. No ad hoc `max-w-*` on the panel.
 6. **Mobile:** `ModalShell` infers `shouldShowMobileUI()`; do not duplicate `arborito-modal--mobile` flags by hand.
 
@@ -60,7 +60,7 @@ Zero matches in touched files = good.
 
 ## 3. Size grid (`panelSize`)
 
-Single source: [`modal-panel-size.js`](./src/shared/ui/modal-panel-size.js).
+Single source: [`modal-panel-size.js`](../src/shared/ui/modal-panel-size.js).
 
 | Tier | Token | Example |
 |------|-------|---------|
@@ -104,7 +104,7 @@ Any other floating widget → discuss in PR and document here.
 
 ### Alternate backdrop IDs (mobile fullbleed CSS)
 
-When portaling outside `#modal-backdrop`, register the ID in [`mobile-sheets-dock.css`](./src/shared/styles/modals/mobile-sheets-dock.css) fullbleed rules:
+When portaling outside `#modal-backdrop`, register the ID in [`mobile-sheets-dock.css`](../src/shared/styles/modals/mobile-sheets-dock.css) fullbleed rules:
 
 | Backdrop ID | Surface | Notes |
 |-------------|---------|-------|
@@ -148,7 +148,7 @@ Accepted examples: `panelTone: 'sage' | 'dark'`, `scrim: 'translucent'` (default
 
 ## 6. Privacy and legal
 
-Any capability that leaves the device, uses the network, or stores secrets needs a section in [`PrivacyModal.jsx`](./src/features/privacy-gdpr/modals/PrivacyModal.jsx) (EN/ES), aligned with consent copy in `locales/`.
+Any capability that leaves the device, uses the network, or stores secrets needs a section in [`PrivacyModal.jsx`](../src/features/privacy-gdpr/modals/PrivacyModal.jsx) (EN/ES), aligned with consent copy in `locales/`.
 
 ---
 
@@ -164,7 +164,7 @@ Any capability that leaves the device, uses the network, or stores secrets needs
 | In-hub form prompt | `FormNestedSheet.jsx`: `ModalHubHero` like Language (hint in body, not in hero) |
 | In-hub full-screen stack | `HubStackOverlay.jsx`, e.g. Forest tree editor |
 | Untrusted tree warnings | `UntrustedTreeWarningShell.jsx` |
-| Forest directory network | `runBibliotecaNetworkLoad()` in `connected-services/runtime.js` |
+| Forest directory network | `runBibliotecaNetworkLoad()` in `src/shared/lib/connected-services/runtime.js` |
 | CTAs | `modal-action-chrome.js` + `arborito-cta-forms.css` |
 | Modal footers | `arborito-modal-footer` + `arborito-action-row`, see §8b |
 | Forms | `arborito-forms.css` |
@@ -213,7 +213,7 @@ Chunk fallbacks must mirror the loaded shell (including footer skeleton for publ
 
 ### Compact prefs modals (mobile dock-gap + desktop centered)
 
-Canonical reference: [`PrivacyModal.jsx`](./src/features/privacy-gdpr/modals/PrivacyModal.jsx).
+Canonical reference: [`PrivacyModal.jsx`](../src/features/privacy-gdpr/modals/PrivacyModal.jsx).
 
 | Modal | Mobile shell | Desktop shell | Body padding | Notes |
 |-------|--------------|---------------|--------------|-------|
@@ -265,8 +265,8 @@ Unlisted lazy types fall back to `GenericChunkFallback` (minimal spinner). Prefe
 | `openModalWhenReady(modal)` | same | Await lazy chunk, then open |
 | `prefetchModal(type)` | same | Hover / intent warm-up |
 | `isModalReady(type)` | same | Spinner / busy state |
-| `openPublishHub()` | `account-hub-gate.js` | Publish hub (sign-in gate + `construction-about`) |
-| `openContributorHub()` | `account-hub-gate.js` | Team modal (sign-in gate + `contributor`) |
+| `openPublishHub()` | `src/features/publishing/api/account-hub-gate.js` | Publish hub (sign-in gate + `construction-about`) |
+| `openContributorHub()` | `src/features/publishing/api/account-hub-gate.js` | Team modal (sign-in gate + `contributor`) |
 
 Feature hooks and actions should call these gates or `openModal`, not `setModalOnStore` directly.
 

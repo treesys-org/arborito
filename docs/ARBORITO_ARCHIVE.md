@@ -69,7 +69,7 @@ Which languages the course ships is defined only by folders under `lessons/` (an
 
 ### Module folder `README.md`
 
-Plain text or a short `@info` block. Optional `certifiable: yes` issues a **diploma** when students finish every lesson inside that folder:
+Plain text or a short `@info` block. Optional `certifiable: yes` enables a **folder achievement** (diploma in Certificates) when students finish every lesson inside that folder:
 
 ```
 @info
@@ -198,15 +198,15 @@ Each `branches/*.arborito` is a full **branch** archive. When you open the tree 
 
 | Action | Result |
 |--------|--------|
-| Import branch `.arborito` | Forest → Branches → stored in local garden |
-| Import tree `.arborito` | Forest → Trees → playlist with embedded branches |
-| Export branch | My garden → Export → single `.arborito` with `files/AUTHOR-GUIDE.md` |
-| Export tree | Trees tab → Export → manifest + embedded branches |
+| Import branch `.arborito` | Forest (Courses → Individual courses / Branches) → stored in your local library |
+| Import tree `.arborito` | Forest (Courses → Combined courses / Trees) → playlist with embedded branches |
+| Export branch | Forest → Export → single `.arborito` with `files/AUTHOR-GUIDE.md` (or `AUTORIA.md` for Spanish UI) |
+| Export tree | Forest → Trees tab → Export → manifest + embedded branches |
 
 Validation notes (non-blocking) are listed on import: empty quizzes, unclosed blocks, missing bilingual pairs.
 
 ## Related docs
 
 - [`AUTHORING.md`](AUTHORING.md): blocks, quizzes, authoring
-- [`PRODUCT_GUIDE.md`](PRODUCT_GUIDE.md): trophies and diplomas
+- [`PRODUCT_GUIDE.md`](PRODUCT_GUIDE.md): trophies and achievements
 - [`NETWORK.md`](NETWORK.md): network publish format

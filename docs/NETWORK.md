@@ -9,12 +9,12 @@ Arborito has no app server. The site at [arborito.org](https://arborito.org) is 
 | **Nostr** | Share codes, course index, forum, directory | Card catalog entry |
 | **WebTorrent** | Lessons, map JSON, assets | The pages of the book |
 
-Millions of **readers** on the same course is feasible with WebTorrent + seeders. Millions of people **chatting live** at once is not. physical limits apply.
+Millions of **readers** on the same course is feasible with WebTorrent + seeders. Millions of people **chatting live** at once is not; physical limits apply.
 
 ## Discovering courses
 
 1. **Short code** (`ABCD-EF23`) → resolves the course on Nostr.
-2. **Forest → Internet search** (≥ 3 chars) → relay query with `#t` tags.
+2. **Forest (Courses) → Discover / Internet search** (≥ 3 chars) → relay query with `#t` tags.
 3. **Direct link** `nostr://…` always works even if not in the directory.
 
 There is no mandatory central catalog. The Discover directory is **consultative**; authors can opt out at publish time.
@@ -60,7 +60,7 @@ All traffic goes through known modules; do not add ad-hoc relay `fetch` in featu
 | Module | Role |
 |--------|------|
 | `nostr/api/client/index.js` | Nostr client (one pool) |
-| `connected-services/` | GDPR consent + network init |
+| `src/shared/lib/connected-services/` | GDPR consent + network init |
 | `sources/api/source-manager.js` | Load `branch://`, `tree://`, `nostr://` |
 | `stores/nostr-*-store-actions.js` | Network actions |
 
@@ -71,13 +71,13 @@ Consent before connecting. Private keys never in logs or DOM.
 | Type | Scope |
 |------|-------|
 | **Inside open course** | Worker + IndexedDB; scales with course size |
-| **Global directory (Forest)** | Nostr metadata; ~160 visible rows in UI |
+| **Global directory (Forest / Discover)** | Nostr metadata; ~160 visible rows in UI |
 
 Optional job: `npm run directory-index:build` for signed recent/top snapshots (800 rows each).
 
-## Freeze (reminder)
+## Offline (reminder)
 
-Freeze is **not** part of the network. it is a local desktop copy. See [`PRODUCT_GUIDE.md`](PRODUCT_GUIDE.md#freeze-vs-versions-the-most-confusing-part).
+Offline (UI label; code may still say “freeze”) is **not** part of the network. It is a local desktop copy. See [`PRODUCT_GUIDE.md`](PRODUCT_GUIDE.md#offline-vs-versions-the-most-confusing-part).
 
 ## More detail
 

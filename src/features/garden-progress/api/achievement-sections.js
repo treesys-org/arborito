@@ -82,8 +82,8 @@ export function buildTreeCompletionEntries(store) {
 }
 
 /**
- * Branch completion trophies: one per **library branch** (Biblioteca), not per folder
- * inside the curriculum map. See `docs/terminology.md`.
+ * Branch completion trophies: one per **library branch** (Forest / Courses), not per folder
+ * inside the curriculum map. See `docs/PRODUCT_GUIDE.md` (trophies and achievements).
  */
 export function buildBranchCompletionEntries(store, _modules) {
     if (!store?.state?.data) return [];

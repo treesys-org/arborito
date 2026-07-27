@@ -14,7 +14,7 @@
 
 Pick a subject, explore a visual map at your own pace, plant your own course, translate lessons, or remix what others published. No subscription, no mandatory account, no ads.
 
-> **v0.1 alpha** at [arborito.org](https://arborito.org). Try it, tell us what confuses you, plant a tree, or contribute. See [CHANGELOG.md](CHANGELOG.md) for tagged release notes (web deploys continuously; desktop installs follow release tags).
+> **v0.1.1 alpha** at [arborito.org](https://arborito.org). Try it, tell us what confuses you, plant a tree, or contribute. See [CHANGELOG.md](CHANGELOG.md) for tagged release notes (web deploys continuously; desktop installs follow release tags).
 
 **Knowledge is a right, not a privilege.** Arborito is a **community project**, not a product catalogue. The goal is a forest everyone tends together.
 
@@ -49,10 +49,10 @@ Pick a subject, explore a visual map at your own pace, plant your own course, tr
 
 | Pillar | What it is |
 |--------|------------|
-| **Arborito** (this repo) | Web and desktop/mobile app: lesson maps, editor, memory garden, optional Arcade |
+| **Arborito** (this repo) | Web and desktop/mobile app: lesson maps, editor, Care (spaced repetition), optional Arcade |
 | **Public courses** | Publish and discover courses from the app: open network, no central catalogue |
 | **Arborito Games** | Browser minigames via [`arborito-games`](https://github.com/treesys-org/arborito-games) (`window.arborito`) |
-| **arborito-sdk** | Python SDK for scripts, CLIs, and apps outside the browser: [`pip install arborito-sdk`](https://github.com/treesys-org/arborito-sdk) (**0.2.2**) |
+| **arborito-sdk** | Python SDK for scripts, CLIs, and apps outside the browser: [`pip install arborito-sdk`](https://github.com/treesys-org/arborito-sdk) (**0.2.5**) |
 
 Each pillar evolves on its own. See [`ROADMAP.md`](ROADMAP.md) for where we are headed.
 
@@ -60,8 +60,8 @@ Each pillar evolves on its own. See [`ROADMAP.md`](ROADMAP.md) for where we are 
 
 - **Interactive lesson maps**: pick a branch, read, quiz, move on.
 - **Lesson search**: finds modules and lessons in the open tree (works offline for local branches).
-- **Memory garden**: spaced repetition via module seeds in your backpack.
-- **Backpack** (desktop): growth, seeds, trophies, and lumens in the top-right panel.
+- **Care**: spaced repetition via module seeds in your Backpack (the Arcade also has a Memory Garden cartridge).
+- **Backpack**: growth, seeds, trophies, and lumens (desktop top-right panel; mobile sheet).
 - **Visual editor**: create lessons without code.
 - **Lesson Arcade**: optional minigames tied to what you are learning.
 - **Local-first**: progress stays on your device by default; optional online account (username + password, no email).
@@ -101,7 +101,7 @@ arborito-cli shell
 - **In-app authoring:** Construction mode WYSIWYG (recommended for most authors).
 - **Terminal authoring:** `arborito-cli edit`: block list + quiz forms, not raw `@quiz` fences (`edit --raw` for `$EDITOR`).
 
-Docs: [`docs/PYTHON_SDK.md`](docs/PYTHON_SDK.md). Browser Arcade uses **`window.arborito`** (not this package). **Python SDK `0.2.2`** (initial release).
+Docs: [`docs/PYTHON_SDK.md`](docs/PYTHON_SDK.md). Browser Arcade uses **`window.arborito`** (not this package). **Python SDK `0.2.5`**.
 
 ## Why we built it
 
