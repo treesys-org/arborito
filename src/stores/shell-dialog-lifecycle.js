@@ -74,7 +74,8 @@ function teardownPostClosePointerGuard() {
     document.removeEventListener('touchend', postClosePointerGuard, true);
 }
 
-function armPostClosePointerGuard(ms = 400) {
+/** Swallow the synthetic click / pointer that would land on UI under a just-closed overlay. */
+export function armPostClosePointerGuard(ms = 400) {
     _postCloseGuardUntil = Date.now() + ms;
     if (_postCloseGuardOn) return;
     _postCloseGuardOn = true;

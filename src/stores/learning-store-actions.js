@@ -1,5 +1,6 @@
 import { getArboritoStore } from '../core/store-singleton.js';
 import { ensureConnectedAI } from '../shared/lib/connected-services/index.js';
+import { armPostClosePointerGuard } from './shell-dialog-lifecycle.js';
 
 /**
  * Apply a learning patch to the singleton (syncs slices via `store.update`).
@@ -47,6 +48,9 @@ export async function closeContentAction(opts = {}) {
         const ok = await store.confirmLeaveActiveQuizIfNeeded();
         if (!ok) return;
     }
+    /* Same ghost-click guard as dialogs: Back touchend unmounts the lesson, then the
+     * synthetic click can hit a path knot/label and recenter the mobile trunk. */
+    armPostClosePointerGuard();
     commitLearningState({ selectedNode: null });
 }
 
