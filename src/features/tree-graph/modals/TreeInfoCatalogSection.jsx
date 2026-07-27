@@ -17,7 +17,7 @@ import {
     pickTitleForLang,
     titlesFromTreeLanguages,
 } from '../../../shared/lib/catalog-titles.js';
-import { getArboritoStore } from '../../../core/store-singleton.js';
+import { useShellModalLang } from '../../../app/hooks/useHookShell.js';
 
 function formatDate(ts) {
     if (!ts || !Number.isFinite(Number(ts))) return ': ';
@@ -39,6 +39,7 @@ export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
         communitySources,
         notify,
     } = useTreeGraph();
+    const { lang: uiLang } = useShellModalLang();
     const { addCommunitySource, removeCommunitySource } = useSources();
     const ctx = resolveActiveShareContext(activeSource, userStore, rawGraphData);
     const { shareOpts, localEntry, publishedNetworkUrl } = ctx;
@@ -64,8 +65,6 @@ export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
     const toggleInstall = (next) => {
         if (!networkUrl) return;
         if (next) {
-            const arborito = getArboritoStore();
-            const uiLang = String(arborito?.state?.lang || arborito?.value?.lang || '').trim();
             const titleRaw =
                 pickTitleForLang(
                     rawGraphData?.meta?.titles || titlesFromTreeLanguages(rawGraphData),
