@@ -1,4 +1,16 @@
 import { getArboritoStore as store } from '../../../core/store-singleton.js';
+import { getPanelRef } from '../../../app/panel-refs.js';
+
+/**
+ * Biblioteca UI is open: desktop/web modal, or mobile More-menu embed
+ * (`ModalSources` mounted — `store.state.modal` is often not `'sources'` there).
+ * @param {{ state?: object, value?: object }|null|undefined} [s]
+ */
+export function isBibliotecaUiOpen(s = store) {
+    const m = s?.state?.modal ?? s?.value?.modal;
+    if (m && (m === 'sources' || (typeof m === 'object' && m.type === 'sources'))) return true;
+    return !!getPanelRef('modal-sources');
+}
 
 /**
  * Biblioteca was opened from onboarding/welcome (`modal.fromOnboarding`).
@@ -19,10 +31,14 @@ export function captureHadCurriculumBeforeLoad() {
  * After a successful load/plant/import in Biblioteca: close and show the canvas when
  * appropriate (first tree / onboarding). Keep the modal open when the user loaded
  * another tree or branch while a curriculum was already on the canvas.
- * @param {{ close?: (opts?: object) => void, updateContent?: () => void }} [_modal]
+ * @param {{ close?: (opts?: object) => void, updateContent?: () => void }} [modal]
  * @param {{ hadCurriculumBeforeLoad?: boolean }} [opts]
  */
-export function finishSourcesLoadSession(_modal, { hadCurriculumBeforeLoad = false } = {}) {
+export function finishSourcesLoadSession(modal, { hadCurriculumBeforeLoad = false } = {}) {
     if (hadCurriculumBeforeLoad && !isSourcesWelcomeLoadClose()) return;
+    if (typeof modal?.close === 'function') {
+        modal.close({ returnToMore: false });
+        return;
+    }
     store.dismissModal({ returnToMore: false });
 }

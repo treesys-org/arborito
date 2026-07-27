@@ -1,6 +1,6 @@
 import { getArboritoStore } from '../core/store-singleton.js';
 import { mountCurriculum } from '../features/sources/api/mount-curriculum.js';
-import { isSourcesWelcomeLoadClose } from '../features/sources/api/sources-session.js';
+import { isBibliotecaUiOpen, isSourcesWelcomeLoadClose } from '../features/sources/api/sources-session.js';
 import { DataProcessor } from '../features/tree-graph/api/data-processor.js';
 import { normalizeLoadedTreeJson } from '../features/tree-graph/api/tree-load-pipeline.js';
 import { repairTreeViewFromRawAction } from './tree-graph-store-actions.js';
@@ -47,8 +47,7 @@ export function isSourcesDismissBlockedAction() {
     const store = shell();
     if (!store) return false;
     if (store.state.treeHydrating && !store.state.data) return true;
-    const m = store.state.modal;
-    const sourcesOpen = m && (m === 'sources' || (typeof m === 'object' && m.type === 'sources'));
+    const sourcesOpen = isBibliotecaUiOpen(store);
     if (sourcesOpen && (!store.state.data || store.state.treeHydrating)) {
         /* A failed remote load can briefly clear the canvas while activeSource still
          * points at a local branch, do not trap the user in the picker. */
@@ -66,9 +65,8 @@ export async function maybeAutoLoadCommunityAfterAddAction(addResult) {
     if (!store || !addResult || addResult.ok !== true) return;
     const added = addResult.source;
     if (!added?.id) return;
-    const m = store.state.modal;
-    const sourcesOpen = m && (m === 'sources' || (typeof m === 'object' && m.type === 'sources'));
-    if (!sourcesOpen) return;
+    /* Desktop uses modal `sources`; mobile library is an embed panel. */
+    if (!isBibliotecaUiOpen(store)) return;
     /* Already viewing this network tree — bookmark only, skip remount. */
     if (isSameActiveNetworkSource(store.state.activeSource, added)) {
         if (isSourcesWelcomeLoadClose()) {

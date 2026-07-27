@@ -242,6 +242,7 @@ export async function runPublishAction(ctx, action, fields = {}) {
             ctx.bump();
             return true;
         }
+        /* Load the course but keep Biblioteca open so the student can install more. */
         const loaded = await withSourcesNetworkLoad(ctx, () => store.maybeAutoLoadCommunityAfterAdd(out));
         if (!loaded) ctx.bump();
         return true;

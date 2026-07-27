@@ -4,6 +4,7 @@ import { useHookUi, useShellModalLang } from '../../../app/hooks/useHookShell.js
 import { useShellUiSlice } from '../../../stores/shell-ui-store.js';
 import { useTreeGraphSlice } from '../../../stores/tree-graph-store.js';
 import { LoadingBrand, LoadingRow } from '../../../shared/ui/Loading.jsx';
+import { isBibliotecaUiOpen } from '../../sources/api/sources-session.js';
 
 const STYLE_ID = 'arborito-tree-growing-overlay-style';
 
@@ -133,8 +134,7 @@ function ensureStyleInjected() {
 }
 
 function sourcesModalOpen(state) {
-    const m = state?.modal;
-    return !!(m && (m === 'sources' || (typeof m === 'object' && m.type === 'sources')));
+    return isBibliotecaUiOpen({ state });
 }
 
 /** Publish hub shows its own LoadingBrand while the graph mounts — avoid a second overlay. */

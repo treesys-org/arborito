@@ -13,7 +13,7 @@ import { normalizeLoadedTreeJson } from '../../tree-graph/api/tree-load-pipeline
 import { sanitizeImportedTreeJson } from '../../tree-graph/api/tree-import-sanitize.js';
 import { putTreeBundleCache } from './tree-bundle-cache.js';
 import { scheduleAutoWebTorrentSeeder } from '../../p2p-webtorrent/api/auto-webtorrent-seeder.js';
-import { isUniverseRevokedError, promptStudentUniverseRevoked } from './universe-revoked.js';
+import { isUniverseRevokedError, promptStudentUniverseRevoked, clearUniverseRevokeStudentState, hasPendingUniverseRevokePrompt } from './universe-revoked.js';
 
 /** Rough stamp so identical network payloads skip a full graph remount. */
 export function treeBundleRoughStamp(json) {
@@ -69,6 +69,12 @@ export async function refreshRemoteTreeBundleInBackground(store, source, opts) {
         if (epoch !== store._curriculumMountEpoch) return;
         if (String(store.state.activeSource?.id || '') !== sourceId) return;
         if (!out?.json) return;
+
+        try {
+            clearUniverseRevokeStudentState(out.finalSource || source);
+        } catch {
+            /* ignore */
+        }
 
         if (
             (out.finalSource?.origin === 'nostr') &&
@@ -155,6 +161,19 @@ export async function refreshRemoteTreeBundleInBackground(store, source, opts) {
                 });
             });
             console.warn('[Arborito] remote tree SWR refresh: universe revoked', e);
+            return;
+        }
+        /* Offline / relay error: if a prior revoke notice was never dismissed, show it. */
+        if (hasPendingUniverseRevokePrompt(source)) {
+            queueMicrotask(() => {
+                if (!hasPendingUniverseRevokePrompt(source)) return;
+                void promptStudentUniverseRevoked(store, {
+                    source,
+                    treeJson: store.state.rawGraphData,
+                    keepViewingCached: true,
+                });
+            });
+            console.warn('[Arborito] remote tree SWR refresh (pending revoke)', e);
             return;
         }
         queueMicrotask(() =>

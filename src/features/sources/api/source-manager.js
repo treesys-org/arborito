@@ -29,7 +29,7 @@ import {
     resolveLoadedBundleDisplayTitle,
     titlesFromTreeLanguages,
 } from '../../../shared/lib/catalog-titles.js';
-import { UniverseRevokedError } from './universe-revoked.js';
+import { UniverseRevokedError, clearUniverseRevokeStudentState } from './universe-revoked.js';
 
 const OFFICIAL_DOMAINS = ['localhost', '127.0.0.1'];
 
@@ -463,10 +463,19 @@ export class SourceManager {
     }
 
     removeCommunitySource(id) {
+        const sid = String(id || '').trim();
+        const prev = (this.state.communitySources || []).find((s) => String(s?.id) === sid);
         const newSources = this.state.communitySources.filter((s) => s.id !== id);
         this.update({ communitySources: newSources });
         this.state.communitySources = newSources;
         this._persistCommunitySources();
+        if (prev) {
+            try {
+                clearUniverseRevokeStudentState(prev);
+            } catch {
+                /* ignore */
+            }
+        }
         try { store.publishInstalledSourcesForAccount?.(); } catch { /* ignore */ }
     }
 
@@ -760,6 +769,11 @@ export class SourceManager {
                 }
                 if (!bundle) {
                     throw new Error(ui.nostrLoadFailedError || 'Failed to load public tree.');
+                }
+                try {
+                    clearUniverseRevokeStudentState(source);
+                } catch {
+                    /* ignore */
                 }
                 const isComposedTreeBundle = bundle.format === 'arborito-tree';
                 const fmtOk =

@@ -2,9 +2,15 @@
  * Student-facing flow when a public Nostr universe has been retracted.
  * Keeps network delisting as source of truth; offers a local garden copy of
  * whatever is already on this device (cache / open tree), without prefetch.
+ *
+ * Pending notice is persisted until the student chooses save / uninstall /
+ * dismiss. Closing the browser mid-dialog leaves `pending` so the modal
+ * returns on the next open.
  */
 
 import { yieldToPaint } from '../../../shared/lib/yield-to-paint.js';
+
+const STUDENT_REVOKE_LS = 'arborito-universe-revoked-student-v1';
 
 export class UniverseRevokedError extends Error {
     constructor(message) {
@@ -50,6 +56,110 @@ export function curriculumHasUnmaterializedLessons(raw) {
     return found;
 }
 
+/** @param {object|null|undefined} source */
+export function universeRevokeSourceKey(source) {
+    return String(source?.id || source?.url || '').trim();
+}
+
+function readStudentRevokeMap() {
+    try {
+        const raw = localStorage.getItem(STUDENT_REVOKE_LS);
+        if (!raw) return {};
+        const o = JSON.parse(raw);
+        return o && typeof o === 'object' && !Array.isArray(o) ? o : {};
+    } catch {
+        return {};
+    }
+}
+
+function writeStudentRevokeMap(map) {
+    try {
+        localStorage.setItem(STUDENT_REVOKE_LS, JSON.stringify(map || {}));
+    } catch {
+        /* ignore quota / private mode */
+    }
+}
+
+/**
+ * @param {object|null|undefined} source
+ * @returns {{ pending?: boolean, ack?: boolean, url?: string, at?: number }|null}
+ */
+function findStudentRevokeEntry(source) {
+    const key = universeRevokeSourceKey(source);
+    if (!key) return null;
+    const map = readStudentRevokeMap();
+    if (map[key]) return map[key];
+    const url = String(source?.url || '').trim();
+    if (!url) return null;
+    for (const ent of Object.values(map)) {
+        if (ent && String(ent.url || '').trim() === url) return ent;
+    }
+    return null;
+}
+
+/** True when the student still must see the unpublished dialog. */
+export function hasPendingUniverseRevokePrompt(source) {
+    const ent = findStudentRevokeEntry(source);
+    return !!(ent && ent.pending === true && ent.ack !== true);
+}
+
+/** True after save / uninstall / dismiss until a successful live load clears it. */
+export function isUniverseRevokeAcknowledged(source) {
+    const ent = findStudentRevokeEntry(source);
+    return !!(ent && ent.ack === true);
+}
+
+/** Mark revoked course as waiting for student choice (survives browser close). */
+export function markUniverseRevokePending(source) {
+    const key = universeRevokeSourceKey(source);
+    if (!key) return;
+    const map = readStudentRevokeMap();
+    map[key] = {
+        pending: true,
+        ack: false,
+        url: String(source?.url || map[key]?.url || '').trim() || undefined,
+        at: Date.now(),
+    };
+    writeStudentRevokeMap(map);
+}
+
+/** Student chose save, uninstall, or dismiss — stop re-prompting until republish cycle. */
+export function acknowledgeUniverseRevoke(source) {
+    const key = universeRevokeSourceKey(source);
+    if (!key) return;
+    const map = readStudentRevokeMap();
+    const prev = map[key] || findStudentRevokeEntry(source);
+    map[key] = {
+        pending: false,
+        ack: true,
+        url: String(source?.url || prev?.url || '').trim() || undefined,
+        at: Date.now(),
+    };
+    writeStudentRevokeMap(map);
+}
+
+/** Drop local revoke UI state (uninstall, or successful live load again). */
+export function clearUniverseRevokeStudentState(source) {
+    const key = universeRevokeSourceKey(source);
+    const url = String(source?.url || '').trim();
+    if (!key && !url) return;
+    const map = readStudentRevokeMap();
+    let changed = false;
+    if (key && map[key]) {
+        delete map[key];
+        changed = true;
+    }
+    if (url) {
+        for (const k of Object.keys(map)) {
+            if (String(map[k]?.url || '').trim() === url) {
+                delete map[k];
+                changed = true;
+            }
+        }
+    }
+    if (changed) writeStudentRevokeMap(map);
+}
+
 /**
  * @param {import('../../../core/store.js').Store} store
  * @param {{
@@ -62,9 +172,11 @@ export function curriculumHasUnmaterializedLessons(raw) {
 export async function promptStudentUniverseRevoked(store, opts = {}) {
     if (!store) return null;
     const source = opts.source || null;
-    const sourceKey = String(source?.id || source?.url || 'unknown');
+    const sourceKey = universeRevokeSourceKey(source) || 'unknown';
+    if (isUniverseRevokeAcknowledged(source)) return null;
     if (store._universeRevokedPromptKey === sourceKey) return null;
     store._universeRevokedPromptKey = sourceKey;
+    markUniverseRevokePending(source);
 
     const ui = store.ui || {};
     const treeJson =
@@ -123,12 +235,20 @@ export async function promptStudentUniverseRevoked(store, opts = {}) {
         });
     }
 
+    const finishAck = () => {
+        acknowledgeUniverseRevoke(source);
+    };
+
     try {
+        /* Another dialog already owns the resolver — leave pending for a later open. */
+        if (store._dialogResolver) return null;
+
         if (!choices.length) {
             await store.alert(body, title, {
                 confirmText: ui.dialogOkButton || 'OK',
                 dialogIcon: '📭',
             });
+            finishAck();
             return 'dismiss';
         }
 
@@ -144,12 +264,16 @@ export async function promptStudentUniverseRevoked(store, opts = {}) {
                 cancelText: ui.dialogOkButton || 'OK',
                 dialogIcon: '📭',
             });
-            if (!remove) return 'dismiss';
+            if (!remove) {
+                finishAck();
+                return 'dismiss';
+            }
             try {
                 store.removeCommunitySource(source.id);
             } catch (e) {
                 console.warn('[Arborito] uninstall after revoke', e);
             }
+            clearUniverseRevokeStudentState(source);
             if (String(store.state.activeSource?.id || '') === String(source.id)) {
                 store.update({
                     activeSource: null,
@@ -185,15 +309,23 @@ export async function promptStudentUniverseRevoked(store, opts = {}) {
             dialogIcon: '📭',
             choices,
         });
-        if (!choice || choice === 'dismiss') return 'dismiss';
+        if (!choice || choice === 'dismiss') {
+            finishAck();
+            return 'dismiss';
+        }
 
         if ((choice === 'save' || choice === 'keep-garden') && hasCopy) {
-            await saveRevokedTreeToGarden(store, {
+            const saved = await saveRevokedTreeToGarden(store, {
                 treeJson,
                 source,
                 incomplete,
             });
-            return 'keep-garden';
+            if (saved) {
+                clearUniverseRevokeStudentState(source);
+                return 'keep-garden';
+            }
+            /* Name prompt cancelled — keep pending so the notice returns. */
+            return null;
         }
         if (choice === 'uninstall' && source?.id) {
             try {
@@ -201,6 +333,7 @@ export async function promptStudentUniverseRevoked(store, opts = {}) {
             } catch (e) {
                 console.warn('[Arborito] uninstall after revoke', e);
             }
+            clearUniverseRevokeStudentState(source);
             if (String(store.state.activeSource?.id || '') === String(source.id)) {
                 store.update({
                     activeSource: null,
@@ -219,6 +352,7 @@ export async function promptStudentUniverseRevoked(store, opts = {}) {
             );
             return 'uninstall';
         }
+        finishAck();
         return 'dismiss';
     } finally {
         store._universeRevokedPromptKey = null;
@@ -228,6 +362,7 @@ export async function promptStudentUniverseRevoked(store, opts = {}) {
 /**
  * @param {import('../../../core/store.js').Store} store
  * @param {{ treeJson: object, source?: object|null, incomplete?: boolean }} opts
+ * @returns {Promise<boolean>} true when a garden copy was created and opened
  */
 async function saveRevokedTreeToGarden(store, opts) {
     const ui = store.ui || {};
@@ -253,11 +388,11 @@ async function saveRevokedTreeToGarden(store, opts) {
         confirmText: ui.forkNetworkTreeCreateButton || ui.plantBranchShort || 'Create',
         cancelText: ui.cancel || 'Cancel',
     });
-    if (typed === null || typed === false) return;
+    if (typed === null || typed === false) return false;
     const name = String(typed || '').trim();
     if (!name) {
         store.notify(ui.forkNetworkTreeEmptyName || 'Please enter a name.', true);
-        return;
+        return false;
     }
 
     const busyHint = ui.forkNetworkTreeBusy || ui.treeGrowingShort || 'Creating your editable copy…';
@@ -298,12 +433,13 @@ async function saveRevokedTreeToGarden(store, opts) {
                     'Could not open your copy. Find it in My garden or try again.',
                 true
             );
-            return;
+            return false;
         }
         store.notify(
             ui.universeRevokedKeptGardenToast || 'Saved in My garden. It stays on this device only.',
             false
         );
+        return true;
     } catch (e) {
         console.warn('[Arborito] saveRevokedTreeToGarden', e);
         store.notify(
@@ -313,6 +449,7 @@ async function saveRevokedTreeToGarden(store, opts) {
             ),
             true
         );
+        return false;
     } finally {
         store.update({ treeHydrating: false, treeGrowingOverlay: false, treeGrowingHint: null });
     }

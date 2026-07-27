@@ -20,7 +20,8 @@ import { mountComposedTree } from '../../forest/api/mount-composed-tree.js';
 import { parseArboritoTreeBundle } from '../../forest/api/arborito-tree-bundle.js';
 import { importComposedTreeFromBundle } from '../../forest/api/import-composed-tree-bundle.js';
 import { refreshRemoteTreeBundleInBackground } from './remote-tree-swr-refresh.js';
-import { isUniverseRevokedError, promptStudentUniverseRevoked } from './universe-revoked.js';
+import { isUniverseRevokedError, promptStudentUniverseRevoked, hasPendingUniverseRevokePrompt } from './universe-revoked.js';
+import { isBibliotecaUiOpen } from './sources-session.js';
 
 import { DataProcessor } from '../../tree-graph/api/data-processor.js';
 import { normalizeLoadedTreeJson } from '../../tree-graph/api/tree-load-pipeline.js';
@@ -43,11 +44,6 @@ import {
 
 function nostrConnectTimeoutMs() {
     return shouldShowMobileUI() ? 20000 : 12000;
-}
-
-function isSourcesModalOpen(store) {
-    const m = store.state?.modal;
-    return !!(m && (m === 'sources' || (typeof m === 'object' && m.type === 'sources')));
 }
 
 /**
@@ -169,7 +165,7 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
     const isRemoteSource = !!(source && nextUrlEarly && !nextUrlEarly.startsWith('branch://'));
     const isCacheableRemote =
         isRemoteSource && !nextUrlEarly.startsWith('tree://');
-    const sourcesPickerOpen = isSourcesModalOpen(store);
+    const sourcesPickerOpen = isBibliotecaUiOpen(store);
     /** Keep the open tree visible while picking another from Biblioteca, avoids blank canvas on failed loads. */
     const holdCurrentTreeDuringSwitch = switchedSource && sourcesPickerOpen;
     /** Import / explicit callers set this before `loadData`; do not clear on local first mount. */
@@ -551,6 +547,22 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
             } catch {
                 /* ignore */
             }
+        }
+        if (
+            isCacheableRemote &&
+            !swrRefresh &&
+            hasPendingUniverseRevokePrompt(finalSource || source)
+        ) {
+            /* No background refresh (e.g. frozen copy): surface pending notice now. */
+            const pendingSource = finalSource || source;
+            queueMicrotask(() => {
+                if (!hasPendingUniverseRevokePrompt(pendingSource)) return;
+                void promptStudentUniverseRevoked(store, {
+                    source: pendingSource,
+                    treeJson: store.state.rawGraphData,
+                    keepViewingCached: true,
+                });
+            });
         }
         if (swrRefresh) {
             void refreshRemoteTreeBundleInBackground(store, swrRefresh.source, {
