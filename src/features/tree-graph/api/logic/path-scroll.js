@@ -3,7 +3,11 @@
  * Uses React host refs (no graph engine).
  */
 import { layoutOffsetTop } from './path-geometry.js';
-import { isTrunkUserGesturing } from './trunk-scroll-gesture.js';
+import {
+    isTrunkUserGesturing,
+    beginProgrammaticTrunkScroll,
+    endProgrammaticTrunkScroll,
+} from './trunk-scroll-gesture.js';
 
 /** Root clover SVG bleeds below its layout box (translateY + lobes + glow). */
 export const ROOT_KNOT_VISUAL_OVERFLOW_PX = 28;
@@ -101,6 +105,17 @@ function computeActiveBranchScroll(hosts) {
     return scroll;
 }
 
+function writeTrunkScrollTop(container, scrollTop, lockRef) {
+    beginProgrammaticTrunkScroll();
+    try {
+        lockRef.current = true;
+        container.scrollTop = scrollTop;
+        lockRef.current = false;
+    } finally {
+        endProgrammaticTrunkScroll();
+    }
+}
+
 function applyBranchScrollWithGroundedRoot(hosts, branchScroll, lockRef) {
     const container = hosts.trunkContainer;
     const sc = hosts.scrollContent;
@@ -114,9 +129,7 @@ function applyBranchScrollWithGroundedRoot(hosts, branchScroll, lockRef) {
             scroll = Math.min(branchScroll, groundCap);
         }
     }
-    lockRef.current = true;
-    container.scrollTop = scroll;
-    lockRef.current = false;
+    writeTrunkScrollTop(container, scroll, lockRef);
 }
 
 function scrollMobileTrunkToRootBottom(hosts, lockRef) {
@@ -126,9 +139,7 @@ function scrollMobileTrunkToRootBottom(hosts, lockRef) {
     if (!container || !sc || !rootWrap) return;
     const maxScroll = effectiveMaxTrunkScrollTop(hosts, container, sc, rootWrap);
     if (maxScroll != null) {
-        lockRef.current = true;
-        container.scrollTop = maxScroll;
-        lockRef.current = false;
+        writeTrunkScrollTop(container, maxScroll, lockRef);
     }
 }
 
@@ -166,8 +177,13 @@ export function clampMobileTrunkScrollForVisibleRoot(hosts, lockRef = { current:
     if (container.scrollTop <= groundCap) return;
 
     lockRef.current = true;
-    container.scrollTop = groundCap;
-    lockRef.current = false;
+    beginProgrammaticTrunkScroll();
+    try {
+        container.scrollTop = groundCap;
+    } finally {
+        endProgrammaticTrunkScroll();
+        lockRef.current = false;
+    }
 }
 
 /** @param {object} hosts @param {object[]} pathNodes @param {{ current: boolean }} lockRef */

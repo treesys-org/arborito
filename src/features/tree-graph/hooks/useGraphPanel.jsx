@@ -7,7 +7,6 @@ import {
     regroundMobileTrunkScroll,
 } from '../api/logic/path-scroll.js';
 import {
-    markTrunkGestureStart,
     markTrunkGestureMove,
     markTrunkGestureScroll,
     markTrunkGestureEnd,
@@ -236,9 +235,9 @@ export function useGraphPanel(rootRef, opts = {}) {
             root.querySelector('#mobile-trunk-container') ||
             document.getElementById('mobile-trunk-container');
         const trunkTouchOpts = { passive: true, capture: true };
-        /* Momentum only — ground clamp runs on layout/path sync, not every scroll frame. */
+        /* Momentum / drag only — never arm on touchstart (Back/row taps used to mark
+         * gesturing and skip path syncScroll, then the next pan felt dead). */
         const onTrunkScroll = () => markTrunkGestureScroll();
-        const onTrunkTouchStart = () => markTrunkGestureStart();
         const onTrunkTouchMove = () => markTrunkGestureMove();
         const onTrunkTouchEnd = () => markTrunkGestureEnd();
         const onTrunkTouchCancel = () => markTrunkGestureEnd();
@@ -263,7 +262,6 @@ export function useGraphPanel(rootRef, opts = {}) {
         window.addEventListener('arborito-construction-scope-changed', onConstructionScopeChanged);
         if (trunkContainer) {
             trunkContainer.addEventListener('scroll', onTrunkScroll, { passive: true });
-            trunkContainer.addEventListener('touchstart', onTrunkTouchStart, trunkTouchOpts);
             trunkContainer.addEventListener('touchmove', onTrunkTouchMove, trunkTouchOpts);
             trunkContainer.addEventListener('touchend', onTrunkTouchEnd, trunkTouchOpts);
             trunkContainer.addEventListener('touchcancel', onTrunkTouchCancel, trunkTouchOpts);
@@ -284,7 +282,6 @@ export function useGraphPanel(rootRef, opts = {}) {
             window.removeEventListener('arborito-construction-scope-changed', onConstructionScopeChanged);
             if (trunkContainer) {
                 trunkContainer.removeEventListener('scroll', onTrunkScroll);
-                trunkContainer.removeEventListener('touchstart', onTrunkTouchStart, trunkTouchOpts);
                 trunkContainer.removeEventListener('touchmove', onTrunkTouchMove, trunkTouchOpts);
                 trunkContainer.removeEventListener('touchend', onTrunkTouchEnd, trunkTouchOpts);
                 trunkContainer.removeEventListener('touchcancel', onTrunkTouchCancel, trunkTouchOpts);

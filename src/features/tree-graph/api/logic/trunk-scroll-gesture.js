@@ -1,6 +1,8 @@
-/** True while the user is actively touching/dragging the mobile tree trunk. */
+/** True while the user is actively dragging/momentum-scrolling the mobile tree trunk. */
 let userGesturing = false;
 let gestureEndTimer = 0;
+/** >0 while path sync / clamp writes scrollTop — those must not look like finger pans. */
+let programmaticScrollDepth = 0;
 
 /* Long enough to cover momentum on tall trunks (Linux-sized paths). */
 const GESTURE_COOLDOWN_MS = 320;
@@ -17,12 +19,18 @@ export function isTrunkUserGesturing() {
     return userGesturing;
 }
 
-export function markTrunkGestureStart() {
-    userGesturing = true;
-    if (gestureEndTimer) {
-        clearTimeout(gestureEndTimer);
-        gestureEndTimer = 0;
-    }
+/**
+ * Wrap programmatic trunk scrollTop writes so the scroll listener does not
+ * treat them as a finger pan (that used to skip the next path sync after Back).
+ */
+export function beginProgrammaticTrunkScroll() {
+    programmaticScrollDepth += 1;
+}
+
+export function endProgrammaticTrunkScroll() {
+    queueMicrotask(() => {
+        programmaticScrollDepth = Math.max(0, programmaticScrollDepth - 1);
+    });
 }
 
 /** Keep gesture alive during an active finger drag (capture-phase touchmove). */
@@ -36,6 +44,7 @@ export function markTrunkGestureMove() {
 
 /** Keep clamps suppressed while momentum scroll continues after touchend. */
 export function markTrunkGestureScroll() {
+    if (programmaticScrollDepth > 0) return;
     userGesturing = true;
     armGestureCooldown();
 }

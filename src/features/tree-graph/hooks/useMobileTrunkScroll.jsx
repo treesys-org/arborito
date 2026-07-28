@@ -5,7 +5,7 @@ import {
     resolveScrollHosts,
     clampMobileTrunkScrollForVisibleRoot,
 } from '../api/logic/path-scroll.js';
-import { isTrunkUserGesturing } from '../api/logic/trunk-scroll-gesture.js';
+import { isTrunkUserGesturing, beginProgrammaticTrunkScroll, endProgrammaticTrunkScroll } from '../api/logic/trunk-scroll-gesture.js';
 
 /**
  * Apply trunk scroll policy after React commits tree layout.
@@ -33,7 +33,12 @@ export function useMobileTrunkScroll({ model, scroll, hostRefs }) {
             Number.isFinite(scroll.preserveTrunkScroll) &&
             !isTrunkUserGesturing()
         ) {
-            trunkContainer.scrollTop = scroll.preserveTrunkScroll;
+            beginProgrammaticTrunkScroll();
+            try {
+                trunkContainer.scrollTop = scroll.preserveTrunkScroll;
+            } finally {
+                endProgrammaticTrunkScroll();
+            }
         }
 
         let raf1 = 0;
