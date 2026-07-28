@@ -50,10 +50,15 @@
   "gardenVitalitySeedling": "Seedling",
   "gardenVitalityWarm": "Warm",
   "streak": "Streak",
-  "streakHint": "Consecutive days you studied (XP or care review)",
+  "streakDays": "{n} days",
+  "streakHint": "Earn lumens or do a care review today to keep your streak",
+  "streakHintDone": "Today already counts. Study again tomorrow to add another day",
   "streakKept": "Streak Kept!",
   "streakShieldEarned": "Leaf shield earned! It protects one missed day.",
   "streakShieldHint": "Protects one missed day",
   "streakShieldLabel": "Leaf shield",
-  "streakShieldUsed": "A leaf shield saved your streak 🍃"
+  "streakShieldUsed": "A leaf shield saved your streak 🍃",
+  "streakTodayDone": "Streak done",
+  "streakTodayPending": "Streak due"
 }
+

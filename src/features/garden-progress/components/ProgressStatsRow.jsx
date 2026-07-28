@@ -1,21 +1,58 @@
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
+import { localDateKey } from '../../../core/user-store/date-key.js';
 
 /** Streak, shield, lumens, and arcade score under the progress ring. */
 export function ProgressStatsRow({ g, ui, lumensBalance, shieldCount }) {
     const arcadeScore = Math.max(0, Number(g?.arcadeScore) || 0);
+    const studiedToday = Boolean(g?.lastStudyDate) && g.lastStudyDate === localDateKey();
+    const streakTip = studiedToday
+        ? ui.streakHintDone ||
+          'Today already counts. Study again tomorrow to add another day.'
+        : ui.streakHint ||
+          'Earn lumens or do a care review today to keep your streak.';
+    const streakDays = Number(g?.streak) || 0;
+    const streakValue = (ui.streakDays || '{n} days').replace(/\{n\}/g, String(streakDays));
+    const streakLabel = studiedToday
+        ? ui.streakTodayDone || 'Streak done'
+        : ui.streakTodayPending || 'Streak due';
+    const streakStateClass = studiedToday
+        ? ' mochila-v2__trail-item--streak-done'
+        : ' mochila-v2__trail-item--streak-pending';
     return (
         <>
         <div className="mochila-v2__trail" role="list">
             <div
-                className="mochila-v2__trail-item mochila-v2__trail-item--water"
+                className={`mochila-v2__trail-item mochila-v2__trail-item--water${streakStateClass}`}
                 role="listitem"
-                data-arbor-tip={ui.streakHint || 'Consecutive days watering your tree'}
+                data-arbor-tip={streakTip}
+                aria-label={`${streakValue}. ${streakLabel}. ${streakTip}`}
             >
-                <span className="mochila-v2__trail-ic" aria-hidden="true">
+                <span
+                    className={`mochila-v2__trail-ic${studiedToday ? ' mochila-v2__trail-ic--streak-ok' : ''}`}
+                    aria-hidden="true"
+                >
                     <ChromeEmoji emoji="💧" size={20} />
+                    {studiedToday ? (
+                        <svg
+                            className="mochila-v2__trail-check"
+                            viewBox="0 0 16 16"
+                            width="12"
+                            height="12"
+                            focusable="false"
+                        >
+                            <path
+                                d="M3.2 8.2 6.4 11.4 12.8 4.6"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+                    ) : null}
                 </span>
-                <span className="mochila-v2__trail-val">{g.streak}</span>
-                <span className="mochila-v2__trail-lb">{ui.streak || 'Racha'}</span>
+                <span className="mochila-v2__trail-val">{streakValue}</span>
+                <span className="mochila-v2__trail-lb">{streakLabel}</span>
             </div>
             <div
                 className={`mochila-v2__trail-item mochila-v2__trail-item--shield${shieldCount > 0 ? '' : ' mochila-v2__trail-item--dim'}`}

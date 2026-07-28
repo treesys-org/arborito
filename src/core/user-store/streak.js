@@ -1,4 +1,4 @@
-import { localDateKey } from './date-key.js';
+import { localDateKey, shiftLocalDateKey } from './date-key.js';
 import { STREAK_SHIELD_MAX } from '../../features/garden-progress/api/lumen-shop.js';
 
 export const streakMixin = {
@@ -21,11 +21,14 @@ export const streakMixin = {
             const diffDays = Math.round(Math.abs(now - last) / (1000 * 60 * 60 * 24));
 
             if (diffDays > 1) {
-                if (streakShields > 0) {
+                const missedDays = diffDays - 1;
+                if (streak > 0 && streakShields >= missedDays) {
+                    // Treat covered misses as studied so the next real study day continues.
                     this.updateGamification({
                         lastLoginDate: today,
+                        lastStudyDate: shiftLocalDateKey(today, -1),
                         dailyXP: 0,
-                        streakShields: streakShields - 1,
+                        streakShields: streakShields - missedDays,
                     });
                     result = this.getUi().streakShieldUsed || this.getUi().streakKept;
                 } else if (streak > 0) {
