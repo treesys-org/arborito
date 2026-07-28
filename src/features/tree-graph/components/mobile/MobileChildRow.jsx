@@ -145,15 +145,11 @@ export function MobileChildRow({ child, ctx }) {
     const onMobileRowTap = (e) => {
         const t = e?.target instanceof Element ? e.target : null;
         if (t) {
+            /* Nested controls: bindMobileTap skips host activation; synthetic click wins. */
             const nested = t.closest(
-                '.mobile-child-icon-btn, .mobile-child-rename-btn, .mobile-inline-tools, .mobile-inline-tools-host, .mobile-child-name-input'
+                '.mobile-child-icon-btn, .mobile-child-rename-btn, .mobile-inline-tools, .mobile-inline-tools-host, .mobile-child-name-input, button, input, textarea'
             );
-            if (nested) {
-                if (nested.matches('input, textarea')) return;
-                const btn = nested.closest('button');
-                if (btn && btn !== rowRef.current) btn.click();
-                return;
-            }
+            if (nested && nested !== rowRef.current) return;
         }
         onRowActivate(e);
     };

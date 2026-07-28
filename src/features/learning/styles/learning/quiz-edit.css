@@ -26,7 +26,7 @@ html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area button,
 html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area [role="button"],
 html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area .arborito-tap-target,
 html:not(.arborito-desktop) .arborito-lesson-mobile-body #content-area a {
-    touch-action: pan-y;
+    touch-action: pan-y !important;
 }
 
 .arborito-lesson-prose-frame--construct #lesson-visual-editor > .arborito-quiz-edit,

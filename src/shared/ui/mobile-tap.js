@@ -63,7 +63,13 @@ export function bindMobileTap(el, handler, opts = {}) {
      * the click, symptom: "trees won't install on mobile when tapping". */
     const stateKey = '__arboritoTapState';
     if (!el[stateKey]) {
-        el[stateKey] = { touchStartX: 0, touchStartY: 0, lastTouchFireAt: 0, hasStart: false };
+        el[stateKey] = {
+            touchStartX: 0,
+            touchStartY: 0,
+            lastTouchFireAt: 0,
+            hasStart: false,
+            moved: false,
+        };
     }
     const state = el[stateKey];
 
@@ -73,6 +79,7 @@ export function bindMobileTap(el, handler, opts = {}) {
         state.touchStartX = t.clientX;
         state.touchStartY = t.clientY;
         state.hasStart = true;
+        state.moved = false;
         /* Survive React remount mid-gesture (graph-update / virtualization): stash by touch id. */
         try {
             const bag = (globalThis.__arboritoTapById = globalThis.__arboritoTapById || new Map());
@@ -82,12 +89,22 @@ export function bindMobileTap(el, handler, opts = {}) {
         }
     };
 
+    const onTouchMove = (e) => {
+        if (!state.hasStart || state.moved) return;
+        const t = e.touches ? e.touches[0] : undefined;
+        if (!t) return;
+        if (Math.abs(t.clientX - state.touchStartX) > slopPx || Math.abs(t.clientY - state.touchStartY) > slopPx) {
+            state.moved = true;
+        }
+    };
+
     const onTouchEnd = (e) => {
         if (!(e.changedTouches && e.changedTouches.length)) return;
         const t = e.changedTouches[0];
         let sx = state.touchStartX;
         let sy = state.touchStartY;
         let hadStart = !!state.hasStart;
+        const wasMoved = !!state.moved;
         if (!hadStart) {
             try {
                 const bag = globalThis.__arboritoTapById;
@@ -107,21 +124,36 @@ export function bindMobileTap(el, handler, opts = {}) {
             /* noop */
         }
         state.hasStart = false;
+        state.moved = false;
         /* No start on this node and no stashed coords (remount / rewired listeners) → drop. */
         if (!hadStart) return;
+        /* Finger dragged (scroll / pan) — never treat as tap. */
+        if (wasMoved) return;
         if (Math.abs(t.clientX - sx) > slopPx || Math.abs(t.clientY - sy) > slopPx) {
             return;
         }
+        /*
+         * Nested button/input/link: let that control receive the synthetic click.
+         * Do not fire the host handler and do not btn.click() from here — that used
+         * to pair with touchend preventDefault and double-fired after we stopped PD.
+         */
         try {
-            e.preventDefault();
+            const target = e.target instanceof Element ? e.target : null;
+            if (target && target !== el) {
+                const nested = target.closest(
+                    'button, a, input, textarea, select, label, [data-arborito-nested-tap]'
+                );
+                if (nested && nested !== el && el.contains(nested)) return;
+            }
         } catch {
             /* noop */
         }
-        try {
-            if (typeof e.stopPropagation === 'function') e.stopPropagation();
-        } catch {
-            /* noop */
-        }
+        /*
+         * Do NOT preventDefault on touchend. On mobile WebKit that poisons the
+         * nearest overflow scroller (mobile trunk / lesson body): the next 1–2
+         * finger-drags fail until a later gesture "wakes" pan-y again.
+         * Ghost click is suppressed via lastTouchFireAt in onClick instead.
+         */
         state.lastTouchFireAt = Date.now();
         handler(e);
     };
@@ -139,13 +171,16 @@ export function bindMobileTap(el, handler, opts = {}) {
     };
 
     el.addEventListener('touchstart', onTouchStart, { passive: true });
-    el.addEventListener('touchend', onTouchEnd, { passive: false });
+    el.addEventListener('touchmove', onTouchMove, { passive: true });
+    /* passive: true — never call preventDefault; keeps trunk pan-y reliable */
+    el.addEventListener('touchend', onTouchEnd, { passive: true });
     el.addEventListener('click', onClick);
     el.addEventListener('keydown', onKeydown);
 
     return () => {
-        el.removeEventListener('touchstart', onTouchStart, { passive: true });
-        el.removeEventListener('touchend', onTouchEnd, { passive: false });
+        el.removeEventListener('touchstart', onTouchStart);
+        el.removeEventListener('touchmove', onTouchMove);
+        el.removeEventListener('touchend', onTouchEnd);
         el.removeEventListener('click', onClick);
         el.removeEventListener('keydown', onKeydown);
     };
@@ -187,11 +222,7 @@ export function addScrollSafeClickDelegation(root, handler) {
             return;
         }
         if (!el || !root.contains(el)) return;
-        try {
-            e.preventDefault();
-        } catch {
-            /* noop */
-        }
+        /* No preventDefault on touchend — WebKit trunk/lesson scroll poison. */
         lastTouchHandledAt = Date.now();
         handler({
             target: el,
@@ -215,7 +246,7 @@ export function addScrollSafeClickDelegation(root, handler) {
     };
 
     root.addEventListener('touchstart', onTouchStart, { passive: true });
-    root.addEventListener('touchend', onTouchEnd, { passive: false });
+    root.addEventListener('touchend', onTouchEnd, { passive: true });
     root.addEventListener('click', onClick);
 
     return () => {

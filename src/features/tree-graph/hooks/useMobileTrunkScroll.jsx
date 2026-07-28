@@ -16,6 +16,8 @@ export function useMobileTrunkScroll({ model, scroll, hostRefs }) {
 
     useLayoutEffect(() => {
         if (!model?.pathNodes?.length || !scroll) return undefined;
+        /* Never rewrite scrollTop under an active finger — feels like pan "doesn't work". */
+        if (isTrunkUserGesturing()) return undefined;
         const lessonOpen =
             typeof document !== 'undefined' &&
             document.documentElement.classList.contains('arborito-lesson-open');
@@ -25,7 +27,12 @@ export function useMobileTrunkScroll({ model, scroll, hostRefs }) {
 
         const hosts = resolveScrollHosts(hostRefs);
         const trunkContainer = hosts.trunkContainer;
-        if (trunkContainer && scroll.preserveTrunkScroll != null && Number.isFinite(scroll.preserveTrunkScroll)) {
+        if (
+            trunkContainer &&
+            scroll.preserveTrunkScroll != null &&
+            Number.isFinite(scroll.preserveTrunkScroll) &&
+            !isTrunkUserGesturing()
+        ) {
             trunkContainer.scrollTop = scroll.preserveTrunkScroll;
         }
 

@@ -1,7 +1,7 @@
 /* Visual Specs from VISUAL_SPEC.md */
 .graph-container { width: 100%; height: 100%; overflow: hidden; position: relative; touch-action: auto; cursor: default; }
 /* Scroll + taps on mobile trunk: explicit class (more reliable than :has on mobile WebKit). */
-.graph-container.graph-container--mobile-tree-active { touch-action: pan-y; cursor: default; }
+.graph-container.graph-container--mobile-tree-active { touch-action: pan-y !important; cursor: default; }
 
 /* Graph canvas background mirrors body gradient from foundation/tokens.css for visual consistency. */
 .bg-sky {
@@ -302,7 +302,8 @@ html:not(.dark) .mobile-panel-cta--arcade, html:not(.dark) .mobile-path-cta--arc
     -webkit-tap-highlight-color: transparent;
 }
 /* Trunk scroll: pan-y on every hit target so the first vertical swipe scrolls
- * (foundation forces manipulation on button/[role=button] and steals the first pan). */
+ * (foundation forces manipulation on button/[role=button] and steals the first pan).
+ * !important beats late utilities / construction chrome that re-apply manipulation. */
 .mobile-trunk-container,
 .mobile-trunk-container button,
 .mobile-trunk-container [role="button"],
@@ -315,7 +316,7 @@ html:not(.dark) .mobile-panel-cta--arcade, html:not(.dark) .mobile-path-cta--arc
 .mobile-trunk-container .mobile-child-rename-btn,
 .mobile-trunk-container .mobile-inline-tool,
 .mobile-trunk-container .mobile-inline-tools-host button {
-    touch-action: pan-y;
+    touch-action: pan-y !important;
 }
 .mobile-child-knot.tone-exam .mobile-child-icon-btn .mobile-child-icon { display: block; transform: rotate(-45deg); }
 

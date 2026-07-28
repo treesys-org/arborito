@@ -235,7 +235,12 @@ export function useGraphPanel(rootRef, opts = {}) {
         const onEmojiReady = () => store.bumpGraphUiRevision();
         const onConstructionScopeChanged = () => store.bumpGraphUiRevision();
 
-        const trunkContainer = optsRef.current.hostRefs?.trunkContainer?.current;
+        /* Prefer ref; fall back to id so gesture tracking always arms (layout clamps
+         * otherwise fight the first finger pans when the ref was null at mount). */
+        const trunkContainer =
+            optsRef.current.hostRefs?.trunkContainer?.current ||
+            root.querySelector('#mobile-trunk-container') ||
+            document.getElementById('mobile-trunk-container');
         const trunkTouchOpts = { passive: true, capture: true };
         const onTrunkScroll = () => {
             markTrunkGestureScroll();
@@ -265,11 +270,13 @@ export function useGraphPanel(rootRef, opts = {}) {
         window.addEventListener('arborito-viewport', onViewport);
         window.addEventListener('arborito-emoji-ready', onEmojiReady);
         window.addEventListener('arborito-construction-scope-changed', onConstructionScopeChanged);
-        trunkContainer?.addEventListener('scroll', onTrunkScroll, { passive: true });
-        trunkContainer?.addEventListener('touchstart', onTrunkTouchStart, trunkTouchOpts);
-        trunkContainer?.addEventListener('touchmove', onTrunkTouchMove, trunkTouchOpts);
-        trunkContainer?.addEventListener('touchend', onTrunkTouchEnd, trunkTouchOpts);
-        trunkContainer?.addEventListener('touchcancel', onTrunkTouchCancel, trunkTouchOpts);
+        if (trunkContainer) {
+            trunkContainer.addEventListener('scroll', onTrunkScroll, { passive: true });
+            trunkContainer.addEventListener('touchstart', onTrunkTouchStart, trunkTouchOpts);
+            trunkContainer.addEventListener('touchmove', onTrunkTouchMove, trunkTouchOpts);
+            trunkContainer.addEventListener('touchend', onTrunkTouchEnd, trunkTouchOpts);
+            trunkContainer.addEventListener('touchcancel', onTrunkTouchCancel, trunkTouchOpts);
+        }
 
         return () => {
             store.removeEventListener('state-change', onStateChange);
@@ -284,11 +291,13 @@ export function useGraphPanel(rootRef, opts = {}) {
             window.removeEventListener('arborito-viewport', onViewport);
             window.removeEventListener('arborito-emoji-ready', onEmojiReady);
             window.removeEventListener('arborito-construction-scope-changed', onConstructionScopeChanged);
-            trunkContainer?.removeEventListener('scroll', onTrunkScroll);
-            trunkContainer?.removeEventListener('touchstart', onTrunkTouchStart, trunkTouchOpts);
-            trunkContainer?.removeEventListener('touchmove', onTrunkTouchMove, trunkTouchOpts);
-            trunkContainer?.removeEventListener('touchend', onTrunkTouchEnd, trunkTouchOpts);
-            trunkContainer?.removeEventListener('touchcancel', onTrunkTouchCancel, trunkTouchOpts);
+            if (trunkContainer) {
+                trunkContainer.removeEventListener('scroll', onTrunkScroll);
+                trunkContainer.removeEventListener('touchstart', onTrunkTouchStart, trunkTouchOpts);
+                trunkContainer.removeEventListener('touchmove', onTrunkTouchMove, trunkTouchOpts);
+                trunkContainer.removeEventListener('touchend', onTrunkTouchEnd, trunkTouchOpts);
+                trunkContainer.removeEventListener('touchcancel', onTrunkTouchCancel, trunkTouchOpts);
+            }
             if (onResize._timer) clearTimeout(onResize._timer);
             unlinkPanelDom(root);
             unregisterPanelRef('graph');

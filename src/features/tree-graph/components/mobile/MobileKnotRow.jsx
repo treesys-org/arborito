@@ -222,12 +222,11 @@ export function MobilePathLabelRow({ node, index, pathNodes, leadsToOpened = fal
         const t = ev?.target instanceof Element ? ev.target : null;
         if (t && isVersionSwitcherTarget(t)) return;
         if (t) {
-            const nested = t.closest('.mobile-inline-tools, .mobile-inline-tools-host');
-            if (nested) {
-                const btn = nested.closest('button') || t.closest('button');
-                if (btn && btn !== rowRef.current) btn.click();
-                return;
-            }
+            /* Nested tools: bindMobileTap skips host; let the control's own click fire. */
+            const nested = t.closest(
+                '.mobile-inline-tools, .mobile-inline-tools-host, button, input, textarea'
+            );
+            if (nested && nested !== rowRef.current) return;
         }
         onRowClick(ev);
     };
