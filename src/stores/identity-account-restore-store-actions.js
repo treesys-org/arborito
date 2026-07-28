@@ -214,6 +214,8 @@ export async function loadInstalledSourcesFromAccountAction(username) {
                 try {
                     const res = store.sourceManager.addCommunitySource(null, {
                         resolvedNostrTreeUrl: url,
+                        codeLabel: src.shareCode || null,
+                        contentKind: src.contentKind || undefined,
                         listMeta: {
                             title: src.name || src.title || '',
                             titles: src.titles,
@@ -222,6 +224,7 @@ export async function loadInstalledSourcesFromAccountAction(username) {
                             descriptions: src.descriptions,
                             languages: Array.isArray(src.languages) ? src.languages : undefined,
                             icon: String(src.icon || '').trim() || undefined,
+                            contentKind: src.contentKind || undefined,
                         },
                         recommendedRelays: Array.isArray(src.recommendedRelays) ? src.recommendedRelays : []
                     });
@@ -258,6 +261,10 @@ export function publishInstalledSourcesForAccountAction(opts = {}) {
                     }
                     const liveName = String(store._authSession?.username || '').trim();
                     if (!liveName || liveName !== name) return;
+                    const net = await getConnectedNostr(store);
+                    if (!net || typeof net.putUserSourcesPacked !== 'function') {
+                        throw new Error('putUserSourcesPacked required for sources sync');
+                    }
                     const pair = await store.ensureNetworkUserPair();
                     if (!(pair && pair.pub)) return;
                     const g = store.userStore?.state?.gamification || {};
@@ -273,6 +280,8 @@ export function publishInstalledSourcesForAccountAction(opts = {}) {
                             descriptions: s.descriptions,
                             languages: Array.isArray(s.languages) ? s.languages : undefined,
                             icon: s.icon || undefined,
+                            shareCode: s.shareCode || undefined,
+                            contentKind: s.contentKind || undefined,
                             recommendedRelays: Array.isArray(s.recommendedRelays) ? s.recommendedRelays : []
                         }));
                     let activeUrl = resolveAccountActiveSourceUrl(store);
@@ -297,10 +306,7 @@ export function publishInstalledSourcesForAccountAction(opts = {}) {
                         activeSourceUrl: activeUrl,
                         updatedAt: new Date().toISOString()
                     };
-                    if (typeof store.nostr.putUserSourcesPacked !== 'function') {
-                        throw new Error('putUserSourcesPacked required for sources sync');
-                    }
-                    await store.nostr.putUserSourcesPacked({ username: name, pair, data: body });
+                    await net.putUserSourcesPacked({ username: name, pair, data: body });
                 } catch (e) {
                     console.warn('Installed sources publish failed', e);
                 }

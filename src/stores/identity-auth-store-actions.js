@@ -275,20 +275,20 @@ export async function _finalizeSyncLoginSessionAction(name, opts = {}) {
             } catch (e) {
                 console.warn('[arborito] installed sources restore failed', e);
             }
+            /*
+             * Push this device's saved network courses (share-code / Install) up to the
+             * account after pull — otherwise a course added while briefly offline or
+             * before session finalize never reaches other devices.
+             */
+            try {
+                store.publishInstalledSourcesForAccount?.({ immediate: true });
+            } catch (e) {
+                console.warn('[arborito] installed sources publish after restore failed', e);
+            }
             try {
                 await store.loadPrivateTreesFromAccount?.(name);
             } catch (e) {
                 console.warn('[arborito] private trees restore failed', e);
-            }
-            /*
-             * After pull: upload any local garden branches not yet on the account.
-             * Fixes "course only on phone" when import sync was skipped / failed.
-             * Pull-first keeps other devices from being overwritten by empty local state.
-             */
-            try {
-                await store.syncAllLocalPrivateBranchesToAccount?.({ silent: true });
-            } catch (e) {
-                console.warn('[arborito] push local private branches after restore failed', e);
             }
             try {
                 await store.loadOwnedTreesFromDirectory?.(name);

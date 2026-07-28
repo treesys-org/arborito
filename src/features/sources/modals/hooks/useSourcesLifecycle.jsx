@@ -94,21 +94,31 @@ export function useSourcesLifecycle({ embed, bump, setMainTab, setActiveTab, set
             });
         });
 
-        /* Pull account drafts, then push unsynced local branches (phone→account). */
+        /* Re-pull account-saved network courses when opening Fuentes. */
         const signedInName = String(store._authSession?.username || '').trim();
-        if (signedInName && typeof store.loadPrivateTreesFromAccount === 'function') {
+        if (signedInName) {
             void (async () => {
                 try {
                     await warmNostrRelayConnections(store, { probe: false }).catch(() => null);
-                    await store.loadPrivateTreesFromAccount(signedInName, { retry: false });
                     try {
-                        await store.syncAllLocalPrivateBranchesToAccount?.({ silent: true });
+                        await store.loadInstalledSourcesFromAccount?.(signedInName);
                     } catch (e) {
-                        console.warn('[Arborito] Fuentes local private push failed', e);
+                        console.warn('[Arborito] Fuentes installed-sources refresh failed', e);
+                    }
+                    try {
+                        await store.loadPrivateTreesFromAccount?.(signedInName, { retry: false });
+                    } catch (e) {
+                        console.warn('[Arborito] Fuentes private-trees refresh failed', e);
+                    }
+                    /* Merge this device's saved network courses up to the account (share-code installs). */
+                    try {
+                        store.publishInstalledSourcesForAccount?.({ immediate: true });
+                    } catch {
+                        /* ignore */
                     }
                     bump();
                 } catch (e) {
-                    console.warn('[Arborito] Fuentes private-trees refresh failed', e);
+                    console.warn('[Arborito] Fuentes account sources refresh failed', e);
                 }
             })();
         }
