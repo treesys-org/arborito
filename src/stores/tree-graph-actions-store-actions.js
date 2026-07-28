@@ -15,7 +15,6 @@ import { _ensureSnapshotsAdminLoaded } from '../features/version-updates/api/sna
 import { getVersionPresentation, switcherShowsVersionTab } from '../features/version-updates/api/version-switch-logic.js';
 import { fileSystem } from '../features/backup-export/api/filesystem.js';
 import { hasOtherTreeSwitcherSource } from '../features/tree-graph/api/logic/curriculum-switcher-list.js';
-import { armPostClosePointerGuard } from './shell-dialog-lifecycle.js';
 
 function shell() {
     return getArboritoStore();
@@ -149,9 +148,12 @@ export function navigateIntoChildAction(childId) {
     if (!store) return undefined;
     const path = graphUiOf(store).mobilePath || [];
     const next = [...path.map(String), String(childId)];
-    store.navigateMobilePath(next);
-    store.bumpGraphUiRevision();
-    schedulePersistTreeUiState(store);
+    /* Defer past touchend — same WebKit trunk pan poison as panel Back. */
+    setTimeout(() => {
+        store.navigateMobilePath(next);
+        store.bumpGraphUiRevision();
+        schedulePersistTreeUiState(store);
+    }, 0);
 }
 
 export function navigatePanelBackAction() {
@@ -159,11 +161,13 @@ export function navigatePanelBackAction() {
     if (!store) return undefined;
     const path = graphUiOf(store).mobilePath || [];
     if (path.length <= 1) return;
-    /* Ghost click only: Back touchend remounts the panel; synthetic click can hit
-     * the adjacent branch/version chip. Same pattern as lesson close. */
-    armPostClosePointerGuard(550);
-    store.navigateMobilePath(path.slice(0, -1));
-    store.bumpGraphUiRevision();
+    /* Defer past the touchend turn: remounting the trunk scroller inside touchend
+     * leaves mobile WebKit pan-y dead (needs later finger-drags). */
+    const next = path.slice(0, -1);
+    setTimeout(() => {
+        store.navigateMobilePath(next);
+        store.bumpGraphUiRevision();
+    }, 0);
 }
 
 /** @param {string|null} rootEl pass graph panel root for curriculum events */

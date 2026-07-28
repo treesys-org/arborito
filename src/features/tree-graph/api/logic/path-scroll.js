@@ -186,6 +186,25 @@ export function clampMobileTrunkScrollForVisibleRoot(hosts, lockRef = { current:
     }
 }
 
+/**
+ * After path remount / programmatic scrollTop, force WebKit to rebuild the
+ * overflow scroll layer (otherwise the next finger pan often no-ops).
+ */
+export function wakeTrunkOverflowScroller(container) {
+    if (!container || typeof container.scrollTop !== 'number') return;
+    const y = container.scrollTop;
+    beginProgrammaticTrunkScroll();
+    try {
+        const prev = container.style.overflowY;
+        container.style.overflowY = 'hidden';
+        void container.offsetHeight;
+        container.style.overflowY = prev || '';
+        container.scrollTop = y;
+    } finally {
+        endProgrammaticTrunkScroll();
+    }
+}
+
 /** @param {object} hosts @param {object[]} pathNodes @param {{ current: boolean }} lockRef */
 export function syncMobilePathScroll(hosts, pathNodes, lockRef = { current: false }) {
     if (!Array.isArray(pathNodes) || !pathNodes.length) return;
@@ -196,6 +215,7 @@ export function syncMobilePathScroll(hosts, pathNodes, lockRef = { current: fals
         scrollMobilePathToActiveBranch(hosts, lockRef);
     }
     clampMobileTrunkScrollForVisibleRoot(hosts, lockRef);
+    wakeTrunkOverflowScroller(hosts.trunkContainer);
 }
 
 export const syncPathScroll = syncMobilePathScroll;

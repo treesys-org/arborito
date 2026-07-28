@@ -33,7 +33,9 @@ function isVersionSwitcherTarget(target) {
 function navigateToPathIndex(tree, constructionMode, index) {
     const path = getMobilePath();
     if (constructionMode && !canConstructionNavigateToPathIndex({ mobilePath: path }, index)) return;
-    tree.navigateMobilePath(path.slice(0, index + 1));
+    const next = path.slice(0, index + 1);
+    /* Defer past touchend so trunk remount does not kill WebKit pan-y. */
+    setTimeout(() => tree.navigateMobilePath(next), 0);
 }
 
 function selectConstructionNode(tree, node) {

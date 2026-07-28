@@ -1,27 +1,23 @@
 import { useTreeGraph } from '../../hooks/useTreeGraph.js';
 import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
 import { ModalBackChevronIcon } from '../../../../app/components/ModalHero.jsx';
-import { useBindMobileTapRef } from '../../../../shared/ui/useBindMobileTap.js';
-import { shouldShowMobileUI } from '../../../../shared/ui/breakpoints.js';
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 import { resolveBranchPanelIcon } from '../../api/logic/graph-mobile-panel-helpers.js';
 import { isFolderAchievementEarned } from '../../../garden-progress/api/achievement-folder-status.js';
 
 export function PanelBackButton({ ui, showBack, onBack }) {
-    const mobile = shouldShowMobileUI();
-    const btnRef = useRef(null);
+    /* Use click, not bindMobileTap/touchend: navigating (path remount + scrollTop)
+     * inside touchend leaves WebKit’s trunk overflow pan dead until later drags. */
     const handleBack = useCallback(() => onBack?.(), [onBack]);
-    useBindMobileTapRef(btnRef, handleBack, mobile);
     if (!showBack) return null;
     const label = ui.navBack || ui.close || 'Back';
     return (
         <button
-            ref={btnRef}
             type="button"
-            className="arborito-mmenu-back mobile-panel-back shrink-0"
+            className="arborito-mmenu-back mobile-panel-back arborito-tap-target shrink-0"
             aria-label={label}
             title={label}
-            onClick={mobile ? undefined : handleBack}
+            onClick={handleBack}
         >
             <ModalBackChevronIcon />
         </button>
