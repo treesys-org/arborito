@@ -14,9 +14,211 @@ import {
     resolveAccountActiveSourceUrl,
     ensurePreferredNetworkSourceInList,
 } from './identity-account-active-source.js';
+import {
+    canonicalInstalledSourceUrl,
+    omitInstalledSourceTombstones,
+    unionInstalledSourcesLists,
+} from './identity-installed-sources-merge.js';
 
 function shell() {
     return getArboritoStore();
+}
+
+/** Map a live communitySources row into the encrypted pack shape. */
+function packInstalledSourceRow(s) {
+    const url = String(s?.url || '').trim();
+    let contentKind = String(s?.contentKind || '').trim() || undefined;
+    if (!contentKind) {
+        const ref = parseNostrTreeUrl(url);
+        const uid = String(ref?.universeId || '');
+        if (uid.startsWith('tre-')) contentKind = 'composed-tree';
+        else if (uid.startsWith('brn-')) contentKind = 'branch';
+    }
+    return {
+        id: s.id,
+        name: s.name || '',
+        url: s.url,
+        authorName: s.authorName || s.listAuthorName || '',
+        description: s.listDescription || s.description || '',
+        titles: s.titles,
+        descriptions: s.descriptions,
+        languages: Array.isArray(s.languages) ? s.languages : undefined,
+        icon: s.icon || undefined,
+        shareCode: s.shareCode || undefined,
+        contentKind,
+        recommendedRelays: Array.isArray(s.recommendedRelays) ? s.recommendedRelays : [],
+    };
+}
+
+/**
+ * Remember last good remote pack so a flaky relay cannot publish a wipe.
+ * @param {object} store
+ * @param {object|null} body
+ */
+function rememberInstalledSourcesRemote(store, body) {
+    if (!body || typeof body !== 'object') return;
+    store._installedSourcesLastRemote = {
+        sources: Array.isArray(body.sources) ? body.sources : [],
+        activeSourceUrl: String(body.activeSourceUrl || '').trim(),
+        updatedAt: body.updatedAt || null,
+        at: Date.now(),
+    };
+    store._installedSourcesPullOk = true;
+    store._installedSourcesEverHadRemote = true;
+}
+
+function installedSourceTombstones(store) {
+    if (!store._installedSourcesRemoved) store._installedSourcesRemoved = new Set();
+    return store._installedSourcesRemoved;
+}
+
+/** Min gap between resume / online installed-library refreshes. */
+const INSTALLED_SOURCES_RESUME_MIN_MS = 30_000;
+/** Quiet background refresh while signed in (branches + trees in the account pack). */
+const INSTALLED_SOURCES_BG_INTERVAL_MS = 120_000;
+
+function canRefreshInstalledSourcesAccount(store) {
+    if (!store?.isSignedIn?.()) return false;
+    if (!isNostrNetworkAvailable()) return false;
+    try {
+        if (typeof store.hasGdprNetworkConsent === 'function' && !store.hasGdprNetworkConsent()) {
+            return false;
+        }
+    } catch {
+        /* ignore */
+    }
+    const name = String(store._authSession?.username || '').trim();
+    return !!name;
+}
+
+/**
+ * Pull account-saved network courses (branches + trees), then progress, then
+ * merge-publish when this device has joins/uninstalls the account pack lacks.
+ * @param {{ forcePublish?: boolean }} [opts]
+ * @returns {Promise<number>} newly added community sources
+ */
+export async function refreshInstalledSourcesFromAccountAction(opts = {}) {
+    const store = shell();
+    if (!store || !canRefreshInstalledSourcesAccount(store)) return 0;
+    if (opts.forcePublish) store._installedSourcesRefreshForcePublish = true;
+    if (store._installedSourcesRefreshInFlight) {
+        store._installedSourcesRefreshAgain = true;
+        return 0;
+    }
+    const name = String(store._authSession?.username || '').trim();
+    store._installedSourcesRefreshInFlight = true;
+    let added = 0;
+    try {
+        do {
+            store._installedSourcesRefreshAgain = false;
+            const forcePublish = !!store._installedSourcesRefreshForcePublish;
+            store._installedSourcesRefreshForcePublish = false;
+            try {
+                added += Number(await store.loadInstalledSourcesFromAccount?.(name)) || 0;
+            } catch (e) {
+                console.warn('[arborito] installed sources refresh pull failed', e);
+            }
+            try {
+                await store.loadPrivateTreesFromAccount?.(name, { retry: false });
+            } catch (e) {
+                console.warn('[arborito] private trees refresh during library sync failed', e);
+            }
+            try {
+                await store._loadProgressForInstalledSources?.();
+            } catch (e) {
+                console.warn('[arborito] installed progress refresh failed', e);
+            }
+            const shouldPublish =
+                forcePublish ||
+                !!(store._installedSourcesRemoved && store._installedSourcesRemoved.size) ||
+                localInstalledSourcesNeedPush(store);
+            if (shouldPublish) {
+                try {
+                    store.publishInstalledSourcesForAccount?.({ immediate: true });
+                } catch {
+                    /* ignore */
+                }
+            }
+            store._installedSourcesRefreshedAt = Date.now();
+        } while (store._installedSourcesRefreshAgain);
+    } finally {
+        store._installedSourcesRefreshInFlight = false;
+    }
+    return added;
+}
+
+/** True when local Saved has a network course not yet in the last account pack snapshot. */
+function localInstalledSourcesNeedPush(store) {
+    const remote = store._installedSourcesLastRemote?.sources;
+    const remoteUrls = new Set(
+        (Array.isArray(remote) ? remote : [])
+            .map((s) => canonicalInstalledSourceUrl(s?.url))
+            .filter(Boolean)
+    );
+    /* Never successfully read a pack: first seed still needs a publish when local has rows. */
+    if (!store._installedSourcesEverHadRemote && !remoteUrls.size) {
+        return (store.state.communitySources || []).some((s) => canonicalInstalledSourceUrl(s?.url));
+    }
+    for (const s of store.state.communitySources || []) {
+        const u = canonicalInstalledSourceUrl(s?.url);
+        if (u && !remoteUrls.has(u)) return true;
+    }
+    return false;
+}
+
+/** Foreground / online: refresh Saved library so other devices' joins appear without reopening Bosque. */
+export function maybeRefreshInstalledSourcesOnResumeAction() {
+    const store = shell();
+    if (!canRefreshInstalledSourcesAccount(store)) return;
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+    const now = Date.now();
+    if (
+        store._installedSourcesRefreshedAt &&
+        now - store._installedSourcesRefreshedAt < INSTALLED_SOURCES_RESUME_MIN_MS
+    ) {
+        /* Still ensure the quiet timer is alive after consent/network came back. */
+        try {
+            store.ensureInstalledSourcesBackgroundSync?.();
+        } catch {
+            /* ignore */
+        }
+        return;
+    }
+    try {
+        store.ensureInstalledSourcesBackgroundSync?.();
+    } catch {
+        /* ignore */
+    }
+    void refreshInstalledSourcesFromAccountAction().catch((e) => {
+        console.warn('[arborito] installed sources resume refresh failed', e);
+    });
+}
+
+/** Start/stop quiet interval while the session can sync the account library. */
+export function ensureInstalledSourcesBackgroundSyncAction() {
+    const store = shell();
+    if (!store) return;
+    const stop = () => {
+        if (store._installedSourcesBgTimer) {
+            clearInterval(store._installedSourcesBgTimer);
+            store._installedSourcesBgTimer = null;
+        }
+    };
+    if (!canRefreshInstalledSourcesAccount(store)) {
+        stop();
+        return;
+    }
+    if (store._installedSourcesBgTimer) return;
+    store._installedSourcesBgTimer = setInterval(() => {
+        if (!canRefreshInstalledSourcesAccount(store)) {
+            stop();
+            return;
+        }
+        if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+        void refreshInstalledSourcesFromAccountAction().catch((e) => {
+            console.warn('[arborito] installed sources background refresh failed', e);
+        });
+    }, INSTALLED_SOURCES_BG_INTERVAL_MS);
 }
 
 /** After-sign-in restore flows: owned trees, installed sources, private trees, owned progress. */
@@ -179,6 +381,7 @@ export async function loadInstalledSourcesFromAccountAction(username) {
                 console.warn('Installed sources decrypt failed for all candidates');
                 return 0;
             }
+            rememberInstalledSourcesRemote(store, body);
             if (body?.profile && typeof body.profile === 'object') {
                 const g = store.userStore?.state?.gamification;
                 const p = body.profile;
@@ -207,15 +410,20 @@ export async function loadInstalledSourcesFromAccountAction(username) {
             if (activeUrl) store._lastPublishedActiveSourceUrl = activeUrl;
             const list = Array.isArray(body?.sources) ? body.sources : [];
             let added = 0;
+            let enriched = 0;
+            const tombstones = installedSourceTombstones(store);
             for (const src of list) {
                 if (!src || typeof src !== 'object') continue;
                 const url = String(src.url || '').trim();
                 if (!url || url.startsWith('branch://') || url.startsWith('privtree://')) continue;
+                const canon = canonicalInstalledSourceUrl(url);
+                if (canon && tombstones.has(canon)) continue;
                 try {
                     const res = store.sourceManager.addCommunitySource(null, {
                         resolvedNostrTreeUrl: url,
                         codeLabel: src.shareCode || null,
                         contentKind: src.contentKind || undefined,
+                        skipAccountPublish: true,
                         listMeta: {
                             title: src.name || src.title || '',
                             titles: src.titles,
@@ -228,10 +436,26 @@ export async function loadInstalledSourcesFromAccountAction(username) {
                         },
                         recommendedRelays: Array.isArray(src.recommendedRelays) ? src.recommendedRelays : []
                     });
-                    if (res && res.ok) added += 1;
+                    if (res && res.ok) {
+                        added += 1;
+                        continue;
+                    }
+                    /* Already installed: backfill share code / kind / title from the account pack. */
+                    const existing = res?.existing;
+                    if (existing?.id && typeof store.sourceManager.patchCommunitySourceMeta === 'function') {
+                        const patched = store.sourceManager.patchCommunitySourceMeta(existing.id, {
+                            name: src.name || src.title || '',
+                            shareCode: src.shareCode || '',
+                            contentKind: src.contentKind || '',
+                            authorName: src.authorName || '',
+                            description: src.description || src.listDescription || '',
+                            icon: String(src.icon || '').trim(),
+                        });
+                        if (patched) enriched += 1;
+                    }
                 } catch { /* ignore one bad entry */ }
             }
-            if (added) notifyCommunityChanged(store);
+            if (added || enriched) notifyCommunityChanged(store);
             return added;
 
 }
@@ -268,22 +492,119 @@ export function publishInstalledSourcesForAccountAction(opts = {}) {
                     const pair = await store.ensureNetworkUserPair();
                     if (!(pair && pair.pub)) return;
                     const g = store.userStore?.state?.gamification || {};
-                    const sources = (store.state.communitySources || [])
-                        .filter((s) => s && s.url && !String(s.url).startsWith('branch://') && !String(s.url).startsWith('privtree://'))
-                        .map((s) => ({
-                            id: s.id,
-                            name: s.name || '',
-                            url: s.url,
-                            authorName: s.authorName || s.listAuthorName || '',
-                            description: s.listDescription || s.description || '',
-                            titles: s.titles,
-                            descriptions: s.descriptions,
-                            languages: Array.isArray(s.languages) ? s.languages : undefined,
-                            icon: s.icon || undefined,
-                            shareCode: s.shareCode || undefined,
-                            contentKind: s.contentKind || undefined,
-                            recommendedRelays: Array.isArray(s.recommendedRelays) ? s.recommendedRelays : []
-                        }));
+                    let localSources = (store.state.communitySources || [])
+                        .filter(
+                            (s) =>
+                                s &&
+                                s.url &&
+                                !String(s.url).startsWith('branch://') &&
+                                !String(s.url).startsWith('privtree://') &&
+                                !String(s.url).startsWith('tree://')
+                        )
+                        .map(packInstalledSourceRow);
+
+                    /*
+                     * Union with the account pack before replaceable publish. A device that
+                     * failed to pull (or never refreshed) must not wipe share-code joins
+                     * installed on another device — especially unlisted courses that never
+                     * reappear via Discover.
+                     */
+                    let remoteSources = null;
+                    let remotePullOk = false;
+                    if (typeof net.loadUserSourcesDecrypted === 'function') {
+                        try {
+                            const remoteBody = await net.loadUserSourcesDecrypted(name, pair);
+                            if (remoteBody && typeof remoteBody === 'object') {
+                                rememberInstalledSourcesRemote(store, remoteBody);
+                                remoteSources = Array.isArray(remoteBody.sources) ? remoteBody.sources : [];
+                                remotePullOk = true;
+                                const remoteActive = String(remoteBody.activeSourceUrl || '').trim();
+                                if (remoteActive && !store._lastPublishedActiveSourceUrl) {
+                                    store._lastPublishedActiveSourceUrl = remoteActive;
+                                }
+                            }
+                        } catch (e) {
+                            console.warn('[arborito] installed sources merge-pull failed', e);
+                        }
+                    }
+                    if (!remotePullOk) {
+                        const cached = store._installedSourcesLastRemote;
+                        if (cached && Array.isArray(cached.sources)) {
+                            remoteSources = cached.sources;
+                            remotePullOk = true;
+                        }
+                    }
+                    if (!remotePullOk) {
+                        /*
+                         * No live pack and no cache. Seed only on a device that has never
+                         * seen an account pack — otherwise a flaky pull would wipe joins
+                         * from other devices.
+                         */
+                        if (store._installedSourcesEverHadRemote) {
+                            console.warn(
+                                '[arborito] installed sources publish skipped: remote unread (avoid wipe)'
+                            );
+                            return;
+                        }
+                        if (!localSources.length) {
+                            console.warn(
+                                '[arborito] installed sources publish skipped: remote unread and local empty'
+                            );
+                            return;
+                        }
+                        localSources = omitInstalledSourceTombstones(
+                            localSources,
+                            store._installedSourcesRemoved
+                        );
+                    } else {
+                        localSources = omitInstalledSourceTombstones(
+                            unionInstalledSourcesLists(localSources, remoteSources || []),
+                            store._installedSourcesRemoved
+                        );
+                        /* Apply remote-only rows into the local garden so Bosque lists them now. */
+                        let applied = 0;
+                        for (const src of localSources) {
+                            const url = canonicalInstalledSourceUrl(src.url) || String(src.url || '').trim();
+                            if (!url || !url.startsWith('nostr://')) continue;
+                            try {
+                                const res = store.sourceManager.addCommunitySource(null, {
+                                    resolvedNostrTreeUrl: url,
+                                    codeLabel: src.shareCode || null,
+                                    contentKind: src.contentKind || undefined,
+                                    skipAccountPublish: true,
+                                    listMeta: {
+                                        title: src.name || '',
+                                        titles: src.titles,
+                                        authorName: src.authorName || '',
+                                        description: src.description || '',
+                                        descriptions: src.descriptions,
+                                        languages: Array.isArray(src.languages) ? src.languages : undefined,
+                                        icon: String(src.icon || '').trim() || undefined,
+                                        contentKind: src.contentKind || undefined,
+                                    },
+                                    recommendedRelays: Array.isArray(src.recommendedRelays)
+                                        ? src.recommendedRelays
+                                        : [],
+                                });
+                                if (res?.ok) applied += 1;
+                                if (res?.existing?.id) {
+                                    store.sourceManager.patchCommunitySourceMeta?.(res.existing.id, {
+                                        name: src.name || '',
+                                        shareCode: src.shareCode || '',
+                                        contentKind: src.contentKind || '',
+                                        authorName: src.authorName || '',
+                                        description: src.description || '',
+                                        icon: String(src.icon || '').trim(),
+                                    });
+                                }
+                            } catch {
+                                /* ignore one bad entry */
+                            }
+                        }
+                        if (applied) notifyCommunityChanged(store);
+                    }
+
+                    const sources = localSources;
                     let activeUrl = resolveAccountActiveSourceUrl(store);
                     if (!activeUrl) {
                         /* Non-synced local draft: keep the last published preferred URL (do not wipe). */
@@ -307,6 +628,16 @@ export function publishInstalledSourcesForAccountAction(opts = {}) {
                         updatedAt: new Date().toISOString()
                     };
                     await net.putUserSourcesPacked({ username: name, pair, data: body });
+                    rememberInstalledSourcesRemote(store, body);
+                    /* Uninstall tombstones can clear once the account pack omits those URLs. */
+                    if (store._installedSourcesRemoved?.size) {
+                        const published = new Set(
+                            sources.map((s) => canonicalInstalledSourceUrl(s.url)).filter(Boolean)
+                        );
+                        for (const canon of [...store._installedSourcesRemoved]) {
+                            if (!published.has(canon)) store._installedSourcesRemoved.delete(canon);
+                        }
+                    }
                 } catch (e) {
                     console.warn('Installed sources publish failed', e);
                 }
@@ -726,6 +1057,16 @@ export function cancelPendingAccountSyncTimersAction() {
     store._nostrProgressSyncTimer = null;
     clearTimeout(store._installedSourcesPublishTimer);
     store._installedSourcesPublishTimer = null;
+    if (store._installedSourcesBgTimer) {
+        clearInterval(store._installedSourcesBgTimer);
+        store._installedSourcesBgTimer = null;
+    }
+    store._installedSourcesLastRemote = null;
+    store._installedSourcesPullOk = false;
+    store._installedSourcesEverHadRemote = false;
+    store._installedSourcesRemoved = new Set();
+    store._installedSourcesRefreshForcePublish = false;
+    store._installedSourcesRefreshAgain = false;
     try {
         store.userStore?.takePrivateAccountSyncDirtyIds?.();
     } catch {
@@ -929,12 +1270,18 @@ export async function loadOwnedTreesFromDirectoryAction(username) {
                             meta.description,
                         descriptions: meta.descriptions,
                         languages: Array.isArray(meta.languages) ? meta.languages : undefined,
+                        contentKind: meta.contentKind || undefined,
                     },
+                    contentKind: meta.contentKind || undefined,
+                    skipAccountPublish: true,
                     recommendedRelays: Array.isArray(meta.recommendedRelays) ? meta.recommendedRelays : []
                 });
                 if (res && res.ok) added += 1;
             }
-            if (added) store.publishInstalledSourcesForAccount();
+            if (added) {
+                notifyCommunityChanged(store);
+                store.publishInstalledSourcesForAccount();
+            }
             return added;
 
 }
@@ -950,6 +1297,9 @@ export const storeAccountRestoreMethods = {
     _scheduleLoadInstalledSourcesAfterSignIn: _scheduleLoadInstalledSourcesAfterSignInAction,
     loadInstalledSourcesFromAccount: loadInstalledSourcesFromAccountAction,
     publishInstalledSourcesForAccount: publishInstalledSourcesForAccountAction,
+    refreshInstalledSourcesFromAccount: refreshInstalledSourcesFromAccountAction,
+    maybeRefreshInstalledSourcesOnResume: maybeRefreshInstalledSourcesOnResumeAction,
+    ensureInstalledSourcesBackgroundSync: ensureInstalledSourcesBackgroundSyncAction,
     _scheduleLoadPrivateTreesAfterSignIn: _scheduleLoadPrivateTreesAfterSignInAction,
     loadPrivateTreesFromAccount: loadPrivateTreesFromAccountAction,
     publishBranchAsPrivate: publishBranchAsPrivateAction,

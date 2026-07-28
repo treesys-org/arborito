@@ -109,6 +109,7 @@ export function proceedWithUntrustedLoadAction() {
                 const added = store.sourceManager.addCommunitySource(null, {
                     resolvedNostrTreeUrl: source.url,
                     codeLabel: source.shareCode || null,
+                    contentKind: source.contentKind || undefined,
                 });
                 if (added?.ok && added.source) {
                     source = { ...added.source, _fromShareParam: true, _openTreeInfoAfterLoad: true };

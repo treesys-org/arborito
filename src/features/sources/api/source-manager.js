@@ -409,7 +409,9 @@ export class SourceManager {
                     ? `Code ${opts.codeLabel}`
                     : `Public · ${String(treeRef.pub).slice(0, 10)}…`;
             }
-            return this._appendSource(newSource);
+            return this._appendSource(newSource, {
+                skipAccountPublish: !!opts.skipAccountPublish,
+            });
         }
 
         const trimmed = String(rawInput || '').trim();
@@ -446,20 +448,23 @@ export class SourceManager {
         if (titleFromList2 && !isPlaceholderCommunitySourceName(titleFromList2)) {
             name = titleFromList2;
         }
-        return this._appendSource({
-            id: crypto.randomUUID(),
-            name,
-            url,
-            isTrusted: this.isUrlTrusted(url),
-            isOfficial: false,
-            type: 'community',
-            origin,
-            ...(lm2?.titles && typeof lm2.titles === 'object' ? { titles: lm2.titles } : {}),
-            ...nostrRelays
-        });
+        return this._appendSource(
+            {
+                id: crypto.randomUUID(),
+                name,
+                url,
+                isTrusted: this.isUrlTrusted(url),
+                isOfficial: false,
+                type: 'community',
+                origin,
+                ...(lm2?.titles && typeof lm2.titles === 'object' ? { titles: lm2.titles } : {}),
+                ...nostrRelays
+            },
+            { skipAccountPublish: !!opts.skipAccountPublish }
+        );
     }
 
-    _appendSource(src) {
+    _appendSource(src, opts = {}) {
         const canon = this._canonicalCommunityUrl(src.url);
         const dup = this.state.communitySources.find((s) => this._canonicalCommunityUrl(s.url) === canon);
         if (dup) {
@@ -469,7 +474,18 @@ export class SourceManager {
         this.update({ communitySources: newSources });
         this.state.communitySources = newSources;
         this._persistCommunitySources();
-        try { store.publishInstalledSourcesForAccount?.(); } catch { /* ignore */ }
+        /* Re-install clears a prior uninstall tombstone for this URL. */
+        try {
+            if (canon && store._installedSourcesRemoved?.size) {
+                store._installedSourcesRemoved.delete(canon);
+            }
+        } catch {
+            /* ignore */
+        }
+        /* Pull/restore paths pass skipAccountPublish to avoid N mid-loop publishes. */
+        if (!opts.skipAccountPublish) {
+            try { store.publishInstalledSourcesForAccount?.(); } catch { /* ignore */ }
+        }
         return { ok: true, source: src };
     }
 
@@ -482,6 +498,15 @@ export class SourceManager {
         this._persistCommunitySources();
         if (prev) {
             try {
+                const canon = this._canonicalCommunityUrl(prev.url);
+                if (canon) {
+                    if (!store._installedSourcesRemoved) store._installedSourcesRemoved = new Set();
+                    store._installedSourcesRemoved.add(canon);
+                }
+            } catch {
+                /* ignore */
+            }
+            try {
                 clearUniverseRevokeStudentState(prev);
             } catch {
                 /* ignore */
@@ -493,7 +518,7 @@ export class SourceManager {
     /**
      * Merge catalog metadata onto an installed community source (e.g. backfill icon after load).
      * @param {string} id
-     * @param {{ icon?: string, name?: string }} patch
+     * @param {{ icon?: string, name?: string, shareCode?: string, contentKind?: string, authorName?: string, description?: string }} patch
      */
     patchCommunitySourceMeta(id, patch = {}) {
         const sid = String(id || '').trim();
@@ -512,6 +537,26 @@ export class SourceManager {
         const name = String(patch.name || '').trim();
         if (name && String(cur.name || '').trim() !== name) {
             next.name = name;
+            changed = true;
+        }
+        const shareCode = String(patch.shareCode || '').trim();
+        if (shareCode && String(cur.shareCode || '').trim() !== shareCode) {
+            next.shareCode = shareCode;
+            changed = true;
+        }
+        const contentKind = String(patch.contentKind || '').trim();
+        if (contentKind && String(cur.contentKind || '').trim() !== contentKind) {
+            next.contentKind = contentKind;
+            changed = true;
+        }
+        const authorName = String(patch.authorName || '').trim();
+        if (authorName && String(cur.listAuthorName || cur.authorName || '').trim() !== authorName) {
+            next.listAuthorName = authorName;
+            changed = true;
+        }
+        const description = String(patch.description || '').trim();
+        if (description && String(cur.listDescription || cur.description || '').trim() !== description) {
+            next.listDescription = description;
             changed = true;
         }
         if (!changed) return false;

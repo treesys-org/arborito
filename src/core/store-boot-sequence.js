@@ -279,12 +279,14 @@ export function initStoreInstanceFields(store) {
             if (document.visibilityState === 'visible') {
                 void store.refreshCreatorModerationAlerts?.();
                 store.maybeReconcileNetworkProgressOnResume?.();
+                store.maybeRefreshInstalledSourcesOnResume?.();
             }
         });
     }
     if (typeof window !== 'undefined') {
         window.addEventListener('online', () => {
             store.maybeReconcileNetworkProgressOnResume?.();
+            store.maybeRefreshInstalledSourcesOnResume?.();
         });
     }
 

@@ -1,4 +1,5 @@
 import { DEMO_BRANCH_ID } from '../core/demo/arborito-demo-ids.js';
+import { parseNostrTreeUrl } from '../features/nostr/api/nostr-refs.js';
 
 /**
  * Map the device's current active source to an account-preferred URL that another
@@ -37,6 +38,17 @@ export function resolveAccountActiveSourceUrl(store) {
     return activeUrl;
 }
 
+/** Infer Saved-tab kind when the pack row omitted contentKind. */
+function inferNetworkContentKind(url, metaKind) {
+    const fromMeta = String(metaKind || '').trim();
+    if (fromMeta) return fromMeta;
+    const ref = parseNostrTreeUrl(url);
+    const uid = String(ref?.universeId || '');
+    if (uid.startsWith('tre-')) return 'composed-tree';
+    if (uid.startsWith('brn-')) return 'branch';
+    return undefined;
+}
+
 /** Ensure a network preferred URL is also listed in the installed-sources pack. */
 export function ensurePreferredNetworkSourceInList(sources, url, store) {
     const u = String(url || '').trim();
@@ -58,6 +70,8 @@ export function ensurePreferredNetworkSourceInList(sources, url, store) {
         descriptions: meta.descriptions,
         languages: Array.isArray(meta.languages) ? meta.languages : undefined,
         icon: meta.icon || undefined,
+        shareCode: meta.shareCode || undefined,
+        contentKind: inferNetworkContentKind(u, meta.contentKind),
         recommendedRelays: Array.isArray(meta.recommendedRelays) ? meta.recommendedRelays : [],
     });
 }

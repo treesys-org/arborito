@@ -325,6 +325,11 @@ export async function _finalizeSyncLoginSessionAction(name, opts = {}) {
         } finally {
             store._nostrProgressPullInFlight = false;
         }
+        try {
+            store.ensureInstalledSourcesBackgroundSync?.();
+        } catch {
+            /* ignore */
+        }
         /* Account data is ready — open last-opened once (no blind timers). */
         await autoloadTreeAfterSignInAction(name);
         try {

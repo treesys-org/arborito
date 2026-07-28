@@ -94,28 +94,37 @@ export function useSourcesLifecycle({ embed, bump, setMainTab, setActiveTab, set
             });
         });
 
-        /* Re-pull account-saved network courses when opening Fuentes. */
+        /* Re-pull account-saved network courses when opening Fuentes (branches + trees). */
         const signedInName = String(store._authSession?.username || '').trim();
         if (signedInName) {
             void (async () => {
                 try {
                     await warmNostrRelayConnections(store, { probe: false }).catch(() => null);
-                    try {
-                        await store.loadInstalledSourcesFromAccount?.(signedInName);
-                    } catch (e) {
-                        console.warn('[Arborito] Fuentes installed-sources refresh failed', e);
+                    if (typeof store.refreshInstalledSourcesFromAccount === 'function') {
+                        await store.refreshInstalledSourcesFromAccount({ forcePublish: true });
+                    } else {
+                        try {
+                            await store.loadInstalledSourcesFromAccount?.(signedInName);
+                        } catch (e) {
+                            console.warn('[Arborito] Fuentes installed-sources refresh failed', e);
+                        }
+                        try {
+                            await store.loadPrivateTreesFromAccount?.(signedInName, { retry: false });
+                        } catch (e) {
+                            console.warn('[Arborito] Fuentes private-trees refresh failed', e);
+                        }
+                        try {
+                            await store._loadProgressForInstalledSources?.();
+                        } catch (e) {
+                            console.warn('[Arborito] Fuentes installed progress refresh failed', e);
+                        }
+                        try {
+                            store.publishInstalledSourcesForAccount?.({ immediate: true });
+                        } catch {
+                            /* ignore */
+                        }
                     }
-                    try {
-                        await store.loadPrivateTreesFromAccount?.(signedInName, { retry: false });
-                    } catch (e) {
-                        console.warn('[Arborito] Fuentes private-trees refresh failed', e);
-                    }
-                    /* Merge this device's saved network courses up to the account (share-code installs). */
-                    try {
-                        store.publishInstalledSourcesForAccount?.({ immediate: true });
-                    } catch {
-                        /* ignore */
-                    }
+                    store.ensureInstalledSourcesBackgroundSync?.();
                     bump();
                 } catch (e) {
                     console.warn('[Arborito] Fuentes account sources refresh failed', e);
