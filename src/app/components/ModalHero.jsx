@@ -37,10 +37,11 @@ export function ModalBackChevronIcon({ className = 'w-5 h-5' }) {
 }
 
 /** Mobile ← back — same chrome as DialogModal / dock sheets. Desktop renders nothing. */
-export function ModalBackButton({ ui, className, tagClass, ariaLabel, buttonId, onClick }) {
+export function ModalBackButton({ ui, className, tagClass, ariaLabel, buttonId, onClick, disabled }) {
     const btnRef = useRef(null);
     const mobile = shouldShowMobileUI();
-    useBindMobileTapRef(btnRef, onClick, mobile);
+    const blocked = !!disabled;
+    useBindMobileTapRef(btnRef, onClick, mobile && !blocked);
     if (!mobile) return null;
     const label = ariaLabel || ui?.navBack || ui?.close || 'Back';
     return (
@@ -50,6 +51,9 @@ export function ModalBackButton({ ui, className, tagClass, ariaLabel, buttonId, 
             id={buttonId || undefined}
             className={`${tagClass} ${className}`.trim()}
             aria-label={label}
+            disabled={blocked || undefined}
+            aria-disabled={blocked ? 'true' : undefined}
+            onClick={blocked ? undefined : onClick}
         >
             <ModalBackChevronIcon />
         </button>
@@ -57,15 +61,18 @@ export function ModalBackButton({ ui, className, tagClass, ariaLabel, buttonId, 
 }
 
 /** Desktop × (`arborito-modal-window-x`) — same chrome as DialogModal. Hidden on mobile unless `showOnMobile`. */
-export function ModalCloseButton({ ui, className, showOnMobile, onClick }) {
+export function ModalCloseButton({ ui, className, showOnMobile, onClick, disabled }) {
     if (!showOnMobile && shouldShowMobileUI()) return null;
     const label = ui?.close || 'Close';
+    const blocked = !!disabled;
     return (
         <button
             type="button"
             className={`arborito-modal-window-x ${className}`.trim()}
             aria-label={label}
-            onClick={onClick}
+            disabled={blocked || undefined}
+            aria-disabled={blocked ? 'true' : undefined}
+            onClick={blocked ? undefined : onClick}
         >
             {MODAL_WIN_X_SVG}
         </button>
@@ -102,12 +109,14 @@ export function ModalHero({
     wrapperId,
     onBack,
     onClose,
+    closeDisabled,
 }) {
     const mobile = mobileProp == null ? shouldShowMobileUI() : !!mobileProp;
     const alignCls = align === 'start' ? 'items-start' : 'items-center';
     const danger = tone === 'danger';
     const resolvedTone = tone != null ? tone : mobile ? 'plain' : 'hub';
     const hub = !danger && resolvedTone === 'hub';
+    const closeBlocked = !!closeDisabled;
 
     const baseWrap = hub
         ? 'arborito-dock-hub-head arborito-dock-modal-hero shrink-0'
@@ -168,6 +177,7 @@ export function ModalHero({
                 className={`${closeTag} shrink-0`.trim()}
                 showOnMobile={closeShowOnMobile}
                 onClick={closeHandler}
+                disabled={closeBlocked}
             />
         ) : null;
 
@@ -233,6 +243,7 @@ export function ModalHero({
                     ariaLabel={backAriaLabel}
                     buttonId={backButtonId}
                     onClick={onBack || onClose}
+                    disabled={closeBlocked}
                 />
             ) : null}
             {leading}

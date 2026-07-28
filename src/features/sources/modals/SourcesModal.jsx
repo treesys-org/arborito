@@ -27,6 +27,7 @@ export function ModalSources({ embed = false }) {
         tabSubtitle,
         switchMainTab,
         close,
+        closeBlocked,
         showGuestSyncHint,
         modal,
         sourcesApp,
@@ -278,6 +279,7 @@ export function ModalSources({ embed = false }) {
                 skipBodyWrap
                 shellOpts={{ rootFlags: 'arborito-modal--sources', scrim: 'translucent' }}
                 onBackdropClick={() => {
+                    if (closeBlocked) return;
                     if (sources.overlay) {
                         onAction('cancel-overlay');
                         return;
@@ -292,8 +294,10 @@ export function ModalSources({ embed = false }) {
                         subtitle={ui.sourceManagerDesc}
                         showClose={!mobile}
                         showBack={!!mobile}
+                        closeDisabled={closeBlocked}
                         leadingIcon={leadingIcon}
                         onClose={() => {
+                            if (closeBlocked) return;
                             if (sources.overlay) {
                                 onAction('cancel-overlay');
                                 return;

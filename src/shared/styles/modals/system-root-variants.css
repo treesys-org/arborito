@@ -859,6 +859,13 @@ html.force-mobile .arborito-game-player-toolbar .arborito-game-player-head-space
     background: var(--arborito-theme-mmenu-back-active-bg);
 }
 
+.arborito-mmenu-back:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none;
+}
+
 /* Primary dismiss in modals — 44px target (use .arborito-mmenu-back on real back buttons; not plain .btn-close) */
 #modal-backdrop.arborito-modal-root button.arborito-mmenu-back {
     min-width: 2.75rem !important;
@@ -894,6 +901,23 @@ arborito-sage.arborito-sage--open .arborito-modal-window-x:hover,
     border-color: var(--arborito-theme-modal-close-hover-border) !important;
     background: var(--arborito-theme-modal-close-hover-bg) !important;
     color: var(--arborito-theme-modal-close-hover-fg) !important;
+}
+
+#modal-backdrop .arborito-modal-window-x:disabled,
+arborito-sage.arborito-sage--open .arborito-modal-window-x:disabled,
+#progress-dock-sheet .arborito-modal-window-x:disabled,
+.arborito-nested-form-card .arborito-modal-window-x:disabled {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+#modal-backdrop .arborito-modal-window-x:disabled:hover,
+arborito-sage.arborito-sage--open .arborito-modal-window-x:disabled:hover,
+.arborito-nested-form-card .arborito-modal-window-x:disabled:hover {
+    border-color: var(--arborito-theme-modal-window-x-border) !important;
+    background: var(--arborito-theme-modal-window-x-background) !important;
+    color: var(--arborito-theme-modal-window-x-color) !important;
 }
 
 /* Cabeceras oscuras / gradiente (Sage escritorio, game-player) */

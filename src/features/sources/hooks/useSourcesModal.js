@@ -118,6 +118,11 @@ export function useSourcesModal(embed = false) {
     );
 
     const close = useCallback(() => sources.close(), [sources]);
+    const closeBlocked = !!(
+        state.treeHydrating &&
+        !state.data &&
+        !state.rawGraphData
+    );
 
     const fromOnboarding =
         modal && typeof modal === 'object' && !!modal.fromOnboarding;
@@ -137,6 +142,7 @@ export function useSourcesModal(embed = false) {
         tabSubtitle,
         switchMainTab,
         close,
+        closeBlocked,
         modal,
         fromOnboarding,
         showGuestSyncHint:

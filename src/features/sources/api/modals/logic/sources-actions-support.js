@@ -3,7 +3,7 @@ import { onboardingModalFromSourcesHint } from '../../../../../shared/lib/onboar
 import { getPanelRef } from '../../../../../app/panel-refs.js';
 import { runBibliotecaNetworkLoad } from '../../../../../shared/lib/connected-services/index.js';
 import { yieldToPaint } from '../../../../../shared/lib/yield-to-paint.js';
-import { finishSourcesLoadSession, captureHadCurriculumBeforeLoad } from '../../sources-session.js';
+import { finishSourcesLoadSession, captureHadCurriculumBeforeLoad, isWaitingForCurriculumSkeletonPaint } from '../../sources-session.js';
 import { saveFrozenTreeBundle, removeFrozenTreeBundle } from '../../tree-freeze-cache.js';
 import {
     maybeSeedArboritoDemo,
@@ -227,13 +227,29 @@ export function closeSourcesModal(opts = {}, embed = false) {
     const cur = store.value && store.value.modal;
     const fromOnb = cur && typeof cur === 'object' && cur.fromOnboarding;
     const userBack = opts.returnToMore !== false;
-    /* Biblioteca opened from onboarding (incl. after guest skip): back returns to the wizard. */
+    const waitingSkeleton = isWaitingForCurriculumSkeletonPaint(store);
+    const graphPainted = !!(store.state.data || store.state.rawGraphData);
+
+    /* Block dismiss until the structure skeleton (or first graph paint) is on screen. */
+    if (userBack && waitingSkeleton) return;
+
+    /* Biblioteca opened from onboarding (incl. after guest skip): back returns to the wizard
+     * only when no load is in flight. After skeleton paint, show the canvas — do not reopen welcome. */
     if (fromOnb && userBack) {
+        if (store.state.treeHydrating || graphPainted) {
+            store.dismissModal({ returnToMore: false });
+            return;
+        }
         store.setModal(onboardingModalFromSourcesHint(fromOnb));
         return;
     }
     if (store.isSourcesDismissBlocked()) {
-        /* Mid-hydrate (switching courses): keep the catalog open. Empty canvas: load demo. */
+        /* Skeleton already painted while still hydrating: allow canvas (full load continues). */
+        if (store.state.treeHydrating && graphPainted) {
+            store.dismissModal({ returnToMore: opts.returnToMore !== false });
+            return;
+        }
+        /* Mid-hydrate with nothing painted: keep the catalog open. Empty canvas: load demo. */
         if (store.state.treeHydrating) return;
         void loadDefaultDemoAndDismissSources(opts);
         return;

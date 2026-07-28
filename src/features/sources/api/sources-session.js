@@ -28,6 +28,18 @@ export function captureHadCurriculumBeforeLoad() {
 }
 
 /**
+ * Mount in flight with no graph painted yet (waiting for Nostr structure skeleton
+ * or the first full paint). Closing Biblioteca here would bounce to onboarding
+ * with an empty canvas — block until something is visible.
+ * @param {{ state?: object, value?: object }|null|undefined} [s]
+ */
+export function isWaitingForCurriculumSkeletonPaint(s = store) {
+    const st = s?.state ?? s?.value;
+    if (!st?.treeHydrating) return false;
+    return !st.data && !st.rawGraphData;
+}
+
+/**
  * After a successful load/plant/import in Biblioteca: close and show the canvas when
  * appropriate (first tree / onboarding). Keep the modal open when the user loaded
  * another tree or branch while a curriculum was already on the canvas.

@@ -1,11 +1,8 @@
 import { MODAL_EXPORT_NAMES, EAGER_MODAL_TYPES } from '../modal-chunk-loaders.js';
 import { shouldShowMobileUI } from '../../shared/ui/breakpoints.js';
 import { isMobileDockTakeover, CONSTRUCTION_DOCK_HUB_MODAL_TYPES } from '../../shared/ui/mobile-fullbleed-modals.js';
-import {
-    resolveModalSurface,
-} from '../modal-surface-routing.js';
-import { onboardingModalFromSourcesHint } from '../../shared/lib/onboarding-boot-gate.js';
-import { loadDefaultDemoAndDismissSources } from '../../features/sources/api/modals/logic/sources-actions-support.js';
+import { resolveModalSurface } from '../modal-surface-routing.js';
+import { closeSourcesModal } from '../../features/sources/api/modals/logic/sources-actions-support.js';
 
 /** Sub-modals opened from Profile: keep profile mounted underneath. */
 export const PROFILE_STACK_CHILD_TYPES = new Set(['backup', 'privacy', 'sync-login-qr-scanner', 'account-recovery', 'change-password']);
@@ -161,17 +158,8 @@ export function handleModalEscapeKey(state, store) {
         }
         if (type === 'onboarding') return true;
         if (type === 'sources') {
-            const fromOnb =
-                state.modal && typeof state.modal === 'object' && state.modal.fromOnboarding;
-            if (fromOnb) {
-                store.setModal(onboardingModalFromSourcesHint(fromOnb));
-                return true;
-            }
-            if (store.isSourcesDismissBlocked()) {
-                if (store.state.treeHydrating) return true;
-                void loadDefaultDemoAndDismissSources({ returnToMore: true });
-                return true;
-            }
+            closeSourcesModal({ returnToMore: true });
+            return true;
         }
         store.dismissModal();
         return true;
@@ -193,16 +181,8 @@ export function handleFocusTrapEscape(store) {
     }
     if (mt === 'onboarding') return;
     if (mt === 'sources') {
-        const fromOnb = cur && typeof cur === 'object' && cur.fromOnboarding;
-        if (fromOnb) {
-            store.setModal(onboardingModalFromSourcesHint(fromOnb));
-            return;
-        }
-        if (store.isSourcesDismissBlocked()) {
-            if (store.state.treeHydrating) return;
-            void loadDefaultDemoAndDismissSources({ returnToMore: true });
-            return;
-        }
+        closeSourcesModal({ returnToMore: true });
+        return;
     }
     if (state.viewMode === 'certificates' && mt !== 'certificate') {
         store.leaveCertificatesView();
@@ -221,16 +201,8 @@ export function handleBackdropEmptyTap(store) {
     }
     if (mt === 'onboarding') return;
     if (mt === 'sources') {
-        const fromOnb = cur && typeof cur === 'object' && cur.fromOnboarding;
-        if (fromOnb) {
-            store.setModal(onboardingModalFromSourcesHint(fromOnb));
-            return;
-        }
-        if (store.isSourcesDismissBlocked()) {
-            if (store.state.treeHydrating) return;
-            void loadDefaultDemoAndDismissSources({ returnToMore: true });
-            return;
-        }
+        closeSourcesModal({ returnToMore: true });
+        return;
     }
     if (state.viewMode === 'certificates' && mt !== 'certificate') {
         store.leaveCertificatesView();

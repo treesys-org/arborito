@@ -5,6 +5,7 @@ import { isSagePointerGuarded } from '../features/learning/api/sage-pointer-guar
 import { ensureSageHostReadyOnStore } from './shell-sage-lifecycle.js';
 import { prepareShellForModalOpen } from './shell-overlay-coordinator.js';
 import { onboardingModalFromSourcesHint } from '../shared/lib/onboarding-boot-gate.js';
+import { isWaitingForCurriculumSkeletonPaint } from '../features/sources/api/sources-session.js';
 import { maybeRepromptConstructionBranchAfterHubDismiss } from '../features/editor/api/construction-enter-flow.js';
 
 /** @param {import('./shell-store.js').ShellStore} store */
@@ -66,6 +67,12 @@ export function dismissModalWithFlow(store, opts, m) {
     const returnToMore = opts.returnToMore !== false;
 
     if (fromOnboarding && returnToMore) {
+        if (isWaitingForCurriculumSkeletonPaint(store)) return;
+        const graphPainted = !!(store.state.data || store.state.rawGraphData);
+        if (store.state.treeHydrating || graphPainted) {
+            setModalOnStore(store, null);
+            return;
+        }
         setModalOnStore(store, onboardingModalFromSourcesHint(fromOnboarding));
         return;
     }

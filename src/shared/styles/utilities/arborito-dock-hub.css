@@ -76,6 +76,17 @@
     background: var(--arborito-theme-dock-hub-head-icon-bg-hover);
 }
 
+.arborito-dock-hub-head .arborito-modal-window-x:disabled,
+.arborito-dock-hub-head .arborito-mmenu-back:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.arborito-dock-hub-head .arborito-modal-window-x:disabled:hover {
+    background: var(--arborito-theme-dock-hub-head-icon-bg);
+}
+
 /* Desktop hub body scroll (Arcade tabs + content, Biblioteca list) */
 .arborito-dock-hub-body {
     flex: 1 1 auto;
