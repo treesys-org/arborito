@@ -15,6 +15,7 @@ import { _ensureSnapshotsAdminLoaded } from '../features/version-updates/api/sna
 import { getVersionPresentation, switcherShowsVersionTab } from '../features/version-updates/api/version-switch-logic.js';
 import { fileSystem } from '../features/backup-export/api/filesystem.js';
 import { hasOtherTreeSwitcherSource } from '../features/tree-graph/api/logic/curriculum-switcher-list.js';
+import { armPostClosePointerGuard } from './shell-dialog-lifecycle.js';
 
 function shell() {
     return getArboritoStore();
@@ -158,6 +159,9 @@ export function navigatePanelBackAction() {
     if (!store) return undefined;
     const path = graphUiOf(store).mobilePath || [];
     if (path.length <= 1) return;
+    /* Ghost click only: Back touchend remounts the panel; synthetic click can hit
+     * the adjacent branch/version chip. Same pattern as lesson close. */
+    armPostClosePointerGuard(550);
     store.navigateMobilePath(path.slice(0, -1));
     store.bumpGraphUiRevision();
 }

@@ -168,7 +168,7 @@ html:not(.dark) .arborito-mobile-path .mobile-panel-back:hover {
 .mobile-panel-branch-unit__row {
     display: flex;
     align-items: stretch;
-    gap: 0;
+    gap: 0.35rem;
     width: 100%;
     min-width: 0;
     padding: 0;
@@ -181,6 +181,9 @@ html:not(.dark) .arborito-mobile-path .mobile-panel-back:hover {
     flex-shrink: 0;
     align-self: center;
     padding-left: 0.35rem;
+    padding-right: 0.25rem;
+    position: relative;
+    z-index: 2;
 }
 
 .mobile-panel-branch-unit__row .mobile-panel-branch-version {
@@ -246,6 +249,17 @@ html:not(.dark) .arborito-mobile-path .mobile-panel-back:hover {
     border-color: var(--arborito-theme-branch-version-chip-border-color);
     background: var(--arborito-theme-branch-version-chip-toolbar-background);
     color: var(--arborito-theme-branch-version-chip-color);
+}
+
+/* Extra hit slop toward the chip so fat-finger Back does not land on chip padding. */
+.mobile-panel-branch-unit__chrome .mobile-panel-back {
+    position: relative;
+}
+
+.mobile-panel-branch-unit__chrome .mobile-panel-back::after {
+    content: '';
+    position: absolute;
+    inset: -0.35rem -0.45rem -0.35rem -0.25rem;
 }
 
 .mobile-panel-branch-unit .arborito-branch-panel-version-chip__copy {

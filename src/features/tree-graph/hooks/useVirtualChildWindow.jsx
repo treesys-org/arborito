@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
-const ROW_HEIGHT = 52;
+/* Matches .mobile-child-row min-height 3.5rem + margin-bottom 0.4rem. */
+const ROW_HEIGHT = 64;
 const OVERSCAN = 6;
 export const CHILD_LIST_VIRTUAL_THRESHOLD = 30;
 

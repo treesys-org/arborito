@@ -4,9 +4,7 @@ import { useTreeGraphStore } from './useTreeGraph.js';
 import { buildStateSig, diffStateSig } from '../api/logic/graph-state-sig.js';
 import { fileSystem } from '../../backup-export/api/filesystem.js';
 import {
-    clampMobileTrunkScrollForVisibleRoot,
     regroundMobileTrunkScroll,
-    resolveScrollHosts,
 } from '../api/logic/path-scroll.js';
 import {
     markTrunkGestureStart,
@@ -33,10 +31,6 @@ export function useGraphPanel(rootRef, opts = {}) {
     const constructionMode = useTreeGraphSlice((s) => s.constructionMode);
     const treeHydrating = useTreeGraphSlice((s) => s.treeHydrating);
     const lastSigRef = useRef('');
-    const scrollLockRef = useRef(false);
-    const hostRefsRef = useRef(opts.hostRefs);
-
-    hostRefsRef.current = opts.hostRefs;
 
     useEffect(() => {
         const root = rootRef.current;
@@ -242,11 +236,8 @@ export function useGraphPanel(rootRef, opts = {}) {
             root.querySelector('#mobile-trunk-container') ||
             document.getElementById('mobile-trunk-container');
         const trunkTouchOpts = { passive: true, capture: true };
-        const onTrunkScroll = () => {
-            markTrunkGestureScroll();
-            const hosts = resolveScrollHosts(hostRefsRef.current);
-            clampMobileTrunkScrollForVisibleRoot(hosts, scrollLockRef);
-        };
+        /* Momentum only — ground clamp runs on layout/path sync, not every scroll frame. */
+        const onTrunkScroll = () => markTrunkGestureScroll();
         const onTrunkTouchStart = () => markTrunkGestureStart();
         const onTrunkTouchMove = () => markTrunkGestureMove();
         const onTrunkTouchEnd = () => markTrunkGestureEnd();

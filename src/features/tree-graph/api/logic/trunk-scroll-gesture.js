@@ -2,7 +2,8 @@
 let userGesturing = false;
 let gestureEndTimer = 0;
 
-const GESTURE_COOLDOWN_MS = 120;
+/* Long enough to cover momentum on tall trunks (Linux-sized paths). */
+const GESTURE_COOLDOWN_MS = 320;
 
 function armGestureCooldown() {
     if (gestureEndTimer) clearTimeout(gestureEndTimer);
@@ -33,9 +34,9 @@ export function markTrunkGestureMove() {
     }
 }
 
-/** Extend cooldown while momentum scroll continues after touchend. */
+/** Keep clamps suppressed while momentum scroll continues after touchend. */
 export function markTrunkGestureScroll() {
-    if (!userGesturing) return;
+    userGesturing = true;
     armGestureCooldown();
 }
 

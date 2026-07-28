@@ -20,65 +20,6 @@ export function markTapTarget(el) {
 }
 
 /**
- * Swallow the synthetic *click* that follows a touchend activation.
- * Do NOT preventDefault on touchend itself — that poisons WebKit overflow
- * pan-y (trunk needs a second/third drag). Click-only, like the lesson
- * post-close guard. Stops retargeting (Back → adjacent "change branch" chip).
- */
-let _ghostUntil = 0;
-let _ghostOn = false;
-let _ghostTimer = 0;
-
-function ghostClickGuard(e) {
-    if (Date.now() >= _ghostUntil) {
-        teardownGhostClickGuard();
-        return;
-    }
-    /* Keep programmatic click() (detail 0), e.g. nested btn.click() from a row tap. */
-    if (typeof e.detail === 'number' && e.detail === 0) return;
-    try {
-        e.preventDefault();
-    } catch {
-        /* noop */
-    }
-    try {
-        e.stopPropagation();
-    } catch {
-        /* noop */
-    }
-    if (typeof e.stopImmediatePropagation === 'function') {
-        try {
-            e.stopImmediatePropagation();
-        } catch {
-            /* noop */
-        }
-    }
-}
-
-function teardownGhostClickGuard() {
-    if (_ghostTimer) {
-        clearTimeout(_ghostTimer);
-        _ghostTimer = 0;
-    }
-    if (!_ghostOn) return;
-    _ghostOn = false;
-    document.removeEventListener('click', ghostClickGuard, true);
-}
-
-function armGhostClickGuard(ms = 450) {
-    const dur = Math.max(0, Number(ms) || 0);
-    _ghostUntil = Date.now() + dur;
-    if (_ghostTimer) clearTimeout(_ghostTimer);
-    _ghostTimer = setTimeout(() => {
-        _ghostTimer = 0;
-        teardownGhostClickGuard();
-    }, dur + 32);
-    if (_ghostOn) return;
-    _ghostOn = true;
-    document.addEventListener('click', ghostClickGuard, true);
-}
-
-/**
  * True when the event hit the backdrop surface itself, not the modal shell (first child) nor its descendants.
  * Prefer this over `e.target === backdrop` for dismissing modals: touch stacks sometimes retarget oddly.
  *
@@ -99,6 +40,9 @@ export function isModalBackdropEmptyTap(backdrop, e) {
  * Reliable activation on touch devices: WebKit often drops synthetic `click` after scrolling
  * a parent (e.g. sheet "More", tree trunk). Complements `click` for mouse/desktop.
  * If it already fired from touch, the duplicate `click` (~300ms later) is ignored.
+ *
+ * Do NOT preventDefault on touchend — that poisons WebKit overflow pan-y (trunk).
+ * Ghost clicks after navigation are handled by armPostClosePointerGuard at the action site.
  *
  * @param {Element | null | undefined} el
  * @param {(ev: Event) => void} handler
@@ -169,9 +113,7 @@ export function bindMobileTap(el, handler, opts = {}) {
         if (Math.abs(t.clientX - sx) > slopPx || Math.abs(t.clientY - sy) > slopPx) {
             return;
         }
-        /* No preventDefault on touchend — WebKit trunk pan poison. Ghost click → armGhostClickGuard. */
         state.lastTouchFireAt = Date.now();
-        armGhostClickGuard(450);
         handler(e);
     };
 
@@ -237,7 +179,6 @@ export function addScrollSafeClickDelegation(root, handler) {
         }
         if (!el || !root.contains(el)) return;
         lastTouchHandledAt = Date.now();
-        armGhostClickGuard(450);
         handler({
             target: el,
             currentTarget: root,
