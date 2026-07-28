@@ -571,6 +571,10 @@ export async function publishBranchAsPrivateAction(treeId, opts = {}) {
     if (quiet && !store.userStore.isBranchPrivateSyncedFromAccount?.(localId)) {
         return;
     }
+    const net = await getConnectedNostr(store);
+    if (!net || typeof net.putPrivateTreeBlob !== 'function') {
+        throw new Error(ui.nostrNotLoadedHint || 'Nostr relays unavailable.');
+    }
     const body = {
         v: 1,
         id: localId,
@@ -578,7 +582,7 @@ export async function publishBranchAsPrivateAction(treeId, opts = {}) {
         data: entry.data,
         updatedAt: new Date().toISOString(),
     };
-    await store.nostr.putPrivateTreeBlob({ username: name, treeId: localId, pair, body });
+    await net.putPrivateTreeBlob({ username: name, treeId: localId, pair, body });
     /*
      * Race: Stop sync may have run while put was in flight. Do not re-mark;
      * tombstone again so the just-uploaded blob does not stick.
@@ -757,6 +761,10 @@ export async function publishComposedTreeAsPrivateAction(treeId, opts = {}) {
     if (!(pair && pair.pub)) {
         throw new Error(ui.nostrNotLoadedHint || 'Could not derive your user key.');
     }
+    const net = await getConnectedNostr(store);
+    if (!net || typeof net.putPrivateTreeBlob !== 'function') {
+        throw new Error(ui.nostrNotLoadedHint || 'Nostr relays unavailable.');
+    }
     const body = {
         v: 1,
         kind: 'composed-tree',
@@ -767,7 +775,7 @@ export async function publishComposedTreeAsPrivateAction(treeId, opts = {}) {
         forkOf: entry.forkOf || null,
         updatedAt: new Date().toISOString(),
     };
-    await store.nostr.putPrivateTreeBlob({ username: name, treeId: tid, pair, body });
+    await net.putPrivateTreeBlob({ username: name, treeId: tid, pair, body });
     store.userStore.markTreeAsPrivateSyncedFromAccount?.(tid);
     store.sourceManager.refreshPrivateAccountSources?.();
     notifyCommunityChanged(store);

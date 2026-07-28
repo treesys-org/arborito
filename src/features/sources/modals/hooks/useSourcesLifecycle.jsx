@@ -94,13 +94,18 @@ export function useSourcesLifecycle({ embed, bump, setMainTab, setActiveTab, set
             });
         });
 
-        /* Re-pull private account drafts when opening Fuentes (boot race / F5 lag). */
+        /* Pull account drafts, then push unsynced local branches (phone→account). */
         const signedInName = String(store._authSession?.username || '').trim();
         if (signedInName && typeof store.loadPrivateTreesFromAccount === 'function') {
             void (async () => {
                 try {
                     await warmNostrRelayConnections(store, { probe: false }).catch(() => null);
                     await store.loadPrivateTreesFromAccount(signedInName, { retry: false });
+                    try {
+                        await store.syncAllLocalPrivateBranchesToAccount?.({ silent: true });
+                    } catch (e) {
+                        console.warn('[Arborito] Fuentes local private push failed', e);
+                    }
                     bump();
                 } catch (e) {
                     console.warn('[Arborito] Fuentes private-trees refresh failed', e);

@@ -280,6 +280,16 @@ export async function _finalizeSyncLoginSessionAction(name, opts = {}) {
             } catch (e) {
                 console.warn('[arborito] private trees restore failed', e);
             }
+            /*
+             * After pull: upload any local garden branches not yet on the account.
+             * Fixes "course only on phone" when import sync was skipped / failed.
+             * Pull-first keeps other devices from being overwritten by empty local state.
+             */
+            try {
+                await store.syncAllLocalPrivateBranchesToAccount?.({ silent: true });
+            } catch (e) {
+                console.warn('[arborito] push local private branches after restore failed', e);
+            }
             try {
                 await store.loadOwnedTreesFromDirectory?.(name);
             } catch (e) {
