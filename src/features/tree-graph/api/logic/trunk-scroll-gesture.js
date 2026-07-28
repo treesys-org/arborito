@@ -2,8 +2,7 @@
 let userGesturing = false;
 let gestureEndTimer = 0;
 
-/* Long enough to cover layout RAF clamps after lift; short enough not to block path sync. */
-const GESTURE_COOLDOWN_MS = 280;
+const GESTURE_COOLDOWN_MS = 120;
 
 function armGestureCooldown() {
     if (gestureEndTimer) clearTimeout(gestureEndTimer);

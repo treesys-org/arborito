@@ -102,7 +102,6 @@ function computeActiveBranchScroll(hosts) {
 }
 
 function applyBranchScrollWithGroundedRoot(hosts, branchScroll, lockRef) {
-    if (isTrunkUserGesturing()) return;
     const container = hosts.trunkContainer;
     const sc = hosts.scrollContent;
     const rootWrap = getMobileRootWrap(hosts);
@@ -121,7 +120,6 @@ function applyBranchScrollWithGroundedRoot(hosts, branchScroll, lockRef) {
 }
 
 function scrollMobileTrunkToRootBottom(hosts, lockRef) {
-    if (isTrunkUserGesturing()) return;
     const container = hosts.trunkContainer;
     const sc = hosts.scrollContent;
     const rootWrap = getMobileRootWrap(hosts);
