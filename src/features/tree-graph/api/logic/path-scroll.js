@@ -187,18 +187,17 @@ export function clampMobileTrunkScrollForVisibleRoot(hosts, lockRef = { current:
 }
 
 /**
- * After path remount / programmatic scrollTop, force WebKit to rebuild the
- * overflow scroll layer (otherwise the next finger pan often no-ops).
+ * After path remount / programmatic scrollTop, nudge WebKit to rebuild the
+ * overflow scroll layer without toggling overflow (that toggle itself used to
+ * leave pan-y dead after folder enter/back).
  */
 export function wakeTrunkOverflowScroller(container) {
     if (!container || typeof container.scrollTop !== 'number') return;
     const y = container.scrollTop;
     beginProgrammaticTrunkScroll();
     try {
-        const prev = container.style.overflowY;
-        container.style.overflowY = 'hidden';
-        void container.offsetHeight;
-        container.style.overflowY = prev || '';
+        /* Tiny no-op nudge: forces compositor refresh without destroying pan-y. */
+        container.scrollTop = y + (y > 0 ? -1 : 1);
         container.scrollTop = y;
     } finally {
         endProgrammaticTrunkScroll();

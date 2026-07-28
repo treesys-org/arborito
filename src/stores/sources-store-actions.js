@@ -7,7 +7,7 @@ import { repairTreeViewFromRawAction } from './tree-graph-store-actions.js';
 import { mergeRemoteGamification } from '../core/user-store/gamification-merge.js';
 import { dismissModalAction, notifyAction } from './shell-ui-store-actions.js';
 import { isSameActiveNetworkSource } from '../features/sources/api/modals/logic/sources-helpers.js';
-import { stripShareTreeParams } from '../features/sources/api/source-manager.js';
+import { stripShareTreeParams } from '../features/sources/api/share-tree-url.js';
 
 function shell() {
     return getArboritoStore();

@@ -142,20 +142,26 @@ export const persistenceMixin = {
         if (incompleteQuizzes.length) {
             const first = incompleteQuizzes[0];
             const lang = String(store.value.lang || 'ES').toUpperCase() === 'EN' ? 'en' : 'es';
-            const detail =
-                first.hints?.map((h) => h[lang] || h.es || h.en).filter(Boolean).join('; ') ||
-                first.concept ||
-                '';
-            const base =
+            const tip =
+                first.hints?.[0]?.[lang] ||
+                first.hints?.[0]?.es ||
+                first.hints?.[0]?.en ||
+                (lang === 'en'
+                    ? 'need question and answer, or what to remember and meaning'
+                    : 'falta pregunta y respuesta, o qué recordar y significado');
+            const extra =
+                incompleteQuizzes.length > 1
+                    ? lang === 'en'
+                        ? ` (+${incompleteQuizzes.length - 1} more)`
+                        : ` (+${incompleteQuizzes.length - 1} más)`
+                    : '';
+            const msg = (
                 ui.lessonSaveQuizIncomplete ||
-                "Can't save yet: finish every questionnaire (or remove it). Each one needs a playable question for learners.";
-            const withDetail = detail
-                ? (
-                      ui.lessonSaveQuizIncompleteDetail ||
-                      'Questionnaire issue: {detail}'
-                  ).replace('{detail}', detail)
-                : '';
-            store.notify(withDetail ? `${base}\n${withDetail}` : base, true);
+                (lang === 'en'
+                    ? "Can't save: {detail}"
+                    : 'No se puede guardar: {detail}')
+            ).replace('{detail}', `${tip}${extra}`);
+            store.notify(msg, true);
             return;
         }
         const sectionIdx =

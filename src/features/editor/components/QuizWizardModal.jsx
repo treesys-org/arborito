@@ -9,20 +9,34 @@ function conceptStepPlaceholder(ui, idx) {
 }
 
 function ItemTabs({ items, activeItemIndex, ui, onSelect, onAdd, onRemove, isItemComplete }) {
-    const addLbl = ui.quizWizardAddQuestion || 'Add question';
-    const questionLbl = ui.quizWizardQuestionLabel || 'Question {n}';
+    const addLbl = ui.quizWizardAddQuestion || 'Add another';
+    /* Only show tabs when there is more than one entry — a lone "Question 1" label confuses authors. */
+    if (items.length <= 1) {
+        return (
+            <div className="quiz-wizard-items px-3 py-2 border-b border-indigo-100 dark:border-indigo-900/60 bg-indigo-50/40 dark:bg-indigo-950/20 flex items-center gap-1.5 flex-wrap">
+                <button
+                    type="button"
+                    className="quiz-wizard-item-add px-2.5 py-1 rounded-lg border border-dashed border-indigo-300 dark:border-indigo-600 text-indigo-600 dark:text-indigo-300 text-xs font-semibold hover:bg-indigo-100/60 dark:hover:bg-indigo-900/30"
+                    onClick={onAdd}
+                >
+                    + {addLbl}
+                </button>
+            </div>
+        );
+    }
+    const itemLbl = ui.quizWizardQuestionLabel || '{n}';
 
     return (
         <div className="quiz-wizard-items px-3 py-2 border-b border-indigo-100 dark:border-indigo-900/60 bg-indigo-50/40 dark:bg-indigo-950/20 flex items-center gap-1.5 flex-wrap">
             {items.map((item, idx) => {
                 const active = idx === activeItemIndex;
-                const label = questionLbl.replace('{n}', String(idx + 1));
+                const label = itemLbl.replace('{n}', String(idx + 1));
                 const complete = isItemComplete?.(item);
                 return (
                     <div key={idx} className="flex items-center gap-0.5">
                         <button
                             type="button"
-                            className={`quiz-wizard-item-tab px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
+                            className={`quiz-wizard-item-tab px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${
                                 active
                                     ? 'arborito-quiz-chip--active shadow-sm'
                                     : 'bg-white/80 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-900'
@@ -37,22 +51,20 @@ function ItemTabs({ items, activeItemIndex, ui, onSelect, onAdd, onRemove, isIte
                                 {complete ? '✓' : '·'}
                             </span>
                         </button>
-                        {items.length > 1 ? (
-                            <button
-                                type="button"
-                                className="quiz-wizard-item-remove p-1 text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded text-[10px]"
-                                aria-label={ui.quizWizardRemoveQuestion || ui.delete || 'Delete'}
-                                onClick={() => onRemove(idx)}
-                            >
-                                ✕
-                            </button>
-                        ) : null}
+                        <button
+                            type="button"
+                            className="quiz-wizard-item-remove p-1 text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded text-[10px]"
+                            aria-label={ui.quizWizardRemoveQuestion || ui.delete || 'Delete'}
+                            onClick={() => onRemove(idx)}
+                        >
+                            ✕
+                        </button>
                     </div>
                 );
             })}
             <button
                 type="button"
-                className="quiz-wizard-item-add px-2.5 py-1 rounded-lg border border-dashed border-indigo-300 dark:border-indigo-600 text-indigo-600 dark:text-indigo-300 text-xs font-bold hover:bg-indigo-100/60 dark:hover:bg-indigo-900/30"
+                className="quiz-wizard-item-add px-2.5 py-1 rounded-lg border border-dashed border-indigo-300 dark:border-indigo-600 text-indigo-600 dark:text-indigo-300 text-xs font-semibold hover:bg-indigo-100/60 dark:hover:bg-indigo-900/30"
                 onClick={onAdd}
             >
                 + {addLbl}
@@ -120,7 +132,6 @@ export function QuizWizardModal({ blockEl, initialChallenge, onRemove }) {
         ? ui.lessonQuizStatusComplete || 'Ready'
         : ui.lessonQuizStatusIncomplete || 'Incomplete';
 
-    const clozeMode = clozeIndices.length > 0;
     const trapLabel = ui.quizWizardTrapLabel || 'Trap answer';
     const addTrapLbl = ui.quizWizardAddTrap || ui.lessonQuizAddTrap || 'Add trap';
     const removeTrapLbl = ui.quizWizardRemoveTrap || ui.delete || 'Delete';
@@ -196,74 +207,80 @@ export function QuizWizardModal({ blockEl, initialChallenge, onRemove }) {
             />
 
             <div className="quiz-wizard px-3 py-2.5 sm:py-3">
-                <div className="quiz-wizard-panel">
-                    <div className="quiz-form-grid">
-                        <div>
-                            <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">
-                                {ui.quizWizardFieldTopic || ui.editorBlockCoreConcept || 'Topic'}
-                            </label>
-                            <input
-                                type="text"
-                                className="quiz-core-input arborito-input w-full"
-                                value={coreConcept}
-                                placeholder={ui.quizWizardFieldTopicPh || ''}
-                                autoComplete="off"
-                                onChange={(e) => {
-                                    setCoreConcept(e.target.value);
-                                    notifyChange();
-                                }}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">
-                                {ui.quizWizardFieldDefinition || ui.editorBlockShortDef || 'Definition'}
-                            </label>
-                            <textarea
-                                className="quiz-def-input arborito-input arborito-textarea w-full resize-none h-16"
-                                value={shortDefinition}
-                                placeholder={ui.quizWizardFieldDefinitionPh || ''}
-                                onChange={(e) => {
-                                    setShortDefinition(e.target.value);
-                                    notifyChange();
-                                }}
-                            />
-                        </div>
-                    </div>
-
-                    {clozeWords.length > 2 ? (
-                        <div className="quiz-cloze-panel mt-2 rounded-lg border border-indigo-200/70 dark:border-indigo-500/30 bg-indigo-50/60 dark:bg-indigo-950/30 p-2">
-                            <p className="text-[10px] text-indigo-700/90 dark:text-indigo-200/80 mb-1.5">
-                                {ui.quizWizardClozeHint || 'Tap words to hide in cloze mode.'}
-                            </p>
-                            <div className="quiz-cloze-words flex flex-wrap gap-1">
-                                {clozeWords.map((word, idx) => {
-                                    const active = clozeIndices.includes(idx);
-                                    return (
-                                        <button
-                                            key={`${idx}-${word}`}
-                                            type="button"
-                                            className={`quiz-cloze-word px-2 py-0.5 rounded-md font-medium transition-all text-xs ${
-                                                active
-                                                    ? 'arborito-quiz-chip--active shadow-md'
-                                                    : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-600'
-                                            }`}
-                                            onClick={() => toggleCloze(idx)}
-                                        >
-                                            {word}
-                                        </button>
-                                    );
-                                })}
+                <div className="quiz-wizard-panel space-y-2.5">
+                    <div className="quiz-wizard-flashcard rounded-lg border border-violet-200/70 dark:border-violet-500/30 bg-violet-50/40 dark:bg-violet-950/20 p-2.5">
+                        <p className="text-[11px] font-semibold text-violet-800/90 dark:text-violet-200/90 mb-2">
+                            {ui.quizWizardFlashcardTitle || 'Remember'}
+                        </p>
+                        <div className="quiz-form-grid">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                                    {ui.quizWizardFieldTopic || 'What to remember'}
+                                </label>
+                                <input
+                                    type="text"
+                                    className="quiz-core-input arborito-input w-full"
+                                    value={coreConcept}
+                                    placeholder={ui.quizWizardFieldTopicPh || ''}
+                                    autoComplete="off"
+                                    onChange={(e) => {
+                                        setCoreConcept(e.target.value);
+                                        notifyChange();
+                                    }}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                                    {ui.quizWizardFieldDefinition || 'Meaning'}
+                                </label>
+                                <textarea
+                                    className="quiz-def-input arborito-input arborito-textarea w-full resize-none h-16"
+                                    value={shortDefinition}
+                                    placeholder={ui.quizWizardFieldDefinitionPh || ''}
+                                    onChange={(e) => {
+                                        setShortDefinition(e.target.value);
+                                        notifyChange();
+                                    }}
+                                />
                             </div>
                         </div>
-                    ) : null}
 
-                    <div className="quiz-wizard-qa mt-2.5 rounded-lg border border-indigo-200/70 dark:border-indigo-500/30 bg-indigo-50/30 dark:bg-indigo-950/20 p-2.5">
-                        <p className="text-[10px] font-bold uppercase tracking-wide text-indigo-700/90 dark:text-indigo-200/80 mb-2">
-                            {ui.quizWizardStep2Title || 'Question & answer'}
+                        {clozeWords.length > 2 ? (
+                            <div className="quiz-cloze-panel mt-2 rounded-lg border border-indigo-200/70 dark:border-indigo-500/30 bg-indigo-50/60 dark:bg-indigo-950/30 p-2">
+                                <p className="text-[10px] text-indigo-700/90 dark:text-indigo-200/80 mb-1.5">
+                                    {ui.quizWizardClozeHint ||
+                                        'Optional: tap words to hide them.'}
+                                </p>
+                                <div className="quiz-cloze-words flex flex-wrap gap-1">
+                                    {clozeWords.map((word, idx) => {
+                                        const active = clozeIndices.includes(idx);
+                                        return (
+                                            <button
+                                                key={`${idx}-${word}`}
+                                                type="button"
+                                                className={`quiz-cloze-word px-2 py-0.5 rounded-md font-medium transition-all text-xs ${
+                                                    active
+                                                        ? 'arborito-quiz-chip--active shadow-md'
+                                                        : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-600'
+                                                }`}
+                                                onClick={() => toggleCloze(idx)}
+                                            >
+                                                {word}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ) : null}
+                    </div>
+
+                    <div className="quiz-wizard-qa rounded-lg border border-indigo-200/70 dark:border-indigo-500/30 bg-indigo-50/30 dark:bg-indigo-950/20 p-2.5">
+                        <p className="text-[11px] font-semibold text-indigo-800/90 dark:text-indigo-200/90 mb-2">
+                            {ui.quizWizardStep2Title || 'Question and answer'}
                         </p>
                         <div className="quiz-form-grid">
                             <div className="quiz-form-grid__span">
-                                <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">
+                                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
                                     {ui.quizWizardFieldQuestion || ui.editorBlockMainQuestion || 'Question'}
                                 </label>
                                 <input
@@ -279,18 +296,12 @@ export function QuizWizardModal({ blockEl, initialChallenge, onRemove }) {
                                 />
                                 {questionAuto ? (
                                     <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400 leading-snug">
-                                        {ui.quizWizardFieldQuestionAutoHint || 'Suggested from the topic.'}
-                                    </p>
-                                ) : null}
-                                {clozeMode ? (
-                                    <p className="mt-1 text-[10px] text-indigo-600/90 dark:text-indigo-300/80 leading-snug">
-                                        {ui.quizWizardFieldQuestionClozeNote ||
-                                            'Leave empty for cloze mode. Filling it disables cloze.'}
+                                        {ui.quizWizardFieldQuestionAutoHint || 'Suggested from “What to remember”.'}
                                     </p>
                                 ) : null}
                             </div>
                             <div className="quiz-form-grid__span">
-                                <label className="block text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1">
+                                <label className="block text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
                                     {ui.quizWizardFieldAnswer ||
                                         ui.editorBlockCorrectAnswer ||
                                         'Correct answer'}
@@ -313,14 +324,18 @@ export function QuizWizardModal({ blockEl, initialChallenge, onRemove }) {
                             {traps.map((trap, idx) => (
                                 <div key={idx} className="flex gap-2 items-end">
                                     <div className="flex-1 min-w-0">
-                                        <label className="block text-xs font-bold text-rose-600 dark:text-rose-400 mb-1">
+                                        <label className="block text-xs font-semibold text-rose-600 dark:text-rose-400 mb-1">
                                             {trapLabel}
                                         </label>
                                         <input
                                             type="text"
                                             className="quiz-trap-input w-full"
                                             value={trap}
-                                            placeholder={ui.quizWizardTrapPh || ''}
+                                            placeholder={
+                                                idx === 0
+                                                    ? ui.quizWizardTrapPh || ''
+                                                    : ui.quizWizardTrapPhMore || ui.quizWizardTrapPh || ''
+                                            }
                                             onChange={(e) => {
                                                 updateTrap(idx, e.target.value);
                                                 notifyChange();
@@ -339,7 +354,7 @@ export function QuizWizardModal({ blockEl, initialChallenge, onRemove }) {
                             ))}
                             <button
                                 type="button"
-                                className="quiz-add-trap text-[11px] font-bold text-rose-500/90 dark:text-rose-400/90 hover:underline"
+                                className="quiz-add-trap text-[11px] font-semibold text-rose-500/90 dark:text-rose-400/90 hover:underline"
                                 onClick={addTrap}
                             >
                                 + {addTrapLbl}
@@ -348,9 +363,9 @@ export function QuizWizardModal({ blockEl, initialChallenge, onRemove }) {
                     </div>
 
                     {showSteps ? (
-                        <div className="quiz-wizard-steps-block mt-2.5 rounded-lg border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/40 dark:bg-slate-900/30 p-2.5">
-                            <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
-                                {ui.quizWizardStepsFold || 'Order concepts'}
+                        <div className="quiz-wizard-steps-block rounded-lg border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/40 dark:bg-slate-900/30 p-2.5">
+                            <p className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-2">
+                                {ui.quizWizardStepsFold || 'Order the steps'}
                             </p>
                             <div className="quiz-steps-list space-y-1 mb-1.5">
                                 {steps.map((stepVal, idx) => (

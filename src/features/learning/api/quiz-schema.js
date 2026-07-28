@@ -19,7 +19,8 @@
  *     @/quiz
  *
  * Modes appear from filled fields: traps → multiple choice, steps → order,
- * definition braces → cloze, multi-word answer → chips, concept+answer → recall.
+ * definition braces → cloze, multi-word answer → chips,
+ * (topic OR question) + answer → recall.
  *
  * Cloze syntax: wrap the words or phrases to blank in {curly braces} inside
  * the `definition` line. Multi-word phrases like `{Sistema operativo}` map to
@@ -178,11 +179,22 @@ export function challengeForPlay(raw) {
 }
 
 /** @param {import('./quiz-schema.js').QuizChallenge} c */
+function validClozeIndices(c) {
+    const words = String(c.short_definition || '')
+        .split(/\s+/)
+        .filter(Boolean);
+    if (!words.length) return [];
+    return (c.cloze_indices || []).filter(
+        (i) => Number.isInteger(i) && i >= 0 && i < words.length
+    );
+}
+
+/** @param {import('./quiz-schema.js').QuizChallenge} c */
 function modeIsPlayable(c, mode) {
     switch (mode) {
         case QUIZ_MODE_CLOZE:
-            /* Cloze uses definition braces; main_question may still exist for other modes. */
-            return !!(c.short_definition && c.cloze_indices.length > 0);
+            /* Optional: only when the author hid at least one word. Question/topic OK alongside. */
+            return validClozeIndices(c).length > 0;
         case QUIZ_MODE_MULTIPLE: {
             /* Need at least one usable trap after junk filtering (not just raw length). */
             if (!(c.main_question && c.correct_answer && c.traps.length > 0)) return false;
@@ -194,9 +206,12 @@ function modeIsPlayable(c, mode) {
             return usable.length > 0;
         }
         case QUIZ_MODE_RECALL:
-            return !!(c.core_concept && c.correct_answer);
+            /* Question+answer alone is enough (topic/definition are optional extras). */
+            return !!(c.correct_answer && (c.core_concept || c.main_question));
         case QUIZ_MODE_CHIPS: {
             const wc = tokenizeQuizAnswerChips(c.correct_answer).length;
+            /* Chips need a prompt (question or topic) so the learner knows what to build. */
+            if (!(c.core_concept || c.main_question)) return false;
             /* Chips = short phrase (2–6 tokens). Long answers stay recall/multiple only. */
             return wc >= 2 && wc <= 6;
         }
@@ -235,7 +250,7 @@ export function isQuizChallengeComplete(challenge) {
 }
 
 /**
- * Human-readable hints when a @quiz block cannot run any practice mode.
+ * One short tip when a @quiz cannot run yet.
  * Multi-question shells (`items:`) validate each item, not the empty parent fields.
  * @param {object} challenge
  * @returns {{ es: string, en: string }[]}
@@ -250,63 +265,22 @@ export function getChallengeValidationHints(challenge) {
                 parentConcept && !String(item?.core_concept || '').trim()
                     ? { ...item, core_concept: parentConcept }
                     : item;
-            const childHints = getChallengeValidationHints(merged);
-            for (const h of childHints) {
-                out.push({
-                    es: `pregunta ${idx + 1}: ${h.es}`,
-                    en: `question ${idx + 1}: ${h.en}`,
-                });
-            }
+            if (isQuizChallengeComplete(merged)) return;
+            out.push({
+                es: `falta completar la ${idx + 1} (pregunta y respuesta, o recordar)`,
+                en: `entry ${idx + 1} is incomplete (question and answer, or remember)`,
+            });
         });
         return out;
     }
 
-    const hints = [];
-
-    if (!c.correct_answer) {
-        hints.push({ es: 'falta la respuesta correcta', en: 'missing the correct answer' });
-    }
-    if (!c.core_concept && !c.main_question && !c.short_definition) {
-        hints.push({
-            es: 'añade tema, pregunta o definición',
-            en: 'add a topic, question, or definition'
-        });
-    }
-
-    const playable = getPlayableModes(c);
-    if (c.correct_answer && playable.length === 0) {
-        const need = [];
-        if (!c.traps.length) {
-            need.push({
-                es: 'añade respuestas incorrectas para opción múltiple',
-                en: 'add wrong answers for multiple choice'
-            });
-        }
-        if (c.short_definition && !c.short_definition.includes('{')) {
-            need.push({
-                es: 'marca palabras en la definición para el modo huecos',
-                en: 'mark words in the definition for cloze mode'
-            });
-        }
-        if (c.correct_answer && !c.correct_answer.includes(' ') && !c.steps.length) {
-            need.push({
-                es: 'usa una respuesta de varias palabras o añade pasos en orden',
-                en: 'use a multi-word answer or add ordered steps'
-            });
-        }
-        if (!need.length) {
-            need.push({
-                es: 'revisa los modos activos o completa más campos',
-                en: 'check active modes or fill in more fields'
-            });
-        }
-        hints.push({
-            es: `ningún modo de práctica disponible, ${need.map((n) => n.es).join('; ')}`,
-            en: `no practice mode available, ${need.map((n) => n.en).join('; ')}`
-        });
-    }
-
-    return hints;
+    if (isQuizChallengeComplete(c)) return [];
+    return [
+        {
+            es: 'falta pregunta y respuesta, o qué recordar y significado',
+            en: 'need question and answer, or what to remember and meaning',
+        },
+    ];
 }
 
 function studyPlayableModes(challenge) {

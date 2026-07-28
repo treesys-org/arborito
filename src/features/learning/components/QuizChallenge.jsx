@@ -9,6 +9,7 @@ import {
     QUIZ_MODE_CHIPS,
     QUIZ_MODE_STEPS,
     pickStudyQuizMode,
+    getPlayableModes,
     tokenizeQuizAnswerChips,
     challengeForPlay,
 } from '../api/quiz-schema.js';
@@ -145,29 +146,37 @@ function QuizFinished({ b, ui, state, blockId, quizSession, onRetry, linearMode,
 
 function QuizCloze({ b, c, ui, blockId, onCheck }) {
     const words = c.short_definition.split(/\s+/).filter(Boolean);
-    const blankCount = c.cloze_indices.length;
-    const hidden = c.cloze_indices.map((i) => normalizeClozeToken(words[i] || ''));
+    const blankIdx = (c.cloze_indices || []).filter(
+        (i) => Number.isInteger(i) && i >= 0 && i < words.length
+    );
+    const blankCount = blankIdx.length;
+    const hidden = blankIdx.map((i) => normalizeClozeToken(words[i] || ''));
     const [answers, setAnswers] = useState(() => Array(blankCount).fill(''));
+    const concept = String(c.core_concept || b.core_concept || '').trim();
+    const leadQuestion = String(c.main_question || b.main_question || '').trim();
 
     return (
         <div id={blockId} className="not-prose my-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border p-6 md:p-8" data-mode="cloze">
             <p className="arborito-eyebrow text-indigo-500 mb-2">{ui.quizModeCloze || 'Huecos'}</p>
             <div className="arborito-quiz-challenge__interaction">
-                {c.main_question || b.main_question ? (
+                {concept ? (
+                    <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2">{concept}</p>
+                ) : null}
+                {leadQuestion ? (
                     <p className="text-base font-semibold text-slate-800 dark:text-slate-100 mb-4">
-                        {c.main_question || b.main_question}
+                        {leadQuestion}
                     </p>
                 ) : null}
                 <p className="text-lg leading-loose text-slate-700 dark:text-slate-200 mb-6">
                     {words.map((word, i) => {
-                        if (!c.cloze_indices.includes(i)) {
+                        if (!blankIdx.includes(i)) {
                             return (
                                 <span key={i} className="mr-1">
                                     {word}
                                 </span>
                             );
                         }
-                        const hi = c.cloze_indices.indexOf(i);
+                        const hi = blankIdx.indexOf(i);
                         const { lead, core, trail } = splitClozeDisplayWord(word);
                         const widthCh = Math.max(5, (hidden[hi] || core || '').length + 2);
                         return (
@@ -729,10 +738,11 @@ export function QuizChallenge({ block, state, quizSession, actions, variant = 'q
         );
     }
 
-    /* Prefer stored mode. If missing while started, use a stable salt (not random) so the
-       Recuerdo UI cannot appear while answer grading thinks it is cloze/multiple. */
+    /* Prefer stored mode only if still playable (stale cloze after clearing blanks). */
+    const playable = getPlayableModes(c);
+    const stored = state.v2Mode && playable.includes(state.v2Mode) ? state.v2Mode : '';
     const mode =
-        state.v2Mode ||
+        stored ||
         pickStudyQuizMode(c, blockId, state.attemptCount > 0 ? state.attemptCount : 1);
     switch (mode) {
         case QUIZ_MODE_CLOZE:

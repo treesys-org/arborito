@@ -15,7 +15,7 @@ import { _ensureSnapshotsAdminLoaded } from '../features/version-updates/api/sna
 import { getVersionPresentation, switcherShowsVersionTab } from '../features/version-updates/api/version-switch-logic.js';
 import { fileSystem } from '../features/backup-export/api/filesystem.js';
 import { hasOtherTreeSwitcherSource } from '../features/tree-graph/api/logic/curriculum-switcher-list.js';
-import { armPostClosePointerGuard } from './shell-dialog-lifecycle.js';
+import { resetTrunkUserGesture } from '../features/tree-graph/api/logic/trunk-scroll-gesture.js';
 
 function shell() {
     return getArboritoStore();
@@ -149,13 +149,11 @@ export function navigateIntoChildAction(childId) {
     if (!store) return undefined;
     const path = graphUiOf(store).mobilePath || [];
     const next = [...path.map(String), String(childId)];
-    /* Defer past touchend — same WebKit trunk pan poison as panel Back. */
-    setTimeout(() => {
-        armPostClosePointerGuard(550);
-        store.navigateMobilePath(next);
-        store.bumpGraphUiRevision();
-        schedulePersistTreeUiState(store);
-    }, 0);
+    /* Activation is click-only on trunk rows; clear stale gesture so path sync runs. */
+    resetTrunkUserGesture();
+    store.navigateMobilePath(next);
+    store.bumpGraphUiRevision();
+    schedulePersistTreeUiState(store);
 }
 
 export function navigatePanelBackAction() {
@@ -163,14 +161,10 @@ export function navigatePanelBackAction() {
     if (!store) return undefined;
     const path = graphUiOf(store).mobilePath || [];
     if (path.length <= 1) return;
-    /* Defer past the touchend turn: remounting the trunk scroller inside touchend
-     * leaves mobile WebKit pan-y dead (needs later finger-drags). */
     const next = path.slice(0, -1);
-    setTimeout(() => {
-        armPostClosePointerGuard(550);
-        store.navigateMobilePath(next);
-        store.bumpGraphUiRevision();
-    }, 0);
+    resetTrunkUserGesture();
+    store.navigateMobilePath(next);
+    store.bumpGraphUiRevision();
 }
 
 /** @param {string|null} rootEl pass graph panel root for curriculum events */

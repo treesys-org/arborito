@@ -28,9 +28,7 @@ export function beginProgrammaticTrunkScroll() {
 }
 
 export function endProgrammaticTrunkScroll() {
-    queueMicrotask(() => {
-        programmaticScrollDepth = Math.max(0, programmaticScrollDepth - 1);
-    });
+    programmaticScrollDepth = Math.max(0, programmaticScrollDepth - 1);
 }
 
 /** Keep gesture alive during an active finger drag (capture-phase touchmove). */

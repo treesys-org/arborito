@@ -9,6 +9,7 @@
  */
 
 import { yieldToPaint } from '../../../shared/lib/yield-to-paint.js';
+import { persistBranchEntry } from '../../../shared/lib/arborito-catalog-store.js';
 
 const STUDENT_REVOKE_LS = 'arborito-universe-revoked-student-v1';
 
@@ -406,7 +407,6 @@ async function saveRevokedTreeToGarden(store, opts) {
         if (typeof store.userStore?.flushBranchEntry === 'function') {
             await store.userStore.flushBranchEntry(entry.id);
         } else {
-            const { persistBranchEntry } = await import('../../../shared/lib/arborito-catalog-store.js');
             await persistBranchEntry(entry);
         }
         if (source?.id && typeof store.removeCommunitySource === 'function') {

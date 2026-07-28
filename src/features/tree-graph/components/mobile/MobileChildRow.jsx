@@ -158,7 +158,7 @@ export function MobileChildRow({ child, ctx }) {
         onRowActivate(e);
     };
 
-    useBindMobileTapRef(rowRef, onMobileRowTap, mobile, { slopPx: 12 });
+    useBindMobileTapRef(rowRef, onMobileRowTap, mobile, { slopPx: 12, clickOnly: true });
 
     return (
         <div className="mobile-child-wrap">

@@ -19,6 +19,8 @@ import {
     curriculumHasLocalMedia,
 } from '../features/tree-graph/api/tree-import-sanitize.js';
 import { collectLocalMediaLessonTitles } from '../features/learning/api/lesson-local-media-store.js';
+import { persistBranchEntry } from '../shared/lib/arborito-catalog-store.js';
+import { importBundledDemoMedia } from '../core/demo/import-demo-media.js';
 
 /** Confirm omit-local-media before locking the UI with publishingTree. */
 async function confirmLocalMediaBeforePublishLock(store) {
@@ -425,13 +427,12 @@ export async function offerLocalCopyFromNetworkTreeForEditingAction({ enterConst
         if (typeof store.userStore?.flushBranchEntry === 'function') {
             await store.userStore.flushBranchEntry(entry.id);
         } else {
-            const { persistBranchEntry } = await import('../shared/lib/arborito-catalog-store.js');
             await persistBranchEntry(entry);
         }
         if (isDemo) {
-            void import('../core/demo/import-demo-media.js')
-                .then((m) => m.importBundledDemoMedia(entry.id))
-                .catch((e) => console.warn('[Arborito] demo media copy for fork failed', e));
+            void importBundledDemoMedia(entry.id).catch((e) =>
+                console.warn('[Arborito] demo media copy for fork failed', e)
+            );
         }
         const mounted = await store.loadData(
             { id: entry.id, name: entry.name, url: `branch://${entry.id}`, type: 'branch', isTrusted: true },

@@ -187,9 +187,9 @@ export default defineConfig({
         emptyOutDir: true,
         target: 'es2022',
         sourcemap: true,
-        // app-stores is one monolithic chunk (~860 kB): store modules cross-import and cannot be
+        // app-stores is one monolithic chunk (~930 kB): store modules cross-import and cannot be
         // split without circular chunk errors. index/modal-eager/feature-* split separately.
-        chunkSizeWarningLimit: 900,
+        chunkSizeWarningLimit: 1000,
         rollupOptions: {
             input: resolve(ROOT, 'index.html'),
             output: {

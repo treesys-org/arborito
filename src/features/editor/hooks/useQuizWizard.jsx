@@ -230,6 +230,17 @@ export function useQuizWizard(blockEl, initialChallenge) {
             }
             updateActiveItem((item) => {
                 const words = raw.trim().split(/\s+/).filter(Boolean);
+                const prevWords = String(item.short_definition || '')
+                    .trim()
+                    .split(/\s+/)
+                    .filter(Boolean);
+                const sameWords =
+                    words.length === prevWords.length && words.every((w, i) => w === prevWords[i]);
+                /* Rewriting the definition clears cloze marks — stale indices looked like
+                 * “huecos without tapping words”. */
+                if (!sameWords) {
+                    return { short_definition: raw, cloze_indices: [] };
+                }
                 const nextIdx = (item.cloze_indices || []).filter(
                     (i) => Number.isInteger(i) && i >= 0 && i < words.length
                 );

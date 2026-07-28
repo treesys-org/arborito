@@ -34,8 +34,8 @@ function navigateToPathIndex(tree, constructionMode, index) {
     const path = getMobilePath();
     if (constructionMode && !canConstructionNavigateToPathIndex({ mobilePath: path }, index)) return;
     const next = path.slice(0, index + 1);
-    /* Defer past touchend so trunk remount does not kill WebKit pan-y. */
-    setTimeout(() => tree.navigateMobilePath(next), 0);
+    /* clickOnly activation — navigate immediately on the click turn. */
+    tree.navigateMobilePath(next);
 }
 
 function selectConstructionNode(tree, node) {
@@ -108,8 +108,8 @@ export const MobileKnotRow = memo(function MobileKnotRow({
         }
     };
 
-    useBindMobileTapRef(wrapperRef, onKnotClick, mobile && isRootClover, { slopPx: 12 });
-    useBindMobileTapRef(knotRef, onKnotClick, mobile && !isRootClover, { slopPx: 12 });
+    useBindMobileTapRef(wrapperRef, onKnotClick, mobile && isRootClover, { slopPx: 12, clickOnly: true });
+    useBindMobileTapRef(knotRef, onKnotClick, mobile && !isRootClover, { slopPx: 12, clickOnly: true });
 
     return (
         <div

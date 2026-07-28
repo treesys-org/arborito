@@ -44,6 +44,11 @@ export function isModalBackdropEmptyTap(backdrop, e) {
  * Do NOT preventDefault on touchend — that poisons WebKit overflow pan-y (trunk).
  * Ghost clicks after navigation are handled by armPostClosePointerGuard at the action site.
  *
+ * `opts.clickOnly`: only activate on the synthetic `click` (or mouse click). Use this on
+ * scroll surfaces (mobile tree trunk): firing navigation from `touchend` remounts the
+ * scroller in the same touch turn and leaves pan-y dead until later finger-drags.
+ * Touch listeners still cancel activation when the finger scrolled.
+ *
  * @param {Element | null | undefined} el
  * @param {(ev: Event) => void} handler
  * @returns {() => void} removes listeners (useful when replacing the container's innerHTML)
@@ -51,6 +56,7 @@ export function isModalBackdropEmptyTap(backdrop, e) {
 export function bindMobileTap(el, handler, opts = {}) {
     if (!el) return () => {};
     const slopPx = typeof opts.slopPx === 'number' ? opts.slopPx : MOBILE_TAP_SLOP_PX;
+    const clickOnly = !!opts.clickOnly;
     if (el.tagName !== 'BUTTON') {
         el.setAttribute('role', 'button');
         el.tabIndex = 0;
@@ -113,8 +119,12 @@ export function bindMobileTap(el, handler, opts = {}) {
         const dx = Math.abs(t.clientX - sx);
         const dy = Math.abs(t.clientY - sy);
         if (dx > slopPx || dy > slopPx) {
-            /* Treat as scroll in Y: suppress the synthetic click that can land after touchend. */
+            /* Scroll/gesture: suppress the synthetic click that can land after touchend. */
             if (dy > slopPx) state.lastTouchFireAt = Date.now();
+            return;
+        }
+        if (clickOnly) {
+            /* Clean tap on a scroll surface — wait for synthetic click (same as panel Back). */
             return;
         }
         state.lastTouchFireAt = Date.now();

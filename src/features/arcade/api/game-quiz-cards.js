@@ -112,12 +112,15 @@ function buildOptionsPool(correct, wrongPool, count, opts = {}) {
 
 function buildClozeView(c) {
     const words = tokenizeWords(c.short_definition);
-    const idxs = c.cloze_indices || [];
-    const blankSet = new Set(idxs.filter((n) => Number.isInteger(n) && n >= 0 && n < words.length));
-    const primaryIdx = idxs.length ? idxs[0] : -1;
-    const rawBlank =
-        (primaryIdx >= 0 && words[primaryIdx]) || String(c.correct_answer || '').trim();
-    const blankWord = normalizeClozeToken(rawBlank) || String(c.correct_answer || '').trim();
+    const idxs = (c.cloze_indices || []).filter(
+        (n) => Number.isInteger(n) && n >= 0 && n < words.length
+    );
+    if (!idxs.length || !words.length) {
+        return { display: words.join(' '), blankWord: '' };
+    }
+    const blankSet = new Set(idxs);
+    const primaryIdx = idxs[0];
+    const blankWord = normalizeClozeToken(words[primaryIdx] || '');
     const display = words
         .map((w, i) => {
             if (!blankSet.has(i)) return w;
@@ -189,21 +192,30 @@ export function buildQuizModeCard(challenge, mode, opts = {}) {
         case QUIZ_MODE_RECALL: {
             const wrong = [...c.traps];
             if (c.short_definition && c.short_definition !== c.correct_answer) wrong.push(c.short_definition);
+            /* Prefer authored question; fall back to “What is «topic»?” only when topic exists. */
+            const recallQ =
+                String(c.main_question || '').trim() ||
+                (c.core_concept ? prompts.recall(c.core_concept) : prompts.recall(concept));
             return {
                 mode,
-                concept,
-                question: prompts.recall(concept),
+                concept: c.core_concept || concept,
+                question: recallQ,
                 correct: c.correct_answer,
                 options: buildOptionsPool(c.correct_answer, wrong, optionCount, poolOpts)
             };
         }
         case QUIZ_MODE_CLOZE: {
             const view = buildClozeView(c);
+            if (!view.blankWord || !String(c.short_definition || '').trim()) return null;
             const wrong = [...c.traps, ...distractorWordsExcept(c.short_definition, view.blankWord)];
             return {
                 mode,
                 concept,
-                question: questionWithMainPrompt(c.main_question, view.display, lang),
+                question: questionWithMainPrompt(
+                    c.main_question || (c.core_concept ? prompts.recall(c.core_concept) : ''),
+                    view.display,
+                    lang
+                ),
                 correct: view.blankWord,
                 options: buildOptionsPool(view.blankWord, wrong, optionCount, poolOpts),
                 clozeDisplay: view.display,
