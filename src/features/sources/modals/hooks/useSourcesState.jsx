@@ -81,24 +81,45 @@ export function useSourcesState({ embed }) {
         [embed]
     );
 
-    const modalApiRef = useRef({});
-    modalApiRef.current = {
-        get _sourcesMainTab() {
-            return mainTab;
-        },
-        set _sourcesMainTab(v) {
-            setMainTab(v);
-        },
-        get activeTab() {
-            return activeTab;
-        },
-        set activeTab(v) {
-            setActiveTab(v);
-        },
-        isConnected: true,
-        updateContent: bump,
-        close,
-    };
+    const mountedRef = useRef(true);
+    const modalApiRef = useRef(null);
+    if (!modalApiRef.current) {
+        modalApiRef.current = {
+            get isConnected() {
+                return mountedRef.current;
+            },
+            updateContent: () => {},
+            close: (opts) => {},
+            _mainTab: 'branches',
+            _activeTab: 'branch',
+            get _sourcesMainTab() {
+                return this._mainTab;
+            },
+            set _sourcesMainTab(v) {
+                this._setMainTab?.(v);
+            },
+            get activeTab() {
+                return this._activeTab;
+            },
+            set activeTab(v) {
+                this._setActiveTab?.(v);
+            },
+        };
+    }
+    const modalApi = modalApiRef.current;
+    modalApi._mainTab = mainTab;
+    modalApi._activeTab = activeTab;
+    modalApi._setMainTab = setMainTab;
+    modalApi._setActiveTab = setActiveTab;
+    modalApi.updateContent = bump;
+    modalApi.close = close;
+
+    useEffect(() => {
+        mountedRef.current = true;
+        return () => {
+            mountedRef.current = false;
+        };
+    }, []);
 
     const directorySetters = useMemo(
         () => ({
@@ -180,6 +201,7 @@ export function useSourcesState({ embed }) {
     const actionCtxRef = useRef(null);
     actionCtxRef.current = {
         modalApi: modalApiRef.current,
+        mountedRef,
         bump,
         activeTab,
         overlay,

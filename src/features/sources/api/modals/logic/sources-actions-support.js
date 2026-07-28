@@ -27,15 +27,29 @@ export function usageKey(ownerPub, universeId, userPub) {
     return `arborito-tree-usage-v1:${ownerPub}/${universeId}:${userPub}`;
 }
 
+function sourcesChromeStillMounted(ctx) {
+    if (ctx?.mountedRef && ctx.mountedRef.current === false) return false;
+    if (ctx?.modalApi && ctx.modalApi.isConnected === false) return false;
+    return true;
+}
+
+function safeSourcesChromeUpdate(ctx, loading) {
+    if (!sourcesChromeStillMounted(ctx)) return;
+    try {
+        ctx.setSourcesTreeLoading?.(loading);
+        ctx.bump?.();
+    } catch {
+        /* modal already unmounted */
+    }
+}
+
 export async function withSourcesLoadingChrome(ctx, work) {
-    ctx.setSourcesTreeLoading(true);
-    ctx.bump();
+    safeSourcesChromeUpdate(ctx, true);
     await yieldToPaint();
     try {
         return await work();
     } finally {
-        ctx.setSourcesTreeLoading(false);
-        ctx.bump();
+        safeSourcesChromeUpdate(ctx, false);
     }
 }
 

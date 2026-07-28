@@ -31,11 +31,14 @@ export function captureHadCurriculumBeforeLoad() {
  * After a successful load/plant/import in Biblioteca: close and show the canvas when
  * appropriate (first tree / onboarding). Keep the modal open when the user loaded
  * another tree or branch while a curriculum was already on the canvas.
- * @param {{ close?: (opts?: object) => void, updateContent?: () => void }} [modal]
+ * @param {{ close?: (opts?: object) => void, updateContent?: () => void, isConnected?: boolean }} [modal]
  * @param {{ hadCurriculumBeforeLoad?: boolean }} [opts]
  */
 export function finishSourcesLoadSession(modal, { hadCurriculumBeforeLoad = false } = {}) {
     if (hadCurriculumBeforeLoad && !isSourcesWelcomeLoadClose()) return;
+    /* Stale modalApi after leaving Biblioteca mid-load must not dismiss another modal. */
+    if (modal && modal.isConnected === false) return;
+    if (!isBibliotecaUiOpen()) return;
     if (typeof modal?.close === 'function') {
         modal.close({ returnToMore: false });
         return;
