@@ -8,6 +8,7 @@ import { shouldShowMobileUI } from '../shared/ui/breakpoints.js';
 import { fileSystem } from '../features/backup-export/api/filesystem.js';
 import { clearConstructionUI, rectFromElement, setConstructionUI } from '../features/tree-graph/api/logic/construction-ui-bridge.js';
 import { getStoreFields } from '../shared/lib/store-facade.js';
+import { resetTrunkUserGesture } from '../features/tree-graph/api/logic/trunk-scroll-gesture.js';
 
 /**
  * Aplica un patch de grafo/árbol al singleton (sincroniza slices vía `store.update`).
@@ -90,6 +91,8 @@ export function navigateMobilePathAction(ids) {
         schedulePersistTreeUiState(store);
         return;
     }
+    /* Clear finger-gesture lock so path syncScroll/wake can run after remount. */
+    resetTrunkUserGesture();
     patchGraphUiAction({ mobilePath: next, revision: (g.revision || 0) + 1 });
     if (typeof store.syncTreeContextFromMobilePath === 'function') {
         store.syncTreeContextFromMobilePath();

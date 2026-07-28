@@ -140,28 +140,20 @@ export const persistenceMixin = {
         const bodyMd = flushed?.bodyMarkdown ?? this._getLessonBodyForToc?.() ?? '';
         const incompleteQuizzes = listIncompleteQuizBlocksInBody(bodyMd);
         if (incompleteQuizzes.length) {
-            const first = incompleteQuizzes[0];
             const lang = String(store.value.lang || 'ES').toUpperCase() === 'EN' ? 'en' : 'es';
-            const tip =
-                first.hints?.[0]?.[lang] ||
-                first.hints?.[0]?.es ||
-                first.hints?.[0]?.en ||
-                (lang === 'en'
-                    ? 'need question and answer, or what to remember and meaning'
-                    : 'falta pregunta y respuesta, o qué recordar y significado');
             const extra =
                 incompleteQuizzes.length > 1
-                    ? lang === 'en'
-                        ? ` (+${incompleteQuizzes.length - 1} more)`
-                        : ` (+${incompleteQuizzes.length - 1} más)`
+                    ? ` (+${incompleteQuizzes.length - 1})`
                     : '';
-            const msg = (
-                ui.lessonSaveQuizIncomplete ||
-                (lang === 'en'
-                    ? "Can't save: {detail}"
-                    : 'No se puede guardar: {detail}')
-            ).replace('{detail}', `${tip}${extra}`);
-            store.notify(msg, true);
+            store.notify(
+                (
+                    ui.lessonSaveQuizIncomplete ||
+                    (lang === 'en'
+                        ? 'Finish or remove the questionnaire'
+                        : 'Completa o elimina el cuestionario')
+                ) + extra,
+                true
+            );
             return;
         }
         const sectionIdx =

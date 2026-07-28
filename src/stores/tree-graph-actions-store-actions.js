@@ -15,7 +15,6 @@ import { _ensureSnapshotsAdminLoaded } from '../features/version-updates/api/sna
 import { getVersionPresentation, switcherShowsVersionTab } from '../features/version-updates/api/version-switch-logic.js';
 import { fileSystem } from '../features/backup-export/api/filesystem.js';
 import { hasOtherTreeSwitcherSource } from '../features/tree-graph/api/logic/curriculum-switcher-list.js';
-import { resetTrunkUserGesture } from '../features/tree-graph/api/logic/trunk-scroll-gesture.js';
 
 function shell() {
     return getArboritoStore();
@@ -149,8 +148,7 @@ export function navigateIntoChildAction(childId) {
     if (!store) return undefined;
     const path = graphUiOf(store).mobilePath || [];
     const next = [...path.map(String), String(childId)];
-    /* Activation is click-only on trunk rows; clear stale gesture so path sync runs. */
-    resetTrunkUserGesture();
+    /* Path change clears gesture inside navigateMobilePath; bump so trunk remounts. */
     store.navigateMobilePath(next);
     store.bumpGraphUiRevision();
     schedulePersistTreeUiState(store);
@@ -162,7 +160,6 @@ export function navigatePanelBackAction() {
     const path = graphUiOf(store).mobilePath || [];
     if (path.length <= 1) return;
     const next = path.slice(0, -1);
-    resetTrunkUserGesture();
     store.navigateMobilePath(next);
     store.bumpGraphUiRevision();
 }

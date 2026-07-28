@@ -277,8 +277,8 @@ export function getChallengeValidationHints(challenge) {
     if (isQuizChallengeComplete(c)) return [];
     return [
         {
-            es: 'falta pregunta y respuesta, o qué recordar y significado',
-            en: 'need question and answer, or what to remember and meaning',
+            es: 'falta pregunta y respuesta, o recordar',
+            en: 'need question and answer, or remember',
         },
     ];
 }

@@ -126,7 +126,7 @@
   "examQuizAwaitStart": "Tap «Start exam» below to begin the questionnaire.",
   "quizBlockIncomplete": "This quiz isn't available",
   "quizBlockIncompleteHint": "The author hasn't finished this questionnaire yet.",
-  "lessonSaveQuizIncomplete": "Can't save: {detail}",
+  "lessonSaveQuizIncomplete": "Finish or remove the questionnaire",
   "lessonSaveQuizIncompleteDetail": "{detail}",
   "examRetry": "Retry exam",
   "examFailed": "You did not pass the exam",

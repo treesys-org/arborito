@@ -234,7 +234,8 @@ export function MobilePathLabelRow({ node, index, pathNodes, leadsToOpened = fal
         onRowClick(ev);
     };
 
-    useBindMobileTapRef(rowRef, onMobileRowTap, mobile, { slopPx: 12 });
+    /* clickOnly: path remount mid-touchend poisons WebKit trunk pan-y. */
+    useBindMobileTapRef(rowRef, onMobileRowTap, mobile, { slopPx: 12, clickOnly: true });
 
     const rowClass = `mobile-label-row ${isActive ? 'is-active' : ''}${
         showRootVersion || suppressActiveTitle ? ' mobile-label-row--suppress-title' : ''

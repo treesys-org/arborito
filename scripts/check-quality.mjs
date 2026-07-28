@@ -19,6 +19,7 @@ const STEPS = [
     ['max-file-lines.mjs', []],
     ['css-conventions.mjs', []],
     ['directory-trigram.mjs', []],
+    ['touch-scroll-safety.mjs', []],
 ];
 
 const BY_NAME = Object.fromEntries(STEPS.map(([file]) => {
