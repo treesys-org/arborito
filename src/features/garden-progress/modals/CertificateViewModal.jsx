@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useGardenProgress } from '../hooks/useGardenProgress.js';
 import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 import { DockModalShell } from '../../../app/components/ModalShell.jsx';
@@ -29,6 +30,10 @@ export function ModalCertificateView() {
     const mobile = shouldShowMobileUI();
     const { ui, dismissModal, findNode, getBookmark, modal, store, lang, gamification, setModal } =
         garden;
+
+    /* Some mobile WebKit ghost clicks can land on modal backdrops right after open.
+     * Ignore those first clicks to prevent instant close + immediate onboarding/network modal. */
+    const openedAtRef = useRef(Date.now());
 
     const fromShare = !!(modal && typeof modal === 'object' && modal.fromShare);
     const shared = modal?.sharedCert && typeof modal.sharedCert === 'object' ? modal.sharedCert : null;
@@ -80,7 +85,15 @@ export function ModalCertificateView() {
                 .replaceAll('{source}', meta.source)
         );
 
-    const close = () => {
+    const close = (e) => {
+        if (
+            e &&
+            e.type === 'click' &&
+            e.target === e.currentTarget &&
+            Date.now() - openedAtRef.current < 650
+        ) {
+            return;
+        }
         if (fromShare) dismissSharedCertificate(garden.store);
         else dismissModal();
     };

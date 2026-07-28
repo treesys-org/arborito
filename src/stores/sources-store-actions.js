@@ -121,7 +121,21 @@ export function proceedWithUntrustedLoadAction() {
         store.update({ modal: null, pendingUntrustedSource: null });
         void loadDataAction(source).then((ok) => {
             if (ok && source._openTreeInfoAfterLoad) {
-                queueMicrotask(() => store.openTreeInfoModal?.({ fromShare: true }));
+                queueMicrotask(() => {
+                    try {
+                        const shareKey = String(source?.url || source?.id || '').trim();
+                        const lsKey = `arborito-tree-info-opened-from-share:${shareKey || 'unknown'}`;
+                        try {
+                            if (localStorage.getItem(lsKey) === '1') return;
+                            localStorage.setItem(lsKey, '1');
+                        } catch {
+                            /* ignore localStorage failures */
+                        }
+                        store.openTreeInfoModal?.({ fromShare: true });
+                    } catch {
+                        /* ignore */
+                    }
+                });
             }
         });
     }

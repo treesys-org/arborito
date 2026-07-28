@@ -1,5 +1,6 @@
 import { getArboritoStore as store } from '../../../../core/store-singleton.js';
 import { getPanelRef } from '../../../../app/panel-refs.js';
+import { shouldShowMobileUI } from '../../../../shared/ui/breakpoints.js';
 import {
     TOUR_PAD as PAD,
     TOUR_PAD_GRAPH_ROOT,
@@ -99,7 +100,7 @@ export function computeLayout(step, tipEl, { smoothScroll = false } = {}) {
     const el = step ? queryTourTarget(stepTarget) : null;
     if (
         el &&
-        stepTarget !== 'graph-root' &&
+        (stepTarget !== 'graph-root' || shouldShowMobileUI()) &&
         typeof el.scrollIntoView === 'function' &&
         elementNeedsScroll(el)
     ) {

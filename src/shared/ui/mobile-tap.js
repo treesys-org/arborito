@@ -110,7 +110,11 @@ export function bindMobileTap(el, handler, opts = {}) {
         }
         state.hasStart = false;
         if (!hadStart) return;
-        if (Math.abs(t.clientX - sx) > slopPx || Math.abs(t.clientY - sy) > slopPx) {
+        const dx = Math.abs(t.clientX - sx);
+        const dy = Math.abs(t.clientY - sy);
+        if (dx > slopPx || dy > slopPx) {
+            /* Treat as scroll in Y: suppress the synthetic click that can land after touchend. */
+            if (dy > slopPx) state.lastTouchFireAt = Date.now();
             return;
         }
         state.lastTouchFireAt = Date.now();

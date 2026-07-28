@@ -108,8 +108,8 @@ export const MobileKnotRow = memo(function MobileKnotRow({
         }
     };
 
-    useBindMobileTapRef(wrapperRef, onKnotClick, mobile && isRootClover);
-    useBindMobileTapRef(knotRef, onKnotClick, mobile && !isRootClover);
+    useBindMobileTapRef(wrapperRef, onKnotClick, mobile && isRootClover, { slopPx: 12 });
+    useBindMobileTapRef(knotRef, onKnotClick, mobile && !isRootClover, { slopPx: 12 });
 
     return (
         <div
@@ -234,7 +234,7 @@ export function MobilePathLabelRow({ node, index, pathNodes, leadsToOpened = fal
         onRowClick(ev);
     };
 
-    useBindMobileTapRef(rowRef, onMobileRowTap, mobile);
+    useBindMobileTapRef(rowRef, onMobileRowTap, mobile, { slopPx: 12 });
 
     const rowClass = `mobile-label-row ${isActive ? 'is-active' : ''}${
         showRootVersion || suppressActiveTitle ? ' mobile-label-row--suppress-title' : ''
