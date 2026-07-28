@@ -194,6 +194,12 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
                     /* ignore */
                 }
             });
+            try {
+                /* Last-active for synced composed trees (private or published). */
+                store.publishInstalledSourcesForAccount?.({ immediate: true });
+            } catch {
+                /* ignore */
+            }
         }
         return ok;
     } catch (e) {

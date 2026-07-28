@@ -11,6 +11,68 @@ function shell() {
     return getArboritoStore();
 }
 
+/**
+ * Map the device's current active source to an account-preferred URL that another
+ * device can reopen after refresh/sign-in. Only synced content qualifies:
+ * private-account drafts, published network URLs, and installed network sources.
+ * Unsynced local drafts return '' so the previous preferred URL is kept.
+ */
+function resolveAccountActiveSourceUrl(store) {
+    let activeUrl = String(store.state.activeSource?.url || '').trim();
+    if (!activeUrl) return '';
+
+    if (activeUrl.startsWith('branch://')) {
+        const localId = activeUrl.slice('branch://'.length).split('/')[0];
+        if (localId === DEMO_BRANCH_ID) return `branch://${DEMO_BRANCH_ID}`;
+        const entry = (store.userStore?.state?.branches || []).find((t) => t && t.id === localId);
+        if (entry?.privateSyncedFromAccount) return `privtree://${localId}`;
+        /* Claimed-but-not-live publish must not become last-active across devices. */
+        if (entry?.publishPending) return '';
+        const net = String(entry?.publishedNetworkUrl || '').trim();
+        if (net) return net;
+        return '';
+    }
+
+    if (activeUrl.startsWith('tree://')) {
+        const treeId = activeUrl.slice('tree://'.length).split('/')[0];
+        if (!treeId) return '';
+        const entry = store.userStore?.getTree?.(treeId);
+        if (entry?.privateSyncedFromAccount) return `tree://${treeId}`;
+        if (entry?.publishPending) return '';
+        const net = String(entry?.publishedNetworkUrl || '').trim();
+        if (net) return net;
+        return '';
+    }
+
+    if (activeUrl.startsWith('privtree://')) return activeUrl;
+    return activeUrl;
+}
+
+/** Ensure a network preferred URL is also listed in the installed-sources pack. */
+function ensurePreferredNetworkSourceInList(sources, url, store) {
+    const u = String(url || '').trim();
+    if (!u || u.startsWith('branch://') || u.startsWith('privtree://') || u.startsWith('tree://')) {
+        return;
+    }
+    if ((sources || []).some((s) => String(s?.url || '') === u)) return;
+    const live = (store.state.communitySources || []).find((s) => String(s?.url || '') === u);
+    const active = store.state.activeSource;
+    const fromActive = active && String(active.url || '') === u ? active : null;
+    const meta = live || fromActive || {};
+    sources.push({
+        id: meta.id || u,
+        name: meta.name || meta.title || '',
+        url: u,
+        authorName: meta.authorName || meta.listAuthorName || '',
+        description: meta.listDescription || meta.description || '',
+        titles: meta.titles,
+        descriptions: meta.descriptions,
+        languages: Array.isArray(meta.languages) ? meta.languages : undefined,
+        icon: meta.icon || undefined,
+        recommendedRelays: Array.isArray(meta.recommendedRelays) ? meta.recommendedRelays : [],
+    });
+}
+
 /** After-sign-in restore flows: owned trees, installed sources, private trees, owned progress. */
 
 export function _scheduleLoadOwnedProgressAfterSignInAction(username) {
@@ -262,24 +324,17 @@ export function publishInstalledSourcesForAccountAction(opts = {}) {
                             icon: s.icon || undefined,
                             recommendedRelays: Array.isArray(s.recommendedRelays) ? s.recommendedRelays : []
                         }));
-                    let activeUrl = String(store.state.activeSource?.url || '').trim();
-                    if (activeUrl.startsWith('branch://')) {
-                        const localId = activeUrl.slice('branch://'.length);
-                        if (localId === DEMO_BRANCH_ID) {
-                            /* Persist demo as last-opened so restore does not jump to another branch. */
-                            activeUrl = `branch://${DEMO_BRANCH_ID}`;
-                        } else {
-                            const entry = (store.userStore.state.branches || []).find((t) => t.id === localId);
-                            activeUrl = entry?.privateSyncedFromAccount ? `privtree://${localId}` : '';
-                        }
-                    }
+                    let activeUrl = resolveAccountActiveSourceUrl(store);
                     if (!activeUrl) {
                         /* Non-synced local draft: keep the last published preferred URL (do not wipe). */
                         activeUrl = String(
                             store._lastPublishedActiveSourceUrl || store._restoredActiveSourceUrl || ''
                         ).trim();
                     }
-                    if (activeUrl) store._lastPublishedActiveSourceUrl = activeUrl;
+                    if (activeUrl) {
+                        store._lastPublishedActiveSourceUrl = activeUrl;
+                        ensurePreferredNetworkSourceInList(sources, activeUrl, store);
+                    }
                     const body = {
                         v: 1,
                         sources,
@@ -346,14 +401,29 @@ export async function loadPrivateTreesFromAccountAction(username) {
                     if (!body || typeof body !== 'object') continue;
                     const id = String(body.id || treeId).trim();
                     if (!id || restoredIds.has(id)) continue;
-                    const data = body.data && typeof body.data === 'object' ? body.data : null;
-                    if (!data) continue;
-                    const ok = store.userStore.upsertPrivateBranchFromAccount({
-                        id,
-                        name: String(body.name || data.universeName || id),
-                        data,
-                        updatedAt: row.updatedAt
-                    });
+                    const isComposed =
+                        body.kind === 'composed-tree' ||
+                        (Array.isArray(body.branchRefs) && !body.data);
+                    let ok = false;
+                    if (isComposed) {
+                        ok = !!store.userStore.upsertPrivateComposedTreeFromAccount?.({
+                            id,
+                            name: String(body.name || id),
+                            branchRefs: Array.isArray(body.branchRefs) ? body.branchRefs : [],
+                            presentation: body.presentation || null,
+                            forkOf: body.forkOf || null,
+                            updatedAt: row.updatedAt || body.updatedAt,
+                        });
+                    } else {
+                        const data = body.data && typeof body.data === 'object' ? body.data : null;
+                        if (!data) continue;
+                        ok = store.userStore.upsertPrivateBranchFromAccount({
+                            id,
+                            name: String(body.name || data.universeName || id),
+                            data,
+                            updatedAt: row.updatedAt,
+                        });
+                    }
                     if (ok) {
                         restoredIds.add(id);
                         added += 1;
@@ -626,6 +696,12 @@ export async function publishComposedTreeAsPrivateAction(treeId, opts = {}) {
     store.sourceManager.refreshPrivateAccountSources?.();
     notifyCommunityChanged(store);
     notifyIdentityChanged(store);
+    try {
+        /* If this composed tree is open, last-active becomes tree://… for other devices. */
+        store.publishInstalledSourcesForAccount?.({ immediate: true });
+    } catch {
+        /* ignore */
+    }
     if (!silent) {
         store.notify(
             ui.privateComposedTreePublishedOk ||

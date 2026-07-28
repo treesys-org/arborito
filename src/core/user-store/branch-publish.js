@@ -78,7 +78,7 @@ export const branchPublishMixin = {
         return true;
     },
 
-    /** Soft sign-out: clear account-sync badges without deleting local branch data. */
+    /** Soft sign-out: clear account-sync badges without deleting local branch/tree data. */
     clearAllPrivateSyncedFromAccountFlags() {
         const branches = Array.isArray(this.state.branches) ? this.state.branches : [];
         let changed = 0;
@@ -91,9 +91,18 @@ export const branchPublishMixin = {
                 this.markBranchDirty(entry.id, { skipAccountSync: true });
             }
         }
+        const trees = Array.isArray(this.state.trees) ? this.state.trees : [];
+        for (const entry of trees) {
+            if (!entry?.privateSyncedFromAccount) continue;
+            delete entry.privateSyncedFromAccount;
+            changed += 1;
+            if (entry.id) this.markTreeDirty?.(entry.id);
+        }
         if (!changed) return 0;
         this.state.branches = [...branches];
+        this.state.trees = [...trees];
         this.persist();
+        this.notifyCatalogChanged?.();
         return changed;
     },
 

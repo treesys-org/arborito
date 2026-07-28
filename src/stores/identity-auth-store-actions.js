@@ -30,7 +30,15 @@ function shell() {
 
 function canonicalTreeKey(url) {
     const u = String(url || '').trim();
-    if (u.startsWith('privtree://')) return `branch://${u.slice('privtree://'.length)}`;
+    if (u.startsWith('privtree://')) {
+        return `branch://${u.slice('privtree://'.length).split('/')[0]}`;
+    }
+    if (u.startsWith('tree://')) {
+        return `tree://${u.slice('tree://'.length).split('/')[0]}`;
+    }
+    if (u.startsWith('branch://')) {
+        return `branch://${u.slice('branch://'.length).split('/')[0]}`;
+    }
     return u;
 }
 
@@ -340,13 +348,28 @@ export async function autoloadTreeAfterSignInAction(username) {
             };
         };
 
+        const openComposedById = (treeId) => {
+            const entry = store.userStore?.getTree?.(treeId);
+            if (!entry) return null;
+            return {
+                id: entry.id,
+                treeId: entry.id,
+                name: entry.name || 'Tree',
+                url: `tree://${entry.id}`,
+                type: 'composed-tree',
+                isTrusted: true,
+            };
+        };
+
         let src = null;
 
         if (preferredUrl) {
             if (preferredUrl.startsWith('branch://')) {
-                src = openLocalById(preferredUrl.slice('branch://'.length));
+                src = openLocalById(preferredUrl.slice('branch://'.length).split('/')[0]);
             } else if (preferredUrl.startsWith('privtree://')) {
-                src = openLocalById(preferredUrl.slice('privtree://'.length));
+                src = openLocalById(preferredUrl.slice('privtree://'.length).split('/')[0]);
+            } else if (preferredUrl.startsWith('tree://')) {
+                src = openComposedById(preferredUrl.slice('tree://'.length).split('/')[0]);
             } else {
                 src = findCommunitySourceByUrl(community, preferredUrl);
             }

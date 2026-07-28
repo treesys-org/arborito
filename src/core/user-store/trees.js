@@ -237,4 +237,61 @@ export const treesMixin = {
         const entry = this.state.trees.find((t) => t.id === id);
         return !!(entry && entry.privateSyncedFromAccount);
     },
+
+    /**
+     * Ingest a private composed-tree playlist blob from the account.
+     * Same rules as branches: never overwrite a local-only tree with the same id.
+     * @param {{
+     *   id: string,
+     *   name?: string,
+     *   branchRefs?: object[],
+     *   presentation?: object|null,
+     *   forkOf?: object|null,
+     *   updatedAt?: string,
+     * }} payload
+     * @returns {boolean}
+     */
+    upsertPrivateComposedTreeFromAccount(payload) {
+        const id = String((payload && payload.id) || '').trim();
+        if (!id) return false;
+        const name = String(payload.name || id).trim() || id;
+        const refs = Array.isArray(payload.branchRefs) ? payload.branchRefs.map((r) => ({ ...r })) : [];
+        const updatedTs = (() => {
+            const parsed = Date.parse(payload.updatedAt || '');
+            return Number.isFinite(parsed) ? parsed : Date.now();
+        })();
+        const existing = this.state.trees.find((t) => t.id === id);
+        if (existing) {
+            if (!existing.privateSyncedFromAccount) return false;
+            const sameOrOlder = (existing.updated || 0) >= updatedTs;
+            if (sameOrOlder) return false;
+            existing.name = name;
+            existing.branchRefs = refs;
+            if (payload.presentation !== undefined) existing.presentation = payload.presentation;
+            if (payload.forkOf !== undefined) existing.forkOf = payload.forkOf;
+            existing.updated = updatedTs;
+            this.state.trees = [...this.state.trees];
+            this.markTreeDirty(id);
+            this.persist();
+            this.notifyCatalogChanged?.();
+            return true;
+        }
+        this.state.trees = [
+            ...this.state.trees,
+            {
+                id,
+                name,
+                updated: updatedTs,
+                branchRefs: refs,
+                forkOf: payload.forkOf || null,
+                publishedNetworkUrl: null,
+                presentation: payload.presentation || null,
+                privateSyncedFromAccount: true,
+            },
+        ];
+        this.markTreeDirty(id);
+        this.persist();
+        this.notifyCatalogChanged?.();
+        return true;
+    },
 };

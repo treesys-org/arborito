@@ -234,6 +234,7 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
         let finalSource;
 
         if (nextUrl.startsWith('tree://')) {
+            /* mountComposedTree publishes last-active when appropriate. */
             success = await mountComposedTree(store, source, forceRefresh);
             return success;
         }
