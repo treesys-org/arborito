@@ -242,7 +242,7 @@ export function SourcesComposedTreeRow({
                         className="arborito-sources-action-chip arborito-sources-action-chip--danger"
                         onClick={() => onAction?.('show-delete-composed-tree', { id: tree.id })}
                     >
-                        {ui.sourceRemove || 'Remove'}
+                        {ui.sourceRemove || 'Delete'}
                     </button>
                     </div>
                 </div>

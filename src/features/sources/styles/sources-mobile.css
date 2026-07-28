@@ -103,7 +103,7 @@
     padding: 0.3rem 0.4rem !important;
 }
 
-/* Keep Load / Install inside the fixed action column (never full-bleed). */
+/* Keep Open / Add inside the fixed action column (never full-bleed). */
 :is(html.arborito-shell-mobile, html.force-mobile)
     #modal-backdrop.arborito-modal--sources
     .arborito-sources-row-aside {

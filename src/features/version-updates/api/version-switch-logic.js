@@ -94,7 +94,7 @@ export function getVersionPresentation(activeSource, releases, ui = {}) {
         ? t('sourcesPillComposedTree', 'Tree')
         : isLocal
           ? t('sourcesPillBranch', 'Branch')
-          : t('sourcesPillInstalled', 'Installed');
+          : t('sourcesPillAdded', 'Added');
     /** rolling | archive | local | composed, solid styles in CSS (.arborito-timeline-chip--btn) */
     let versionKind = 'rolling';
     let chipLabel = versionTitle;

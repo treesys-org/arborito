@@ -242,7 +242,7 @@ export function ForumGateNoTree({ ui, embedded, mobile, onClose, onOpenTrees, pa
     const body = (
         <div className="arborito-dialog-body-block flex flex-col items-center text-center px-4 sm:px-6 pt-2 pb-2">
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed m-0">
-                {ui.forumNoTree || 'Load a tree first.'}
+                {ui.forumNoTree || 'To use the forum, open a branch from Forest first.'}
             </p>
         </div>
     );

@@ -18,6 +18,7 @@ import {
     titlesFromTreeLanguages,
 } from '../../../shared/lib/catalog-titles.js';
 import { useShellModalLang } from '../../../app/hooks/useHookShell.js';
+import { armPostClosePointerGuard } from '../../../stores/shell-dialog-lifecycle.js';
 
 function formatDate(ts) {
     if (!ts || !Number.isFinite(Number(ts))) return ': ';
@@ -63,6 +64,9 @@ export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
         communitySources.some((s) => String(s?.url || '').trim() === networkUrl);
 
     const toggleInstall = (next) => {
+        /* Avoid UI flicker / accidental backdrop dismissal from a synthetic click
+         * after the touch that toggled installed state. */
+        armPostClosePointerGuard(550);
         if (!networkUrl) return;
         if (next) {
             const titleRaw =
@@ -91,7 +95,7 @@ export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
                     : {}),
             });
             if (added?.ok || added?.reason === 'duplicate') {
-                notify?.(ui.sourcesInstallDone || ui.sourcesGlobalInstalled || 'Saved in your garden.', false);
+                notify?.(ui.sourcesAddedToast || 'Added.', false);
             }
             return;
         }
@@ -102,7 +106,7 @@ export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
         );
         if (row?.id) {
             removeCommunitySource(row.id);
-            notify?.(ui.sourcesUninstallDone || 'Removed from your garden.', false);
+            notify?.(ui.sourcesRemovedToast || 'Removed.', false);
         }
     };
 
@@ -169,15 +173,20 @@ export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
                 <div className="mb-3">
                     <SwitchRow
                         id="tree-info-install-switch"
-                        label={ui.treeInfoInstallLabel || ui.sourcesGlobalInstall || 'Install in garden'}
+                        label={
+                            installed
+                                ? ui.treeInfoRemoveLabel || ui.sourcesGlobalRemove || 'Remove'
+                                : ui.treeInfoAddLabel || ui.sourcesGlobalInstall || 'Add'
+                        }
                         hint={
-                            ui.treeInfoInstallHint ||
+                            ui.treeInfoCatalogHint ||
                             'Keeps this course in your catalog when you open another one. On by default for shared links.'
                         }
                         checked={!!installed}
                         onChange={toggleInstall}
-                        onAria={ui.treeInfoInstallOn || 'Installed'}
-                        offAria={ui.treeInfoInstallOff || 'Not installed'}
+                        /* SwitchRow announces the action of the next tap (on→offAria, off→onAria). */
+                        onAria={ui.treeInfoAddLabel || ui.sourcesGlobalInstall || 'Add'}
+                        offAria={ui.treeInfoRemoveLabel || ui.sourcesGlobalRemove || 'Remove'}
                         className="py-0"
                     />
                 </div>

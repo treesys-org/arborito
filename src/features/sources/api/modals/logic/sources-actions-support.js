@@ -264,7 +264,7 @@ export async function loadDefaultDemoAndDismissSources(opts = {}) {
         maybeSeedArboritoDemo(store.userStore);
         const src = bundledDemoBootSource(store.userStore);
         if (!src) {
-            store.notify(ui.sourcesDismissNeedTree || 'Add or load a tree before closing.', true);
+            store.notify(ui.sourcesDismissNeedTree || 'Add or open a tree before closing.', true);
             return false;
         }
         await store.loadData?.(src, true);
@@ -272,7 +272,7 @@ export async function loadDefaultDemoAndDismissSources(opts = {}) {
         return true;
     } catch (e) {
         console.warn('[Arborito] load default demo on sources close', e);
-        store.notify(ui.sourcesDismissNeedTree || 'Add or load a tree before closing.', true);
+        store.notify(ui.sourcesDismissNeedTree || 'Add or open a tree before closing.', true);
         return false;
     }
 }

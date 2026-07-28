@@ -338,11 +338,11 @@ export async function confirmConstructionTreeLoadIfNeeded(nextComposedTreeId = '
     const ui = store.ui || {};
     const ok = await store.showDialog?.({
         type: 'confirm',
-        title: ui.constructionLoadWhileEditingTitle || 'Load while editing?',
+        title: ui.constructionLoadWhileEditingTitle || 'Open while editing?',
         body:
             ui.constructionLoadWhileEditingBody ||
-            'You are in construction mode. Loading another tree or branch leaves this editing session on the map.',
-        confirmText: ui.constructionLoadWhileEditingConfirm || 'Load anyway',
+            'You are in construction mode. Opening another tree or branch leaves this editing session on the map.',
+        confirmText: ui.constructionLoadWhileEditingConfirm || 'Open anyway',
         cancelText: ui.cancel || 'Cancel',
     });
     return !!ok;

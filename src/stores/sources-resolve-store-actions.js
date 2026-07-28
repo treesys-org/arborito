@@ -149,7 +149,7 @@ export async function loadAndSmartMergeAction(sourceId) {
             if (!source) {
                 const ui = store.ui || {};
                 store.notify(
-                    ui.sourcesLoadNotFound || ui.sourcesInstallFailed || 'Tree not found in your saved list.',
+                    ui.sourcesLoadNotFound || ui.sourcesAddFailed || 'Tree not found in your saved list.',
                     true
                 );
                 return false;

@@ -280,7 +280,7 @@ export function SageSettings({
                                         {ui.sageSettingsModelAdd || 'Agregar'}
                                     </button>
                                     <button type="button" id="btn-remove-model" className="flex-1 min-w-[8rem] text-sm py-2.5 rounded-lg font-semibold arborito-btn-ghost" onClick={s.onRemoveModel}>
-                                        {ui.sageSettingsModelRemove || 'Quitar'}
+                                        {ui.sageSettingsModelRemove || 'Remove'}
                                     </button>
                                 </div>
                             </div>

@@ -176,7 +176,7 @@ export async function runPublishAction(ctx, action, fields = {}) {
             } catch {
                 /* ignore */
             }
-            store.notify(store.ui.sourcesInstallFailed || 'No se pudo instalar.', true);
+            store.notify(store.ui.sourcesAddFailed || 'Could not add.', true);
             return true;
         }
         const url = formatNostrTreeUrl(ownerPub, universeId);
@@ -221,11 +221,11 @@ export async function runPublishAction(ctx, action, fields = {}) {
         if (!ok) {
             if (out && out.reason === 'duplicate' && out.existing?.id) {
                 if (isSameActiveNetworkSource(store.state.activeSource, out.existing)) {
-                    store.notify(store.ui.sourcesInstalledToast || 'Ya instalado.', false);
+                    store.notify(store.ui.sourcesAlreadyAddedToast || 'Already added.', false);
                     ctx.bump();
                     return true;
                 }
-                store.notify(store.ui.sourcesInstalledToast || 'Ya instalado, cargando…', false);
+                store.notify(store.ui.sourcesOpenAddedToast || 'Already added, opening…', false);
                 const hadCurriculumBeforeLoad = captureHadCurriculumBeforeLoad();
                 const loaded = await withSourcesNetworkLoad(ctx, () =>
                     store.loadAndSmartMerge(out.existing.id)
@@ -234,10 +234,10 @@ export async function runPublishAction(ctx, action, fields = {}) {
                 else ctx.bump();
                 return true;
             }
-            store.notify(store.ui.sourcesInstallFailed || 'No se pudo instalar.', true);
+            store.notify(store.ui.sourcesAddFailed || 'Could not add.', true);
             return true;
         }
-        store.notify(store.ui.sourcesInstalledToast || 'Instalado.', false);
+        store.notify(store.ui.sourcesAddedToast || 'Added.', false);
         if (isSameActiveNetworkSource(store.state.activeSource, out?.source || { url })) {
             ctx.bump();
             return true;
@@ -263,7 +263,7 @@ export async function runPublishAction(ctx, action, fields = {}) {
         if (
             await store.confirm(
                 ui.sourcesDeleteTreeLinkConfirm ||
-                    'Uninstall this tree? It stays online, you can install it again any time.'
+                    'Remove this course? It stays online, and you can add it again any time.'
             )
         ) {
             const wasActive = store.state.activeSource?.id === id;

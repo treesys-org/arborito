@@ -226,7 +226,7 @@ export function SourcesSavedRow({
                                     className="arborito-sources-row-cta arborito-cta-emerald shadow-sm"
                                     onClick={() => onAction?.('load-source', { id: source?.id })}
                                 >
-                                    {ui.sourceLoad || 'Load'}
+                                    {ui.sourceLoad || 'Open'}
                                 </button>
                             ) : isActive && !pinned ? (
                                 <SourcesPill className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700">
@@ -306,7 +306,7 @@ export function SourcesSavedRow({
                             className="arborito-sources-action-chip arborito-sources-action-chip--danger"
                             onClick={() => onAction?.('remove-source', { id: source?.id })}
                         >
-                            {ui.sourcesGlobalRemove || ui.sourceRemove || 'Uninstall'}
+                            {ui.treeInfoRemoveLabel || ui.sourcesGlobalRemove || 'Remove'}
                         </button>
                     </div>
                 </div>

@@ -252,7 +252,7 @@ export function treeSwitcherItemMeta(ui, item) {
             ? ui.sourcesPillComposedTree || 'Tree'
             : isFrozen
               ? ui.freezeToggleOn || ui.sourcesPillOffline || 'Offline'
-              : ui.sourcesPillInstalled || 'Installed';
+              : ui.sourcesPillAdded || 'Added';
     const pillCls = isArboritoDemo
         ? 'arborito-tree-switcher-pill arborito-tree-switcher-pill--by-arborito'
         : item.kind === 'branch'

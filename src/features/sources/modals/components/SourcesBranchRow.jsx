@@ -164,7 +164,7 @@ export function SourcesBranchRow({
                                         })
                                     }
                                 >
-                                    {ui.sourceLoad || 'Load'}
+                                    {ui.sourceLoad || 'Open'}
                                 </button>
                             )}
                         </div>

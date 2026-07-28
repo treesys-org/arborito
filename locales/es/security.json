@@ -1,10 +1,10 @@
 {
   "secCancel": "Cancelar",
   "secConfirm": "Sí, confío y quiero guardar el enlace",
-  "secLoadCancel": "No, prefiero no cargarlo",
-  "secLoadConfirm": "Sí, cargar este curso",
+  "secLoadCancel": "No, prefiero no abrirlo",
+  "secLoadConfirm": "Sí, abrir este curso",
   "secLoadWarningBody": "Este enlace abre contenido que no verificamos por ti. Si no estás seguro, cancela y pide el enlace a la persona o institución por un canal que ya uses con ellos.",
-  "secLoadWarningTitle": "¿Cargar este curso?",
+  "secLoadWarningTitle": "¿Abrir este curso?",
   "secUrlDetailsToggle": "Ver enlace completo",
   "secUrlSummaryLabel": "Origen del enlace",
   "secWarningBody": "Vas a guardar un enlace a un curso que no revisamos nosotros. En internet cualquiera puede publicar material: asegúrate de que quien te pasó el enlace sea de confianza (colega, institución conocida, autor del curso).",

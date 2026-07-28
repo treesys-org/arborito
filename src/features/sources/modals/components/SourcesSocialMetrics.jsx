@@ -14,8 +14,8 @@ export function SourcesSocialMetrics({ ui, metrics }) {
     }
     if (used7 != null) {
         parts.push(
-            <span key="used7" title={ui.sourcesMetricInstalls || 'Installs'}>
-                📥 {used7.toLocaleString()} {ui.sourcesMetricInstallsShort || 'installs'}
+            <span key="used7" title={ui.sourcesMetricAdds || 'Adds'}>
+                📥 {used7.toLocaleString()} {ui.sourcesMetricAddsShort || 'adds'}
             </span>
         );
     }

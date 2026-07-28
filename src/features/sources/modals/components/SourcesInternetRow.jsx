@@ -124,10 +124,10 @@ export function SourcesInternetRow({
         }
     })();
     const isCommunityInstalled = !!communityEntry;
-    const installLbl = ui.sourcesGlobalInstall || ui.sourcesInstall;
-    const removeLbl = ui.sourcesGlobalRemove || ui.sourceRemove;
+    const catalogAddLbl = ui.treeInfoAddLabel || ui.sourcesGlobalInstall || 'Add';
+    const catalogRemoveLbl = ui.treeInfoRemoveLabel || ui.sourcesGlobalRemove || 'Remove';
     const editOwnLbl = ui.sourcesGlobalEditOwnTree || ui.navConstruct || 'Edit';
-    const primaryLbl = isOwner ? editOwnLbl : isCommunityInstalled ? removeLbl : installLbl;
+    const primaryLbl = isOwner ? editOwnLbl : isCommunityInstalled ? catalogRemoveLbl : catalogAddLbl;
     const internetLangs = Array.isArray(row?.languages) ? row.languages : [];
     const displayTitle = resolveDirectoryRowTitle(row, shell.lang);
     const localBranch = localInfo?.id
@@ -286,7 +286,7 @@ export function SourcesInternetRow({
                             onAction?.('global-open', { ownerPub, universeId, shareCode: row?.shareCode || '' })
                         }
                     >
-                        {ui.sourcesGlobalOpenTree || ui.sourceLoad}
+                        {ui.sourcesGlobalOpenTree || ui.sourceLoad || 'Open'}
                     </button>
                     {!isOwner ? (
                         <button

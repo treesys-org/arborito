@@ -15,6 +15,7 @@ import { _ensureSnapshotsAdminLoaded } from '../features/version-updates/api/sna
 import { getVersionPresentation, switcherShowsVersionTab } from '../features/version-updates/api/version-switch-logic.js';
 import { fileSystem } from '../features/backup-export/api/filesystem.js';
 import { hasOtherTreeSwitcherSource } from '../features/tree-graph/api/logic/curriculum-switcher-list.js';
+import { armPostClosePointerGuard } from './shell-dialog-lifecycle.js';
 
 function shell() {
     return getArboritoStore();
@@ -150,6 +151,7 @@ export function navigateIntoChildAction(childId) {
     const next = [...path.map(String), String(childId)];
     /* Defer past touchend — same WebKit trunk pan poison as panel Back. */
     setTimeout(() => {
+        armPostClosePointerGuard(550);
         store.navigateMobilePath(next);
         store.bumpGraphUiRevision();
         schedulePersistTreeUiState(store);
@@ -165,6 +167,7 @@ export function navigatePanelBackAction() {
      * leaves mobile WebKit pan-y dead (needs later finger-drags). */
     const next = path.slice(0, -1);
     setTimeout(() => {
+        armPostClosePointerGuard(550);
         store.navigateMobilePath(next);
         store.bumpGraphUiRevision();
     }, 0);

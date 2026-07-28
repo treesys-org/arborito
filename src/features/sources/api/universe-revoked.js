@@ -231,7 +231,7 @@ export async function promptStudentUniverseRevoked(store, opts = {}) {
     if (canUninstall) {
         choices.push({
             id: 'uninstall',
-            label: ui.universeRevokedUninstallLabel || 'Remove from installed',
+            label: ui.universeRevokedUninstallLabel || 'Remove from catalog',
         });
     }
 
@@ -287,7 +287,7 @@ export async function promptStudentUniverseRevoked(store, opts = {}) {
                 queueMicrotask(() => store.maybePromptNoTree?.());
             }
             store.notify(
-                ui.universeRevokedUninstalledToast || 'Removed from your installed list.',
+                ui.universeRevokedUninstalledToast || 'Removed from your catalog.',
                 false
             );
             return 'uninstall';
@@ -347,7 +347,7 @@ export async function promptStudentUniverseRevoked(store, opts = {}) {
                 queueMicrotask(() => store.maybePromptNoTree?.());
             }
             store.notify(
-                ui.universeRevokedUninstalledToast || 'Removed from your installed list.',
+                ui.universeRevokedUninstalledToast || 'Removed from your catalog.',
                 false
             );
             return 'uninstall';

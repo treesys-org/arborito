@@ -405,7 +405,7 @@ export function SourcesBranchesPanel({
                             className="arborito-sources-action-chip"
                             onClick={() => setShown((n) => n + pageSize)}
                         >
-                            {String(ui.sourcesUnifiedLoadMore || 'Load more ({{n}} more)').replace(
+                            {String(ui.sourcesUnifiedLoadMore || 'Show more ({{n}} more)').replace(
                                 /\{\{n\}\}/g,
                                 String(remaining)
                             )}

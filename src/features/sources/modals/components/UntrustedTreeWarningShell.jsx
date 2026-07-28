@@ -41,9 +41,9 @@ function resolveNostrWarningCopy(ui, url, variant) {
     const title = isPublicNostrTree
         ? ui.nostrPublicWarningTitle ||
           (isLoad ? ui.secLoadWarningTitle : ui.secWarningTitle) ||
-          (isLoad ? 'Load tree?' : 'Security Warning')
+          (isLoad ? 'Open this course?' : 'Security Warning')
         : isLoad
-          ? ui.secLoadWarningTitle || 'Load Unverified Tree?'
+          ? ui.secLoadWarningTitle || 'Open this course?'
           : ui.secWarningTitle || 'Security Warning';
 
     const body = isPublicNostrTree
@@ -63,7 +63,7 @@ function resolveNostrWarningCopy(ui, url, variant) {
           (isLoad ? ui.secLoadConfirm : ui.secConfirm) ||
           'I understand'
         : isLoad
-          ? ui.secLoadConfirm || 'Yes, load this tree'
+          ? ui.secLoadConfirm || 'Yes, open this course'
           : ui.secConfirm || 'I trust this tree';
 
     return { title, body, check, confirmLabel };
