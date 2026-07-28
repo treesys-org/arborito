@@ -6,7 +6,7 @@ import { resolveBranchPanelIcon } from '../../api/logic/graph-mobile-panel-helpe
 import { isFolderAchievementEarned } from '../../../garden-progress/api/achievement-folder-status.js';
 
 export function PanelBackButton({ ui, showBack, onBack }) {
-    /* Use click, not bindMobileTap/touchend: navigating (path remount + scrollTop)
+    /* Use click (not touchend): navigating (path remount + scrollTop)
      * inside touchend leaves WebKit’s trunk overflow pan dead until later drags. */
     const handleBack = useCallback(() => onBack?.(), [onBack]);
     if (!showBack) return null;
