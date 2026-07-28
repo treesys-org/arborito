@@ -7,6 +7,7 @@ import { repairTreeViewFromRawAction } from './tree-graph-store-actions.js';
 import { mergeRemoteGamification } from '../core/user-store/gamification-merge.js';
 import { dismissModalAction, notifyAction } from './shell-ui-store-actions.js';
 import { isSameActiveNetworkSource } from '../features/sources/api/modals/logic/sources-helpers.js';
+import { stripShareTreeParams } from '../features/sources/api/source-manager.js';
 
 function shell() {
     return getArboritoStore();
@@ -102,7 +103,7 @@ export function proceedWithUntrustedLoadAction() {
     if (!store) return;
     let source = store.state.pendingUntrustedSource;
     if (source) {
-        /* Shared links default to Install so the course stays in the garden. */
+        /* Shared links default to Add so the course stays in the garden. */
         if (source._fromShareParam && source.url && store.sourceManager?.addCommunitySource) {
             try {
                 const added = store.sourceManager.addCommunitySource(null, {
@@ -145,6 +146,7 @@ export async function cancelUntrustedLoadAction() {
     const store = shell();
     if (!store) return;
     store.update({ modal: null, pendingUntrustedSource: null });
+    stripShareTreeParams();
     const defaultSource = await store.sourceManager.getDefaultSource();
     if (defaultSource) {
         loadDataAction(defaultSource);

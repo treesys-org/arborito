@@ -54,6 +54,33 @@ function expandIpfsAlternates(url) {
     return gateways;
 }
 
+/** Deep-link query keys for shared courses (`?source=` / `?code=`). One-shot: strip after consume. */
+const SHARE_TREE_PARAM_KEYS = ['source', 'code'];
+
+/**
+ * Remove share deep-link params so a reload does not re-open the same course.
+ * Mirrors certificate share stripping (`?cert=`). Does not rewrite the URL to the active tree.
+ */
+export function stripShareTreeParams() {
+    if (typeof window === 'undefined' || !window.history?.replaceState) return;
+    try {
+        const url = new URL(window.location.href);
+        let touched = false;
+        for (const key of SHARE_TREE_PARAM_KEYS) {
+            if (url.searchParams.has(key)) {
+                url.searchParams.delete(key);
+                touched = true;
+            }
+        }
+        if (!touched) return;
+        const qs = url.searchParams.toString();
+        const next = `${url.pathname}${qs ? `?${qs}` : ''}${url.hash || ''}`;
+        window.history.replaceState({}, '', next);
+    } catch {
+        /* ignore */
+    }
+}
+
 export class SourceManager {
     constructor(updateStateCallback, uiCallback) {
         this.update = updateStateCallback;
@@ -139,9 +166,13 @@ export class SourceManager {
             const resolved = resolveTreeInput(decoded);
             if (resolved.kind === 'unknown_alias') {
                 console.warn('Unknown tree alias in ?source=', resolved.tried);
+                stripShareTreeParams();
                 return undefined;
             }
-            if (resolved.kind === 'empty') return undefined;
+            if (resolved.kind === 'empty') {
+                stripShareTreeParams();
+                return undefined;
+            }
 
             let href = null;
             let shareCodeLookupFailed = false;
@@ -199,6 +230,7 @@ export class SourceManager {
                 } catch {
                     /* ignore */
                 }
+                stripShareTreeParams();
                 return undefined;
             }
             const normalizedUrl = treeRef ? formatNostrTreeUrl(treeRef.pub, treeRef.universeId) : href;
@@ -207,7 +239,7 @@ export class SourceManager {
                        : treeRef ? `Public · ${String(treeRef.pub).slice(0, 10)}…`
                        : new URL(href, window.location.href).hostname;
 
-            /* Default: install into the garden so switching courses does not lose it. */
+            /* Default: add to catalog so switching courses does not lose it. */
             let sourceObject = null;
             if (treeRef) {
                 const added = this.addCommunitySource(null, {
@@ -234,6 +266,9 @@ export class SourceManager {
                     _openTreeInfoAfterLoad: true,
                 };
             }
+
+            /* Consume deep link once resolved — reload should use last active tree, not re-fire share. */
+            stripShareTreeParams();
 
             if (sourceObject.isTrusted) return sourceObject;
             this.update({ pendingUntrustedSource: sourceObject, modal: { type: 'load-warning' } });
