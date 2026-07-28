@@ -215,6 +215,11 @@ export function syncMobilePathScroll(hosts, pathNodes, lockRef = { current: fals
     }
     clampMobileTrunkScrollForVisibleRoot(hosts, lockRef);
     wakeTrunkOverflowScroller(hosts.trunkContainer);
+    /* Second nudge after the next paint — branch load / path restore races. */
+    if (hosts.trunkContainer && typeof requestAnimationFrame === 'function') {
+        const el = hosts.trunkContainer;
+        requestAnimationFrame(() => wakeTrunkOverflowScroller(el));
+    }
 }
 
 export const syncPathScroll = syncMobilePathScroll;

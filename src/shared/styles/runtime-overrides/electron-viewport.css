@@ -35,8 +35,9 @@ html.arborito-electron #mobile-tree-ui {
     contain: layout style;
 }
 
-html.arborito-electron .mobile-trunk-container,
-html.arborito-electron .mobile-trunk-scroll-content {
+/* Same rule as mobile-web-perf: never set overflow-x on scroll-content
+ * or it becomes a nested Y scroller and kills trunk pan. */
+html.arborito-electron .mobile-trunk-container {
     overflow-x: hidden;
 }
 

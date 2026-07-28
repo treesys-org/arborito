@@ -14,7 +14,7 @@ export function isBibliotecaUiOpen(s = store) {
 
 /**
  * Biblioteca was opened from onboarding/welcome (`modal.fromOnboarding`).
- * Only then should a successful load/plant dismiss the modal even if a tree was already open.
+ * Used by auth/sources flows that treat welcome-load specially.
  */
 export function isSourcesWelcomeLoadClose() {
     const m = store.state?.modal ?? store.value?.modal;
@@ -40,14 +40,11 @@ export function isWaitingForCurriculumSkeletonPaint(s = store) {
 }
 
 /**
- * After a successful load/plant/import in Biblioteca: close and show the canvas when
- * appropriate (first tree / onboarding). Keep the modal open when the user loaded
- * another tree or branch while a curriculum was already on the canvas.
+ * After a successful load/plant/import in Biblioteca: close and show the canvas.
  * @param {{ close?: (opts?: object) => void, updateContent?: () => void, isConnected?: boolean }} [modal]
- * @param {{ hadCurriculumBeforeLoad?: boolean }} [opts]
+ * @param {{ hadCurriculumBeforeLoad?: boolean }} [_opts] kept for call-site compat
  */
-export function finishSourcesLoadSession(modal, { hadCurriculumBeforeLoad = false } = {}) {
-    if (hadCurriculumBeforeLoad && !isSourcesWelcomeLoadClose()) return;
+export function finishSourcesLoadSession(modal, _opts = {}) {
     /* Stale modalApi after leaving Biblioteca mid-load must not dismiss another modal. */
     if (modal && modal.isConnected === false) return;
     if (!isBibliotecaUiOpen()) return;

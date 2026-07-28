@@ -26,8 +26,12 @@
     contain: layout style;
 }
 
-:is(html.arborito-shell-mobile, html.force-mobile) .mobile-trunk-container,
-:is(html.arborito-shell-mobile, html.force-mobile) .mobile-trunk-scroll-content {
+/* Clip X only on the real scrollport. Putting overflow-x:hidden on
+ * .mobile-trunk-scroll-content forces overflow-y to compute to auto
+ * (CSS overflow pairing), nesting a second scroller that collapses
+ * scrollHeight ≈ clientHeight — vertical pan looks dead until another
+ * branch remounts a lucky layout. */
+:is(html.arborito-shell-mobile, html.force-mobile) .mobile-trunk-container {
     overflow-x: hidden;
 }
 
