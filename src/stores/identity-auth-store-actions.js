@@ -10,6 +10,7 @@ import {
     hasGdprNetworkConsent,
     onGdprNetworkConsentGranted,
     getConnectedNostr,
+    warmNostrRelayConnections,
 } from '../shared/lib/connected-services/index.js';
 import { CREDENTIAL_KIND_PASSWORD, resolveSessionCredentialKind } from '../features/identity-auth/api/sync-login-secret.js';
 import { buildRecoveryKitQrPayload, ensureRecoveryKeyInSession } from '../features/identity-auth/api/recovery-kit.js';
@@ -259,15 +260,46 @@ export async function _finalizeSyncLoginSessionAction(name, opts = {}) {
                 /* ignore */
             }
             _schedulePublishIdentityClaimAfterSignInAction();
+            /* Relays must be up before escrow / private-tree queries (F5 race). */
+            try {
+                await warmNostrRelayConnections(store, { probe: false, timeoutMs: 12000 });
+            } catch (e) {
+                console.warn('[arborito] nostr warm before restore failed', e);
+            }
             await store._restoreOrPublishUserPairEscrow?.(name);
             /* Pull remote profile/progress BEFORE any publish. Publishing first with
-             * empty local state was overwriting other devices (emoji, lessons, arcade). */
-            await store.loadInstalledSourcesFromAccount?.(name);
-            await store.loadPrivateTreesFromAccount?.(name);
-            await store.loadOwnedTreesFromDirectory?.(name);
-            await store._loadProgressForOwnedTrees?.(name);
-            await store._loadProgressForInstalledSources?.();
-            await store._loadAccountCareProgress?.();
+             * empty local state was overwriting other devices (emoji, lessons, arcade).
+             * Isolate each step so one failure does not skip private garden restore. */
+            try {
+                await store.loadInstalledSourcesFromAccount?.(name);
+            } catch (e) {
+                console.warn('[arborito] installed sources restore failed', e);
+            }
+            try {
+                await store.loadPrivateTreesFromAccount?.(name);
+            } catch (e) {
+                console.warn('[arborito] private trees restore failed', e);
+            }
+            try {
+                await store.loadOwnedTreesFromDirectory?.(name);
+            } catch (e) {
+                console.warn('[arborito] owned trees restore failed', e);
+            }
+            try {
+                await store._loadProgressForOwnedTrees?.(name);
+            } catch (e) {
+                console.warn('[arborito] owned progress restore failed', e);
+            }
+            try {
+                await store._loadProgressForInstalledSources?.();
+            } catch (e) {
+                console.warn('[arborito] installed progress restore failed', e);
+            }
+            try {
+                await store._loadAccountCareProgress?.();
+            } catch (e) {
+                console.warn('[arborito] account care restore failed', e);
+            }
             /* Register opt-in: push local authored branches after pull (new accounts are empty). */
             if (store._pendingSyncLocalBranchesOnRegister) {
                 store._pendingSyncLocalBranchesOnRegister = false;

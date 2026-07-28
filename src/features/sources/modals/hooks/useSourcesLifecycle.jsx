@@ -94,6 +94,20 @@ export function useSourcesLifecycle({ embed, bump, setMainTab, setActiveTab, set
             });
         });
 
+        /* Re-pull private account drafts when opening Fuentes (boot race / F5 lag). */
+        const signedInName = String(store._authSession?.username || '').trim();
+        if (signedInName && typeof store.loadPrivateTreesFromAccount === 'function') {
+            void (async () => {
+                try {
+                    await warmNostrRelayConnections(store, { probe: false }).catch(() => null);
+                    await store.loadPrivateTreesFromAccount(signedInName, { retry: false });
+                    bump();
+                } catch (e) {
+                    console.warn('[Arborito] Fuentes private-trees refresh failed', e);
+                }
+            })();
+        }
+
         let prevSig = sourcesRefreshSig(store.value, catalogStore.getState());
         const storeListener = () => {
             const sig = sourcesRefreshSig(store.value, catalogStore.getState());

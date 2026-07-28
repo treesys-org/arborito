@@ -34,6 +34,7 @@ export const branchPublishMixin = {
             /* Pull/restore must not enqueue a quiet re-upload of the same blob. */
             this.markBranchDirty(id, { skipAccountSync: true });
             this.persist();
+            this.notifyCatalogChanged?.();
             return true;
         }
         this.state.branches = [
@@ -48,6 +49,7 @@ export const branchPublishMixin = {
         ];
         this.markBranchDirty(id, { skipAccountSync: true });
         this.persist();
+        this.notifyCatalogChanged?.();
         return true;
     },
 

@@ -3,74 +3,20 @@ import { DEMO_BRANCH_ID } from '../core/demo/arborito-demo-ids.js';
 import { isNostrNetworkAvailable } from '../features/nostr/api/nostr-network-env.js';
 import { formatNostrTreeUrl, parseNostrTreeUrl } from '../features/nostr/api/nostr-refs.js';
 import { resolveAccountCareTreeRef } from '../features/garden-progress/api/account-care-progress.js';
-import { ensureConnectedNostr } from '../shared/lib/connected-services/index.js';
+import {
+    ensureConnectedNostr,
+    getConnectedNostr,
+    warmNostrRelayConnections,
+} from '../shared/lib/connected-services/index.js';
 import { pickTitleForLang, resolveDirectoryRowTitle } from '../shared/lib/catalog-titles.js';
 import { notifyCommunityChanged, notifyIdentityChanged } from './store-notify.js';
+import {
+    resolveAccountActiveSourceUrl,
+    ensurePreferredNetworkSourceInList,
+} from './identity-account-active-source.js';
 
 function shell() {
     return getArboritoStore();
-}
-
-/**
- * Map the device's current active source to an account-preferred URL that another
- * device can reopen after refresh/sign-in. Only synced content qualifies:
- * private-account drafts, published network URLs, and installed network sources.
- * Unsynced local drafts return '' so the previous preferred URL is kept.
- */
-function resolveAccountActiveSourceUrl(store) {
-    let activeUrl = String(store.state.activeSource?.url || '').trim();
-    if (!activeUrl) return '';
-
-    if (activeUrl.startsWith('branch://')) {
-        const localId = activeUrl.slice('branch://'.length).split('/')[0];
-        if (localId === DEMO_BRANCH_ID) return `branch://${DEMO_BRANCH_ID}`;
-        const entry = (store.userStore?.state?.branches || []).find((t) => t && t.id === localId);
-        if (entry?.privateSyncedFromAccount) return `privtree://${localId}`;
-        /* Claimed-but-not-live publish must not become last-active across devices. */
-        if (entry?.publishPending) return '';
-        const net = String(entry?.publishedNetworkUrl || '').trim();
-        if (net) return net;
-        return '';
-    }
-
-    if (activeUrl.startsWith('tree://')) {
-        const treeId = activeUrl.slice('tree://'.length).split('/')[0];
-        if (!treeId) return '';
-        const entry = store.userStore?.getTree?.(treeId);
-        if (entry?.privateSyncedFromAccount) return `tree://${treeId}`;
-        if (entry?.publishPending) return '';
-        const net = String(entry?.publishedNetworkUrl || '').trim();
-        if (net) return net;
-        return '';
-    }
-
-    if (activeUrl.startsWith('privtree://')) return activeUrl;
-    return activeUrl;
-}
-
-/** Ensure a network preferred URL is also listed in the installed-sources pack. */
-function ensurePreferredNetworkSourceInList(sources, url, store) {
-    const u = String(url || '').trim();
-    if (!u || u.startsWith('branch://') || u.startsWith('privtree://') || u.startsWith('tree://')) {
-        return;
-    }
-    if ((sources || []).some((s) => String(s?.url || '') === u)) return;
-    const live = (store.state.communitySources || []).find((s) => String(s?.url || '') === u);
-    const active = store.state.activeSource;
-    const fromActive = active && String(active.url || '') === u ? active : null;
-    const meta = live || fromActive || {};
-    sources.push({
-        id: meta.id || u,
-        name: meta.name || meta.title || '',
-        url: u,
-        authorName: meta.authorName || meta.listAuthorName || '',
-        description: meta.listDescription || meta.description || '',
-        titles: meta.titles,
-        descriptions: meta.descriptions,
-        languages: Array.isArray(meta.languages) ? meta.languages : undefined,
-        icon: meta.icon || undefined,
-        recommendedRelays: Array.isArray(meta.recommendedRelays) ? meta.recommendedRelays : [],
-    });
 }
 
 /** After-sign-in restore flows: owned trees, installed sources, private trees, owned progress. */
@@ -209,18 +155,23 @@ export function _scheduleLoadInstalledSourcesAfterSignInAction(username) {
 
 export async function loadInstalledSourcesFromAccountAction(username) {
     const store = shell();
-    if (!store) return undefined;
+    if (!store) return 0;
 
             if (!isNostrNetworkAvailable()) return 0;
+            const net = await getConnectedNostr(store);
+            if (!net) {
+                console.warn('[arborito] installed sources pull skipped: nostr not ready');
+                return 0;
+            }
             const pair = await store.ensureNetworkUserPair();
             if (!(pair && pair.pub)) return 0;
             let body = null;
-            if (typeof store.nostr.loadUserSourcesDecrypted !== 'function') {
+            if (typeof net.loadUserSourcesDecrypted !== 'function') {
                 console.warn('loadUserSourcesDecrypted unavailable');
                 return 0;
             }
             try {
-                body = await store.nostr.loadUserSourcesDecrypted(username, pair);
+                body = await net.loadUserSourcesDecrypted(username, pair);
             } catch {
                 body = null;
             }
@@ -378,27 +329,75 @@ export function _scheduleLoadPrivateTreesAfterSignInAction(username) {
 
 }
 
-export async function loadPrivateTreesFromAccountAction(username) {
+/**
+ * Pull encrypted private branch/tree drafts from the account into the local garden.
+ * Safe to call on boot and when opening Fuentes (idempotent upserts).
+ * @param {string} username
+ * @param {{ retry?: boolean }} [opts] retry (default true): one extra pull after warm when
+ *   nothing was restored — useful on boot/F5, skip from Fuentes to keep UI snappy.
+ * @returns {Promise<number>} newly ingested or updated entries
+ */
+export async function loadPrivateTreesFromAccountAction(username, opts = {}) {
     const store = shell();
-    if (!store) return undefined;
+    if (!store) return 0;
 
-            if (!isNostrNetworkAvailable()) return 0;
-            const list = await store.nostr.listPrivateTreeBlobsOnce(username);
-            if (!Array.isArray(list) || !list.length) return 0;
-            const pair = await store.ensureNetworkUserPair();
-            if (!(pair && pair.pub)) return 0;
+    const wantRetry = opts.retry !== false;
+    if (wantRetry) store._privateTreesPullWantRetry = true;
+
+    if (store._privateTreesPullInFlight) {
+        try {
+            const n = await store._privateTreesPullInFlight;
+            /* Shared pull already restored something, or this caller did not need retry. */
+            if (n > 0 || !wantRetry) return n;
+            /* Boot wanted retry but coalesced into a no-retry Fuentes pull that got 0 — fall through. */
+        } catch {
+            if (!wantRetry) return 0;
+        }
+    }
+
+    const run = (async () => {
+        if (!isNostrNetworkAvailable()) return 0;
+        const name = String(username || '').trim();
+        if (!name) return 0;
+        /* Honor retry if this caller or a waiter coalesced into this pull needs it. */
+        const allowRetry = wantRetry || !!store._privateTreesPullWantRetry;
+        store._privateTreesPullWantRetry = false;
+
+        const net = await getConnectedNostr(store);
+        if (!net || typeof net.listPrivateTreeBlobsOnce !== 'function') {
+            console.warn('[arborito] private trees pull skipped: nostr not ready');
+            return 0;
+        }
+
+        try {
+            await store.userStore?.ensureBranchesHydrated?.();
+        } catch {
+            /* ignore */
+        }
+
+        let pair = await store.ensureNetworkUserPair();
+        if (!(pair && pair.pub)) {
+            console.warn('[arborito] private trees pull skipped: no network user pair');
+            return 0;
+        }
+
+        const ingestList = async (rows) => {
             let added = 0;
             const restoredIds = new Set();
-            for (const row of list) {
+            let decryptFailures = 0;
+            for (const row of rows || []) {
                 try {
                     const treeId = String(row.treeId || '').trim();
                     if (!treeId || restoredIds.has(treeId)) continue;
-                    const body = await store.nostr.unpackPrivateTreeFromSync({
+                    const body = await net.unpackPrivateTreeFromSync({
                         pair,
                         manifestCiphertext: row.manifestCiphertext,
-                        partCiphertexts: row.partCiphertexts
+                        partCiphertexts: row.partCiphertexts,
                     });
-                    if (!body || typeof body !== 'object') continue;
+                    if (!body || typeof body !== 'object') {
+                        decryptFailures += 1;
+                        continue;
+                    }
                     const id = String(body.id || treeId).trim();
                     if (!id || restoredIds.has(id)) continue;
                     const isComposed =
@@ -417,7 +416,7 @@ export async function loadPrivateTreesFromAccountAction(username) {
                     } else {
                         const data = body.data && typeof body.data === 'object' ? body.data : null;
                         if (!data) continue;
-                        ok = store.userStore.upsertPrivateBranchFromAccount({
+                        ok = !!store.userStore.upsertPrivateBranchFromAccount({
                             id,
                             name: String(body.name || data.universeName || id),
                             data,
@@ -427,16 +426,93 @@ export async function loadPrivateTreesFromAccountAction(username) {
                     if (ok) {
                         restoredIds.add(id);
                         added += 1;
+                    } else if (
+                        store.userStore?.isBranchPrivateSyncedFromAccount?.(id) ||
+                        store.userStore?.isTreePrivateSyncedFromAccount?.(id)
+                    ) {
+                        restoredIds.add(id);
                     }
-                } catch { /* one tree failure is non-fatal */ }
+                } catch (e) {
+                    decryptFailures += 1;
+                    console.warn('[arborito] private tree ingest failed', e);
+                }
             }
-            if (added) {
-                store.sourceManager.refreshPrivateAccountSources?.();
-                notifyCommunityChanged(store);
-                notifyIdentityChanged(store);
-            }
-            return added;
+            return { added, restored: restoredIds.size, decryptFailures };
+        };
 
+        let list = [];
+        try {
+            list = await net.listPrivateTreeBlobsOnce(name);
+        } catch (e) {
+            console.warn('[arborito] listPrivateTreeBlobsOnce failed', e);
+            list = [];
+        }
+        if (!Array.isArray(list)) list = [];
+
+        let result = await ingestList(list);
+
+        /*
+         * Retry only when relays returned blobs but none could be restored (incomplete
+         * multipart / wrong pair). Do NOT retry on an empty list — that is the common
+         * case (no private drafts) and would slow every sign-in/F5 by >1s.
+         * Re-read want-retry flag in case another caller joined mid-flight.
+         */
+        const shouldRetry =
+            (allowRetry || !!store._privateTreesPullWantRetry) &&
+            list.length > 0 &&
+            result.restored === 0;
+        store._privateTreesPullWantRetry = false;
+        if (shouldRetry) {
+            try {
+                await warmNostrRelayConnections(store, { probe: false, timeoutMs: 8000 });
+            } catch {
+                /* ignore */
+            }
+            await new Promise((r) => setTimeout(r, 1200));
+            try {
+                await store._restoreOrPublishUserPairEscrow?.(name);
+            } catch {
+                /* ignore */
+            }
+            const pair2 = await store.ensureNetworkUserPair();
+            if (pair2?.pub) pair = pair2;
+            try {
+                list = await net.listPrivateTreeBlobsOnce(name);
+            } catch {
+                list = [];
+            }
+            if (Array.isArray(list) && list.length) {
+                result = await ingestList(list);
+            }
+        }
+
+        store.sourceManager.refreshPrivateAccountSources?.();
+        /* Only broadcast when the garden actually gained/updated entries. */
+        if (result.added > 0) {
+            try {
+                store.userStore?.notifyCatalogChanged?.();
+            } catch {
+                /* ignore */
+            }
+            notifyCommunityChanged(store);
+            notifyIdentityChanged(store);
+        }
+        if (result.decryptFailures && !result.restored) {
+            console.warn(
+                '[arborito] private trees listed but none decrypted — check same password/sync key on both devices'
+            );
+        }
+        return result.added;
+    })();
+
+    store._privateTreesPullInFlight = run;
+    try {
+        return await run;
+    } finally {
+        if (store._privateTreesPullInFlight === run) {
+            store._privateTreesPullInFlight = null;
+        }
+    }
 }
 
 /**
