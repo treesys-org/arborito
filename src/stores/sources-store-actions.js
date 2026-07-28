@@ -123,7 +123,7 @@ export function proceedWithUntrustedLoadAction() {
             if (ok && source._openTreeInfoAfterLoad) {
                 queueMicrotask(() => {
                     try {
-                        const shareKey = String(source?.url || source?.id || '').trim();
+                        const shareKey = String(source?.id || source?.url || '').trim();
                         const lsKey = `arborito-tree-info-opened-from-share:${shareKey || 'unknown'}`;
                         try {
                             if (localStorage.getItem(lsKey) === '1') return;
