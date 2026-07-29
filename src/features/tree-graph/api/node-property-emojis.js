@@ -1,24 +1,17 @@
-/** Default folder/branch glyph shown when a branch has no explicit icon.
- * Twemoji's 📁/📂 render as a blue folder, which clashes with the app theme; we
- * use 🗂️ (a warm beige organizer) instead and remap the legacy blue glyphs at
- * display time via `folderDisplayIcon()` so existing trees look consistent. */
+/** Default folder glyph when none is set. Legacy 📁/📂 map to this at display time. */
 export const FOLDER_DISPLAY_ICON = '🗂️';
 
-/** Reserved for branch switcher chips / catalog “no custom icon”; not offered in the picker. */
+/** Catalog / switcher sentinel; not listed in the picker (use 🌱 or 🌲). */
 export const BRANCH_CHIP_ICON = '🌿';
 
-/** Folder / module node glyph, default 🗂️ when no custom icon is set. */
+/** Resolve folder icon for display. */
 export function folderDisplayIcon(icon) {
     const v = String(icon || '').trim();
     if (!v || v === '📁' || v === '📂' || v === BRANCH_CHIP_ICON) return FOLDER_DISPLAY_ICON;
     return v;
 }
 
-/**
- * Categorized emoji sets for lesson/folder icon pickers.
- * `id` maps to i18n `graphEmojiCat{PascalId}` (e.g. docs → graphEmojiCatDocs).
- * Blue 📁/📂 and chip-reserved 🌿 are omitted (use 🗂️ / 🌱 / 🌲 instead).
- */
+/** Icon picker categories. `id` → i18n `graphEmojiCat{PascalId}`. */
 export const NODE_PROPERTY_EMOJI_CATEGORIES = [
     {
         id: 'docs',
@@ -43,7 +36,6 @@ export const NODE_PROPERTY_EMOJI_CATEGORIES = [
             '✏️',
             '✂️',
             '🖊️',
-            '🧵',
         ],
     },
     {
@@ -97,10 +89,72 @@ export const NODE_PROPERTY_EMOJI_CATEGORIES = [
         emojis: ['🌱', '🌳', '🌲', '🍀', '🐍', '🐙', '🐳', '🦉', '🐢', '🦋', '🐝', '🍎', '🍊', '☕', '🌍', '🌎', '🌙', '☀️'],
     },
     {
+        id: 'clothes',
+        emojis: [
+            '🧥',
+            '👕',
+            '👖',
+            '👗',
+            '👘',
+            '👚',
+            '🩳',
+            '🧦',
+            '🧤',
+            '🧣',
+            '👔',
+            '👞',
+            '👟',
+            '👠',
+            '🥾',
+            '👒',
+            '🎩',
+            '🧢',
+            '👓',
+            '🕶️',
+            '🥽',
+            '👜',
+            '🎒',
+            '👛',
+            '💍',
+            '💄',
+            '🪞',
+            '🧵',
+            '🪡',
+            '🧶',
+        ],
+    },
+    {
         id: 'feelings',
-        emojis: ['💔', '❤️', '💙', '💚', '💜', '✉️', '🧥', '🪞'],
+        emojis: [
+            '❤️',
+            '🧡',
+            '💛',
+            '💚',
+            '💙',
+            '💜',
+            '🖤',
+            '🤍',
+            '💔',
+            '💕',
+            '💖',
+            '💗',
+            '💘',
+            '💝',
+            '💌',
+            '✉️',
+            '😊',
+            '🥰',
+            '😍',
+            '😌',
+            '😢',
+            '😭',
+            '😤',
+            '🤔',
+            '😴',
+            '💪',
+        ],
     },
 ];
 
-/** Flat list (same set as categories) for insert panels and legacy callers. */
+/** Flat list for insert panels and callers that need every icon. */
 export const NODE_PROPERTY_EMOJIS = NODE_PROPERTY_EMOJI_CATEGORIES.flatMap((c) => c.emojis);

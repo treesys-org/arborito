@@ -16,6 +16,7 @@ function categoryLabel(ui, id) {
         tech: 'Tech',
         arts: 'Arts',
         nature: 'Nature',
+        clothes: 'Clothes',
         feelings: 'Feelings',
     };
     return fallback[id] || id;
