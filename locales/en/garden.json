@@ -59,6 +59,7 @@
   "streakShieldLabel": "Leaf shield",
   "streakShieldUsed": "A leaf shield saved your streak 🍃",
   "streakTodayDone": "Streak done",
-  "streakTodayPending": "Streak due"
+  "streakTodayPending": "Streak due",
+  "streakNudgeBanner": "You can add a day to your streak today"
 }
 

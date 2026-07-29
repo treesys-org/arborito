@@ -77,6 +77,25 @@ html.dark .mochila-v2__trail-item--streak-pending .mochila-v2__trail-lb {
     color: rgb(252 211 77);
 }
 
+.mochila-v2__streak-nudge {
+    margin: 0.55rem 0 0;
+    padding: 0.4rem 0.55rem;
+    border-radius: 0.7rem;
+    border: 1px solid rgb(245 158 11 / 0.28);
+    background: rgb(255 251 235 / 0.9);
+    color: rgb(146 64 14);
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.35;
+    text-align: center;
+}
+
+html.dark .mochila-v2__streak-nudge {
+    border-color: rgb(251 191 36 / 0.28);
+    background: rgb(120 53 15 / 0.35);
+    color: rgb(253 230 138);
+}
+
 
 .mochila-v2__trail-ic {
     line-height: 1;
@@ -84,6 +103,10 @@ html.dark .mochila-v2__trail-item--streak-pending .mochila-v2__trail-lb {
 }
 
 .mochila-v2__trail-ic--streak-ok {
+    position: relative;
+}
+
+.mochila-v2__trail-ic--streak-open {
     position: relative;
 }
 
@@ -104,6 +127,30 @@ html.dark .mochila-v2__trail-check {
     color: rgb(187 247 208);
     background: rgb(6 78 59);
     box-shadow: 0 0 0 1px rgb(74 222 128 / 0.4);
+}
+
+.mochila-v2__trail-mark {
+    position: absolute;
+    right: -0.35rem;
+    bottom: -0.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 999px;
+    font-size: 0.62rem;
+    font-weight: 800;
+    line-height: 1;
+    color: rgb(146 64 14);
+    background: rgb(254 243 199);
+    box-shadow: 0 0 0 1px rgb(245 158 11 / 0.35);
+}
+
+html.dark .mochila-v2__trail-mark {
+    color: rgb(253 230 138);
+    background: rgb(120 53 15);
+    box-shadow: 0 0 0 1px rgb(251 191 36 / 0.4);
 }
 
 .mochila-v2__trail-val {
