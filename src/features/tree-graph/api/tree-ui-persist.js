@@ -4,6 +4,7 @@
  */
 
 import { TreeUtils } from './tree-utils.js';
+import { areArboritoStorageWritesDisabled } from '../../../shared/lib/arborito-storage-gate.js';
 
 const STORAGE_VERSION = 1;
 const STORAGE_PREFIX = 'arborito-tree-ui:';
@@ -57,6 +58,7 @@ function validateMobilePath(root, ids) {
 
 /** @param {EventTarget & { state: { data: object, activeSource: object, lang: string } }} store */
 export function persistTreeUiState(store) {
+    if (areArboritoStorageWritesDisabled()) return;
     const root = store.state.data;
     const source = store.state.activeSource;
     if (!root || !source) return;
@@ -82,11 +84,20 @@ export function persistTreeUiState(store) {
 let _debounceTimer = null;
 let _lastPersistSig = '';
 
+export function cancelScheduledPersistTreeUiState() {
+    if (_debounceTimer != null) {
+        clearTimeout(_debounceTimer);
+        _debounceTimer = null;
+    }
+}
+
 /** @param {EventTarget & { state: { data: object, activeSource: object, lang: string } }} store */
 export function schedulePersistTreeUiState(store) {
+    if (areArboritoStorageWritesDisabled()) return;
     if (_debounceTimer != null) clearTimeout(_debounceTimer);
     _debounceTimer = setTimeout(() => {
         _debounceTimer = null;
+        if (areArboritoStorageWritesDisabled()) return;
         const root = store.state.data;
         const source = store.state.activeSource;
         if (!root || !source) return;

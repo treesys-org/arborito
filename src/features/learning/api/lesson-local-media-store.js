@@ -5,6 +5,10 @@
  */
 
 import { resolveBundledDemoMediaUrl } from '../../../core/demo/demo-media-assets.js';
+import {
+    beginArboritoStorageWrite,
+    endArboritoStorageWrite,
+} from '../../../shared/lib/arborito-storage-gate.js';
 
 const DB_NAME = 'arborito_lesson_media_v1';
 const STORE = 'files';
@@ -78,29 +82,37 @@ export async function putLessonMediaFile(branchId, filename, data, mime = '') {
     const bid = String(branchId || '').trim();
     const file = safeMediaFilename(filename);
     if (!bid || !file) return '';
+    if (!beginArboritoStorageWrite()) return '';
     let blob;
     if (data instanceof Blob) blob = data;
     else if (data instanceof ArrayBuffer) blob = new Blob([data], { type: mime || 'application/octet-stream' });
     else if (data instanceof Uint8Array) {
         blob = new Blob([data], { type: mime || 'application/octet-stream' });
-    } else return '';
-    const db = await openDb();
-    try {
-        await idbRequest(
-            db.transaction(STORE, 'readwrite').objectStore(STORE).put({
-                key: mediaKey(bid, file),
-                branchId: bid,
-                filename: file,
-                mime: mime || blob.type || 'application/octet-stream',
-                blob,
-                updated: Date.now(),
-            })
-        );
-    } finally {
-        db.close();
+    } else {
+        endArboritoStorageWrite();
+        return '';
     }
-    revokeBlobCacheKey(mediaKey(bid, file));
-    return `./media/${file}`;
+    try {
+        const db = await openDb();
+        try {
+            await idbRequest(
+                db.transaction(STORE, 'readwrite').objectStore(STORE).put({
+                    key: mediaKey(bid, file),
+                    branchId: bid,
+                    filename: file,
+                    mime: mime || blob.type || 'application/octet-stream',
+                    blob,
+                    updated: Date.now(),
+                })
+            );
+        } finally {
+            db.close();
+        }
+        revokeBlobCacheKey(mediaKey(bid, file));
+        return `./media/${file}`;
+    } finally {
+        endArboritoStorageWrite();
+    }
 }
 
 /** @param {string} branchId @param {string} filename */

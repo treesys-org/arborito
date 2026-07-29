@@ -3,6 +3,10 @@
  * Separate DB so catalog migrations stay isolated.
  */
 import { parseNostrTreeUrl, formatNostrTreeUrl } from '../../nostr/api/nostr-refs.js';
+import {
+    beginArboritoStorageWrite,
+    endArboritoStorageWrite,
+} from '../../../shared/lib/arborito-storage-gate.js';
 
 const DB_NAME = 'arborito_tree_cache_v1';
 const STORE = 'bundles';
@@ -72,6 +76,7 @@ export async function getTreeBundleCache(sourceId) {
 export async function putTreeBundleCache(sourceId, payload) {
     const sid = String(sourceId || '').trim();
     if (!sid || !payload?.treeJson || typeof indexedDB === 'undefined') return false;
+    if (!beginArboritoStorageWrite()) return false;
     try {
         const db = await openDb();
         try {
@@ -91,6 +96,8 @@ export async function putTreeBundleCache(sourceId, payload) {
     } catch (e) {
         console.warn('[Arborito] tree bundle cache write failed', e);
         return false;
+    } finally {
+        endArboritoStorageWrite();
     }
 }
 

@@ -2,7 +2,10 @@ import { useTreeGraph } from '../../hooks/useTreeGraph.js';
 import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
 import { ModalBackChevronIcon } from '../../../../app/components/ModalHero.jsx';
 import { useCallback } from 'react';
-import { resolveBranchPanelIcon } from '../../api/logic/graph-mobile-panel-helpers.js';
+import {
+    resolveBranchPanelIcon,
+    resolvePanelTreeIcon,
+} from '../../api/logic/graph-mobile-panel-helpers.js';
 import { isFolderAchievementEarned } from '../../../garden-progress/api/achievement-folder-status.js';
 
 export function PanelBackButton({ ui, showBack, onBack }) {
@@ -25,8 +28,13 @@ export function PanelBackButton({ ui, showBack, onBack }) {
 }
 
 export function PanelHeadEmoji({ current, ui, isConstruct, canWrite, onEmojiPick }) {
-    if (!isConstruct || !canWrite || current.type === 'root' || current.type !== 'branch') return null;
-    const ic = resolveBranchPanelIcon(current);
+    if (!isConstruct || !canWrite || current?._composedWrapper || current?._composedVirtualRoot) {
+        return null;
+    }
+    if (current?.type !== 'branch' && current?.type !== 'root') return null;
+    const ic =
+        current.type === 'root' ? resolvePanelTreeIcon(current) : resolveBranchPanelIcon(current);
+    if (!ic) return null;
     const label = (ui.graphChangeIcon || ui.graphEdit || 'Icon').trim();
     return (
         <button

@@ -3,6 +3,7 @@
  */
 
 import { SEARCH_INDEX_FORMAT_VERSION } from './search-index-core.js';
+import { areArboritoStorageWritesDisabled } from '../../../shared/lib/arborito-storage-gate.js';
 
 const DB_NAME = 'arboritoSearchIndex';
 const DB_VERSION = 1;
@@ -54,6 +55,7 @@ function shardRecordKey(treeKey, lang, prefix) {
  * @param {object[]} entries
  */
 export async function putShard(treeKey, lang, prefix, entries) {
+    if (areArboritoStorageWritesDisabled()) return;
     const db = await openDb();
     const key = shardRecordKey(treeKey, lang, prefix);
     return new Promise((resolve, reject) => {
@@ -118,6 +120,7 @@ export async function clearTree(treeKey) {
  * @param {{ fingerprint: string, updatedAt?: number }} meta
  */
 export async function putMeta(treeKey, meta) {
+    if (areArboritoStorageWritesDisabled()) return;
     const db = await openDb();
     return new Promise((resolve, reject) => {
         const tx = db.transaction(STORE_META, 'readwrite');

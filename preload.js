@@ -118,6 +118,7 @@ contextBridge.exposeInMainWorld('arboritoElectron', {
         offlineGameGet: (gameId) => ipcRenderer.invoke('arborito-ud-offline-game-get', gameId),
         offlineGamePut: (gameId, bundle) => ipcRenderer.invoke('arborito-ud-offline-game-put', gameId, bundle),
         offlineGameRemove: (gameId) => ipcRenderer.invoke('arborito-ud-offline-game-remove', gameId),
+        clearLocalCaches: () => ipcRenderer.invoke('arborito-ud-clear-local-caches'),
     },
 
     /** Desktop-only voice: Whisper STT + Piper neural TTS (all auto-downloaded). */

@@ -8,6 +8,7 @@ import {
 } from '../../shared/lib/arborito-catalog-store.js';
 import { normalizeComposedTreeBranchRefs } from '../../shared/lib/branch-id.js';
 import { maybeSeedArboritoDemo } from '../demo/seed-arborito-demo.js';
+import { areArboritoStorageWritesDisabled } from '../../shared/lib/arborito-storage-gate.js';
 
 /** Composed ids (`ref::node`) and bare ids share completion for the same lesson. */
 function completionIdAliases(nodeId) {
@@ -218,6 +219,7 @@ export const progressMixin = {
     },
 
     persist() {
+        if (areArboritoStorageWritesDisabled()) return;
         try {
             this._flushDirtyBranches();
             this._flushDirtyTrees();

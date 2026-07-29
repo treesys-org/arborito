@@ -6,6 +6,7 @@ import {
     normalizeBranchCatalogEntry,
     normalizeComposedTreeBranchRefs,
 } from './branch-id.js';
+import { beginArboritoStorageWrite, endArboritoStorageWrite } from './arborito-storage-gate.js';
 
 const DB_NAME = 'arborito_catalog_v2';
 const DB_NAME_V1 = 'arborito_catalog_v1';
@@ -132,6 +133,7 @@ export async function loadCommunitySources() {
 }
 
 export async function replaceCommunitySources(sources) {
+    if (!beginArboritoStorageWrite()) return false;
     const list = Array.isArray(sources) ? sources : [];
     const db = await openDb();
     try {
@@ -144,6 +146,7 @@ export async function replaceCommunitySources(sources) {
         return true;
     } finally {
         db.close();
+        endArboritoStorageWrite();
     }
 }
 
@@ -177,6 +180,7 @@ async function loadBranchesFromV2() {
 /** @param {{ id: string, data?: object }} entry */
 export async function persistBranchEntry(entry) {
     if (!entry?.id) return false;
+    if (!beginArboritoStorageWrite()) return false;
     const { data, ...meta } = entry;
     const db = await openDb();
     try {
@@ -190,11 +194,13 @@ export async function persistBranchEntry(entry) {
         return true;
     } finally {
         db.close();
+        endArboritoStorageWrite();
     }
 }
 
 export async function removeBranchFromCatalog(branchId) {
     if (!branchId) return false;
+    if (!beginArboritoStorageWrite()) return false;
     const db = await openDb();
     try {
         const tx = db.transaction([STORE_BRANCH_META, STORE_BRANCH_DATA], 'readwrite');
@@ -203,6 +209,7 @@ export async function removeBranchFromCatalog(branchId) {
         return true;
     } finally {
         db.close();
+        endArboritoStorageWrite();
     }
 }
 
@@ -232,6 +239,7 @@ export async function loadTrees() {
 /** @param {{ id: string, branchRefs: object[] }} entry */
 export async function persistTreeEntry(entry) {
     if (!entry?.id) return false;
+    if (!beginArboritoStorageWrite()) return false;
     const { branchRefs, ...meta } = entry;
     const db = await openDb();
     try {
@@ -249,11 +257,13 @@ export async function persistTreeEntry(entry) {
         return true;
     } finally {
         db.close();
+        endArboritoStorageWrite();
     }
 }
 
 export async function removeTreeFromCatalog(treeId) {
     if (!treeId) return false;
+    if (!beginArboritoStorageWrite()) return false;
     const db = await openDb();
     try {
         const tx = db.transaction([STORE_TREE_META, STORE_TREE_DATA], 'readwrite');
@@ -262,5 +272,6 @@ export async function removeTreeFromCatalog(treeId) {
         return true;
     } finally {
         db.close();
+        endArboritoStorageWrite();
     }
 }

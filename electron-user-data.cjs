@@ -152,6 +152,21 @@ function registerUserDataIpc(ipcMain, appRef, isTrusted) {
             return false;
         }
     });
+
+    ipcMain.handle('arborito-ud-clear-local-caches', async (event) => {
+        if (!isTrusted(event)) return { ok: false, error: 'Untrusted caller' };
+        const root = ensureLayout(appRef);
+        try {
+            for (const sub of ['frozen-trees', 'offline-games']) {
+                const dir = path.join(root, sub);
+                fs.rmSync(dir, { recursive: true, force: true });
+                fs.mkdirSync(dir, { recursive: true });
+            }
+            return { ok: true };
+        } catch (e) {
+            return { ok: false, error: String(e?.message || e) };
+        }
+    });
 }
 
 module.exports = {

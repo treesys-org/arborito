@@ -3,6 +3,8 @@
  * Nostr and local garden do not use this path (content already in memory).
  */
 
+import { areArboritoStorageWritesDisabled } from '../../../shared/lib/arborito-storage-gate.js';
+
 const DB_NAME = 'arboritoLessonCache';
 const DB_VERSION = 1;
 const STORE = 'lessons';
@@ -102,6 +104,7 @@ async function evictExcessForSource(db, sourceId) {
  */
 export async function putCachedLessonText(sourceId, nodeId, contentUrlHash, text) {
     if (typeof indexedDB === 'undefined') return;
+    if (areArboritoStorageWritesDisabled()) return;
     if (text == null || typeof text !== 'string') return;
     const key = `${String(sourceId)}|${String(nodeId)}|${String(contentUrlHash)}`;
     try {

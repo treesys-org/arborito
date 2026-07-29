@@ -11,6 +11,9 @@ import {
 import { ensureOptInRelaysAfterNetworkGrant } from '../features/nostr/api/nostr-relays-runtime.js';
 import { getArboritoStore } from '../core/store-singleton.js';
 import { confirmAction, notifyAction, showDialogAction } from './shell-ui-store-actions.js';
+import { disableArboritoStorageWrites } from '../shared/lib/arborito-storage-gate.js';
+import { clearLessonMediaBlobCache } from '../features/learning/api/lesson-local-media-store.js';
+import { cancelScheduledPersistTreeUiState } from '../features/tree-graph/api/tree-ui-persist.js';
 
 /** Prevents double-tap from starting two reset flows before the dialog paints. */
 let resetConsentsInFlight = null;
@@ -111,6 +114,41 @@ function normalizeWipeConfirmToken(value) {
 }
 
 export async function wipeAllLocalDataOnThisDeviceAction() {
+    const store = getArboritoStore();
+    try {
+        disableArboritoStorageWrites();
+        cancelScheduledPersistTreeUiState();
+        store?.cancelPendingAccountSyncTimers?.();
+        const us = store?.userStore;
+        if (us) {
+            us._branchesDirty?.clear?.();
+            us._treesDirty?.clear?.();
+            us._privateAccountSyncDirty?.clear?.();
+            if (us.state) {
+                us.state.branches = [];
+                us.state.trees = [];
+                us.state.completedNodes = new Set();
+                us.state.xpAwardedNodes = new Set();
+                us.state.bookmarks = [];
+                us.state.recentLessons = [];
+                us.state.frozenTrees = {};
+                us.state.offlineGames = {};
+                us.state.gameData = {};
+                us.state.installedGames = {};
+                us.state.gameRepos = {};
+            }
+        }
+        if (store?.state) {
+            store.state.communitySources = [];
+            store.state.bookmarks = [];
+        }
+        if (store?.sourceManager?.state) {
+            store.sourceManager.state.communitySources = [];
+        }
+        clearLessonMediaBlobCache();
+    } catch (e) {
+        console.warn('[Arborito] wipe quiesce', e);
+    }
     await clearAllArboritoBrowserStorage();
     window.location.reload();
 }
