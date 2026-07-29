@@ -280,3 +280,106 @@ export async function resolveModuleStaticGameReadiness(rootNode, opts = {}) {
     }
     return getModuleStaticGameReadiness(rootNode);
 }
+
+function resolveQuizStatusFindNode() {
+    try {
+        const store = getArboritoStore();
+        if (store?.findNode) return (id) => store.findNode(id);
+    } catch {
+        /* ignore */
+    }
+    return null;
+}
+
+/**
+ * Static arcade picker: only lessons with a complete questionnaire (plus ancestor
+ * modules), and still-unchecked lazy leaves until their bodies load.
+ *
+ * Exams are omitted — arcade setup does not launch from exam nodes.
+ *
+ * @param {object|null|undefined} rootNode
+ * @returns {{ visibleIds: Set<string>, readyLeafCount: number, pendingLeafCount: number }}
+ */
+export function collectStaticArcadePickerIds(rootNode) {
+    /** @type {Set<string>} */
+    const visibleIds = new Set();
+    const stats = { readyLeafCount: 0, pendingLeafCount: 0 };
+    if (!rootNode) return { visibleIds, ...stats };
+
+    const findNode = resolveQuizStatusFindNode();
+
+    /** @param {object} n @returns {'ready'|'pending'|'none'} */
+    const classifyLeaf = (n) => {
+        if (!n || n.type === 'exam') return 'none';
+        if (n.type !== 'leaf') return 'none';
+        const body = n.content;
+        if (body && String(body).trim()) {
+            return lessonBodyHasPlayableQuiz(body) ? 'ready' : 'none';
+        }
+        if (n.treeLazyContent && n.treeContentKey) return 'pending';
+        if (n.contentPath) return 'pending';
+        return 'none';
+    };
+
+    /** @param {object} n @returns {boolean} */
+    const walk = (n) => {
+        if (!n) return false;
+        if (n.type === 'leaf' || n.type === 'exam') {
+            const kind = classifyLeaf(n);
+            if (kind === 'none') return false;
+            if (kind === 'ready') stats.readyLeafCount += 1;
+            else stats.pendingLeafCount += 1;
+            visibleIds.add(String(n.id));
+            return true;
+        }
+        if (n.type !== 'branch' && n.type !== 'root') return false;
+
+        let any = false;
+        if (n.children && n.children.length) {
+            for (const c of n.children) {
+                if (walk(c)) any = true;
+            }
+        } else if (Array.isArray(n.leafIds) && n.leafIds.length) {
+            for (const id of n.leafIds) {
+                const resolved = findNode?.(id);
+                if (resolved) {
+                    if (walk(resolved)) any = true;
+                } else {
+                    // Children not materialized yet — keep the module listed.
+                    stats.pendingLeafCount += 1;
+                    any = true;
+                }
+            }
+        }
+        if (any) visibleIds.add(String(n.id));
+        return any;
+    };
+
+    walk(rootNode);
+    return { visibleIds, readyLeafCount: stats.readyLeafCount, pendingLeafCount: stats.pendingLeafCount };
+}
+
+/**
+ * Load lazy lesson bodies under a module so static picker filtering can hide
+ * lessons that have no questionnaire (does not stop at the first quiz).
+ *
+ * @param {object|null|undefined} rootNode
+ * @param {{ loadContent?: (node: object) => Promise<void>, maxProbe?: number }} [opts]
+ * @returns {Promise<ReturnType<typeof collectStaticArcadePickerIds>>}
+ */
+export async function resolveStaticArcadePickerIds(rootNode, opts = {}) {
+    const loadContent = typeof opts.loadContent === 'function' ? opts.loadContent : null;
+    const maxProbe = Math.max(1, Math.min(64, Number(opts.maxProbe) || 32));
+    let snapshot = collectStaticArcadePickerIds(rootNode);
+    if (!loadContent || snapshot.pendingLeafCount === 0) return snapshot;
+
+    const pending = listModuleLeavesNeedingContent(rootNode).filter((n) => n?.type === 'leaf');
+    for (let i = 0; i < pending.length && i < maxProbe; i++) {
+        try {
+            await loadContent(pending[i]);
+        } catch {
+            /* keep probing */
+        }
+    }
+    return collectStaticArcadePickerIds(rootNode);
+}

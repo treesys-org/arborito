@@ -1,9 +1,14 @@
 import { useArcade } from '../hooks/useArcade.js';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Callout } from '../../../shared/ui/Callout.jsx';
 import { LoadingBrand } from '../../../shared/ui/Loading.jsx';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
-import { getModuleStaticGameReadiness, resolveModuleStaticGameReadiness } from '../../learning/api/quiz-status.js';
+import {
+    collectStaticArcadePickerIds,
+    getModuleStaticGameReadiness,
+    resolveModuleStaticGameReadiness,
+    resolveStaticArcadePickerIds,
+} from '../../learning/api/quiz-status.js';
 import { folderDisplayIcon, FOLDER_DISPLAY_ICON } from '../../tree-graph/api/node-property-emojis.js';
 
 function isBranchLike(n) {
@@ -108,6 +113,9 @@ export function ArcadeSetup({
     const [collapsedBranchIds, setCollapsedBranchIds] = useState(() => new Set());
     const [probedReadiness, setProbedReadiness] = useState(null);
     const [probeBusy, setProbeBusy] = useState(false);
+    /** After lazy bodies load; null = use sync collect only. */
+    const [staticPickerRev, setStaticPickerRev] = useState(0);
+    const [staticPickerBusy, setStaticPickerBusy] = useState(false);
     const selectedRowRef = useRef(null);
 
     useEffect(() => {
@@ -131,6 +139,52 @@ export function ArcadeSetup({
         });
         return () => window.cancelAnimationFrame(id);
     }, [pickerOpen, selectedNodeId, isPreparingContext, localFilter, collapsedBranchIds]);
+
+    /* Static mode: materialize lazy lesson bodies so quiz-less leaves can be hidden. */
+    useEffect(() => {
+        if (aiMode !== 'static' || isPreparingContext || !data) {
+            setStaticPickerBusy(false);
+            return;
+        }
+        const sync = collectStaticArcadePickerIds(data);
+        if (sync.pendingLeafCount === 0) {
+            setStaticPickerBusy(false);
+            return;
+        }
+        let cancelled = false;
+        setStaticPickerBusy(true);
+        void resolveStaticArcadePickerIds(data, {
+            loadContent: loadNodeContent,
+            maxProbe: 48,
+        }).then(() => {
+            if (cancelled) return;
+            setStaticPickerRev((n) => n + 1);
+            setStaticPickerBusy(false);
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, [aiMode, isPreparingContext, loadNodeContent, data]);
+
+    const filterActive = !!String(localFilter || '').trim();
+    const isStatic = aiMode === 'static';
+    const isDynamic = aiMode === 'dynamic';
+    const staticPickerSnapshot = useMemo(
+        () => (isStatic && data ? collectStaticArcadePickerIds(data) : null),
+        [isStatic, data, staticPickerRev]
+    );
+    const staticPickerIds = staticPickerSnapshot?.visibleIds ?? null;
+
+    /* Drop selection when static picker hides the current node (e.g. Intro without quiz).
+     * Pending lazy leaves stay in visibleIds — if missing here, the node is definitively unplayable. */
+    useEffect(() => {
+        if (aiMode !== 'static' || isPreparingContext) return;
+        if (!selectedNodeId || !data) return;
+        const { visibleIds } = collectStaticArcadePickerIds(data);
+        if (visibleIds.has(String(selectedNodeId))) return;
+        onSelectNode(null);
+        setPickerOpen(true);
+    }, [aiMode, isPreparingContext, selectedNodeId, staticPickerRev, data, onSelectNode]);
 
     /* Network trees keep lesson bodies lazy — probe chunks before claiming “no quiz”. */
     useEffect(() => {
@@ -159,6 +213,7 @@ export function ArcadeSetup({
             if (!cancelled) {
                 setProbedReadiness(stats);
                 setProbeBusy(false);
+                setStaticPickerRev((n) => n + 1);
             }
         });
         return () => {
@@ -189,18 +244,23 @@ export function ArcadeSetup({
         );
     }
 
-    const filterActive = !!String(localFilter || '').trim();
-    const visibleNodes = filterActive
+    const rawVisibleNodes = filterActive
         ? getFlatNodes(data, localFilter).slice(0, 500)
         : getTreeVisibleNodes(data, collapsedBranchIds).slice(0, 500);
+    const visibleNodes =
+        isStatic && staticPickerIds
+            ? rawVisibleNodes.filter((n) => staticPickerIds.has(String(n.id)))
+            : rawVisibleNodes;
     const selectedNode = selectedNodeId ? findNode(selectedNodeId) : null;
     const syncReadiness = selectedNode ? getModuleStaticGameReadiness(selectedNode) : null;
     const moduleReadiness =
         probedReadiness && selectedNode && String(selectedNodeId || '')
             ? probedReadiness
             : syncReadiness;
-    const isStatic = aiMode === 'static';
-    const isDynamic = aiMode === 'dynamic';
+    const staticPickerEmpty =
+        isStatic && !staticPickerBusy && visibleNodes.length === 0 && !filterActive;
+    const staticPickerEmptyFilter =
+        isStatic && !staticPickerBusy && visibleNodes.length === 0 && filterActive;
     const awaitingLazyProbe =
         isStatic && !!syncReadiness?.pendingLazy && !syncReadiness?.staticReady && (probeBusy || !probedReadiness);
     const staticBlocked =
@@ -249,7 +309,7 @@ export function ArcadeSetup({
 
     const renderPickerRows = () =>
         visibleNodes.map((n) => {
-            const isSelected = selectedNodeId === n.id;
+            const isSelected = String(selectedNodeId || '') === String(n.id);
             const isLeaf = n.type === 'leaf';
             const isExam = n.type === 'exam';
             const icon = resolveNodeIcon(n, isLeaf, isExam);
@@ -352,6 +412,12 @@ export function ArcadeSetup({
                             : ui.arcadeAiModeDynamicDesc ||
                               'Optional on-device AI enhances content. Requires consent & download.'}
                     </p>
+                    {isStatic ? (
+                        <p className="text-[10px] arborito-text-muted mt-1 leading-relaxed">
+                            {ui.arcadeStaticPickerHint ||
+                                'Only lessons with a complete questionnaire appear below.'}
+                        </p>
+                    ) : null}
                     {staticReadyHint ? (
                         <Callout tone="emerald" size="sm" inline extraClass="mt-2 m-0" body={staticReadyHint} />
                     ) : null}
@@ -415,8 +481,33 @@ export function ArcadeSetup({
                             />
                         </div>
                         <div className="arborito-picker-panel arborito-arcade-setup__picker custom-scrollbar">
-                            {renderPickerRows()}
-                            {visibleNodes.length === 0 ? (
+                            {staticPickerBusy && visibleNodes.length === 0 ? (
+                                <div
+                                    className="flex flex-col items-center justify-center gap-2 p-6"
+                                    role="status"
+                                    aria-live="polite"
+                                    aria-busy="true"
+                                >
+                                    <LoadingBrand
+                                        label=""
+                                        size="boot"
+                                        tone="sage"
+                                        extraClass="arborito-loading-brand--compact"
+                                    />
+                                    <p className="text-xs arborito-text-muted text-center m-0">
+                                        {ui.arcadeStaticPickerLoading ||
+                                            'Looking for lessons with questionnaires…'}
+                                    </p>
+                                </div>
+                            ) : null}
+                            {!(staticPickerBusy && visibleNodes.length === 0) ? renderPickerRows() : null}
+                            {staticPickerEmpty ? (
+                                <div className="p-4 text-center text-xs arborito-text-muted">
+                                    {ui.arcadeStaticPickerEmpty ||
+                                        'No lessons with a complete questionnaire yet. Add one in construction mode, or switch to dynamic mode.'}
+                                </div>
+                            ) : null}
+                            {staticPickerEmptyFilter || (!isStatic && visibleNodes.length === 0) ? (
                                 <div className="p-4 text-center text-xs arborito-text-muted">
                                     {ui.arcadeNoMatchingContent}
                                 </div>
@@ -430,7 +521,7 @@ export function ArcadeSetup({
                 <button
                     type="button"
                     className="w-full py-3.5 arborito-cta-amber font-black text-lg rounded-2xl shadow-xl active:scale-95 transition-all flex flex-col items-center justify-center gap-1 disabled:opacity-50 min-h-[3.25rem]"
-                    disabled={!selectedNodeId || staticBlocked}
+                    disabled={!selectedNodeId || staticBlocked || awaitingLazyProbe || (isStatic && staticPickerBusy && !moduleReadiness?.staticReady)}
                     onClick={onStartGame}
                 >
                     <span className="flex items-center justify-center gap-2 leading-none">

@@ -145,6 +145,25 @@ export function useContentPanel({ rootRef, contentAreaRef, editorRef, tocNavRef,
         return !!(ed && ed.dataset?.arboritoEditorDirty === '1');
     }, [panel.currentNode, panel.lessonUserHasEdited, isLessonConstructEdit, lessonEditor]);
 
+    const abandonActiveQuizProgress = useCallback(
+        ({ abandonExam = false } = {}) => {
+            const patch = {
+                quizStates: {},
+                blockSessions: {},
+            };
+            if (abandonExam) {
+                patch.examStarted = false;
+                patch.examShowResults = false;
+            }
+            /* Sync live ref immediately — React setState may lag before the next leave check. */
+            panelLiveRef.current = { ...panelLiveRef.current, ...patch };
+            patchPanel(patch);
+            lastRenderKeyRef.current = null;
+            scheduleUpdate(true);
+        },
+        [patchPanel, scheduleUpdate]
+    );
+
     const confirmPanelLeaveIfNeeded = useCallback(async () => {
         return confirmLeaveIfNeeded(
             {
@@ -152,9 +171,16 @@ export function useContentPanel({ rootRef, contentAreaRef, editorRef, tocNavRef,
                 isLessonConstructEdit,
                 isLessonDirty,
                 hasActiveQuizInProgress: () =>
-                    hasActiveQuizInProgress({ ...panel, isLessonConstructEdit }),
+                    hasActiveQuizInProgress({
+                        ...panelLiveRef.current,
+                        isLessonConstructEdit,
+                    }),
                 hasExamAttemptInProgress: () =>
-                    hasExamAttemptInProgress({ ...panel, isLessonConstructEdit }),
+                    hasExamAttemptInProgress({
+                        ...panelLiveRef.current,
+                        isLessonConstructEdit,
+                    }),
+                onAbandonActiveQuiz: abandonActiveQuizProgress,
                 onDiscardLessonEdits: () => {
                     cancelDraftAutosave();
                     clearConstructEditorDomSeed(lessonEditor.getEditorEl?.());
@@ -174,7 +200,15 @@ export function useContentPanel({ rootRef, contentAreaRef, editorRef, tocNavRef,
             },
             { saveLesson: () => constructApiRef.current?._saveLessonShell?.() }
         );
-    }, [panel, isLessonConstructEdit, isLessonDirty, lessonEditor, patchPanel, cancelDraftAutosave]);
+    }, [
+        panel,
+        isLessonConstructEdit,
+        isLessonDirty,
+        lessonEditor,
+        patchPanel,
+        cancelDraftAutosave,
+        abandonActiveQuizProgress,
+    ]);
 
     const persistExamPass = useCallback(() => {
         if (!panel.currentNode || !isExamLesson(panel.currentNode)) return;
@@ -210,7 +244,11 @@ export function useContentPanel({ rootRef, contentAreaRef, editorRef, tocNavRef,
             isLessonConstructEdit,
             _isLessonConstructEdit: isLessonConstructEdit,
             _isLessonDirty: isLessonDirty,
-            hasActiveQuizInProgress: () => hasActiveQuizInProgress({ ...panel, isLessonConstructEdit }),
+            hasActiveQuizInProgress: () =>
+                hasActiveQuizInProgress({
+                    ...panelLiveRef.current,
+                    isLessonConstructEdit,
+                }),
             confirmLeaveIfNeeded: confirmPanelLeaveIfNeeded,
             getQuizState: (id) => getQuizState(panel.quizStates, id),
             getContentForTocParse: parseApi.getContentForTocParse,
@@ -386,9 +424,15 @@ export function useContentPanel({ rootRef, contentAreaRef, editorRef, tocNavRef,
         api.activeSectionIndex = panel.activeSectionIndex;
         api.headerMetaDraft = panel.headerMetaDraft;
         api.hasActiveQuizInProgress = () =>
-            hasActiveQuizInProgress({ ...panel, isLessonConstructEdit });
+            hasActiveQuizInProgress({
+                ...panelLiveRef.current,
+                isLessonConstructEdit,
+            });
         api.hasExamAttemptInProgress = () =>
-            hasExamAttemptInProgress({ ...panel, isLessonConstructEdit });
+            hasExamAttemptInProgress({
+                ...panelLiveRef.current,
+                isLessonConstructEdit,
+            });
         api.resolveAppCloseIfNeeded = async () =>
             (await confirmPanelLeaveIfNeeded()) ? 'proceed' : 'cancel';
         api.render = () => scheduleUpdate(true);

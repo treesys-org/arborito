@@ -81,7 +81,10 @@ export function useContentPanelNavigation({
                 idx !== panel.activeSectionIndex &&
                 !construct &&
                 !(isExam && panel.examStarted) &&
-                hasActiveQuizInProgress({ ...panel, isLessonConstructEdit })
+                hasActiveQuizInProgress({
+                    ...(panelLiveRef?.current || panel),
+                    isLessonConstructEdit,
+                })
             ) {
                 const fromIdx = panel.activeSectionIndex;
                 const ok = await confirmPanelLeaveIfNeeded();

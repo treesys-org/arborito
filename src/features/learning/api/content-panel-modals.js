@@ -73,7 +73,12 @@ async function confirmActiveQuizLeave(ctx) {
               'Leave the exam? You will lose this attempt\u2019s progress.'
             : store.ui.confirmLeaveActiveQuiz ||
               'Leave the quiz? You will lose this attempt\u2019s progress.';
-    return store.confirm(msg);
+    const ok = await store.confirm(msg);
+    /* Drop live attempt so later TOC / temario navigation does not re-prompt. */
+    if (ok && typeof ctx.onAbandonActiveQuiz === 'function') {
+        ctx.onAbandonActiveQuiz({ abandonExam: !!(isExam && inExam) });
+    }
+    return ok;
 }
 
 /** Prevents stacked leave dialogs from double-tap / duplicate handlers. */
