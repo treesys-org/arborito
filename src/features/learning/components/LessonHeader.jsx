@@ -5,7 +5,7 @@ import { ModalBackChevronIcon } from '../../../app/components/ModalHero.jsx';
 import { LessonEditorToolbarBridge } from '../../editor/components/LessonEditorToolbarBridge.jsx';
 import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 import { useBindMobileTapRef } from '../../../shared/ui/useBindMobileTap.js';
-import { NODE_PROPERTY_EMOJIS } from '../../tree-graph/api/node-property-emojis.js';
+import { NodeEmojiPickerGrid } from '../../tree-graph/components/shared/NodeEmojiPickerGrid.jsx';
 
 function MobileLessonBackButton({ ui, onClose }) {
     const mobile = shouldShowMobileUI();
@@ -253,27 +253,18 @@ function ConstructTitleBlock({
                 <div
                     id="lesson-header-emoji-picker"
                     className={`arborito-lesson-emoji-picker${pickerOpen ? '' : ' hidden'}`}
-                    role="listbox"
                     aria-label={lessonHeaderEmojiAria}
                 >
-                    <div className="arborito-lesson-emoji-picker__grid">
-                        {NODE_PROPERTY_EMOJIS.map((e) => (
-                            <button
-                                key={e}
-                                type="button"
-                                className="btn-lesson-header-emoji js-lesson-header-emoji-choice"
-                                aria-label={`${lessonHeaderEmojiAria} ${e}`}
-                                onClick={(ev) => {
-                                    ev.preventDefault();
-                                    ev.stopPropagation();
-                                    setPickerOpen(false);
-                                    onHeaderEmojiPick?.(e);
-                                }}
-                            >
-                                <ChromeEmoji emoji={e} className="arborito-emoji-glyph" />
-                            </button>
-                        ))}
-                    </div>
+                    <NodeEmojiPickerGrid
+                        ui={ui}
+                        onPick={(e) => {
+                            setPickerOpen(false);
+                            onHeaderEmojiPick?.(e);
+                        }}
+                        gridClassName="arborito-lesson-emoji-picker__grid"
+                        btnClassName="btn-lesson-header-emoji js-lesson-header-emoji-choice"
+                        emojiSize={18}
+                    />
                 </div>
             </div>
             <div className="min-w-0 flex-1 flex flex-col gap-0.5">

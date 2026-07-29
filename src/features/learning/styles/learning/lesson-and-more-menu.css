@@ -244,11 +244,19 @@ html:not(.arborito-desktop) .arborito-lesson-progress-slim {
     z-index: 60;
     width: 17rem;
     max-width: min(17rem, 85vw);
+    max-height: min(22rem, 70vh);
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 0.5rem;
     border-radius: 0.75rem;
     border: var(--arborito-theme-learning-arborito-lesson-emoji-picker-border);
     background: var(--arborito-theme-learning-arborito-lesson-emoji-picker-background);
     box-shadow: var(--arborito-theme-learning-arborito-lesson-emoji-picker-box-shadow);
+}
+
+.arborito-lesson-emoji-picker .arborito-emoji-picker-cat__label {
+    color: var(--arborito-theme-muted, #64748b);
 }
 
 .arborito-lesson-emoji-picker__grid {

@@ -1,7 +1,7 @@
 import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import { MATH_SYMBOL_GROUPS } from '../../../shared/lib/math-render.js';
-import { NODE_PROPERTY_EMOJIS } from '../../tree-graph/api/node-property-emojis.js';
+import { NODE_PROPERTY_EMOJI_CATEGORIES } from '../../tree-graph/api/node-property-emojis.js';
 import { useLessonEditorDropdownPortal } from './lesson-editor-dropdown-portal.jsx';
 
 /**
@@ -486,20 +486,29 @@ function LessonEditorInsertBlock({ ui, layout }) {
                         <p className="arborito-eyebrow m-0 lesson-editor-insert-panel__math-label">
                             {ui.editorInsertEmojis || 'Emoji'}
                         </p>
-                        <div className="lesson-editor-insert-panel__math-grid lesson-editor-insert-panel__emoji-grid">
-                            {NODE_PROPERTY_EMOJIS.map((emoji) => (
-                                <button
-                                    key={emoji}
-                                    type="button"
-                                    className="lesson-editor-emoji-symbol"
-                                    data-emoji-char={emoji}
-                                    aria-label={emoji}
-                                    title={emoji}
-                                >
-                                    <ChromeEmoji emoji={emoji} size={18} className="arborito-emoji-glyph" />
-                                </button>
-                            ))}
-                        </div>
+                        {NODE_PROPERTY_EMOJI_CATEGORIES.map((cat) => {
+                            const catKey = `graphEmojiCat${cat.id.charAt(0).toUpperCase()}${cat.id.slice(1)}`;
+                            const catLabel = ui[catKey] || cat.id;
+                            return (
+                                <div key={cat.id} className="lesson-editor-insert-panel__math-group">
+                                    <p className="lesson-editor-insert-panel__math-group-label">{catLabel}</p>
+                                    <div className="lesson-editor-insert-panel__math-grid lesson-editor-insert-panel__emoji-grid">
+                                        {cat.emojis.map((emoji) => (
+                                            <button
+                                                key={emoji}
+                                                type="button"
+                                                className="lesson-editor-emoji-symbol"
+                                                data-emoji-char={emoji}
+                                                aria-label={emoji}
+                                                title={emoji}
+                                            >
+                                                <ChromeEmoji emoji={emoji} size={18} className="arborito-emoji-glyph" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                     <div className="lesson-editor-insert-panel__math" role="group" aria-label={ui.editorMathSymbols || 'Math symbols'}>
                         <p className="arborito-eyebrow m-0 lesson-editor-insert-panel__math-label">

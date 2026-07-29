@@ -243,7 +243,7 @@ export function ModalNodeProperties() {
                     >
                         <ChromeEmoji emoji={folderDisplayIcon(icon)} className="arborito-emoji-glyph" />
                     </button>
-                    <div className="hidden group-hover:flex absolute top-14 left-0 w-64 bg-white dark:bg-slate-800 shadow-xl rounded-xl border border-slate-200 dark:border-slate-700 p-2 z-50">
+                    <div className="hidden group-hover:flex absolute top-14 left-0 w-72 max-h-80 overflow-y-auto bg-white dark:bg-slate-800 shadow-xl rounded-xl border border-slate-200 dark:border-slate-700 p-2 z-50">
                         <NodeEmojiPickerGrid
                             ui={ui}
                             onPick={setIcon}
