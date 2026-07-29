@@ -31,31 +31,14 @@ import {
 } from '../../../shared/lib/catalog-titles.js';
 import { UniverseRevokedError, clearUniverseRevokeStudentState } from './universe-revoked.js';
 import { stripShareTreeParams } from './share-tree-url.js';
+import {
+    isUrlTrusted as sourceUrlIsTrusted,
+    canonicalCommunityUrl,
+    tryLoadIpfsSourceJson,
+} from './source-url-helpers.js';
 
 export { stripShareTreeParams } from './share-tree-url.js';
 
-const OFFICIAL_DOMAINS = ['localhost', '127.0.0.1'];
-
-function expandIpfsAlternates(url) {
-    const u = String(url || '').trim();
-    if (!u) return [];
-    const m = u.match(/^(ipfs|ipns):\/\/(.+)$/i);
-    if (!m) return [u];
-    const proto = m[1].toLowerCase();
-    const rest = m[2].replace(/^\/+/, '');
-    const parts = rest.split('/');
-    const root = parts[0];
-    const path = parts.slice(1).join('/');
-    const suffix = path ? `/${path}` : '';
-    const gateways = [
-        `https://ipfs.io/${proto}/${root}${suffix}`,
-        `https://cloudflare-ipfs.com/${proto}/${root}${suffix}`,
-        `https://dweb.link/${proto}/${root}${suffix}`,
-        // Subdomain gateway only for ipfs (CID); keep it as a last try.
-        ...(proto === 'ipfs' ? [`https://${root}.ipfs.dweb.link${suffix}`] : [])
-    ];
-    return gateways;
-}
 
 export class SourceManager {
     constructor(updateStateCallback, uiCallback) {
@@ -311,9 +294,9 @@ export class SourceManager {
         if (activeSource.type === 'community' && activeSource.id) {
             const byId = localSources.find((s) => s.id === activeSource.id);
             if (!byId) {
-                const canon = this._canonicalCommunityUrl(activeSource.url);
+                const canon = canonicalCommunityUrl(activeSource.url);
                 const byUrl = localSources.find(
-                    (s) => this._canonicalCommunityUrl(s.url) === canon
+                    (s) => canonicalCommunityUrl(s.url) === canon
                 );
                 if (byUrl) {
                     activeSource = byUrl;
@@ -328,27 +311,10 @@ export class SourceManager {
     // --- Trust ---
 
     isUrlTrusted(urlStr) {
-        if (parseNostrTreeUrl(urlStr)) return false;
-        try {
-            const url = new URL(urlStr, window.location.href);
-            return OFFICIAL_DOMAINS.includes(url.hostname);
-        } catch {
-            return false;
-        }
+        return sourceUrlIsTrusted(urlStr);
     }
 
     // --- Community source CRUD ---
-
-    /** Same canonical URL (normalized nostr:// or absolute HTTPS) for duplicate detection. */
-    _canonicalCommunityUrl(urlStr) {
-        const g = parseNostrTreeUrl(urlStr);
-        if (g) return formatNostrTreeUrl(g.pub, g.universeId);
-        try {
-            return new URL(urlStr, window.location.href).href;
-        } catch {
-            return String(urlStr || '').trim();
-        }
-    }
 
     addCommunitySource(rawInput, opts = {}) {
         if (opts.resolvedNostrTreeUrl) {
@@ -465,8 +431,8 @@ export class SourceManager {
     }
 
     _appendSource(src, opts = {}) {
-        const canon = this._canonicalCommunityUrl(src.url);
-        const dup = this.state.communitySources.find((s) => this._canonicalCommunityUrl(s.url) === canon);
+        const canon = canonicalCommunityUrl(src.url);
+        const dup = this.state.communitySources.find((s) => canonicalCommunityUrl(s.url) === canon);
         if (dup) {
             return { ok: false, reason: 'duplicate', existing: dup };
         }
@@ -498,7 +464,7 @@ export class SourceManager {
         this._persistCommunitySources();
         if (prev) {
             try {
-                const canon = this._canonicalCommunityUrl(prev.url);
+                const canon = canonicalCommunityUrl(prev.url);
                 if (canon) {
                     if (!store._installedSourcesRemoved) store._installedSourcesRemoved = new Set();
                     store._installedSourcesRemoved.add(canon);
@@ -917,17 +883,8 @@ export class SourceManager {
         }
 
         // --- HTTPS / manifest ---
-        const ipfsExpanded = expandIpfsAlternates(source.url);
-        if (ipfsExpanded.length && ipfsExpanded[0] !== String(source.url || '')) {
-            try {
-                const text = await fetchHttpTextTryUrls(ipfsExpanded, { timeoutMs: 20000 });
-                const json = JSON.parse(text);
-                return { json, finalSource: { ...source, url: String(source.url), origin: 'ipfs' } };
-            } catch (e) {
-                // Fall through to regular HTTPS logic.
-                console.warn('IPFS gateway load failed; falling back to HTTPS/manifest', e);
-            }
-        }
+        const ipfsHit = await tryLoadIpfsSourceJson(source);
+        if (ipfsHit) return ipfsHit;
 
         const manifestUrl = source.manifestBaseUrl || resolveEditionManifestUrl(source.url);
         const versions = await this.discoverManifest(manifestUrl);
