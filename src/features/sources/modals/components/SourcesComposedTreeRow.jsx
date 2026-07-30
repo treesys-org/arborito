@@ -150,13 +150,6 @@ export function SourcesComposedTreeRow({
                                 })
                             }
                         />
-                        <button
-                            type="button"
-                            className="arborito-sources-action-chip"
-                            onClick={() => onAction?.('edit-composed-tree', { id: tree.id })}
-                        >
-                            {ui.sourcesEditTree || 'Edit branches'}
-                        </button>
                         <SourcesMoreButton
                             ui={ui}
                             rowKey={key}
@@ -199,6 +192,13 @@ export function SourcesComposedTreeRow({
                         />
                     </SourcesMenuPrefs>
                     <div className="pt-1 flex flex-wrap gap-2">
+                    <button
+                        type="button"
+                        className="arborito-sources-action-chip"
+                        onClick={() => onAction?.('edit-composed-tree', { id: tree.id })}
+                    >
+                        {ui.sourcesEditTree || 'Edit branches'}
+                    </button>
                     <button
                         type="button"
                         className="arborito-sources-action-chip"

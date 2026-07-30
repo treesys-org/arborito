@@ -11,9 +11,14 @@ import { canonicalNetworkTreeUrlString } from './sources-helpers.js';
 function findLocalTreeForSavedSource(saved) {
     const url = String(saved?.url || '').trim();
     if (!url) return null;
-    return (store.userStore?.state?.trees || []).find(
-        (t) => String(t?.publishedNetworkUrl || '').trim() === url
-    );
+    const canon = canonicalNetworkTreeUrlString(url);
+    return (store.userStore?.state?.trees || []).find((t) => {
+        const pub = String(t?.publishedNetworkUrl || '').trim();
+        if (!pub) return false;
+        if (pub === url) return true;
+        const tCanon = canonicalNetworkTreeUrlString(pub);
+        return !!(canon && tCanon && canon === tCanon);
+    });
 }
 
 function scoreTreesMatch(q, name, branchNames = []) {
@@ -53,14 +58,19 @@ export function collectForestTabItems(ctx, ui, state, activeSource, { scope, q }
 
     if (sc === 'all' || sc === 'device') {
         for (const t of store.userStore?.state?.trees || []) {
-            if (!t?.id || String(t.id) === activeTreeId) continue;
+            if (!t?.id) continue;
+            const treeId = String(t.id);
+            const pubCanon = canonicalNetworkTreeUrlString(String(t?.publishedNetworkUrl || '').trim());
+            /* Always track active + published URLs so Saved/Discover do not re-list the same tree. */
+            if (pubCanon) ownPublishedCanonUrls.add(pubCanon);
+            if (treeId === activeTreeId) {
+                seenTreeIds.add(treeId);
+                continue;
+            }
             const branchNames = resolveBranchRefDisplayNames(t.branchRefs);
             const s = scoreTreesMatch(q2, t?.name, branchNames);
             if (q2 && s <= 0) continue;
-            const treeId = String(t.id);
             seenTreeIds.add(treeId);
-            const pubCanon = canonicalNetworkTreeUrlString(String(t?.publishedNetworkUrl || '').trim());
-            if (pubCanon) ownPublishedCanonUrls.add(pubCanon);
             items.push({
                 score: 40 + s,
                 kind: 'device',
@@ -70,24 +80,26 @@ export function collectForestTabItems(ctx, ui, state, activeSource, { scope, q }
     }
 
     if (sc === 'all' || sc === 'saved') {
-        const activeUrlCanon = activeSource?.url
-            ? canonicalNetworkTreeUrlString(String(activeSource.url).trim())
-            : '';
+        const activeUrlCanon = (() => {
+            const fromActive = activeSource?.url
+                ? canonicalNetworkTreeUrlString(String(activeSource.url).trim())
+                : '';
+            if (fromActive) return fromActive;
+            if (!activeTreeId) return '';
+            const activeTree = (store.userStore?.state?.trees || []).find(
+                (t) => String(t?.id) === activeTreeId
+            );
+            return canonicalNetworkTreeUrlString(String(activeTree?.publishedNetworkUrl || '').trim());
+        })();
         for (const s0 of state.communitySources || []) {
             if (String(s0?.contentKind || '') !== 'composed-tree') continue;
             if (activeSource?.id && String(s0.id) === String(activeSource.id)) continue;
-            if (activeUrlCanon) {
-                const sCanon = canonicalNetworkTreeUrlString(String(s0?.url || '').trim());
-                if (sCanon && sCanon === activeUrlCanon) continue;
-            }
+            const sCanon = canonicalNetworkTreeUrlString(String(s0?.url || '').trim());
+            if (activeUrlCanon && sCanon && sCanon === activeUrlCanon) continue;
             const localTree = findLocalTreeForSavedSource(s0);
+            if (localTree && String(localTree.id) === activeTreeId) continue;
             if (localTree && seenTreeIds.has(String(localTree.id))) continue;
-            try {
-                const uCanon = canonicalNetworkTreeUrlString(String(s0?.url || '').trim());
-                if (uCanon && ownPublishedCanonUrls.has(uCanon)) continue;
-            } catch {
-                /* ignore */
-            }
+            if (sCanon && ownPublishedCanonUrls.has(sCanon)) continue;
             const s = scoreSourcesMatch(q2, s0?.name, s0?.url, String(s0?.id || ''));
             if (q2 && s <= 0) continue;
             items.push({
@@ -96,12 +108,7 @@ export function collectForestTabItems(ctx, ui, state, activeSource, { scope, q }
                 data: localTree ? { tree: localTree } : { source: s0 },
             });
             if (localTree) seenTreeIds.add(String(localTree.id));
-            try {
-                const uCanon = canonicalNetworkTreeUrlString(String(s0?.url || '').trim());
-                if (uCanon) ownPublishedCanonUrls.add(uCanon);
-            } catch {
-                /* ignore */
-            }
+            if (sCanon) ownPublishedCanonUrls.add(sCanon);
         }
     }
 
@@ -115,6 +122,11 @@ export function collectForestTabItems(ctx, ui, state, activeSource, { scope, q }
             try {
                 const publicUrl = formatNostrTreeUrl(r?.ownerPub, r?.universeId);
                 const uCanon = canonicalNetworkTreeUrlString(publicUrl);
+                const installedInCommunity = (state.communitySources || []).some((cs) => {
+                    const c = canonicalNetworkTreeUrlString(String(cs?.url || '').trim());
+                    return !!c && !!uCanon && c === uCanon;
+                });
+                if (installedInCommunity && sc === 'all') continue;
                 if (sc === 'all' && uCanon && ownPublishedCanonUrls.has(uCanon)) continue;
             } catch {
                 /* ignore */
