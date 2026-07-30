@@ -161,14 +161,21 @@ async function loadBranchesFromV2() {
     const db = await openDb();
     try {
         const tx = db.transaction([STORE_BRANCH_META, STORE_BRANCH_DATA], 'readonly');
-        const metas = await idbRequest(tx.objectStore(STORE_BRANCH_META).getAll());
+        /* Schedule both getAlls before any await so the transaction stays alive. */
+        const metaReq = idbRequest(tx.objectStore(STORE_BRANCH_META).getAll());
+        const dataReq = idbRequest(tx.objectStore(STORE_BRANCH_DATA).getAll());
+        const [metas, dataRows] = await Promise.all([metaReq, dataReq]);
         if (!Array.isArray(metas) || !metas.length) return [];
-        const dataStore = tx.objectStore(STORE_BRANCH_DATA);
+        const dataById = new Map();
+        for (const row of Array.isArray(dataRows) ? dataRows : []) {
+            const id = row?.branchId;
+            if (id != null && row?.data) dataById.set(String(id), row.data);
+        }
         const out = [];
         for (const meta of metas) {
             if (!meta?.id) continue;
-            const row = await idbRequest(dataStore.get(meta.id));
-            const entry = row?.data ? { ...meta, data: row.data } : { ...meta };
+            const data = dataById.get(String(meta.id));
+            const entry = data ? { ...meta, data } : { ...meta };
             out.push(normalizeBranchCatalogEntry(entry));
         }
         return out;
@@ -219,13 +226,20 @@ export async function loadTrees() {
     const db = await openDb();
     try {
         const tx = db.transaction([STORE_TREE_META, STORE_TREE_DATA], 'readonly');
-        const metas = await idbRequest(tx.objectStore(STORE_TREE_META).getAll());
+        /* Schedule both getAlls before any await so the transaction stays alive. */
+        const metaReq = idbRequest(tx.objectStore(STORE_TREE_META).getAll());
+        const dataReq = idbRequest(tx.objectStore(STORE_TREE_DATA).getAll());
+        const [metas, dataRows] = await Promise.all([metaReq, dataReq]);
         if (!Array.isArray(metas) || !metas.length) return [];
-        const dataStore = tx.objectStore(STORE_TREE_DATA);
+        const dataById = new Map();
+        for (const row of Array.isArray(dataRows) ? dataRows : []) {
+            const id = row?.treeId ?? row?.id;
+            if (id != null) dataById.set(String(id), row);
+        }
         const out = [];
         for (const meta of metas) {
             if (!meta?.id) continue;
-            const row = await idbRequest(dataStore.get(meta.id));
+            const row = dataById.get(String(meta.id));
             const branchRefs = row?.branchRefs ?? meta.branchRefs;
             const normalizedRefs = normalizeComposedTreeBranchRefs(branchRefs);
             out.push(normalizedRefs ? { ...meta, branchRefs: normalizedRefs } : { ...meta });

@@ -203,12 +203,16 @@ function CurriculumSwitcherSheet({ actionCtx, onClose }) {
                 onClose();
                 return;
             }
-            update({ treeGrowingOverlay: true });
+            /* Local garden (branch / composed tree): mount decides overlay; do not force CE flash. */
             if (item.kind === 'composed-tree') {
                 tree.loadComposedTree(item.id);
             } else if (item.kind === 'branch') {
-                loadData({ id: item.id, name: item.name, url: item.url, type: 'branch', isTrusted: true }, false);
+                loadData(
+                    { id: item.id, name: item.name, url: item.url, type: 'branch', isTrusted: true },
+                    false
+                );
             } else {
+                update({ treeGrowingOverlay: true });
                 const community = (tree.communitySources || []).find((s) => String(s.id) === String(item.id));
                 loadData(community || { id: item.id, name: item.name, url: item.url, type: 'community' }, true);
             }

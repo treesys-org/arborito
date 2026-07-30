@@ -1,10 +1,12 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useHookUi, useShellModalLang } from '../../../app/hooks/useHookShell.js';
 import { useShellUiSlice } from '../../../stores/shell-ui-store.js';
 import { useTreeGraphSlice } from '../../../stores/tree-graph-store.js';
 import { LoadingBrand, LoadingRow } from '../../../shared/ui/Loading.jsx';
 import { isBibliotecaUiOpen } from '../../sources/api/sources-session.js';
+import { isBootLoaderDismissed } from '../../../boot-loader.js';
+import { getArboritoStore } from '../../../core/store-singleton.js';
 
 const STYLE_ID = 'arborito-tree-growing-overlay-style';
 
@@ -150,11 +152,17 @@ function currentMode(state) {
     const graphMissing = !s.data && !s.rawGraphData;
 
     /*
-     * Biblioteca / publish hub render their own LoadingBrand.
-     * Never stack a second fullscreen overlay over the publish hub unless we are
-     * mid-network publish (publishingTree) — otherwise a lingering
-     * treeGrowingOverlay makes Publicar look like it opened nothing.
+     * While the HTML boot spinner is up (or source boot has not finished), never
+     * stack the green modal — that was the empty-sky flash after early dismiss.
      */
+    if (!isBootLoaderDismissed() || s.bootChromeReady === false) return null;
+    try {
+        const store = getArboritoStore?.();
+        if (store?._sourceBootStarted && !store._sourceBootFinished) return null;
+    } catch {
+        /* ignore */
+    }
+
     if (publishHubOpen) {
         if (s.publishingTree) return 'block';
         return null;
@@ -163,17 +171,16 @@ function currentMode(state) {
         return null;
     }
 
-    if (s.publishingTree || s.treeGrowingOverlay) return 'block';
+    if (s.publishingTree) return 'block';
 
     /*
-     * Bug fix: toast used `treeGrowingOverlay !== false`, but mount sets
-     * treeGrowingOverlay to boolean false for local/sources loads — toast
-     * never fired. Any hydrating with an empty canvas needs a visible spinner.
+     * ONLY an explicit treeGrowingOverlay (import / plant / forced switcher) may
+     * show the green modal — and only while the canvas is empty.
+     * Never infer block/toast from treeHydrating: skeleton + background SWR used
+     * to set hydrating and briefly clear data, which re-showed “Cargando árbol…”.
      */
-    if (s.treeHydrating && graphMissing) return 'block';
-    if (s.treeHydrating) return 'toast';
+    if (s.treeGrowingOverlay && graphMissing) return 'block';
 
-    if (s.activeSource && graphMissing) return 'toast';
     return null;
 }
 
@@ -192,6 +199,15 @@ export function TreeGrowingOverlay() {
     const publishingTree = useShellUiSlice((s) => s.publishingTree);
     const { treeHydrating, treeGrowingOverlay, treeGrowingHint, activeSource, data, rawGraphData } =
         useTreeGraphSlice(useShallow(overlaySliceSelector));
+    const [bootChromeReady, setBootChromeReady] = useState(() => isBootLoaderDismissed());
+
+    useEffect(() => {
+        if (bootChromeReady) return undefined;
+        const onDismiss = () => setBootChromeReady(true);
+        window.addEventListener('arborito-boot-dismiss', onDismiss);
+        if (isBootLoaderDismissed()) setBootChromeReady(true);
+        return () => window.removeEventListener('arborito-boot-dismiss', onDismiss);
+    }, [bootChromeReady]);
 
     const overlayState = useMemo(
         () => ({
@@ -203,6 +219,7 @@ export function TreeGrowingOverlay() {
             activeSource,
             data,
             rawGraphData,
+            bootChromeReady,
         }),
         [
             modal,
@@ -213,6 +230,7 @@ export function TreeGrowingOverlay() {
             activeSource,
             data,
             rawGraphData,
+            bootChromeReady,
         ]
     );
     const mode = useMemo(() => currentMode(overlayState), [overlayState]);

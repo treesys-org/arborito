@@ -24,6 +24,7 @@ export function ProductTour({ embed }) {
         last,
         ariaLabel,
         sourcesPickerOnlyTour,
+        ephemeralTour,
         finish,
         prev,
         next,
@@ -36,7 +37,8 @@ export function ProductTour({ embed }) {
     const shadeClass = shadePassThrough
         ? 'arborito-tour-shade arborito-tour-shade--pass-through'
         : 'arborito-tour-shade';
-    const zIndex = sourcesPickerOnlyTour ? 230 : shadePassThrough ? 160 : 140;
+    const softTour = sourcesPickerOnlyTour || ephemeralTour;
+    const zIndex = softTour ? 230 : shadePassThrough ? 160 : 140;
 
     const tree = (
         <div
@@ -122,7 +124,7 @@ export function ProductTour({ embed }) {
                 first={first}
                 last={last}
                 sourcesPickerOnlyTour={sourcesPickerOnlyTour}
-                onSkip={() => finish({ markDone: !sourcesPickerOnlyTour })}
+                onSkip={() => finish({ markDone: !softTour })}
                 onPrev={prev}
                 onNext={next}
             />

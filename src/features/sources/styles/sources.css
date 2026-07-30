@@ -647,6 +647,18 @@ html.dark .arborito-sources-tab-foot {
     border-radius: 1rem;
 }
 
+/* Full list body cover while network/skeleton curriculum mounts. */
+.arborito-sources-list-cover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: min(22rem, 55vh);
+    margin: 0;
+    padding: 1.5rem 1rem;
+    border-radius: 1rem;
+    background: var(--arborito-theme-sources-loading-slot-bg);
+}
+
 .arborito-sources-overlay-panel {
     background: var(--arborito-theme-surface-bg);
 }

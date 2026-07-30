@@ -435,7 +435,7 @@ arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-modal-root 
 }
 
 #modal-backdrop.arborito-modal-root.arborito-modal--mobile-fullbleed.arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-actions {
-    padding-bottom: max(1.35rem, env(safe-area-inset-bottom, 0px));
+    padding-bottom: 0;
 }
 
 /* Search — desktop: centered card with top breathing room (not forest/mobile dock layout) */

@@ -84,6 +84,7 @@ export function SourcesForestTab({
     globalDirError,
     globalDirUiTruncated,
     sourcesTreeLoading,
+    sourcesListCover,
     rowActionsOpen,
     collectCtx,
     bump,
@@ -118,8 +119,9 @@ export function SourcesForestTab({
         }
     }, [scope, state.communitySources, globalDirMetrics, collectCtx.setGlobalDirMetrics]);
 
+    /* Cover list for network install or skeleton hydrate — not instant local opens. */
+    const listCover = !!sourcesListCover || !!state.treeHydrating;
     const curriculumLoading = !!sourcesTreeLoading || !!state.treeHydrating;
-    const treeLoading = curriculumLoading;
     const activePin = useMemo(
         () => resolveActiveComposedTreePin(state, activeSource, userStore),
         [state, activeSource, userStore]
@@ -137,6 +139,12 @@ export function SourcesForestTab({
 
     const visibleItems = items.slice(0, treesVisible);
     const hasMoreTrees = items.length > treesVisible;
+
+    const loadLabel =
+        ui.sourcesComposedTreeHydratingHint ||
+        ui.treeHydratingHint ||
+        ui.loading ||
+        'Loading…';
 
     return (
         <div className="pt-0 pb-1" data-arbor-tour="sources-trees-panel">
@@ -205,6 +213,10 @@ export function SourcesForestTab({
                 </div>
             </div>
             <div className="mt-4 space-y-3 px-4 arborito-sources-list">
+                {listCover ? (
+                    <SourcesLoadingPanel className="arborito-sources-list-cover" label={loadLabel} />
+                ) : (
+                    <>
                 <CrossTabActiveBanner
                     ui={ui}
                     state={state}
@@ -233,17 +245,6 @@ export function SourcesForestTab({
                             onAction={onAction}
                             onToggleRowActions={onToggleRowActions}
                         />
-                        {treeLoading ? (
-                            <SourcesLoadingPanel
-                                className="arborito-sources-loading-slot mt-2"
-                                label={
-                                    ui.sourcesComposedTreeHydratingHint ||
-                                    ui.treeHydratingHint ||
-                                    ui.loading ||
-                                    'Loading…'
-                                }
-                            />
-                        ) : null}
                     </div>
                 ) : null}
                 {activeSaved ? (
@@ -266,29 +267,7 @@ export function SourcesForestTab({
                             onToggleRowActions={onToggleRowActions}
                             onToggleFreeze={(id) => onAction('toggle-tree-freeze', { id })}
                         />
-                        {treeLoading ? (
-                            <SourcesLoadingPanel
-                                className="arborito-sources-loading-slot mt-2"
-                                label={
-                                    ui.sourcesComposedTreeHydratingHint ||
-                                    ui.treeHydratingHint ||
-                                    ui.loading ||
-                                    'Loading…'
-                                }
-                            />
-                        ) : null}
                     </div>
-                ) : null}
-                {curriculumLoading ? (
-                    <SourcesLoadingPanel
-                        className="arborito-sources-loading-slot"
-                        label={
-                            ui.sourcesComposedTreeHydratingHint ||
-                            ui.treeHydratingHint ||
-                            ui.loading ||
-                            'Loading…'
-                        }
-                    />
                 ) : null}
                 {loading && !activeEntry && !activeSaved && !curriculumLoading ? (
                     <SourcesLoadingPanel
@@ -410,6 +389,8 @@ export function SourcesForestTab({
                         )}
                     </p>
                 ) : null}
+                    </>
+                )}
             </div>
         </div>
     );

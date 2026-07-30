@@ -15,6 +15,7 @@
   "confirmLeaveActiveExam": "Leave the exam? You will lose progress on this attempt.",
   "confirmLeaveActiveQuiz": "Leave the quiz? You will lose progress on this attempt.",
   "examLabelPrefix": "Exam: ",
+  "lessonContentLoading": "Loading lesson…",
   "lessonEnter": "ENTER LESSON",
   "lessonFinished": "COMPLETED ✓",
   "lessonGameReadyInfoBtn": "Arcade status",

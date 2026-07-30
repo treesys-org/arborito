@@ -7,6 +7,7 @@ import { isElectronDesktop, isCapacitorNative } from '../../learning/api/electro
 import { getReleaseDownloadPlatforms, GITHUB_RELEASES } from '../../../shared/lib/release-downloads.js';
 import { PRODUCT_SCREENSHOT_FILES, productScreenshotSrc } from '../../../shared/lib/product-screenshots.js';
 import { useShellModalLang } from '../../../app/hooks/useHookShell.js';
+import { ModalBinaryFooter } from '../../../shared/ui/ModalBinaryFooter.jsx';
 
 function resolveVersion(state) {
     try {
@@ -118,10 +119,11 @@ function DownloadAppPanel({ ui, state }) {
 export function ModalDownloadApp() {
     const version = useVersionUpdates();
     const { ui, dismissModal, state } = version;
-    const { lang } = useShellModalLang();
+    const { lang, modal } = useShellModalLang();
 
     const mobile = shouldShowMobileUI();
     const close = () => dismissModal();
+    const fromOnboarding = !!(modal && typeof modal === 'object' && modal.fromOnboarding);
 
     const title = ui.downloadModalTitle || ui.downloadAppChip || 'Download Arborito';
     const badge = ui.downloadModalBadge || ui.downloadAppOptionalShort || '';
@@ -133,19 +135,21 @@ export function ModalDownloadApp() {
         <ModalHubHero
             ui={ui}
             mobile={mobile}
-            trailingSpacer
+            trailingSpacer={false}
             title={title}
             subtitle={badge || undefined}
             leadingIcon="🌳"
-            tagClass="btn-close"
+            backTagClass="btn-close"
+            closeTagClass="btn-close"
+            showClose={!mobile}
+            showBack={mobile}
             onClose={close}
             onBack={close}
-            showBack={mobile}
         />
     );
 
     const body = (
-        <div className="arborito-download-modal__body px-4 pb-6 pt-2">
+        <div className="arborito-download-modal__body px-4 pb-4 pt-2 flex-1 min-h-0 overflow-y-auto custom-scrollbar">
             {lead ? <p className="arborito-download-app-lead">{lead}</p> : null}
             <DownloadScreenshotStrip lang={lang || 'EN'} />
             <DownloadAppCompare ui={ui} />
@@ -154,12 +158,23 @@ export function ModalDownloadApp() {
         </div>
     );
 
+    const footer = (
+        <ModalBinaryFooter
+            hideCancel
+            fullWidthConfirm
+            confirmTone="slate"
+            confirmLabel={fromOnboarding ? ui.navBack || ui.close || 'Back' : ui.close || 'Close'}
+            onConfirm={close}
+            footerVariant="blend"
+        />
+    );
+
     if (mobile) {
         return (
             <div data-arborito-panel="modal-download-app">
                 <DockModalShell
                     mobile
-                    layout="dock-bottom"
+                    layout={fromOnboarding ? 'dock' : 'dock-bottom'}
                     sizeTier="COMPACT"
                     onBackdropClick={close}
                     shellOpts={{
@@ -169,6 +184,7 @@ export function ModalDownloadApp() {
                     }}
                     panelClass="arborito-download-app-modal-shell arborito-modal-dock-panel w-full max-h-full"
                     hero={hero}
+                    footer={footer}
                 >
                     {body}
                 </DockModalShell>
@@ -183,6 +199,7 @@ export function ModalDownloadApp() {
                 layout="centered"
                 sizeTier="COMPACT"
                 hero={hero}
+                footer={footer}
                 panelRadius="2xl"
                 panelClass="arborito-download-app-modal-shell"
                 shellOpts={{

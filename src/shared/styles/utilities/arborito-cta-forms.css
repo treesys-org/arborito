@@ -30,8 +30,11 @@
 /*
  * Consolidación — piso: dock-gap sheets pin the footer to the sheet floor.
  * No safe-area here (lives in --arborito-sheet-dock-gap); no margin under the bar.
+ * Skip when fullbleed / first-run (those need home-indicator clearance below).
  */
-:is(html.arborito-shell-mobile, html.force-mobile)
+:is(html.arborito-shell-mobile, html.force-mobile):not(.arborito-fullbleed-sheet-open):not(
+        .arborito-mob-first-run-gate
+    )
     #modal-backdrop.arborito-modal--mobile:is(
         .arborito-modal--profile,
         .arborito-modal--backup,
@@ -52,8 +55,10 @@
 
 /* Fullbleed / first-run sheets (no dock): keep home-indicator clearance on the footer. */
 :is(html.arborito-shell-mobile, html.force-mobile).arborito-fullbleed-sheet-open
+    #modal-backdrop.arborito-modal--mobile
     .arborito-modal-footer,
 :is(html.arborito-shell-mobile, html.force-mobile).arborito-mob-first-run-gate
+    #modal-backdrop.arborito-modal--mobile
     .arborito-modal-footer,
 :is(html.arborito-shell-mobile, html.force-mobile)
     #modal-backdrop.arborito-modal--dialog.arborito-modal--mobile-fullbleed

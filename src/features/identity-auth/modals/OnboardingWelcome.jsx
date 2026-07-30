@@ -26,16 +26,11 @@ export function OnboardingWelcome({
     const privacyLbl = String(
         ui.onboardingPrivacyShortLink || ui.onboardingPrivacyHeading || ui.privacyTitle || 'Privacy'
     ).trim();
-    const accountLbl = String(
-        ui.onboardingOnlineAccountCta || ui.onboardingSessionRegister || 'Sign in or Register'
-    ).trim();
     const exploreLbl = String(
-        ui.onboardingJustExploreCta || ui.onboardingLaterCta || 'Continue without an account'
+        ui.onboardingJustExploreCta || ui.onboardingLaterCta || 'Choose what to study'
     ).trim();
-    const exploreHint = String(
-        ui.onboardingContinueWithoutAccountHint ||
-            ui.onboardingSessionSkipLaterHint ||
-            'You can create an account later from Profile.'
+    const accountLbl = String(
+        ui.onboardingAccountEntryLink || 'Already have an account? Sign in'
     ).trim();
     const a11yLbl = String(ui.onboardingAccessibilityButton || ui.a11yPrefsTitle || 'Accessibility').trim();
     const appLinkLbl = String(
@@ -62,34 +57,24 @@ export function OnboardingWelcome({
             <OnboardingLanguage lang={lang} onPick={onPickLanguage} />
 
             <div className="arborito-onboarding-actions">
-                {onAccountIntent ? (
-                    <button
-                        type="button"
-                        className="btn-onb-start text-sm text-white"
-                        disabled={stepAdvancing}
-                        onClick={() => onAccountIntent()}
-                    >
-                        {accountLbl}
-                    </button>
-                ) : null}
                 <button
                     type="button"
-                    className={`btn-onb-skip text-sm${stepAdvancing ? ' btn-onb-skip--busy' : ''}`}
+                    className={`btn-onb-start text-sm text-white${stepAdvancing ? ' btn-onb-start--busy' : ''}`}
                     disabled={stepAdvancing}
                     aria-busy={stepAdvancing ? 'true' : undefined}
                     onClick={onAcceptAndContinue}
                 >
                     {stepAdvancing ? loadingLbl : exploreLbl}
                 </button>
-                {exploreHint && !stepAdvancing ? (
-                    <p className="arborito-onboarding-skip-hint m-0 text-[11px] leading-snug text-slate-600 dark:text-slate-400 text-center">
-                        {exploreHint}
-                    </p>
-                ) : null}
-                {networkNote ? (
-                    <p className="arborito-onboarding-legal-note m-0 text-[11px] leading-snug text-slate-600 dark:text-slate-400 text-center">
-                        {networkNote}
-                    </p>
+                {onAccountIntent ? (
+                    <button
+                        type="button"
+                        className="btn-onb-account-link text-sm"
+                        disabled={stepAdvancing}
+                        onClick={() => onAccountIntent()}
+                    >
+                        {accountLbl}
+                    </button>
                 ) : null}
                 <div className="arborito-onboarding-foot-links" role="group">
                     {alphaLbl ? (
@@ -133,6 +118,11 @@ export function OnboardingWelcome({
                         </>
                     ) : null}
                 </div>
+                {networkNote ? (
+                    <p className="arborito-onboarding-legal-note m-0 text-[11px] leading-snug text-slate-600 dark:text-slate-400 text-center">
+                        {networkNote}
+                    </p>
+                ) : null}
             </div>
         </>
     );

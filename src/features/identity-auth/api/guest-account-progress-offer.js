@@ -1,5 +1,6 @@
 /**
  * After a guest earns first lesson progress, offer account once (human copy).
+ * Decline → short spotlight on Profile so they know where to register later.
  */
 
 import { isGuestSyncBannerDismissed, dismissGuestSyncBanner } from '../../sources/api/guest-sync-banner-prefs.js';
@@ -26,9 +27,21 @@ export function hasOfferedGuestAccountAfterProgress() {
     return readFlag(OFFERED_KEY);
 }
 
+function scheduleGuestAccountTour() {
+    /* Dynamic import: static pull of feature-tour into app-stores creates circular chunks. */
+    queueMicrotask(() => {
+        void import('../../tour/api/product-tour-start-bridge.js')
+            .then((m) => {
+                m.requestGuestAccountTour?.();
+            })
+            .catch(() => {});
+    });
+}
+
 /**
  * @param {{
  *   isSignedIn?: () => boolean,
+ *   showDialog?: (opts: object) => Promise<unknown>,
  *   confirm?: (body: string, title?: string, danger?: boolean, confirmText?: string) => Promise<boolean>,
  *   setModal?: (m: object) => void,
  *   ui?: Record<string, string>,
@@ -48,10 +61,19 @@ export async function maybeOfferGuestAccountAfterProgress(store) {
         ui.guestProgressAccountBody ||
         'Create a free account so you do not lose what you learned if you clear this browser or switch devices.';
     const confirmText = ui.guestProgressAccountCta || ui.sourcesGuestSyncBannerCta || 'Back up my progress';
+    const cancelText = ui.guestProgressAccountNotNow || 'Not now';
 
     let ok = false;
     try {
-        if (typeof store.confirm === 'function') {
+        if (typeof store.showDialog === 'function') {
+            ok = !!(await store.showDialog({
+                type: 'confirm',
+                title,
+                body,
+                confirmText,
+                cancelText,
+            }));
+        } else if (typeof store.confirm === 'function') {
             ok = !!(await store.confirm(body, title, false, confirmText));
         }
     } catch {
@@ -62,5 +84,7 @@ export async function maybeOfferGuestAccountAfterProgress(store) {
         store.setModal({ type: 'profile', focus: 'register' });
         return;
     }
+
     dismissGuestSyncBanner();
+    scheduleGuestAccountTour();
 }

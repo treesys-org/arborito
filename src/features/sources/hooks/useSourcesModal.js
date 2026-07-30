@@ -145,10 +145,5 @@ export function useSourcesModal(embed = false) {
         closeBlocked,
         modal,
         fromOnboarding,
-        showGuestSyncHint:
-            modal &&
-            typeof modal === 'object' &&
-            modal.fromOnboarding &&
-            modal.fromOnboarding.showGuestSyncHint,
     };
 }

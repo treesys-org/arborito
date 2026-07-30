@@ -36,6 +36,7 @@ export const learningStore = createArboritoStore(() => ({
     previewNode: null,
     path: [],
     lessonOpenHint: null,
+    lessonContentLoading: false,
 }));
 
 /** @param {Record<string, unknown>} snap, reactStateStore snapshot */
@@ -57,6 +58,7 @@ export function syncLearningStoreFromSnapshot(snap) {
         previewNode: snap.previewNode ?? null,
         path: Array.isArray(snap.path) ? snap.path : [],
         lessonOpenHint: snap.lessonOpenHint ?? null,
+        lessonContentLoading: !!snap.lessonContentLoading,
     });
 }
 

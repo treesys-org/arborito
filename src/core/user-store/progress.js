@@ -9,6 +9,8 @@ import {
 import { normalizeComposedTreeBranchRefs } from '../../shared/lib/branch-id.js';
 import { maybeSeedArboritoDemo } from '../demo/seed-arborito-demo.js';
 import { areArboritoStorageWritesDisabled } from '../../shared/lib/arborito-storage-gate.js';
+import { invalidateComposedGraphCache } from '../../features/forest/api/composed-graph-cache.js';
+import { getArboritoStore } from '../store-singleton.js';
 
 /** Composed ids (`ref::node`) and bare ids share completion for the same lesson. */
 function completionIdAliases(nodeId) {
@@ -28,6 +30,26 @@ export const progressMixin = {
         if (!branchId) return;
         if (!this._branchesDirty) this._branchesDirty = new Set();
         this._branchesDirty.add(branchId);
+        /* Content edits bust composed-graph cache; recency-only touches must not. */
+        if (!(opts && opts.recencyOnly)) {
+            try {
+                const trees = this.treesReferencingBranch?.(branchId) || [];
+                for (const t of trees) {
+                    if (t?.id) invalidateComposedGraphCache(t.id);
+                }
+                const store = getArboritoStore();
+                const activeTreeId = String(store?.state?.activeSource?.treeId || '');
+                if (
+                    store &&
+                    activeTreeId &&
+                    trees.some((t) => String(t?.id) === activeTreeId)
+                ) {
+                    store._composedMountFingerprint = '';
+                }
+            } catch {
+                /* ignore */
+            }
+        }
         const skipAccountSync = !!(opts && opts.skipAccountSync);
         if (skipAccountSync) return;
         const entry = (this.state.branches || []).find((t) => t && t.id === branchId);

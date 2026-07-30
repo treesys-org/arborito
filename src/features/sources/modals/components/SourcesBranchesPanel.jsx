@@ -89,6 +89,7 @@ export function SourcesBranchesPanel({
     globalDirMetrics,
     treeFreezeBusy,
     sourcesTreeLoading,
+    sourcesListCover,
     rowActionsOpen,
     toggleRowActions,
     getBranchesTabRows,
@@ -121,8 +122,11 @@ export function SourcesBranchesPanel({
     const visible = items.slice(0, Math.max(pageSize, shown));
     const remaining = Math.max(0, items.length - visible.length);
     const loading = !!globalDirLoading;
+    /* Cover list for network install or skeleton hydrate — not instant local opens. */
+    const listCover = !!sourcesListCover || !!state.treeHydrating;
     const curriculumLoading = !!sourcesTreeLoading || !!state.treeHydrating;
     const err = String(globalDirError || '').trim();
+    const loadLabel = ui.treeHydratingHint || ui.loading || 'Loading…';
 
     /* Demo keeps tourTarget=sources-demo-branch; active non-demo pins render above it. */
     const demoFromPin =
@@ -226,6 +230,10 @@ export function SourcesBranchesPanel({
                 </div>
             </div>
             <div className="mt-4 space-y-3 px-4 arborito-sources-list">
+                {listCover ? (
+                    <SourcesLoadingPanel className="arborito-sources-list-cover" label={loadLabel} />
+                ) : (
+                    <>
                 <CrossTabActiveBanner
                     ui={ui}
                     state={state}
@@ -308,12 +316,6 @@ export function SourcesBranchesPanel({
                             onToggleRowActions={toggleRowActions}
                         />
                     </div>
-                ) : null}
-                {curriculumLoading ? (
-                    <SourcesLoadingPanel
-                        className="arborito-sources-loading-slot"
-                        label={ui.treeHydratingHint || ui.loading || 'Loading…'}
-                    />
                 ) : null}
                 {loading && (scope === 'all' || scope === 'internet') && !curriculumLoading ? (
                     <SourcesLoadingPanel
@@ -420,6 +422,8 @@ export function SourcesBranchesPanel({
                         )}
                     </p>
                 ) : null}
+                    </>
+                )}
             </div>
         </div>
     );

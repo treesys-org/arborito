@@ -7,7 +7,14 @@ import { patchNostrSlice } from './nostr-store.js';
 
 const NOSTR_KEYS = ['treeCollaboratorRoles', 'treeCollaboratorUsernames', 'treeCollaboratorRolesByUsername'];
 
-const LEARNING_KEYS = ['ai', 'selectedNode', 'previewNode', 'path', 'lessonOpenHint'];
+const LEARNING_KEYS = [
+    'ai',
+    'selectedNode',
+    'previewNode',
+    'path',
+    'lessonOpenHint',
+    'lessonContentLoading',
+];
 const TREE_GRAPH_KEYS = [
     'data',
     'rawGraphData',

@@ -610,12 +610,12 @@ export function ModalOnboarding() {
                                 if (stepAdvancing || busy) return;
                                 persistUserNostrRelays(SUGGESTED_NOSTR_RELAYS);
                                 if (!hasGdprNetworkConsent()) grantGdprNetworkConsent();
-                                /* Prewarm while user fills login/register — do not await. */
+                                /* Prewarm while user fills login — do not await. */
                                 prewarmForestNetworkIndices();
                                 setError('');
-                                setSessionView('start');
+                                setSessionView('login');
                                 setStep(2);
-                                setModal({ type: 'onboarding', step: 2, view: 'start' });
+                                setModal({ type: 'onboarding', step: 2, view: 'login' });
                             }}
                             onOpenPrivacy={() =>
                                 openSubModalAndReturn({

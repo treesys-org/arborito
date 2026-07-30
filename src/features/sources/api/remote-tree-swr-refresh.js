@@ -93,7 +93,18 @@ export async function refreshRemoteTreeBundleInBackground(store, source, opts) {
             });
             if (epoch !== store._curriculumMountEpoch) return;
             if (String(store.state.activeSource?.id || '') !== sourceId) return;
-            await store.loadComposedTree(entry.id);
+            const composedId = String(entry?.id || '').trim();
+            const alreadyComposed =
+                !!store.state.data &&
+                (String(store.state.activeSource?.treeId || store.state.activeSource?.id || '') ===
+                    composedId ||
+                    store.state.activeSource?.type === 'composed-tree');
+            if (alreadyComposed) {
+                /* Skeleton/full already up — skip remount; cache stamp handled above for flat trees. */
+                return;
+            }
+            /* Quiet upgrade — do not force-refresh (would blank a warm canvas). */
+            await store.loadComposedTree(composedId, false);
             return;
         }
 

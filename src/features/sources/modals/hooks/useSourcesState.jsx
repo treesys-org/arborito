@@ -54,6 +54,8 @@ export function useSourcesState({ embed }) {
     const [globalDirRows, setGlobalDirRows] = useState([]);
     const [globalDirMetrics, setGlobalDirMetrics] = useState({});
     const [sourcesTreeLoading, setSourcesTreeLoading] = useState(false);
+    /** Cover the branches/trees list while network/skeleton hydrate (not instant local). */
+    const [sourcesListCover, setSourcesListCover] = useState(false);
     const [treeEditor, setTreeEditor] = useState(null);
     const [globalDirQ, setGlobalDirQ] = useState('');
     const [globalDirLastFetchAt, setGlobalDirLastFetchAt] = useState(0);
@@ -231,6 +233,7 @@ export function useSourcesState({ embed }) {
         setTreesScope,
         setGlobalDirFilter,
         setSourcesTreeLoading,
+        setSourcesListCover,
         toggleRowActions,
         directoryState,
         directorySetters,
@@ -351,6 +354,7 @@ export function useSourcesState({ embed }) {
         globalDirRows,
         globalDirMetrics,
         sourcesTreeLoading,
+        sourcesListCover,
         treeEditor,
         setTreeEditor,
         bump,

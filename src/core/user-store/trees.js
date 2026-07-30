@@ -1,5 +1,7 @@
 import { randomUUIDSafe } from '../../shared/lib/secure-web-crypto.js';
 import { persistTreeEntry, removeTreeFromCatalog } from '../../shared/lib/arborito-catalog-store.js';
+import { invalidateComposedGraphCache } from '../../features/forest/api/composed-graph-cache.js';
+import { getArboritoStore } from '../store-singleton.js';
 
 /**
  * Composed trees (árboles): named playlists of branch references.
@@ -63,7 +65,19 @@ export const treesMixin = {
         if (patch.presentation !== undefined) entry.presentation = patch.presentation;
         if (patch.branchSetHash != null) entry.branchSetHash = String(patch.branchSetHash);
         if (patch.publishedBranchSetHash != null) entry.publishedBranchSetHash = String(patch.publishedBranchSetHash);
-        if (opts.touchUpdated !== false) entry.updated = Date.now();
+        if (opts.touchUpdated !== false) {
+            entry.updated = Date.now();
+            /* Ref URL rewrites use touchUpdated:false — keep compose cache warm. */
+            invalidateComposedGraphCache(treeId);
+            try {
+                const store = getArboritoStore();
+                if (store && String(store.state?.activeSource?.treeId || '') === String(treeId)) {
+                    store._composedMountFingerprint = '';
+                }
+            } catch {
+                /* ignore */
+            }
+        }
         this.state.trees = [...this.state.trees];
         this.markTreeDirty(treeId);
         this.persist();
@@ -76,6 +90,7 @@ export const treesMixin = {
         this.state.trees = this.state.trees.filter((t) => String(t.id) !== id);
         this._treesDirty?.delete(id);
         this._rememberCatalogTombstone('trees', id);
+        invalidateComposedGraphCache(id);
         this.notifyCatalogChanged?.();
         this.persist();
         return removeTreeFromCatalog(id).catch((e) => {

@@ -45,6 +45,7 @@ const [active, setActive] = useState(false);
     const [steps, setSteps] = useState([]);
     const [mode, setMode] = useState('default');
     const [sourcesPickerOnlyTour, setSourcesPickerOnlyTour] = useState(false);
+    const [ephemeralTour, setEphemeralTour] = useState(false);
     const [stepping, setStepping] = useState(false);
     const [layout, setLayout] = useState(EMPTY_LAYOUT);
     const [mascotKey, setMascotKey] = useState('🦉');
@@ -74,6 +75,7 @@ const [active, setActive] = useState(false);
         steps,
         mode,
         sourcesPickerOnlyTour,
+        ephemeralTour,
     };
 
     const clearTryStartTimer = useCallback(() => {
@@ -138,11 +140,13 @@ const [active, setActive] = useState(false);
             active: isActive,
             mode: finishingMode,
             sourcesPickerOnlyTour: wasSourcesPickerOnlyTour,
+            ephemeralTour: wasEphemeralTour,
         } = tourStateRef.current;
         if (!isActive) return;
 
         setActive(false);
         setSourcesPickerOnlyTour(false);
+        setEphemeralTour(false);
         skipDockOpenRetryRef.current = 0;
         skipDockStepsRetryRef.current = 0;
         setProfilePopoverOpen(false);
@@ -169,7 +173,7 @@ const [active, setActive] = useState(false);
         }
 
         let done = markDone;
-        if (done && wasSourcesPickerOnlyTour) done = false;
+        if (done && (wasSourcesPickerOnlyTour || wasEphemeralTour)) done = false;
 
         if (done) {
             if (finishingMode === 'construction') {
@@ -232,7 +236,7 @@ const [active, setActive] = useState(false);
 
     const startingRef = useRef(false);
 
-    const startTour = useCallback(({ tourSteps, tourMode, force, pickerOnly }) => {
+    const startTour = useCallback(({ tourSteps, tourMode, force, pickerOnly, ephemeral }) => {
         if (startingRef.current || tourStateRef.current.active) return;
         startingRef.current = true;
         forceRef.current = force;
@@ -258,11 +262,16 @@ const [active, setActive] = useState(false);
             setMode(tourMode);
             setSteps(tourSteps);
             setSourcesPickerOnlyTour(!!pickerOnly);
+            setEphemeralTour(!!ephemeral);
             setIndex(0);
             setActive(true);
             lastSpokenStepRef.current = -1;
             lastMascotKeyRef.current = '';
-            setMascotKey(pickerOnly ? '📚' : defaultMascotForMode(tourMode, false));
+            setMascotKey(
+                ephemeral ? '🎒'
+                : pickerOnly ? '📚'
+                : defaultMascotForMode(tourMode, false)
+            );
             if (pickerOnly) {
                 document.documentElement.classList.add('arborito-product-tour-sources-picker');
             }
@@ -289,6 +298,48 @@ const [active, setActive] = useState(false);
     const tryStart = useCallback(
         ({ force = false, mode: startMode = 'default', skipDockForOpenTrees = false } = {}) => {
             if (tourStateRef.current.active || startingRef.current) return;
+
+            if (startMode === 'guest-account') {
+                /* Lesson open (previewNode) is fine — Profile chrome stays visible. */
+                const uiBlocking = !!(
+                    store.value.modal ||
+                    store.state.modalOverlay ||
+                    store.state.treeGrowingOverlay
+                );
+                if (uiBlocking) {
+                    if (modalWaitRetryRef.current < 40) {
+                        modalWaitRetryRef.current += 1;
+                        scheduleTryStart({ force: true, mode: 'guest-account' }, 100);
+                    }
+                    return;
+                }
+                modalWaitRetryRef.current = 0;
+                const ui = store?.ui ?? appUi ?? {};
+                const target = shouldShowMobileUI() ? 'mob-profile' : 'profile';
+                const step = {
+                    target,
+                    title: String(ui.guestAccountTourTitle || '').trim(),
+                    body:
+                        String(ui.guestAccountTourBody || '').trim() ||
+                        'Whenever you want, create a free account here to sync.',
+                };
+                if (!stepHasTarget(step)) {
+                    if (anchorWaitRetryRef.current < 30) {
+                        anchorWaitRetryRef.current += 1;
+                        scheduleTryStart({ force: true, mode: 'guest-account' }, 100);
+                    }
+                    return;
+                }
+                anchorWaitRetryRef.current = 0;
+                startTour({
+                    tourSteps: [step],
+                    tourMode: 'default',
+                    force: true,
+                    pickerOnly: false,
+                    ephemeral: true,
+                });
+                return;
+            }
 
             const m =
                 startMode === 'construction' ? 'construction'
@@ -475,8 +526,9 @@ const [active, setActive] = useState(false);
     );
 
     const prev = useCallback(() => {
-        const { sourcesPickerOnlyTour: pickerOnly, index: idx } = tourStateRef.current;
-        if (pickerOnly && idx <= 0) {
+        const { sourcesPickerOnlyTour: pickerOnly, ephemeralTour: ephemeral, index: idx } =
+            tourStateRef.current;
+        if ((pickerOnly || ephemeral) && idx <= 0) {
             finish({ markDone: false });
             return;
         }
@@ -485,9 +537,14 @@ const [active, setActive] = useState(false);
     }, [finish]);
 
     const next = useCallback(() => {
-        const { index: idx, steps: tourSteps, sourcesPickerOnlyTour: pickerOnly } = tourStateRef.current;
+        const {
+            index: idx,
+            steps: tourSteps,
+            sourcesPickerOnlyTour: pickerOnly,
+            ephemeralTour: ephemeral,
+        } = tourStateRef.current;
         if (idx >= tourSteps.length - 1) {
-            finish({ markDone: !pickerOnly });
+            finish({ markDone: !(pickerOnly || ephemeral) });
             return;
         }
         setIndex((i) => i + 1);
@@ -608,7 +665,10 @@ const [active, setActive] = useState(false);
             if (!tourStateRef.current.active) return;
             if (e.key === 'Escape') {
                 e.preventDefault();
-                finish({ markDone: !tourStateRef.current.sourcesPickerOnlyTour });
+                const soft =
+                    tourStateRef.current.sourcesPickerOnlyTour ||
+                    tourStateRef.current.ephemeralTour;
+                finish({ markDone: !soft });
             }
         };
         const onFocusIn = (e) => {
@@ -718,6 +778,7 @@ const [active, setActive] = useState(false);
         last,
         ariaLabel,
         sourcesPickerOnlyTour,
+        ephemeralTour,
         finish,
         prev,
         next,

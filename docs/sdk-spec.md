@@ -293,7 +293,7 @@ The SDK (browser cartridge and Python) shares the same modality logic as the in-
 | Cartridge `alonso-duel` | All five | Uses `window.arborito.challenge.modes.*` + duel-specific chrome in `card-modes.js`. |
 | Cartridge `classroom-sim`, `firstjob` | `multiple` (via `quiz()`) | Use `quiz.pool` / `quiz.buildOptions` from the SDK; do not reimplement dedup in the cartridge. |
 | Cartridge `memory-garden` | All (extract-only) | "Pares" mode uses `matchPairs`; "Repaso" mode reads `challenge.fromLesson` to surface a flip-card prompt/answer per challenge (no interactive Quiz V2 UI). |
-| Narrative / visual-novel cartridges | `narrative.*` | YAML frontmatter scenes; in dynamic mode dialogue adapts to the active branch via `ask.lessonAction`. |
+| Narrative / visual-novel cartridges | `narrative.*` | YAML frontmatter scenes; in dynamic mode dialogue uses `ask.speak` / `ask.reply` (no course-quiz pollution). |
 
 ### What this means if you are building a game
 
@@ -565,8 +565,9 @@ Full chat; returns provider-specific result. Host uses `aiService.chat()` (nativ
 
 - `quiz(lesson, { count?, askOptions? })`: classroom-style Q/A array. See [Quiz helpers: `quiz`](#quiz-helpers-quiz) for `quiz.pool`, `quiz.pick`, `quiz.buildOptions`, and `quiz.itemKey`.
 - `matchPairs(lesson, { count?, askOptions?, fillFromCurriculum?, excludeFaces? })`, `{ t, d }[]` pairs. Each card **face** is unique (no duplicate text on the board). In static mode, each Quiz V2 item can yield a pair (question→answer when present, otherwise concept→definition). When `fillFromCurriculum` is true (default), pairs from other playlist lessons are merged until `count` is reached. Pass `excludeFaces` (string keys or `{t,d}` objects) to skip faces already shown in the session. Set `fillFromCurriculum: false` to use only the current lesson. Memory Garden keeps fill on so the grid stays full, and passes `excludeFaces` so advancing lessons does not recycle the same filler cards.
-- `ask.lessonAction(lesson, playerSaid, { persona?, authorLine?, profile?, askOptions? })`: dynamic AI for games. JSON `{ output, success, matches_lesson }`. **`authorLine`**: optional fixed text from the lesson (story/dialog); the SDK adapts it to the active branch. **`playerSaid`**: what the player typed (can be empty). Author questionnaire facts are used first; AI only fills gaps. Set persona once via `ai.persona`.
-- `ai.persona` / `ai.arborito`: string getter/setter for the dynamic-mode character prompt (e.g. *"You are a night wizard… ask about the dungeon secret"*).
+- **Scene (easy dynamic):** `ask.fromCourse(topic)`, `ask.speak(who, text)`, `ask.reply(who, playerSaid, facts)`, `ask.check(playerSaid, card)` — see below.
+- **Study:** `ask.tutor(lesson, playerSaid, opts?)` (alias: `ask.lessonAction`) — chat grounded in course questionnaires.
+- `ai.persona` / `ai.arborito`: string getter/setter for tutor voice.
 
 ---
 
@@ -578,9 +579,10 @@ Games own their UI and scoring. The SDK provides lesson data and quiz primitives
 
 | You are building… | Start here | Dynamic AI? |
 |-------------------|------------|-------------|
-| **Story / visual novel** | `narrative.start()` → loop `narrative.advance(profile, input)` | Optional: adapts author lines to the branch language and questionnaires |
+| **Story / visual novel** | `narrative.start()` → `narrative.advance` **or** `ask.speak` / `ask.reply` | Yes (scene prompts; no quiz pollution) |
+| **Speaking gate from the course** | `ask.fromCourse(topic)` → `ask.speak` / `ask.check` | `check` works static; `speak` needs dynamic |
 | **Missions from questionnaires** (terminal, classroom, duel) | `challenge.tasksFromLesson(lesson)` + `quiz.matchesAny` | Optional: `quiz.gradeAnswer` for open text |
-| **NPC or tutor chat** | `ask.lessonAction(lesson, playerSaid, { persona, authorLine? })` | Yes |
+| **Tutor chat (study)** | `ask.tutor(lesson, playerSaid)` | Yes |
 | **Multiple-choice rounds** | `quiz(lesson, { count })` or `quiz.pool` + `quiz.pick` | Fills missing slots from branch content |
 | **Full custom AI** (any genre) | `ask.json(yourPrompt)` or `ask.chat(messages)` | Yes — you own the prompt |
 
@@ -616,25 +618,48 @@ Optional persona (dynamic mode only):
 window.arborito.ai.persona = 'You are a night wizard in a dungeon.';
 ```
 
-### Dynamic AI: one helper for games
+### Dynamic AI: easy scene helpers (same difficulty as static quiz)
+
+Static vs dynamic — same mental model:
+
+| Static | Dynamic (scene) |
+|--------|-----------------|
+| `challenge.fromLesson` | `ask.fromCourse("greeting")` |
+| `modes.buildCard` | `ask.speak(who, text)` |
+| `quiz.matchesAny` | `ask.check(playerSaid, card)` |
+| (player free text to NPC) | `ask.reply(who, playerSaid, facts)` |
+| — | `ask.tutor(lesson, playerSaid)` study only |
+
+Topics for `fromCourse`: `greeting`, `origin`, `purpose`, `goodbye`.
 
 ```javascript
-// Player typed something. tutor / NPC / terminal
-const res = await window.arborito.ask.lessonAction(lesson, playerSaid, {
- persona: window.arborito.ai.persona, // optional voice
-});
+// Authored story line (no course quizzes in the prompt)
+const { line } = await window.arborito.ask.speak(
+  'Mike, strict boss',
+  'Julius is missing. Go to Hotel Pentfive.'
+);
 
-// Story line written by the author. SDK adapts it to THIS branch (language, topics)
-const res = await window.arborito.ask.lessonAction(lesson, authorLine, {
- authorLine, // same string: tells the SDK this is fixed lesson text, not player input
- persona: 'Guide',
- profile: await window.arborito.lesson.branchProfile(lesson),
-});
+// Character answers the player using only your facts
+const { line: reply } = await window.arborito.ask.reply(
+  'Mike. Wants the player to accept the mission.',
+  playerSaid,
+  ['Julius disappeared in England', 'Last lead is Hotel Pentfive']
+);
 
-console.log(res.output); // plain text to show the player
+// Gate from the loaded course (any language the branch teaches)
+const card = await window.arborito.ask.fromCourse('greeting');
+if (card) {
+  await window.arborito.ask.speak('Receptionist', card.question);
+  const grade = await window.arborito.ask.check(playerAnswer, card);
+}
+
+// Study tutor (uses course questionnaires — not for thriller plot)
+const tutorRes = await window.arborito.ask.tutor(lesson, playerSaid, {
+  persona: window.arborito.ai.persona,
+});
 ```
 
-You do **not** choose modes like “adapt” or “reply”. Pass `authorLine` when you have scripted lesson text; omit it for free chat. The SDK uses questionnaires first and only invents what is missing.
+Python mirrors the same names (`from_course` / `fromCourse`, `speak`, `reply`, `check`, `tutor`). `lesson_action` remains an alias of `tutor`.
 
 For **total creative control** (custom genres, special JSON, your own prompts), use `ask.json(prompt)`: same AI backend, no guardrails beyond your prompt.
 
@@ -670,7 +695,7 @@ while (packet.display_type !== 'END_OF_SCENE' && packet.display_type !== 'END_CH
 }
 ```
 
-In **dynamic mode**, dialogue and narration lines are adapted to the active branch (e.g. German course vs English course) while keeping the same story structure. In **static mode**, authored text is shown as-is.
+In **dynamic mode**, dialogue and narration lines are paraphrased with `ask.speak` / `ask.reply` (scene prompts — they do not inject course questionnaire vocabulary into the plot). In **static mode**, authored text is shown as-is. Use `ask.fromCourse` when you *want* a speaking gate from the course.
 
 Set narrative voice once (dynamic mode):
 
@@ -708,7 +733,8 @@ Runnable examples in **`arborito-sdk/examples/`**:
 | Script | Needs AI? | Shows |
 |--------|-----------|-------|
 | `minimal_quiz.py` | No | `challenge.modes.buildCard` + `quiz.matches_any` |
-| `ai_tutor.py` | Yes (llama.cpp) | `ask.lesson_action` + `lesson.branch_profile` |
+| `ai_tutor.py` | Yes (llama.cpp) | `ask.tutor` / `lesson_action` + `branch_profile` |
+| `ai_scene.py` | Yes (llama.cpp) | `ask.speak` / `reply` / `fromCourse` / `check` |
 
 ### Narrative (`narrative`)
 

@@ -290,7 +290,7 @@
     flex-direction: column;
     align-items: stretch;
     gap: 0.55rem;
-    padding: 0 1.25rem 1.35rem;
+    padding: 0 1.25rem 0;
 }
 
 .arborito-modal--onboarding .arborito-onboarding-local-only {
@@ -397,7 +397,7 @@
 
     .arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-actions {
         padding-top: 0.55rem;
-        padding-bottom: 1.15rem;
+        padding-bottom: 0;
     }
 
     .arborito-modal--onboarding .arborito-onboarding-inner--step1 .btn-onb-lang {
@@ -509,9 +509,10 @@
     border-radius: 1rem;
     font-weight: 800;
     letter-spacing: 0.01em;
-    border: 1.5px solid var(--arborito-theme-surface-border, rgb(203 213 225));
-    background: var(--arborito-theme-tile-bg, rgb(248 250 252));
-    color: var(--arborito-theme-form-fg, rgb(30 41 59));
+    /* form/auth borders — surface-border is mint and nearly invisible on light tiles */
+    border: 1.5px solid var(--arborito-theme-auth-action-btn-border, var(--arborito-theme-form-border, rgb(203 213 225)));
+    background: var(--arborito-theme-auth-action-btn-bg, var(--arborito-theme-tile-bg, rgb(255 255 255)));
+    color: var(--arborito-theme-auth-action-btn-fg, var(--arborito-theme-form-fg, rgb(30 41 59)));
     box-shadow: none;
     transition:
         transform 0.15s ease,
@@ -520,8 +521,8 @@
 }
 
 .arborito-modal--onboarding .btn-onb-skip:hover:not(:disabled) {
-    border-color: var(--arborito-theme-auth-alt-hover-border, rgb(52 211 153));
-    background: var(--arborito-theme-auth-alt-hover-bg, rgb(236 253 245 / 0.9));
+    border-color: var(--arborito-theme-auth-action-btn-hover-border, var(--arborito-theme-auth-alt-hover-border, rgb(52 211 153)));
+    background: var(--arborito-theme-auth-action-btn-hover-bg, var(--arborito-theme-auth-alt-hover-bg, rgb(236 253 245 / 0.9)));
     transform: translateY(-1px);
 }
 
@@ -532,6 +533,32 @@
 .arborito-modal--onboarding .btn-onb-skip--busy,
 .arborito-modal--onboarding .btn-onb-skip:disabled {
     opacity: 0.72;
+    pointer-events: none;
+    cursor: wait;
+}
+
+.arborito-modal--onboarding .btn-onb-account-link {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    width: 100%;
+    min-height: 2.5rem;
+    margin: 0;
+    padding: 0.35rem 0.5rem;
+    border: none;
+    background: transparent;
+    color: var(--arborito-theme-sheet-muted, rgb(71 85 105));
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+    cursor: pointer;
+}
+
+.arborito-modal--onboarding .btn-onb-account-link:hover:not(:disabled) {
+    color: var(--arborito-theme-sheet-text, rgb(15 23 42));
+}
+
+.arborito-modal--onboarding .btn-onb-account-link:disabled {
+    opacity: 0.55;
     pointer-events: none;
     cursor: wait;
 }

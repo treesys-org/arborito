@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useLearningStore } from './useLearning.js';
 import { fileSystem } from '../../backup-export/api/filesystem.js';
 import { isExamLesson } from '../api/exam-context.js';
@@ -25,6 +25,14 @@ import {
 } from '../../editor/api/logic/lesson-sync-draft-body.js';
 import { createInitialPanelState } from './useContentPanel-state.js';
 
+function contentBodySig(content) {
+    const s = String(content ?? '');
+    let h = 0;
+    const lim = Math.min(s.length, 2400);
+    for (let i = 0; i < lim; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return `${s.length}:${h}`;
+}
+
 export function useContentPanelStoreSync({
     panel,
     setPanel,
@@ -43,6 +51,8 @@ export function useContentPanelStoreSync({
     scrollTocOnRenderRef,
 }) {
     const store = useLearningStore();
+    /** Last content body we painted — detects in-place lazy chunk fills on the same node object. */
+    const renderedContentSigRef = useRef('');
 
     const fireLessonEditTourEnter = useCallback((nodeId) => {
         if (nodeId == null || lessonEditTourLastFiredForRef.current === nodeId) return;
@@ -57,6 +67,57 @@ export function useContentPanelStoreSync({
         });
     }, [lessonEditTourLastFiredForRef]);
 
+    const applyStudentOpenFromNode = useCallback(
+        (newNode, openHint) => {
+            let tocLength = 0;
+            try {
+                if (newNode.content) {
+                    const parsed = parseArboritoFile(newNode.content);
+                    const rawBlocks = parseContent(parsed.body || newNode.content);
+                    tocLength = buildTocFromBlocks(rawBlocks).length;
+                }
+            } catch {
+                tocLength = 0;
+            }
+            const isExamNode = isExamLesson(newNode);
+            const recent = store.getRecentLessonPosition(newNode.id, newNode.content);
+            let { index, visited } = resolveLessonOpenSection({
+                hint: openHint,
+                recent,
+                tocLength,
+            });
+            const quizPassRecord = isExamNode ? {} : hydrateQuizPassRecord(recent?.quizPassed);
+            if (isExamNode) {
+                index = 0;
+                visited = new Set();
+            }
+            setPanel({
+                ...createInitialPanelState(),
+                currentNode: newNode,
+                activeSectionIndex: index,
+                visitedSections: visited,
+                quizPassRecord: isExamNode ? {} : quizPassRecord,
+                examStarted: false,
+                examShowResults: false,
+                quizStates: {},
+                blockSessions: {},
+                isTocVisible: false,
+            });
+            parseApi.invalidateLessonParseCache();
+            scrollTocOnRenderRef.current = true;
+            renderedContentSigRef.current = contentBodySig(newNode.content);
+            persistLessonReadingPosition(store, {
+                nodeId: newNode.id,
+                index,
+                visitedSections: visited,
+                contentRaw: newNode.content,
+                quizPassRecord: isExamNode ? {} : quizPassRecord,
+                isExam: isExamNode,
+            });
+        },
+        [parseApi, setPanel, scrollTocOnRenderRef, store]
+    );
+
     const onStoreChange = useCallback(
         (detail) => {
             const newNode = detail.selectedNode;
@@ -68,6 +129,15 @@ export function useContentPanelStoreSync({
                 newId != null &&
                 currentId === newId &&
                 nextSourceId !== (lessonBoundSourceIdRef.current ?? '');
+            const incomingSig = newNode ? contentBodySig(newNode.content) : '';
+            const lazyBodyArrived =
+                !!newNode &&
+                newId != null &&
+                currentId === newId &&
+                !sourceSwitched &&
+                !detail.constructionMode &&
+                incomingSig !== renderedContentSigRef.current &&
+                !!String(newNode.content || '').trim();
 
             if (newId !== currentId || sourceSwitched) {
                 cancelDraftAutosave();
@@ -92,52 +162,7 @@ export function useContentPanelStoreSync({
                         store.update({ lessonOpenHint: null });
                     }
                     if (!constructEdit) {
-                        let tocLength = 0;
-                        try {
-                            if (newNode.content) {
-                                const parsed = parseArboritoFile(newNode.content);
-                                const rawBlocks = parseContent(parsed.body || newNode.content);
-                                tocLength = buildTocFromBlocks(rawBlocks).length;
-                            }
-                        } catch {
-                            tocLength = 0;
-                        }
-                        const isExamNode = isExamLesson(newNode);
-                        const recent = store.getRecentLessonPosition(newNode.id, newNode.content);
-                        let { index, visited } = resolveLessonOpenSection({
-                            hint: openHint,
-                            recent,
-                            tocLength,
-                        });
-                        const quizPassRecord = isExamNode
-                            ? {}
-                            : hydrateQuizPassRecord(recent?.quizPassed);
-                        if (isExamNode) {
-                            index = 0;
-                            visited = new Set();
-                        }
-                        setPanel({
-                            ...createInitialPanelState(),
-                            currentNode: newNode,
-                            activeSectionIndex: index,
-                            visitedSections: visited,
-                            quizPassRecord: isExamNode ? {} : quizPassRecord,
-                            examStarted: false,
-                            examShowResults: false,
-                            quizStates: {},
-                            blockSessions: {},
-                            isTocVisible: false,
-                        });
-                        parseApi.invalidateLessonParseCache();
-                        scrollTocOnRenderRef.current = true;
-                        persistLessonReadingPosition(store, {
-                            nodeId: newNode.id,
-                            index,
-                            visitedSections: visited,
-                            contentRaw: newNode.content,
-                            quizPassRecord: isExamNode ? {} : quizPassRecord,
-                            isExam: isExamNode,
-                        });
+                        applyStudentOpenFromNode(newNode, openHint);
                     } else {
                         const sourceId = store.value.activeSource?.id;
                         const draftLang =
@@ -213,10 +238,12 @@ export function useContentPanelStoreSync({
                             }
                             fireLessonEditTourEnter(newNode.id);
                         }
+                        renderedContentSigRef.current = contentBodySig(newNode.content);
                     }
                 } else {
                     lessonBoundSourceIdRef.current = '';
                     lessonEditTourLastFiredForRef.current = null;
+                    renderedContentSigRef.current = '';
                     try {
                         window.dispatchEvent(new CustomEvent('arborito-lesson-edit-cancel'));
                     } catch {
@@ -224,6 +251,13 @@ export function useContentPanelStoreSync({
                     }
                     setPanel(createInitialPanelState());
                 }
+                lastRenderKeyRef.current = null;
+                scheduleUpdate(true);
+                return;
+            }
+            if (lazyBodyArrived) {
+                /* Lazy Nostr/HTTP body filled the same node object — re-parse student view. */
+                applyStudentOpenFromNode(newNode, null);
                 lastRenderKeyRef.current = null;
                 scheduleUpdate(true);
                 return;
@@ -289,6 +323,7 @@ export function useContentPanelStoreSync({
                           ? {}
                           : { headerMetaDraft: null })
                 });
+                if (contentChanged) renderedContentSigRef.current = contentBodySig(newNode.content);
                 lastRenderKeyRef.current = null;
                 scheduleUpdate(true);
             }
@@ -297,7 +332,7 @@ export function useContentPanelStoreSync({
             lessonStoreFpRef.current = fp;
             scheduleUpdate();
         },
-        [panel.currentNode, panel.lessonUserHasEdited, panel.lessonConstructDraft, panel.lessonBodyMarkdown, panel.activeSectionIndex, panel.headerMetaDraft, parseApi, patchPanel, scheduleUpdate, fireLessonEditTourEnter, lessonEditor, cancelDraftAutosave, setPanel, constructApiRef, contentScrollSnapshotRef, lastRenderSectionRef, lastRenderKeyRef, lessonStoreFpRef, lessonBoundSourceIdRef, lessonEditTourLastFiredForRef, scrollTocOnRenderRef]
+        [panel.currentNode, panel.lessonUserHasEdited, panel.lessonConstructDraft, panel.lessonBodyMarkdown, panel.activeSectionIndex, panel.headerMetaDraft, parseApi, patchPanel, scheduleUpdate, fireLessonEditTourEnter, lessonEditor, cancelDraftAutosave, setPanel, constructApiRef, contentScrollSnapshotRef, lastRenderSectionRef, lastRenderKeyRef, lessonStoreFpRef, lessonBoundSourceIdRef, lessonEditTourLastFiredForRef, scrollTocOnRenderRef, applyStudentOpenFromNode]
     );
 
     useEffect(() => {

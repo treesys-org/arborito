@@ -377,7 +377,7 @@ export const branchesMixin = {
         if (!entry) return false;
         entry.updated = Date.now();
         this.state.branches = [...this.state.branches];
-        this.markBranchDirty(id);
+        this.markBranchDirty(id, { recencyOnly: true });
         this.persist();
         return true;
     },

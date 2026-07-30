@@ -28,6 +28,7 @@ import {
     lessonHasMeaningfulProgress,
 } from '../api/lesson-sync-hint-prefs.js';
 import { shellUiActions } from '../../../stores/shell-ui-store-actions.js';
+import { LoadingBrand } from '../../../shared/ui/Loading.jsx';
 
 const ASIDE_CLASSES = [
     'arborito-lesson-aside',
@@ -82,7 +83,7 @@ function getBookmarkMeta(getBookmark, node, activeSectionIndex, toc, ui) {
 
 export function Content({ embed }) {
     const learning = useLearning();
-    const { ui, setModal, openSageModal } = learning;
+    const { ui, setModal, openSageModal, lessonContentLoading } = learning;
 
     const rootRef = useRef(null);
     const proseFrameRef = useRef(null);
@@ -295,6 +296,35 @@ const panelApi = useContentPanel({
             />
         );
     }
+
+    const awaitingLessonBody =
+        !!lessonContentLoading ||
+        (!String(panel.currentNode.content || '').trim() &&
+            !!(
+                panel.currentNode.contentPath ||
+                (panel.currentNode.treeLazyContent && panel.currentNode.treeContentKey)
+            ));
+
+    if (awaitingLessonBody) {
+        return (
+            <div
+                ref={rootRef}
+                data-arborito-panel="content"
+                data-embed={embed ? '1' : undefined}
+                className={`${ASIDE_CLASSES} items-center justify-center gap-3 p-8`}
+                role="status"
+                aria-busy="true"
+                aria-live="polite"
+            >
+                <LoadingBrand
+                    label={ui.lessonContentLoading || ui.loading || 'Loading lesson…'}
+                    size="boot"
+                    tone="sage"
+                />
+            </div>
+        );
+    }
+
     if (renderData.empty) {
         return (
             <div

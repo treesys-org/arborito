@@ -11,7 +11,6 @@ import { ExportCurriculumSheet } from './components/ExportCurriculumSheet.jsx';
 import { SourcesTabFooter } from './components/SourcesTabFooter.jsx';
 import { SourcesBranchesPanel } from './components/SourcesBranchesPanel.jsx';
 import { SourcesLibraryBanner } from './components/SourcesLibraryBanner.jsx';
-import { dismissGuestSyncBanner } from '../api/guest-sync-banner-prefs.js';
 import { dismissLocalModeBanner } from '../api/local-mode-banner-prefs.js';
 
 export function ModalSources({ embed = false }) {
@@ -28,7 +27,6 @@ export function ModalSources({ embed = false }) {
         switchMainTab,
         close,
         closeBlocked,
-        showGuestSyncHint,
         modal,
         sourcesApp,
     } = useSourcesModal(embed);
@@ -43,9 +41,6 @@ export function ModalSources({ embed = false }) {
 
     const openPrivacyFromSources = () => {
         sourcesApp.setModal?.(sourcesChildModal('privacy'));
-    };
-    const openProfileFromSources = () => {
-        sourcesApp.setModal?.(sourcesChildModal('profile', { focus: 'register' }));
     };
 
     const bodyInner = (
@@ -66,15 +61,9 @@ export function ModalSources({ embed = false }) {
                     <div className="px-4">
                         <SourcesLibraryBanner
                             ui={ui}
-                            showGuestSyncHint={showGuestSyncHint}
                             onOpenPrivacy={openPrivacyFromSources}
-                            onOpenProfile={openProfileFromSources}
                             onDismissLocal={() => {
                                 dismissLocalModeBanner();
-                                sources.bump();
-                            }}
-                            onDismissGuest={() => {
-                                dismissGuestSyncBanner();
                                 sources.bump();
                             }}
                         />
@@ -107,6 +96,7 @@ export function ModalSources({ embed = false }) {
                             globalDirError={sources.globalDirError}
                             globalDirUiTruncated={sources.globalDirUiTruncated}
                             sourcesTreeLoading={sources.sourcesTreeLoading}
+                            sourcesListCover={sources.sourcesListCover}
                             rowActionsOpen={sources.rowActionsOpen}
                             collectCtx={sources.collectCtx}
                             bump={sources.bump}
@@ -132,6 +122,7 @@ export function ModalSources({ embed = false }) {
                             globalDirMetrics={sources.globalDirMetrics}
                             treeFreezeBusy={sources.treeFreezeBusy}
                             sourcesTreeLoading={sources.sourcesTreeLoading}
+                            sourcesListCover={sources.sourcesListCover}
                             rowActionsOpen={sources.rowActionsOpen}
                             toggleRowActions={sources.toggleRowActions}
                             getBranchesTabRows={sources.getBranchesTabRows}

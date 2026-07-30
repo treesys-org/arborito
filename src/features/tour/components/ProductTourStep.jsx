@@ -38,19 +38,21 @@ export function ProductTourStep({
         >
             <div className="arborito-tour-tooltip__head">
                 <ProductTourMascot mascotKey={mascotKey} />
-                <div className="arborito-tour-tooltip__titles">
-                    <h2
-                        className="arborito-tour-tooltip__title"
-                        id="arborito-tour-title"
-                        style={{
-                            fontFamily: 'var(--font-family-base, ui-sans-serif, system-ui, sans-serif)',
-                            textAlign: 'start',
-                            wordSpacing: 'normal',
-                        }}
-                    >
-                        <LocaleRichText html={richTextWithEmojis((step && step.title) || '')} />
-                    </h2>
-                </div>
+                {(step && step.title) ? (
+                    <div className="arborito-tour-tooltip__titles">
+                        <h2
+                            className="arborito-tour-tooltip__title"
+                            id="arborito-tour-title"
+                            style={{
+                                fontFamily: 'var(--font-family-base, ui-sans-serif, system-ui, sans-serif)',
+                                textAlign: 'start',
+                                wordSpacing: 'normal',
+                            }}
+                        >
+                            <LocaleRichText html={richTextWithEmojis((step && step.title) || '')} />
+                        </h2>
+                    </div>
+                ) : null}
             </div>
             <div
                 className="arborito-tour-tooltip__body"

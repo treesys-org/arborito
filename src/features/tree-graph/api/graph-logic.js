@@ -211,19 +211,31 @@ export class GraphLogic {
             /* Cover the map immediately so ghost clicks / path sync cannot jump the trunk
              * while content is still loading. */
             armPostClosePointerGuard(550);
+            const needsBody = !target.content && nodeNeedsLazyNetworkLesson(target);
             this.store.update({
                 selectedNode: target,
                 previewNode: null,
                 modal: null,
                 lessonOpenHint,
+                lessonContentLoading: needsBody,
             });
             this.store.dispatchEvent(
                 new CustomEvent('arborito-set-mobile-path', { detail: { ids: mobileIds } })
             );
             this.store.rememberLastMapFocus?.(target.id);
-            if (!target.content && nodeNeedsLazyNetworkLesson(target)) {
-                await this.loadNodeContent(target);
-                this.store.update({ selectedNode: target });
+            if (needsBody) {
+                try {
+                    await this.loadNodeContent(target);
+                } finally {
+                    /* Same object ref + in-place content: bump loading false so the panel
+                     * re-syncs (mutated content alone does not change selectedNode identity). */
+                    this.store.update({
+                        selectedNode: target,
+                        lessonContentLoading: false,
+                    });
+                }
+            } else if (this.store.state.lessonContentLoading) {
+                this.store.update({ lessonContentLoading: false });
             }
         } else {
             this.store.dispatchEvent(

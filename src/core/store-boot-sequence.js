@@ -98,7 +98,7 @@ async function runSourceBoot(store) {
             return;
         }
 
-        const treeLoadPromise = store.loadData(source);
+        const treeLoadPromise = store.loadData(source, false);
         const slowHintTimer = setTimeout(() => {
             if (!store.state.treeHydrating) return;
             const ui = store.ui || {};
@@ -178,8 +178,9 @@ export function scheduleStoreSourceBoot(store, clearBootSafetyTimer) {
             };
             if (hasGdprNetworkConsent()) {
                 store.update({ loading: false });
-                hideInitialLoader();
                 if (isOnboardingWizardIncomplete()) {
+                    /* Welcome must be interactive — dismiss HTML spinner here. */
+                    hideInitialLoader();
                     /* Shared diploma first; onboarding resumes when they close it.
                      * Do not warm Nostr here — wait for Continue / account on step 1. */
                     void ensureAppCoreReady().then(() => tryOpenSharedCertificate(store));
@@ -189,18 +190,22 @@ export function scheduleStoreSourceBoot(store, clearBootSafetyTimer) {
                         });
                     }
                 } else {
+                    /*
+                     * Keep the HTML boot spinner until the tree paints. Dismissing early
+                     * leaves an empty sky then the green “Cargando árbol…” modal.
+                     */
                     await runSourceBoot(store);
                 }
             } else {
                 /* Local-only / offline: boot must not wait for GDPR network grant. */
                 store.update({ loading: false });
-                hideInitialLoader();
                 const scheduleLocalBoot = () => {
                     scheduleIdle(() => {
                         void runSourceBoot(store);
                     }, 400);
                 };
                 if (isOnboardingWizardIncomplete()) {
+                    hideInitialLoader();
                     void ensureAppCoreReady().then(() => tryOpenSharedCertificate(store));
                     if (typeof window !== 'undefined') {
                         window.addEventListener('arborito-onboarding-complete', scheduleLocalBoot, {
@@ -208,7 +213,8 @@ export function scheduleStoreSourceBoot(store, clearBootSafetyTimer) {
                         });
                     }
                 } else {
-                    scheduleLocalBoot();
+                    /* Same as consent path: hold HTML loader through first tree paint. */
+                    await runSourceBoot(store);
                 }
                 onGdprNetworkConsentGranted(() => {
                     /* Consent during welcome (Continue / Sign in) is warmed by OnboardingModal

@@ -33,11 +33,21 @@ export async function enterLessonAction() {
             if (!ok) return;
         }
     }
-    if (!node.content && (node.contentPath || (node.treeLazyContent && node.treeContentKey))) {
-        await loadNodeContentAction(node);
-        commitLearningState({ selectedNode: node, previewNode: null });
+    const needsBody =
+        !node.content && (node.contentPath || (node.treeLazyContent && node.treeContentKey));
+    if (needsBody) {
+        commitLearningState({ selectedNode: node, previewNode: null, lessonContentLoading: true });
+        try {
+            await loadNodeContentAction(node);
+        } finally {
+            commitLearningState({ selectedNode: node, lessonContentLoading: false });
+        }
     } else {
-        commitLearningState({ selectedNode: node, previewNode: null });
+        commitLearningState({
+            selectedNode: node,
+            previewNode: null,
+            lessonContentLoading: false,
+        });
     }
 }
 
@@ -53,7 +63,7 @@ export async function closeContentAction(opts = {}) {
      * lesson, then the synthetic click can hit a path knot and jump the trunk. */
     armPostClosePointerGuard(550);
     resetTrunkUserGesture();
-    commitLearningState({ selectedNode: null });
+    commitLearningState({ selectedNode: null, lessonContentLoading: false });
 }
 
 export async function loadNodeContentAction(node) {

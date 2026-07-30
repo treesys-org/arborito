@@ -3,6 +3,7 @@
  */
 
 import { randomUUIDSafe } from '../../../shared/lib/secure-web-crypto.js';
+import { deepCloneJson } from '../../../shared/lib/deep-clone-json.js';
 
 /**
  * Prefix node ids when merging branches to avoid collisions across refs.
@@ -12,7 +13,7 @@ import { randomUUIDSafe } from '../../../shared/lib/secure-web-crypto.js';
  */
 function prefixNodeTree(node, refId, branchId) {
     if (!node || typeof node !== 'object') return node;
-    const copy = JSON.parse(JSON.stringify(node));
+    const copy = deepCloneJson(node);
     const walk = (n) => {
         if (!n || typeof n !== 'object') return;
         if (n.id != null) {
@@ -89,7 +90,7 @@ export function composeTreeGraph({ treeEntry, branchPayloads, lang }) {
 
     if (payloads.length === 1) {
         const only = payloads[0];
-        const data = JSON.parse(JSON.stringify(only.data));
+        const data = deepCloneJson(only.data);
         data._composedTreeId = treeId;
         data._composedSingleBranch = true;
         data._composedBranchRefId = only.ref.refId || only.ref.branchId;

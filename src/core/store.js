@@ -40,7 +40,16 @@ class Store extends ShellStore {
                     const src = bundledDemoBootSource(this.userStore);
                     if (src && typeof this.loadData === 'function') {
                         try {
-                            await this.loadData(src, true, { skipConstructionLoadConfirm: true });
+                            /*
+                             * Boot owns the first paint. Remounting here while boot is still
+                             * mounting (or right after it painted) blanks the canvas and
+                             * shows “Cargando árbol de conocimiento…”.
+                             */
+                            if (!this._sourceBootFinished) return;
+                            const sameId =
+                                String(this.state.activeSource?.id || '') === String(src.id || '');
+                            if (sameId && (this.state.data || this.state.treeHydrating)) return;
+                            await this.loadData(src, false, { skipConstructionLoadConfirm: true });
                         } catch (e) {
                             console.warn('[Arborito] remount demo after seed failed', e);
                         }

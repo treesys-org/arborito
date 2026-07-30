@@ -15,6 +15,7 @@
   "confirmLeaveActiveExam": "¿Salir del examen? Perderás el progreso de esta prueba.",
   "confirmLeaveActiveQuiz": "¿Salir del cuestionario? Perderás el progreso de esta prueba.",
   "examLabelPrefix": "Examen: ",
+  "lessonContentLoading": "Cargando lección…",
   "lessonEnter": "ENTRAR A LECCIÓN",
   "lessonFinished": "COMPLETADO ✓",
   "lessonGameReadyInfoBtn": "Estado Arcade",

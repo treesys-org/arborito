@@ -2,7 +2,11 @@ import { useEffect, useRef } from 'react';
 import { useShellStore } from '../hooks/useShell.js';
 import { shouldShowMobileUI } from '../../shared/ui/breakpoints.js';
 import { resolveModalShellEnter, modalType } from '../../shared/ui/modal-enter.js';
-import { resolveMobileDockHubLayout, isMobileDockSheetRootFlags } from '../../shared/ui/mobile-fullbleed-modals.js';
+import {
+    resolveMobileDockHubLayout,
+    isMobileDockSheetRootFlags,
+    isFromOnboardingDockGapTakeover,
+} from '../../shared/ui/mobile-fullbleed-modals.js';
 import { dockModalPanelSize } from '../../shared/ui/modal-panel-size.js';
 import { isModalBackdropEmptyTap } from '../../shared/ui/mobile-tap.js';
 import { DockHubShell } from './DockHubShell.jsx';
@@ -164,7 +168,11 @@ export function ModalShell({
         swapFlag;
 
     const rootFlagsCombined = `${rootFlags || ''} ${o.rootFlags || ''}`.trim();
-    const hubDockRoot = isMobileDockSheetRootFlags(rootFlagsCombined);
+    const modalPayload = shellStore.state?.modal;
+    /* Nested Accesibilidad/App from welcome are takeovers — not dock-gap hubs. */
+    const hubDockRoot =
+        !isFromOnboardingDockGapTakeover(modalPayload) &&
+        isMobileDockSheetRootFlags(rootFlagsCombined);
     const mobileDockSheet = mobile && hubDockRoot && (layout === 'dock' || layout === 'dock-bottom');
 
     let backdropLayoutCls;
@@ -246,13 +254,19 @@ export function DockModalShell({
     onBackdropClick,
 }) {
     const mob = mobileProp == null ? shouldShowMobileUI() : !!mobileProp;
+    const shellStore = useShellStore();
+    const modal = shellStore.state?.modal;
+    const fromOnboardingDockGap = isFromOnboardingDockGapTakeover(modal);
     const rootFlagsStr = String(shellOpts.rootFlags || '').trim();
     const requestedLayout = resolveDesktopModalLayout(
         mob,
         layoutProp ?? shellOpts.layout ?? 'dock',
         sizeTier,
     );
-    const layout = resolveMobileDockHubLayout(mob, requestedLayout, rootFlagsStr);
+    /* Nested Accesibilidad/App from welcome: true fullbleed (like Privacidad), not dock-gap. */
+    const layout = fromOnboardingDockGap
+        ? 'dock'
+        : resolveMobileDockHubLayout(mob, requestedLayout, rootFlagsStr);
     const dockSheet = mob && layout === 'dock-bottom';
     const hubChrome =
         useDockChrome === true ||

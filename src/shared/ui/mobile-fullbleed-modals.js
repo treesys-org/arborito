@@ -2,8 +2,8 @@
  * Mobile modal chrome tiers (one source of truth for dispatcher + shell classes).
  *
  * - **Dock hub** (Arcade, Foro, Logros…): sheet anchored above the dock pill, dock stays visible.
- * - **Dock takeover** (Biblioteca, onboarding, Dialog confirms…): true edge-to-edge, dock hidden.
- * - **Perfil / Acerca de / Buscar / Descargar**: dock-gap sheet, dock stays visible.
+ * - **Dock takeover** (Biblioteca, onboarding, Dialog confirms, nested fromOnboarding…): true edge-to-edge, dock hidden.
+ * - **Perfil / Acerca de / Buscar / Descargar** (normal open): dock-gap sheet, dock stays visible.
  * - **Mochila / Cambiar**: consolidated shells but fullbleed (dock hidden, sheet to bottom).
  */
 
@@ -91,6 +91,30 @@ export function resolveMobileDockHubLayout(mobile, layout, rootFlags) {
 }
 
 /**
+ * Dock-gap sheets that must become takeovers when nested from first-run welcome
+ * (Accesibilidad / App…). Do NOT include compact dialogs (account-recovery, QR…).
+ */
+export const FROM_ONBOARDING_DOCK_GAP_TAKEOVER_TYPES = new Set([
+    'accessibility-prefs',
+    'download-app',
+    'celebration-prefs',
+    'language',
+    'about',
+    'backup',
+    'profile',
+    'search',
+    'preview',
+    'node-properties',
+]);
+
+/** @param {unknown} modal */
+export function isFromOnboardingDockGapTakeover(modal) {
+    if (!modal || typeof modal !== 'object' || !modal.fromOnboarding) return false;
+    const t = typeof modal.type === 'string' ? modal.type : null;
+    return !!(t && FROM_ONBOARDING_DOCK_GAP_TAKEOVER_TYPES.has(t));
+}
+
+/**
  * Biblioteca, onboarding…, hides dock (`arborito-fullbleed-sheet-open` on `<html>`).
  *
  * @param {{ modal: unknown, viewMode?: string }} state
@@ -98,6 +122,11 @@ export function resolveMobileDockHubLayout(mobile, layout, rootFlags) {
  */
 export function isMobileDockTakeover(state, mobUi) {
     if (!mobUi || typeof document === 'undefined') return false;
+    const m = state?.modal;
+    /* Nested dock-gap prefs from welcome: cover the dock. Compact auth dialogs keep their own chrome. */
+    if (isFromOnboardingDockGapTakeover(m)) {
+        return true;
+    }
     const t = modalType(state);
     const root = document.documentElement;
     const constructionMobile =

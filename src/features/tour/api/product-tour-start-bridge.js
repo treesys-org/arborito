@@ -22,6 +22,28 @@ export function normalizeTourStartDetail(detail = {}) {
     };
 }
 
+/**
+ * One-step spotlight on Profile after a guest declines the progress backup offer.
+ * Waits for the confirm dialog to finish closing so the chrome target is visible.
+ */
+export function requestGuestAccountTour() {
+    const fire = () => {
+        window.dispatchEvent(
+            new CustomEvent('arborito-start-tour', {
+                detail: { force: true, mode: 'guest-account' },
+            })
+        );
+    };
+    const schedule = () => {
+        if (typeof requestAnimationFrame === 'function') {
+            requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(fire, 120)));
+        } else {
+            setTimeout(fire, 160);
+        }
+    };
+    schedule();
+}
+
 function startTourFromDetail(detail = {}) {
     const tour = getPanelRef('product-tour');
     if (!tour || typeof tour.tryStart !== 'function') {

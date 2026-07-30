@@ -90,6 +90,7 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
             path: [],
             selectedNode: null,
             previewNode: null,
+            lessonContentLoading: false,
             loading: false,
             searchIndexStatus: 'idle',
             searchIndexError: null,
@@ -162,9 +163,15 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
     }
     // While hydrating, ensure UI doesn't keep rendering stale tree presentation from the previous rawGraphData.
     // We set activeSource early for chrome (e.g. construction dock) but clear data/rawGraphData until DataProcessor finishes.
-    const isRemoteSource = !!(source && nextUrlEarly && !nextUrlEarly.startsWith('branch://'));
-    const isCacheableRemote =
-        isRemoteSource && !nextUrlEarly.startsWith('tree://');
+    const isComposedTreeUrl = nextUrlEarly.startsWith('tree://');
+    /* Composed trees resolve from local garden / IDB first; mountComposedTree owns overlay + clear. */
+    const isRemoteSource = !!(
+        source &&
+        nextUrlEarly &&
+        !nextUrlEarly.startsWith('branch://') &&
+        !isComposedTreeUrl
+    );
+    const isCacheableRemote = isRemoteSource;
     const sourcesPickerOpen = isBibliotecaUiOpen(store);
     /** Keep the open tree visible while picking another from Biblioteca, avoids blank canvas on failed loads. */
     const holdCurrentTreeDuringSwitch = switchedSource && sourcesPickerOpen;
@@ -198,23 +205,75 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
     const hasInstantRemoteCopy = !!(earlyFrozen?.treeJson || earlyRemoteCache?.treeJson);
 
     store._treeHydrateStartedAt = Date.now();
+
+    /* Hand off composed trees before clearing the canvas / full-screen “cargando”. */
+    if (isComposedTreeUrl) {
+        if (switchedSource) {
+            store.update({ searchCache: {} });
+        }
+        if (!store.state.i18nData) {
+            await store.loadLanguage(store.state.lang);
+        }
+        return mountComposedTree(store, source, forceRefresh);
+    }
+
+    const isLocalBranch = nextUrlEarly.startsWith('branch://');
+    /*
+     * Keep a warm canvas while reopening the same tree (boot remount, language
+     * reload, demo seed, SWR). Blanking data + treeHydrating triggers the
+     * fullscreen “Cargando árbol de conocimiento…” even when the graph was
+     * already painted a moment earlier.
+     */
+    const keepGraphVisible =
+        holdCurrentTreeDuringSwitch ||
+        (!!snapBefore.data && !switchedSource) ||
+        (hasInstantRemoteCopy && !switchedSource && !!snapBefore.data);
+    const localFastOpen = isLocalBranch && !forceRefresh && !switchedSource;
+    const softOpen = !forceRefresh;
+    const softCachedRemote = hasInstantRemoteCopy && softOpen && !switchedSource;
+    const showBlockingOverlay =
+        !softOpen &&
+        (explicitGrowingOverlay ||
+            (!keepGraphVisible &&
+                !localFastOpen &&
+                !softCachedRemote &&
+                !sourcesPickerOpen &&
+                !hasInstantRemoteCopy &&
+                !!(isRemoteSource || switchedSource)));
+
     store.update({
-        treeHydrating: true,
-        treeGrowingOverlay:
-            explicitGrowingOverlay ||
-            (!!(isRemoteSource || switchedSource) && !sourcesPickerOpen && !hasInstantRemoteCopy),
+        /*
+         * Soft open (boot / reopen / SWR): never raise hydrating chrome or blank a
+         * warm canvas. Skeleton already on screen is the loading UI.
+         */
+        treeHydrating: softOpen ? false : !(keepGraphVisible || localFastOpen || softCachedRemote),
+        treeGrowingOverlay: showBlockingOverlay,
+        treeGrowingHint: null,
         error: null,
         activeSource: holdCurrentTreeDuringSwitch ? snapBefore.activeSource : source,
-        data: holdCurrentTreeDuringSwitch ? snapBefore.data : null,
-        rawGraphData: holdCurrentTreeDuringSwitch ? snapBefore.rawGraphData : null,
-        path: holdCurrentTreeDuringSwitch ? snapBefore.path : [],
-        selectedNode: holdCurrentTreeDuringSwitch ? snapBefore.selectedNode : null,
-        previewNode: holdCurrentTreeDuringSwitch ? snapBefore.previewNode : null,
+        data: keepGraphVisible || (softOpen && snapBefore.data) ? snapBefore.data : null,
+        rawGraphData:
+            keepGraphVisible || (softOpen && snapBefore.rawGraphData)
+                ? snapBefore.rawGraphData
+                : null,
+        path: keepGraphVisible || (softOpen && snapBefore.path?.length) ? snapBefore.path : [],
+        selectedNode:
+            keepGraphVisible || (softOpen && snapBefore.selectedNode)
+                ? snapBefore.selectedNode
+                : null,
+        previewNode:
+            keepGraphVisible || (softOpen && snapBefore.previewNode)
+                ? snapBefore.previewNode
+                : null,
         searchIndexStatus: 'idle',
         searchIndexError: null,
-        treeContext: nextUrlEarly.startsWith('tree://') ? store.state.treeContext : null,
+        treeContext:
+            keepGraphVisible || (softOpen && store.state.treeContext)
+                ? store.state.treeContext
+                : null,
     });
-    await yieldToPaint();
+    /* Avoid a blank paint frame when the graph stays up or soft/local open. */
+    if (!softOpen && !keepGraphVisible && !localFastOpen) await yieldToPaint();
 
     let success = false;
     /** @type {{ source: object, connectPromise: Promise<unknown>|null }|null} */
@@ -232,12 +291,6 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
 
         let graphJson;
         let finalSource;
-
-        if (nextUrl.startsWith('tree://')) {
-            /* mountComposedTree publishes last-active when appropriate. */
-            success = await mountComposedTree(store, source, forceRefresh);
-            return success;
-        }
 
         if (nextUrl.startsWith('branch://')) {
             await store.userStore?.ensureBranchesHydrated?.();
@@ -311,14 +364,11 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
                                 suppressReadmeAutoOpen: true,
                                 carryOverSelection: true,
                             });
-                            const ui = store.ui || {};
+                            /* Early skeleton is the loading UI — no fullscreen “Cargando…”. */
                             store.update({
                                 treeGrowingOverlay: false,
-                                treeHydrating: true,
-                                treeGrowingHint:
-                                    ui.treeGrowingShort ||
-                                    ui.curriculumLoadingHint ||
-                                    null,
+                                treeHydrating: false,
+                                treeGrowingHint: null,
                             });
                         };
                         out = await store.sourceManager.loadData(
@@ -398,7 +448,7 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
                 treeRef: treeRef || undefined,
                 shareCode: (finalSource && finalSource.shareCode) || undefined,
             });
-            success = await store.loadComposedTree(entry.id);
+            success = await store.loadComposedTree(entry.id, !!forceRefresh);
             if (success && swrRefresh) {
                 void refreshRemoteTreeBundleInBackground(store, swrRefresh.source, {
                     epoch,
@@ -648,6 +698,7 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
                         path: [],
                         selectedNode: null,
                         previewNode: null,
+                        lessonContentLoading: false,
                         ...(err ? { error: err } : {})
                     });
                     try {

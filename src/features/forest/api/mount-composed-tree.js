@@ -5,11 +5,24 @@
 import { DataProcessor } from '../../tree-graph/api/data-processor.js';
 import { normalizeLoadedTreeJson } from '../../tree-graph/api/tree-load-pipeline.js';
 import { composeTreeGraph, composeTreeGraphPlaceholder } from './compose-tree-graph.js';
-import { parseNostrTreeUrl } from '../../nostr/api/nostr-refs.js';
+import {
+    buildComposedGraphFingerprint,
+    getComposedGraphCache,
+    putComposedGraphCache,
+} from './composed-graph-cache.js';
+import { parseNostrTreeUrl, formatNostrTreeUrl } from '../../nostr/api/nostr-refs.js';
 import { yieldToPaint } from '../../../shared/lib/yield-to-paint.js';
 import { runThrottledBackgroundTask } from '../../../shared/lib/background-task-gate.js';
 import { getPanelRef } from '../../../app/panel-refs.js';
 import { resetSageChatForSourceChange } from '../../../stores/learning-store-actions.js';
+import { ensureConnectedNostr } from '../../../shared/lib/connected-services/index.js';
+import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
+import { deepCloneJson } from '../../../shared/lib/deep-clone-json.js';
+import {
+    getTreeBundleCachesForUrls,
+    putTreeBundleCache,
+    TREE_BUNDLE_CACHE_FRESH_MS,
+} from '../../sources/api/tree-bundle-cache.js';
 
 /**
  * Normalize branch curriculum JSON from local store or Nostr bundle.
@@ -35,68 +48,146 @@ function stampDiscoverMeta(graphJson, treeEntry) {
     }
 }
 
+function refNostrUrl(ref) {
+    const sourceUrl = String(ref?.sourceUrl || ref?.networkUrl || '').trim();
+    if (sourceUrl.startsWith('nostr://') || parseNostrTreeUrl(sourceUrl)) return sourceUrl;
+    return '';
+}
+
+function cacheKeyForUrl(url) {
+    const g = parseNostrTreeUrl(url);
+    if (g) return formatNostrTreeUrl(g.pub, g.universeId);
+    return String(url || '').trim();
+}
+
 /**
- * Load branch curriculum for a ref entry.
+ * Local garden branch published at the same Nostr URL as a composed-tree member ref.
  * @param {import('../../../core/store.js' ).Store} store
- * @param {object} ref
- * @param {{ onProvisional?: (payload: { ref: object, data: object, skeleton: boolean }) => void }} [opts]
+ * @param {string} nostrUrl
  */
-async function loadBranchPayloadForRef(store, ref, opts = {}) {
+function findLocalBranchByNetworkUrl(store, nostrUrl) {
+    const key = cacheKeyForUrl(nostrUrl);
+    if (!key) return null;
+    const branches = store.userStore?.state?.branches || [];
+    for (const b of branches) {
+        if (!b?.data) continue;
+        const pub = String(b.publishedNetworkUrl || '').trim();
+        if (pub && cacheKeyForUrl(pub) === key) return b;
+        /* branchId on remote refs is often the universe id */
+        const g = parseNostrTreeUrl(nostrUrl);
+        if (g && String(b.id) === String(g.universeId)) return b;
+    }
+    return null;
+}
+
+/**
+ * Resolve a member ref from local garden / IndexedDB without network.
+ * @returns {{ ref: object, data: object, skeleton: boolean, fromCache?: boolean } | null}
+ */
+function resolveBranchOffline(store, ref, cacheRow) {
     const branchId = String(ref.branchId || '').trim();
     const sourceUrl = String(ref.sourceUrl || ref.networkUrl || '').trim();
-    const nostrUrl =
-        sourceUrl.startsWith('nostr://') || parseNostrTreeUrl(sourceUrl) ? sourceUrl : '';
+    const nostrUrl = refNostrUrl(ref);
 
     if (sourceUrl.startsWith('branch://') || branchId) {
-        await store.userStore.ensureBranchesHydrated();
         const id = branchId || sourceUrl.slice('branch://'.length).split('/')[0];
-        const entry = store.userStore.state.branches.find((b) => b.id === id);
+        const entry = store.userStore.state.branches?.find((b) => b.id === id);
         if (entry?.data) {
             return {
-                ref: { ...ref, branchId: id, refId: ref.refId || id },
+                ref: { ...ref, branchId: id, refId: ref.refId || id, sourceUrl: `branch://${id}` },
                 data: entry.data,
                 skeleton: false,
             };
         }
-        /* Remote composed trees often set branchId to the remote universe id.
-         * If we also have a nostr URL, load from the network instead of failing. */
-        if (!nostrUrl) {
-            throw new Error(`Branch not found: ${id}`);
-        }
     }
 
     if (nostrUrl) {
-        const src =
-            store.state.communitySources?.find(
-                (s) => String(s.url) === nostrUrl || String(s.id) === String(ref.communityId || '')
-            ) || {
-                id: ref.communityId || branchId,
-                url: nostrUrl,
-                type: 'community',
-                name: ref.displayName || '',
+        const local = findLocalBranchByNetworkUrl(store, nostrUrl);
+        if (local?.data) {
+            return {
+                ref: {
+                    ...ref,
+                    branchId: local.id,
+                    refId: ref.refId || local.id,
+                    sourceUrl: `branch://${local.id}`,
+                    networkUrl: nostrUrl,
+                },
+                data: local.data,
+                skeleton: false,
             };
-        let provisionalSent = false;
-        const out = await store.sourceManager.loadData(src, store.state.lang, false, null, {
-            onSkeleton: (skel) => {
-                if (provisionalSent || typeof opts.onProvisional !== 'function') return;
-                const data = normalizeBranchDataFromLoad(skel);
-                if (!data?.languages || typeof data.languages !== 'object') return;
-                provisionalSent = true;
-                opts.onProvisional({
-                    ref: { ...ref, refId: ref.refId || src.id },
+        }
+        if (cacheRow?.treeJson) {
+            const data = normalizeBranchDataFromLoad(cacheRow.treeJson);
+            if (data?.languages && typeof data.languages === 'object') {
+                const isSkel = cacheRow.treeJson?.meta?.skeleton === true;
+                return {
+                    ref: { ...ref, refId: ref.refId || cacheRow.sourceId || branchId || nostrUrl },
                     data,
-                    skeleton: true,
-                });
-            },
-        });
-        return {
-            ref: { ...ref, refId: ref.refId || src.id },
-            data: normalizeBranchDataFromLoad(out.json),
-            skeleton: false,
-        };
+                    skeleton: isSkel,
+                    fromCache: true,
+                };
+            }
+        }
     }
+    return null;
+}
 
-    throw new Error(`Cannot resolve branch ref: ${ref.displayName || branchId || sourceUrl}`);
+/**
+ * Load branch curriculum for a ref entry (network path).
+ * @param {import('../../../core/store.js' ).Store} store
+ * @param {object} ref
+ * @param {{
+ *   onProvisional?: (payload: { ref: object, data: object, skeleton: boolean }) => void,
+ * }} [opts]
+ */
+async function loadBranchPayloadFromNetwork(store, ref, opts = {}) {
+    const nostrUrl = refNostrUrl(ref);
+    if (!nostrUrl) {
+        throw new Error(`Cannot resolve branch ref: ${ref.displayName || ref.branchId || ''}`);
+    }
+    const branchId = String(ref.branchId || '').trim();
+    const src =
+        store.state.communitySources?.find(
+            (s) =>
+                cacheKeyForUrl(String(s.url || '')) === cacheKeyForUrl(nostrUrl) ||
+                String(s.id) === String(ref.communityId || '')
+        ) || {
+            id: ref.communityId || branchId || nostrUrl,
+            url: nostrUrl,
+            type: 'community',
+            name: ref.displayName || '',
+            shareCode: String(ref.shareCode || '').trim() || undefined,
+        };
+    if (!src.shareCode && ref.shareCode) src.shareCode = String(ref.shareCode).trim();
+
+    const resolvedRef = { ...ref, refId: ref.refId || src.id, networkUrl: nostrUrl, sourceUrl: nostrUrl };
+    let provisionalSent = false;
+    const out = await store.sourceManager.loadData(src, store.state.lang, false, null, {
+        onSkeleton: (skel) => {
+            if (provisionalSent || typeof opts.onProvisional !== 'function') return;
+            const data = normalizeBranchDataFromLoad(skel);
+            if (!data?.languages || typeof data.languages !== 'object') return;
+            provisionalSent = true;
+            opts.onProvisional({
+                ref: resolvedRef,
+                data,
+                skeleton: true,
+            });
+        },
+    });
+    const data = normalizeBranchDataFromLoad(out.json);
+    if (data && out.finalSource?.id) {
+        void putTreeBundleCache(String(out.finalSource.id), {
+            treeJson: data,
+            url: nostrUrl,
+            origin: 'nostr',
+        });
+    }
+    return {
+        ref: resolvedRef,
+        data,
+        skeleton: false,
+    };
 }
 
 /**
@@ -109,14 +200,18 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
     const treeId = String(source.treeId || source.id || '').trim();
     if (!treeId) return false;
 
-    await store.userStore.ensureBranchesHydrated();
-    const treeEntry = store.userStore.getTree(treeId);
+    const hydratePromise = store.userStore.ensureBranchesHydrated();
+    /* Peek entry early if trees catalog is already warm; otherwise after hydrate. */
+    let treeEntry = store.userStore.getTree(treeId);
+    if (!treeEntry) {
+        await hydratePromise;
+        treeEntry = store.userStore.getTree(treeId);
+    }
     if (!treeEntry) {
         store.update({ treeHydrating: false, error: 'Tree not found.' });
         return false;
     }
 
-    /* Same as mountCurriculum — remount clears selection / graph under an open lesson. */
     try {
         const contentApi = getPanelRef('content');
         if (typeof contentApi?.confirmLeaveIfNeeded === 'function') {
@@ -127,19 +222,58 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
         /* ignore */
     }
 
-    try {
-        await runThrottledBackgroundTask(
-            `tree-maintain:${treeId}`,
-            async () => {
-                const { autoMaintainPublishedComposedTree } = await import(
-                    '../../publishing/api/published-entry-auto-maintain.js'
-                );
-                await autoMaintainPublishedComposedTree(store, treeId);
-            },
-            { oncePerSession: true, minIntervalMs: 8000 }
-        );
-    } catch (e) {
-        console.warn('[Arborito] autoMaintainPublishedComposedTree', e);
+    let refs = Array.isArray(treeEntry.branchRefs) ? treeEntry.branchRefs : [];
+    if (!refs.length) {
+        store.update({
+            treeHydrating: false,
+            error: store.ui.emptyTreeNoBranches || 'This tree has no branches yet.',
+        });
+        return false;
+    }
+
+    const nostrUrls = refs.map(refNostrUrl).filter(Boolean);
+    /* Local-only playlists never need the remote bundle IDB scan. */
+    const [, cacheByUrl] = await Promise.all([
+        hydratePromise,
+        nostrUrls.length ? getTreeBundleCachesForUrls(nostrUrls) : Promise.resolve(new Map()),
+    ]);
+    /* Re-read entry after hydrate in case catalog finished loading. */
+    treeEntry = store.userStore.getTree(treeId) || treeEntry;
+    refs = Array.isArray(treeEntry.branchRefs) ? treeEntry.branchRefs : refs;
+
+    const offlinePayloads = refs.map((ref) => {
+        const url = refNostrUrl(ref);
+        const cacheRow = url ? cacheByUrl.get(cacheKeyForUrl(url)) || null : null;
+        return resolveBranchOffline(store, ref, cacheRow);
+    });
+    const allOffline = offlinePayloads.every(Boolean);
+    const allOfflineFull = allOffline && offlinePayloads.every((p) => p && !p.skeleton);
+
+    const sameTreeAlreadyOpen =
+        store.state.activeSource?.type === 'composed-tree' &&
+        String(store.state.activeSource.treeId || '') === treeId &&
+        !!store.state.data;
+
+    const composeFingerprint = allOfflineFull
+        ? buildComposedGraphFingerprint(store, treeEntry, store.state.lang, offlinePayloads)
+        : '';
+
+    /* Already painted this exact playlist+members — same cost as re-tapping an open branch. */
+    if (
+        allOfflineFull &&
+        sameTreeAlreadyOpen &&
+        !forceRefresh &&
+        composeFingerprint &&
+        store._composedMountFingerprint === composeFingerprint
+    ) {
+        store.update({
+            treeHydrating: false,
+            treeGrowingOverlay: false,
+            treeGrowingHint: null,
+            error: null,
+            activeSource: { ...source, treeId, type: 'composed-tree', name: treeEntry.name },
+        });
+        return true;
     }
 
     const epoch = ++store._curriculumMountEpoch;
@@ -150,12 +284,20 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
         const m = store.state?.modal;
         return !!(m && (m === 'sources' || (typeof m === 'object' && m.type === 'sources')));
     })();
-    const clearGraph = !!forceRefresh;
+
+    /* Reopen with local/cache: keep the painted graph; never blank a warm canvas. */
+    const clearGraph =
+        !sameTreeAlreadyOpen && !allOffline && !allOfflineFull && !!forceRefresh;
+    const softOpen = !forceRefresh;
+    const showOverlay = !softOpen && clearGraph && !sourcesPickerOpen;
+    /*
+     * Soft open (boot / reopen): do not raise treeHydrating before the first
+     * paint — with an empty canvas that used to become the fullscreen green modal.
+     */
+
     store.update({
-        treeHydrating: true,
-        /* Full-screen spinner when canvas will be empty and Biblioteca is not owning the loading UI. */
-        treeGrowingOverlay:
-            !!store.state.treeGrowingOverlay || (clearGraph && !sourcesPickerOpen),
+        treeHydrating: softOpen ? false : !allOfflineFull,
+        treeGrowingOverlay: showOverlay,
         error: null,
         activeSource: { ...source, treeId, type: 'composed-tree', name: treeEntry.name },
         ...(clearGraph
@@ -166,10 +308,27 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
                   selectedNode: null,
                   previewNode: null,
                   treeContext: null,
+                  lessonContentLoading: false,
               }
             : {}),
     });
-    await yieldToPaint();
+    /* Local reopen: skip paint yield so mount matches branch:// sync feel. */
+    if (!allOfflineFull && !softOpen) await yieldToPaint();
+
+    void runThrottledBackgroundTask(
+        `tree-maintain:${treeId}`,
+        async () => {
+            try {
+                const { autoMaintainPublishedComposedTree } = await import(
+                    '../../publishing/api/published-entry-auto-maintain.js'
+                );
+                await autoMaintainPublishedComposedTree(store, treeId);
+            } catch (e) {
+                console.warn('[Arborito] autoMaintainPublishedComposedTree', e);
+            }
+        },
+        { oncePerSession: true, minIntervalMs: 8000 }
+    );
 
     const finalSource = {
         ...source,
@@ -180,13 +339,39 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
         name: treeEntry.name,
     };
 
-    const paintGraph = async (branchPayloads, { skeleton }) => {
+    const paintGraph = async (branchPayloads, { skeleton, fingerprint = '' }) => {
         if (epoch !== store._curriculumMountEpoch) return false;
-        const { graphJson, singleBranch, virtualRootId } = composeTreeGraph({
-            treeEntry,
-            branchPayloads,
-            lang: store.state.lang,
-        });
+
+        let graphJson;
+        let singleBranch;
+        let virtualRootId;
+        const cacheKey = !skeleton && fingerprint ? fingerprint : '';
+        const cached = cacheKey ? getComposedGraphCache(cacheKey) : null;
+        if (cached) {
+            graphJson = cached.graphJson;
+            singleBranch = cached.singleBranch;
+            virtualRootId = cached.virtualRootId;
+        } else {
+            const composed = composeTreeGraph({
+                treeEntry,
+                branchPayloads,
+                lang: store.state.lang,
+            });
+            singleBranch = composed.singleBranch;
+            virtualRootId = composed.virtualRootId;
+            if (cacheKey && composed.graphJson) {
+                /* Cache keeps the pristine compose; process gets a detached copy. */
+                putComposedGraphCache(cacheKey, {
+                    graphJson: composed.graphJson,
+                    singleBranch: !!singleBranch,
+                    virtualRootId,
+                });
+                graphJson = deepCloneJson(composed.graphJson);
+            } else {
+                graphJson = composed.graphJson;
+            }
+        }
+
         stampDiscoverMeta(graphJson, treeEntry);
         graphJson.meta = graphJson.meta && typeof graphJson.meta === 'object' ? graphJson.meta : {};
         if (skeleton) graphJson.meta.skeleton = true;
@@ -203,131 +388,24 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
         };
         store.state.treeContext = treeContext;
 
-        const ok = await DataProcessor.process(store, normalized, finalSource, {
+        DataProcessor.process(store, normalized, finalSource, {
             suppressReadmeAutoOpen: true,
-            carryOverSelection: skeleton || (!forceRefresh && !switchedSource),
+            carryOverSelection: skeleton || (!forceRefresh && !switchedSource) || sameTreeAlreadyOpen,
         });
         if (epoch !== store._curriculumMountEpoch) return false;
-        const ui = store.ui || {};
+        if (!skeleton && fingerprint) store._composedMountFingerprint = fingerprint;
         store.update({
             treeContext,
             treeGrowingOverlay: false,
-            treeHydrating: skeleton,
-            treeGrowingHint: skeleton
-                ? ui.treeGrowingShort || ui.curriculumLoadingHint || null
-                : null,
+            /* Skeleton on canvas is the loading UI — no “Cargando…” chrome on top. */
+            treeHydrating: false,
+            treeGrowingHint: null,
         });
-        return ok;
+        /* DataProcessor.process is sync and returns void; success = graph mounted. */
+        return !!store.state.data;
     };
 
-    try {
-        const refs = Array.isArray(treeEntry.branchRefs) ? treeEntry.branchRefs : [];
-        if (!refs.length) {
-            store.update({
-                treeHydrating: false,
-                error: store.ui.emptyTreeNoBranches || 'This tree has no branches yet.',
-            });
-            return false;
-        }
-
-        /* Immediate structure: branch titles under the tree root. */
-        try {
-            const placeholder = composeTreeGraphPlaceholder({
-                treeEntry,
-                lang: store.state.lang,
-            });
-            stampDiscoverMeta(placeholder.graphJson, treeEntry);
-            const normalized = normalizeLoadedTreeJson(placeholder.graphJson, store, finalSource);
-            const treeContext = {
-                kind: 'composed-tree',
-                treeId,
-                singleBranch: !!placeholder.singleBranch,
-                virtualRootId: placeholder.virtualRootId,
-                branchRefId: null,
-                activeBranchRefId: null,
-            };
-            store.state.treeContext = treeContext;
-            await DataProcessor.process(store, normalized, finalSource, {
-                suppressReadmeAutoOpen: true,
-                carryOverSelection: true,
-            });
-            if (epoch === store._curriculumMountEpoch) {
-                const ui = store.ui || {};
-                store.update({
-                    treeContext,
-                    treeGrowingOverlay: false,
-                    treeHydrating: true,
-                    treeGrowingHint: ui.treeGrowingShort || ui.curriculumLoadingHint || null,
-                });
-            }
-        } catch (e) {
-            console.warn('[Arborito] composed tree placeholder paint failed', e);
-        }
-
-        const slots = refs.map(() => null);
-        let structurePaintGen = 0;
-        let resolveSlotsFilled = null;
-        const slotsFilled = new Promise((resolve) => {
-            resolveSlotsFilled = resolve;
-        });
-
-        const tryPaintFromSlots = async () => {
-            if (epoch !== store._curriculumMountEpoch) return;
-            if (!slots.every(Boolean)) return;
-            const gen = ++structurePaintGen;
-            const skeleton = slots.some((s) => s.skeleton);
-            await paintGraph(
-                slots.map((s) => ({ ref: s.ref, data: s.data })),
-                { skeleton }
-            );
-            if (gen !== structurePaintGen) return;
-        };
-
-        const putSlot = (i, payload) => {
-            if (!payload?.data) return;
-            /* Prefer full over skeleton; ignore stale skeleton after full. */
-            if (slots[i] && slots[i].skeleton === false && payload.skeleton) return;
-            slots[i] = payload;
-            if (slots.every(Boolean)) resolveSlotsFilled?.();
-            void tryPaintFromSlots();
-        };
-
-        const fullLoads = refs.map((ref, i) =>
-            loadBranchPayloadForRef(store, ref, {
-                onProvisional: (payload) => putSlot(i, payload),
-            })
-                .then((full) => {
-                    putSlot(i, full);
-                    return full;
-                })
-                .catch((e) => {
-                    console.warn(
-                        '[Arborito] composed branch load failed',
-                        ref?.displayName || ref?.branchId,
-                        e
-                    );
-                    throw e;
-                })
-        );
-
-        /* Paint as soon as every member has skeleton or full; do not wait for all fulls. */
-        await Promise.race([slotsFilled, Promise.allSettled(fullLoads)]);
-        await tryPaintFromSlots();
-
-        const settled = await Promise.allSettled(fullLoads);
-        const okPayloads = [];
-        for (let i = 0; i < settled.length; i++) {
-            if (settled[i].status === 'fulfilled' && settled[i].value?.data) {
-                okPayloads.push({ ref: settled[i].value.ref, data: settled[i].value.data });
-            } else if (slots[i]?.data) {
-                okPayloads.push({ ref: slots[i].ref, data: slots[i].data });
-            }
-        }
-        if (!okPayloads.length) {
-            throw new Error(store.ui.emptyTreeNoBranches || 'Could not load tree branches.');
-        }
-
-        const ok = await paintGraph(okPayloads, { skeleton: false });
+    const finishOk = (ok) => {
         if (epoch !== store._curriculumMountEpoch) return false;
         store.update({ treeHydrating: false, treeGrowingOverlay: false, treeGrowingHint: null });
         if (ok) {
@@ -345,6 +423,206 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
             }
         }
         return ok;
+    };
+
+    try {
+        /* Prefer branch:// on disk so the next open skips Nostr URL matching.
+         * Defer IDB persist off the open path — rewrite refs in memory immediately. */
+        const rewritten = offlinePayloads
+            .map((p) => (p && String(p.ref?.sourceUrl || '').startsWith('branch://') ? p.ref : null))
+            .filter(Boolean);
+        if (rewritten.length === refs.length) {
+            const changed = refs.some((r, i) => {
+                const n = rewritten[i];
+                return (
+                    String(r.branchId || '') !== String(n.branchId || '') ||
+                    String(r.sourceUrl || '') !== String(n.sourceUrl || '')
+                );
+            });
+            if (changed) {
+                treeEntry.branchRefs = rewritten.map((r) => ({ ...r }));
+                refs = treeEntry.branchRefs;
+                queueMicrotask(() => {
+                    try {
+                        store.userStore.updateTree(
+                            treeId,
+                            { branchRefs: rewritten },
+                            { touchUpdated: false }
+                        );
+                    } catch {
+                        /* ignore */
+                    }
+                });
+            }
+        }
+
+        /* Instant reopen: every member already local or fully cached.
+         * Do not SWR-refresh from Nostr on ordinary open/boot — that re-paints
+         * after the graph is already up and feels like “loaded → loading…”. */
+        if (allOfflineFull) {
+            const ok = await paintGraph(
+                offlinePayloads.map((p) => ({ ref: p.ref, data: p.data })),
+                { skeleton: false, fingerprint: composeFingerprint }
+            );
+            return finishOk(ok);
+        }
+
+        /* Partial offline: paint what we have, fetch the rest. */
+        if (allOffline) {
+            await paintGraph(
+                offlinePayloads.map((p) => ({ ref: p.ref, data: p.data })),
+                { skeleton: offlinePayloads.some((p) => p.skeleton) }
+            );
+        } else {
+            try {
+                const placeholder = composeTreeGraphPlaceholder({
+                    treeEntry,
+                    lang: store.state.lang,
+                });
+                stampDiscoverMeta(placeholder.graphJson, treeEntry);
+                const normalized = normalizeLoadedTreeJson(placeholder.graphJson, store, finalSource);
+                const treeContext = {
+                    kind: 'composed-tree',
+                    treeId,
+                    singleBranch: !!placeholder.singleBranch,
+                    virtualRootId: placeholder.virtualRootId,
+                    branchRefId: null,
+                    activeBranchRefId: null,
+                };
+                store.state.treeContext = treeContext;
+                await DataProcessor.process(store, normalized, finalSource, {
+                    suppressReadmeAutoOpen: true,
+                    carryOverSelection: true,
+                });
+                if (epoch === store._curriculumMountEpoch) {
+                    store.update({
+                        treeContext,
+                        treeGrowingOverlay: false,
+                        /* Placeholder is already on canvas — quiet network fill. */
+                        treeHydrating: false,
+                        treeGrowingHint: null,
+                    });
+                }
+            } catch (e) {
+                console.warn('[Arborito] composed tree placeholder paint failed', e);
+            }
+        }
+
+        if (nostrUrls.length) {
+            await ensureConnectedNostr(store, {
+                timeoutMs: shouldShowMobileUI() ? 20000 : 12000,
+            }).catch(() => null);
+        }
+        if (epoch !== store._curriculumMountEpoch) return false;
+
+        const slots = offlinePayloads.map((p) => p);
+        let resolveSlotsFilled = null;
+        const slotsFilled = new Promise((resolve) => {
+            resolveSlotsFilled = resolve;
+        });
+        if (slots.every(Boolean)) resolveSlotsFilled?.();
+
+        let structurePainted = allOffline;
+        let paintChain = Promise.resolve();
+
+        const queueStructurePaint = () => {
+            if (epoch !== store._curriculumMountEpoch) return;
+            if (structurePainted) return;
+            if (!slots.every(Boolean)) return;
+            paintChain = paintChain.then(async () => {
+                if (epoch !== store._curriculumMountEpoch) return;
+                if (structurePainted) return;
+                structurePainted = true;
+                await paintGraph(
+                    slots.map((s) => ({ ref: s.ref, data: s.data })),
+                    { skeleton: slots.some((s) => s.skeleton) }
+                );
+            });
+        };
+
+        const putSlot = (i, payload) => {
+            if (!payload?.data) return;
+            if (slots[i] && slots[i].skeleton === false && payload.skeleton) return;
+            slots[i] = payload;
+            if (slots.every(Boolean)) {
+                resolveSlotsFilled?.();
+                queueStructurePaint();
+            }
+        };
+
+        const fullLoads = refs.map((ref, i) => {
+            if (slots[i] && slots[i].skeleton === false && !slots[i].fromCache) {
+                return Promise.resolve(slots[i]);
+            }
+            /* Fresh full cache: keep offline payload; optional network only when forceRefresh. */
+            if (slots[i] && slots[i].skeleton === false && slots[i].fromCache && !forceRefresh) {
+                const age =
+                    Date.now() -
+                    (Number(cacheByUrl.get(cacheKeyForUrl(refNostrUrl(ref) || ''))?.savedAt) || 0);
+                if (age < TREE_BUNDLE_CACHE_FRESH_MS) {
+                    return Promise.resolve(slots[i]);
+                }
+            }
+            if (!refNostrUrl(ref) && slots[i]) {
+                return Promise.resolve(slots[i]);
+            }
+            return loadBranchPayloadFromNetwork(store, ref, {
+                onProvisional: (payload) => putSlot(i, payload),
+            })
+                .then((full) => {
+                    putSlot(i, full);
+                    return full;
+                })
+                .catch((e) => {
+                    console.warn(
+                        '[Arborito] composed branch load failed',
+                        ref?.displayName || ref?.branchId,
+                        e
+                    );
+                    if (slots[i]) return slots[i];
+                    throw e;
+                });
+        });
+
+        await Promise.race([slotsFilled, Promise.allSettled(fullLoads)]);
+        queueStructurePaint();
+        await paintChain;
+        if (epoch !== store._curriculumMountEpoch) return false;
+
+        const finishFull = async () => {
+            const settled = await Promise.allSettled(fullLoads);
+            if (epoch !== store._curriculumMountEpoch) return false;
+            const okPayloads = [];
+            for (let i = 0; i < settled.length; i++) {
+                if (settled[i].status === 'fulfilled' && settled[i].value?.data) {
+                    okPayloads.push({ ref: settled[i].value.ref, data: settled[i].value.data });
+                } else if (slots[i]?.data) {
+                    okPayloads.push({ ref: slots[i].ref, data: slots[i].data });
+                }
+            }
+            if (!okPayloads.length) {
+                throw new Error(store.ui.emptyTreeNoBranches || 'Could not load tree branches.');
+            }
+            const fp = buildComposedGraphFingerprint(store, treeEntry, store.state.lang, okPayloads);
+            const ok = await paintGraph(okPayloads, { skeleton: false, fingerprint: fp });
+            return finishOk(ok);
+        };
+
+        if (slots.every((s) => s && s.skeleton === false)) {
+            return finishFull();
+        }
+
+        void finishFull().catch((e) => {
+            console.warn('[Arborito] composed tree full upgrade failed', e);
+            if (epoch === store._curriculumMountEpoch) {
+                store.update({
+                    treeHydrating: false,
+                    treeGrowingOverlay: false,
+                    treeGrowingHint: null,
+                });
+            }
+        });
+        return true;
     } catch (e) {
         console.error('[Arborito] mountComposedTree failed', e);
         if (epoch === store._curriculumMountEpoch) {

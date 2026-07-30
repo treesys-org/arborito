@@ -136,6 +136,8 @@ export class ShellStore extends EventTarget {
             treeContext: null,
             /** When opening from a manual bookmark (search bookmarks list), jump to that section. */
             lessonOpenHint: null,
+            /** True while a lazy lesson body (Nostr chunk / contentPath) is fetching. */
+            lessonContentLoading: false,
             /** WebTorrent seeder mode (optional). */
             webtorrentSeeder: { running: false, total: 0, done: 0, peers: 0 },
             /** Post-load nudge for optional encrypted cloud sync. */

@@ -135,6 +135,42 @@ export async function getTreeBundleCacheByUrl(url) {
     }
 }
 
+/**
+ * Lookup cached bundles for many URLs in one IndexedDB read.
+ * @param {string[]} urls
+ * @returns {Promise<Map<string, { sourceId: string, treeJson: object, url?: string, origin?: string, savedAt: number }>>}
+ */
+export async function getTreeBundleCachesForUrls(urls) {
+    const want = new Set();
+    for (const u of urls || []) {
+        const c = canonicalTreeCacheUrl(u);
+        if (c) want.add(c);
+    }
+    /** @type {Map<string, { sourceId: string, treeJson: object, url?: string, origin?: string, savedAt: number }>} */
+    const out = new Map();
+    if (!want.size || typeof indexedDB === 'undefined') return out;
+    try {
+        const db = await openDb();
+        try {
+            const rows = await idbRequest(db.transaction(STORE, 'readonly').objectStore(STORE).getAll());
+            if (!Array.isArray(rows)) return out;
+            for (const row of rows) {
+                if (!row?.treeJson || typeof row.treeJson !== 'object') continue;
+                const age = Date.now() - (Number(row.savedAt) || 0);
+                if (age > TREE_BUNDLE_CACHE_MAX_AGE_MS) continue;
+                const key = canonicalTreeCacheUrl(row.url);
+                if (key && want.has(key)) out.set(key, row);
+            }
+            return out;
+        } finally {
+            db.close();
+        }
+    } catch (e) {
+        console.warn('[Arborito] tree bundle cache multi-url lookup failed', e);
+        return out;
+    }
+}
+
 /** @param {string} sourceId */
 export async function removeTreeBundleCache(sourceId) {
     const sid = String(sourceId || '').trim();

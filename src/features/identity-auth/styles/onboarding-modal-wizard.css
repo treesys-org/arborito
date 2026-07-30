@@ -426,9 +426,14 @@
 }
 
 .arborito-modal--onboarding .arborito-onboarding-legal-note {
-    max-width: 22rem;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: none;
+    width: calc(100% + 2.5rem);
+    margin: 0.35rem -1.25rem 0;
+    padding: 0.65rem 1.25rem max(0.85rem, env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--arborito-theme-onboarding-privacy-border, rgb(226 232 240));
+    background: var(--arborito-theme-onboarding-privacy-bg, rgb(248 250 252 / 0.85));
+    color: var(--arborito-theme-eyebrow-fg, inherit);
+    text-align: center;
 }
 
 .arborito-modal--onboarding .arborito-onboarding-skip-hint {
@@ -442,6 +447,10 @@
     gap: 0.5rem;
 }
 
+.arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-actions {
+    padding-bottom: 0;
+}
+
 .arborito-modal--onboarding .arborito-onboarding-foot-links {
     display: flex;
     flex-wrap: wrap;
@@ -449,6 +458,7 @@
     justify-content: center;
     gap: 0.15rem 0.35rem;
     margin-top: 0.15rem;
+    margin-bottom: 0.15rem;
 }
 
 .arborito-modal--onboarding .arborito-onboarding-foot-link {

@@ -13,12 +13,13 @@ export function useLearning() {
     const ui = useHookUi();
     const { modal, lang } = useShellModalLang();
     const { dismissModal, setModal, notify, update } = useShellModalActions();
-    const { selectedNode, previewNode, path, lessonOpenHint } = useLearningSlice(
+    const { selectedNode, previewNode, path, lessonOpenHint, lessonContentLoading } = useLearningSlice(
         useShallow((s) => ({
             selectedNode: s.selectedNode,
             previewNode: s.previewNode,
             path: s.path,
             lessonOpenHint: s.lessonOpenHint,
+            lessonContentLoading: s.lessonContentLoading,
         }))
     );
     const { data, rawGraphData, constructionMode } = useTreeGraphSlice(
@@ -67,6 +68,7 @@ export function useLearning() {
         previewNode,
         path,
         lessonOpenHint,
+        lessonContentLoading,
         findNode,
         navigateTo,
         loadNodeContent,

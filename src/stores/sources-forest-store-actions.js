@@ -20,7 +20,7 @@ function shell() {
 
 /** Composed tree (árbol) store helpers. */
 
-export async function loadComposedTreeAction(treeIdOrSource, forceRefresh = true, opts = {}) {
+export async function loadComposedTreeAction(treeIdOrSource, forceRefresh = false, opts = {}) {
     const store = shell();
     if (!store) return undefined;
 

@@ -43,6 +43,16 @@ function safeSourcesChromeUpdate(ctx, loading) {
     }
 }
 
+function safeSourcesListCover(ctx, cover) {
+    if (!sourcesChromeStillMounted(ctx)) return;
+    try {
+        ctx.setSourcesListCover?.(cover);
+        ctx.bump?.();
+    } catch {
+        /* modal already unmounted */
+    }
+}
+
 export async function withSourcesLoadingChrome(ctx, work) {
     safeSourcesChromeUpdate(ctx, true);
     await yieldToPaint();
@@ -53,8 +63,14 @@ export async function withSourcesLoadingChrome(ctx, work) {
     }
 }
 
+/** Network / skeleton installs: cover the list so rows are not tappable mid-load. */
 export async function withSourcesNetworkLoad(ctx, work) {
-    return withSourcesLoadingChrome(ctx, () => runBibliotecaNetworkLoad(work));
+    safeSourcesListCover(ctx, true);
+    try {
+        return await withSourcesLoadingChrome(ctx, () => runBibliotecaNetworkLoad(work));
+    } finally {
+        safeSourcesListCover(ctx, false);
+    }
 }
 
 export function openTreeEditor(ctx, { mode = 'create', treeId = '' } = {}) {

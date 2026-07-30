@@ -4,6 +4,7 @@ import {
     isMobileDockHubOpen,
     isMobileDockTakeover,
     isMobileConstructionDockHubOpen,
+    isFromOnboardingDockGapTakeover,
 } from './mobile-fullbleed-modals.js';
 
 /**
@@ -47,10 +48,16 @@ export function syncMobileTreeShellClass(store, opts = {}) {
     const modalObj = m && typeof m === 'object' ? m : null;
 
     /* No tree loaded yet: hide dock and top chrome until a curriculum is chosen
-     * (onboarding, locked-trees screen, Sage during the tour, etc.). */
+     * (onboarding, nested Accesibilidad/App from welcome, locked-trees, etc.). */
     const sourcesBlocked =
         typeof store.isSourcesDismissBlocked === 'function' && store.isSourcesDismissBlocked();
-    const firstRunGate = mt === 'onboarding' || sourcesBlocked || (s.treeHydrating && !s.data);
+    const fromOnboardingNest = isFromOnboardingDockGapTakeover(modalObj);
+    const firstRunGate =
+        mt === 'onboarding' ||
+        fromOnboardingNest ||
+        !!(modalObj && modalObj.fromOnboarding) ||
+        sourcesBlocked ||
+        (s.treeHydrating && !s.data);
     document.documentElement.classList.toggle('arborito-mob-first-run-gate', !!firstRunGate);
 
     /* Sage from a lesson (“Pregunta al sabio”): fullbleed over the reader, dock hidden. */
@@ -58,7 +65,8 @@ export function syncMobileTreeShellClass(store, opts = {}) {
         mt === 'sage' && modalObj && !!modalObj.sageLessonContext && !modalObj.dockUi;
     document.documentElement.classList.toggle('arborito-sage-lesson-overlay', !!sageLessonOverlay);
 
-    /* Dock stays above dock-gap sheets (Profile, Search, Language…) and hub tabs. */
+    /* Dock stays above dock-gap sheets (Profile, Search, Language…) and hub tabs.
+     * Never while nested from first-run onboarding dock-gap prefs (those are takeovers). */
     const hubFromMap = isMobileDockHubOpen(s, mobUi) && !(modalObj && modalObj.fromMobileMore);
     const constructionDockHub = isMobileConstructionDockHubOpen(s, mobUi);
     const dockGapSheet =
@@ -76,6 +84,7 @@ export function syncMobileTreeShellClass(store, opts = {}) {
         !!s.modal &&
         !moreOpen &&
         !sourcesBlocked &&
+        !fromOnboardingNest &&
         !lessonOpen &&
         !sageLessonOverlay &&
         (mt === 'sage' ||

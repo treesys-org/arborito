@@ -7,6 +7,7 @@ import { DockModalShell, ModalCenteredShell } from '../../../app/components/Moda
 import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
 import { SwitchRow } from '../../../shared/ui/SwitchRow.jsx';
 import { modalCtaConfirmFull } from '../../../shared/ui/modal-action-chrome.js';
+import { ModalBinaryFooter } from '../../../shared/ui/ModalBinaryFooter.jsx';
 import {
     getA11yPrefs,
     writeReadAloudLessons,
@@ -29,7 +30,7 @@ import {
 import { speakText } from '../../learning/api/read-aloud.js';
 
 export function ModalAccessibilityPrefs({ embed = false }) {
-    const { ui, dismissModal } = useGardenProgress();
+    const { ui, dismissModal, modal } = useGardenProgress();
     const [, tick] = useState(0);
     const refresh = () => tick((n) => n + 1);
     const prefs = getA11yPrefs();
@@ -38,6 +39,7 @@ export function ModalAccessibilityPrefs({ embed = false }) {
     const sageAuto = resolveSageVoiceAutoSpeak();
     const piperLocale = resolveSageVoiceLocale();
     const [consentBanner, setConsentBanner] = useState(null);
+    const fromOnboarding = !!(modal && typeof modal === 'object' && modal.fromOnboarding);
 
     const title = ui.a11yPrefsTitle || 'Accesibilidad';
     const prefsIntro = isDesktop
@@ -293,15 +295,31 @@ export function ModalAccessibilityPrefs({ embed = false }) {
             titleTruncate
             titleId="accessibility-prefs-title"
             leadingIcon="♿"
-            tagClass="btn-close"
+            backTagClass="btn-close"
+            closeTagClass="btn-close"
+            showClose={!mobile}
+            showBack={mobile}
+            trailingSpacer={false}
+            onBack={close}
             onClose={close}
         />
     );
 
     const body = (
-        <div className="px-4 pb-6 pt-2 flex flex-col min-h-0 flex-1 overflow-y-auto custom-scrollbar">
+        <div className="px-4 pb-4 pt-2 flex flex-col min-h-0 flex-1 overflow-y-auto custom-scrollbar">
             {bodyContent}
         </div>
+    );
+
+    const footer = (
+        <ModalBinaryFooter
+            hideCancel
+            fullWidthConfirm
+            confirmTone="slate"
+            confirmLabel={fromOnboarding ? ui.navBack || ui.close || 'Back' : ui.close || 'Close'}
+            onConfirm={close}
+            footerVariant="blend"
+        />
     );
 
     if (mobile) {
@@ -310,11 +328,12 @@ export function ModalAccessibilityPrefs({ embed = false }) {
                 <DockModalShell
                     mobile
                     sizeTier="COMPACT"
-                    layout="dock-bottom"
+                    layout={fromOnboarding ? 'dock' : 'dock-bottom'}
                     shellOpts={{ rootFlags: 'arborito-modal--accessibility-prefs', scrim: 'translucent' }}
-                    panelClass="arborito-modal-dock-panel w-full max-h-[85vh]"
+                    panelClass={`arborito-modal-dock-panel w-full ${fromOnboarding ? 'max-h-full' : 'max-h-[85vh]'}`}
                     onBackdropClick={close}
                     hero={hero}
+                    footer={footer}
                 >
                     {body}
                 </DockModalShell>
@@ -329,6 +348,7 @@ export function ModalAccessibilityPrefs({ embed = false }) {
                 layout="centered"
                 sizeTier="COMPACT"
                 hero={hero}
+                footer={footer}
                 panelRadius="2xl"
                 shellOpts={{
                     rootFlags: 'arborito-modal--accessibility-prefs',
