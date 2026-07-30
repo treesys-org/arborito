@@ -14,6 +14,7 @@ import { speakText } from '../../learning/api/read-aloud.js';
 import {
     cloneTourStep,
     isLessonEditTourContextReady,
+    prepareGraphRootForTour,
     stepHasTarget,
 } from '../api/product-tour-targets.js';
 import {
@@ -274,6 +275,13 @@ const [active, setActive] = useState(false);
             );
             if (pickerOnly) {
                 document.documentElement.classList.add('arborito-product-tour-sources-picker');
+            } else if (tourMode === 'default' && !ephemeral) {
+                /* Shell tour is live — drop the after-tree pending flag. */
+                try {
+                    localStorage.removeItem(SHELL_TOUR_PENDING_KEY);
+                } catch {
+                    /* ignore */
+                }
             }
             document.documentElement.classList.toggle(
                 'arborito-product-tour-lesson-edit',
@@ -379,7 +387,21 @@ const [active, setActive] = useState(false);
                         return;
                     }
                 }
-                if (overlayBlocking) return;
+                if (overlayBlocking) {
+                    if (skipDockOpenRetryRef.current < 28) {
+                        skipDockOpenRetryRef.current += 1;
+                        setTimeout(
+                            () =>
+                                panelApiRef.current.tryStart?.({
+                                    force,
+                                    mode: startMode,
+                                    skipDockForOpenTrees: true,
+                                }),
+                            120
+                        );
+                    }
+                    return;
+                }
                 if (modalType0 !== 'sources') {
                     try {
                         store.setModal({ type: 'sources' });
@@ -409,6 +431,12 @@ const [active, setActive] = useState(false);
                         scheduleTryStart({ force, mode: m }, delay);
                     }
                     return;
+                }
+                /* Shell tour: tree hydrate / grow overlay often still true when the
+                 * start event fires after opening a long branch — retry, don't drop. */
+                if (m === 'default' && modalWaitRetryRef.current < 48) {
+                    modalWaitRetryRef.current += 1;
+                    scheduleTryStart({ force, mode: m }, 120);
                 }
                 return;
             }
@@ -486,6 +514,23 @@ const [active, setActive] = useState(false);
                 m === 'lesson-edit' ? lessonEdit
                 : m === 'construction' ? (shouldShowMobileUI() ? mobCon : deskCon)
                 : shouldShowMobileUI() ? mob : desk;
+            /*
+             * Do not skip the rooted first step: filtering stepHasTarget before the
+             * trunk settles would start the tour on dock chrome and feel “late/wrong”.
+             * Actively re-ground while waiting — passive waits timed out on long branches.
+             */
+            if (
+                m === 'default' &&
+                store.state.data &&
+                rawSteps[0]?.target === 'graph-root' &&
+                !prepareGraphRootForTour()
+            ) {
+                if (anchorWaitRetryRef.current < 48) {
+                    anchorWaitRetryRef.current += 1;
+                    scheduleTryStart({ force, mode: m }, 80);
+                    return;
+                }
+            }
             const tourSteps = rawSteps.filter((s) => stepHasTarget(s));
             if (!tourSteps.length) {
                 if (!store.state.i18nData && !i18nTourWaitBoundRef.current) {
@@ -749,8 +794,16 @@ const [active, setActive] = useState(false);
         layoutNow({ animate });
         /* Second pass after tip/Twemoji paint so height is real (avoids tip parked far away). */
         const t = window.setTimeout(() => layoutNow({ animate: true }), 40);
+        /* Long trunks: scroll settle + knot SVG can land after the first measure. */
+        const t2 =
+            steps[index]?.target === 'graph-root'
+                ? window.setTimeout(() => layoutNow({ animate: true }), 160)
+                : 0;
         tourPaintedRef.current = true;
-        return () => clearTimeout(t);
+        return () => {
+            clearTimeout(t);
+            if (t2) clearTimeout(t2);
+        };
     }, [active, index, steps, layoutNow]);
 
     const ui = store?.ui ?? appUi ?? {};

@@ -11,7 +11,7 @@
     {
       "target": "graph-root",
       "title": "La raíz del árbol",
-      "body": "Aquí empieza tu rama 🌳. Desde la raíz abres carpetas 🗂️, lecciones 📄 y exámenes ⚔️. Toca una carpeta o lección para entrar; debajo verás lo que contiene."
+      "body": "Aquí empieza tu rama 🌳 — el trébol abajo es la raíz. Las carpetas 🗂️, lecciones 📄 y exámenes ⚔️ crecen hacia arriba: tocá una para entrar."
     },
     {
       "target": "home",
@@ -137,7 +137,7 @@
     {
       "target": "graph-root",
       "title": "La raíz del árbol",
-      "body": "Este círculo con el logo es la raíz 🌳 de tu rama. Toca las carpetas y lecciones de abajo para entrar."
+      "body": "Este círculo con el logo es la raíz 🌳 de tu rama (abajo en el tronco). Las carpetas y lecciones están arriba: tocá una para entrar."
     },
     {
       "target": "mob-home",

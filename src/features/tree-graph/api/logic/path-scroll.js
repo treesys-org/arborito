@@ -143,6 +143,51 @@ function scrollMobileTrunkToRootBottom(hosts, lockRef) {
     }
 }
 
+/**
+ * Resolve trunk scroll hosts from the live DOM (no React refs).
+ * Used by the product tour so graph-root can re-ground on long branches.
+ */
+export function resolveScrollHostsFromDom() {
+    if (typeof document === 'undefined') {
+        return {
+            trunkContainer: null,
+            scrollContent: null,
+            knotsContainer: null,
+            rightCol: null,
+        };
+    }
+    const trunkContainer =
+        document.getElementById('mobile-trunk-container') ||
+        document.querySelector('.mobile-trunk-container');
+    const scrollContent =
+        document.getElementById('mobile-trunk-scroll-content') ||
+        trunkContainer?.querySelector?.('#mobile-trunk-scroll-content') ||
+        null;
+    const knotsContainer =
+        document.getElementById('mobile-knots-container') ||
+        document.querySelector('#mobile-trunk-col .mobile-knots-container') ||
+        document.querySelector('.mobile-knots-container') ||
+        null;
+    const rightCol =
+        document.getElementById('mobile-right-col') ||
+        document.querySelector('#mobile-right-col') ||
+        null;
+    return { trunkContainer, scrollContent, knotsContainer, rightCol };
+}
+
+/**
+ * Ground the root clover on the trunk floor (same policy as path sync).
+ * @returns {boolean} true when a root wrap was found and scroll was applied
+ */
+export function groundGraphRootForTour() {
+    const hosts = resolveScrollHostsFromDom();
+    const rootWrap = getMobileRootWrap(hosts);
+    if (!hosts.trunkContainer || !hosts.scrollContent || !rootWrap) return false;
+    scrollMobileTrunkToRootBottom(hosts, { current: false });
+    clampMobileTrunkScrollForVisibleRoot(hosts, { current: false });
+    return true;
+}
+
 function scrollMobilePathToActiveBranch(hosts, lockRef) {
     const branchScroll = computeActiveBranchScroll(hosts);
     if (branchScroll == null) return;

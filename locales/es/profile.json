@@ -210,7 +210,7 @@
   "profileSignInPickFileChip": "Archivo llave",
   "profileSignInScanQrChip": "Escanear QR",
   "profileSignInSecretLabel": "Contraseña",
-  "profileSignInUsernameHint": "Elige un nombre de usuario único.",
+  "profileSignInUsernameHint": "Este nombre es tu cuenta en línea. Elígelo antes de registrarte o iniciar sesión.",
   "profileSignInUsernameLabel": "Nombre de usuario",
   "profileSignInUsernamePlaceholder": "Tu nombre de usuario",
   "profileUpdateDisplayButton": "Actualizar nombre",

@@ -84,7 +84,8 @@ export function ModalRecoverAccount() {
                     dismissModal();
                 }
             } catch (e) {
-                setError(humanizeAuthError(e, ui));
+                const friendly = humanizeAuthError(e, ui);
+                if (friendly) setError(friendly);
                 setBusy(false);
             }
         },
@@ -115,7 +116,8 @@ export function ModalRecoverAccount() {
                 dismissModal();
             }
         } catch (e) {
-            setError(humanizeAuthError(e, ui));
+            const friendly = humanizeAuthError(e, ui);
+            if (friendly) setError(friendly);
             setBusy(false);
         }
     }, [username, passphrase, recoverAccountWithPassphrase, notify, ui, dismissModal, m, setModal]);

@@ -148,25 +148,46 @@ export function fingerprintProgressPayload(data) {
 }
 
 /**
+ * Learning/progress worth syncing — ignores cosmetic profile fields (username,
+ * avatar). Used when deciding whether sign-in must ask about guest data.
+ * @param {Record<string, unknown>|null|undefined} data
+ */
+export function hasMeaningfulLearningProgress(data) {
+    if (!data || typeof data !== 'object') return false;
+    if (Array.isArray(data.progress) && data.progress.length) return true;
+    if (Object.keys(asObject(data.memory)).length) return true;
+    if (Object.keys(asObject(data.bookmarks)).length) return true;
+    if (Object.keys(asObject(data.gameData)).length) return true;
+    if (Object.keys(asObject(data.arcadeSaves)).length) return true;
+    const g = asObject(data.gamification);
+    if ((Number(g.xp) || 0) > 0) return true;
+    if ((Number(g.dailyXP) || 0) > 0) return true;
+    if ((Number(g.streak) || 0) > 0) return true;
+    if ((Number(g.weeklyLumens) || 0) > 0) return true;
+    if ((Number(g.arcadeScore) || 0) > 0) return true;
+    if ((Number(g.lumensSpent) || 0) > 0) return true;
+    if ((Number(g.streakShields) || 0) > 0) return true;
+    if (Array.isArray(g.seeds) && g.seeds.length) return true;
+    if (Array.isArray(g.inventory) && g.inventory.length) return true;
+    if (g.gardenDecor && typeof g.gardenDecor === 'object' && Object.keys(g.gardenDecor).length) {
+        return true;
+    }
+    if (g.quizXpAwarded && typeof g.quizXpAwarded === 'object' && Object.keys(g.quizXpAwarded).length) {
+        return true;
+    }
+    return false;
+}
+
+/**
  * @param {Record<string, unknown>|null|undefined} data
  */
 export function isProgressPayloadEmpty(data) {
     if (!data || typeof data !== 'object') return true;
-    if (Array.isArray(data.progress) && data.progress.length) return false;
-    if (Object.keys(asObject(data.memory)).length) return false;
-    if (Object.keys(asObject(data.bookmarks)).length) return false;
-    if (Object.keys(asObject(data.gameData)).length) return false;
-    if (Object.keys(asObject(data.arcadeSaves)).length) return false;
+    if (hasMeaningfulLearningProgress(data)) return false;
     const g = asObject(data.gamification);
-    if ((Number(g.xp) || 0) > 0) return false;
-    if ((Number(g.streak) || 0) > 0) return false;
-    if ((Number(g.weeklyLumens) || 0) > 0) return false;
-    if ((Number(g.arcadeScore) || 0) > 0) return false;
     const avatar = String(g.avatar || '').trim();
     if (avatar && avatar !== '👤' && avatar !== '🌱') return false;
     if (String(g.username || '').trim()) return false;
-    if (Array.isArray(g.seeds) && g.seeds.length) return false;
-    if (Array.isArray(g.inventory) && g.inventory.length) return false;
     return true;
 }
 

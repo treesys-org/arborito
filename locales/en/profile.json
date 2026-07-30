@@ -239,7 +239,7 @@
   "profileSessionLoginLabel": "Sign in online",
   "profileSignInUsernameLabel": "Username",
   "profileSignInUsernamePlaceholder": "Your username",
-  "profileSignInUsernameHint": "Choose a unique username.",
+  "profileSignInUsernameHint": "This name is your online account. Pick one before registering or signing in.",
   "profileAuthUsernameRequired": "↑ Enter your username in the field above.",
   "profileGuestRegisterTitle": "Create account",
   "profileGuestSignInTitle": "Sign in",

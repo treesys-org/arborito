@@ -313,6 +313,8 @@ export function _scheduleDeferredProductTourAction() {
 
 }
 
+let shellTourAfterTreeTimer = null;
+
 export function maybeScheduleShellProductTourAfterTreeAction() {
     const store = shell();
     if (!store) return undefined;
@@ -326,40 +328,54 @@ export function maybeScheduleShellProductTourAfterTreeAction() {
             }
             if (store.state.constructionMode) return;
             if (!store.state.data || !store.state.rawGraphData || !store.state.activeSource) return;
-            try {
-                localStorage.removeItem(shellPendingKey);
-            } catch {
-                /* ignore */
-            }
+            /* One retry loop at a time — mount + finish both call this. */
+            if (shellTourAfterTreeTimer != null) return;
 
             let tries = 0;
             const attempt = () => {
+                shellTourAfterTreeTimer = null;
                 tries += 1;
                 if (store.state.constructionMode) return;
-                if (store.state.modal || store.state.modalOverlay || store.state.previewNode) {
-                    if (tries < 48) setTimeout(attempt, 120);
-                    return;
-                }
-                if (store.state.treeHydrating && !store.state.data) {
-                    if (tries < 48) setTimeout(attempt, 120);
-                    return;
-                }
-                if (!store.state.data) {
-                    if (tries < 48) setTimeout(attempt, 120);
-                    return;
-                }
                 try {
-                    if (localStorage.getItem('arborito-ui-tour-done')) return;
+                    if (localStorage.getItem('arborito-ui-tour-done')) {
+                        try {
+                            localStorage.removeItem(shellPendingKey);
+                        } catch {
+                            /* ignore */
+                        }
+                        return;
+                    }
+                    if (localStorage.getItem(shellPendingKey) !== 'true') return;
                 } catch {
                     return;
                 }
+                const blocked =
+                    !!(store.state.modal || store.state.modalOverlay || store.state.previewNode) ||
+                    !!(store.state.treeHydrating || store.state.treeGrowingOverlay) ||
+                    !store.state.data ||
+                    !store.state.rawGraphData;
+                if (blocked) {
+                    if (tries < 60) {
+                        shellTourAfterTreeTimer = setTimeout(attempt, 120);
+                    }
+                    return;
+                }
+                /* Keep shellPending until tryStart clears it when the tour paints.
+                 * Clearing earlier made first-run shell tours vanish on slow hydrate. */
                 window.dispatchEvent(
                     new CustomEvent('arborito-start-tour', {
                         detail: { source: 'shell-after-tree', force: true },
                     })
                 );
+                if (tries < 60) {
+                    shellTourAfterTreeTimer = setTimeout(attempt, 250);
+                }
             };
-            requestAnimationFrame(() => requestAnimationFrame(attempt));
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    shellTourAfterTreeTimer = setTimeout(attempt, 0);
+                });
+            });
 
 }
 

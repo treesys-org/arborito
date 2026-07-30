@@ -249,7 +249,8 @@ export function ModalOnboarding() {
             await signInWithSyncSecret(u, s);
             complete();
         } catch (e) {
-            setError(humanizeAuthError(e, ui));
+            const friendly = humanizeAuthError(e, ui);
+            if (friendly) setError(friendly);
             setBusy(false);
         }
     };

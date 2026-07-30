@@ -35,6 +35,7 @@ import {
     parseRecoveryKitFromExportFile,
     ensureRecoveryKeyInSession,
 } from '../features/identity-auth/api/recovery-kit.js';
+import { resolveSignInLocalProgressChoice } from '../features/identity-auth/api/sign-in-local-progress-choice.js';
 
 function shell() {
     return getArboritoStore();
@@ -618,6 +619,12 @@ export async function signInWithSyncSecretAction(username, secretPlain) {
             if (!rec?.hash) {
                 throw new Error(networkErr);
             }
+
+            /*
+             * Existing account + guest learning on this device → ask before
+             * committing the session. Register never hits this path (always syncs).
+             */
+            await resolveSignInLocalProgressChoice(store);
 
             const plain =
                 matchedKind === CREDENTIAL_KIND_PASSWORD

@@ -11,7 +11,7 @@
     {
       "target": "graph-root",
       "title": "Tree root",
-      "body": "This is where your branch starts 🌳. From the root you open folders 🗂️, lessons 📄, and exams ⚔️. Tap a folder or lesson to enter; the panel below shows what it contains."
+      "body": "This is where your branch starts 🌳 — the clover at the bottom is the root. Folders 🗂️, lessons 📄, and exams ⚔️ grow upward: tap one to enter."
     },
     {
       "target": "home",
@@ -147,7 +147,7 @@
     {
       "target": "graph-root",
       "title": "Tree root",
-      "body": "This circle with the logo is the root of your branch 🌳. Tap the folders and lessons below to enter."
+      "body": "This circle with the logo is the root 🌳 of your branch (at the bottom of the trunk). Folders and lessons sit above it: tap one to enter."
     },
     {
       "target": "mob-home",

@@ -1,10 +1,6 @@
 import { useIdentityAuth } from '../hooks/useIdentityAuth.js';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
-import {
-    hasGdprNetworkConsent,
-    onGdprNetworkConsentChanged,
-} from '../../../shared/lib/connected-services/index.js';
 
 const EMOJI_DATA = {
     Faces: [
@@ -39,13 +35,12 @@ const EMOJI_DATA = {
     ],
 };
 
+/** Signed-in profile identity: avatar + display name. Guest auth username lives in ProfileSignIn. */
 export function ProfileIdentity({
     tempAvatar,
     tempUsername,
     showEmojiPicker,
     profileDirty,
-    guestMode = false,
-    usernameAttention = false,
     onToggleEmojiPicker,
     onPickEmoji,
     onUsernameChange,
@@ -53,13 +48,6 @@ export function ProfileIdentity({
 }) {
     const { ui } = useIdentityAuth();
     const pickerRef = useRef(null);
-    const [networkConsent, setNetworkConsent] = useState(() => hasGdprNetworkConsent());
-    const limitedMode = guestMode && !networkConsent;
-
-    useEffect(() => {
-        setNetworkConsent(hasGdprNetworkConsent());
-        return onGdprNetworkConsentChanged((granted) => setNetworkConsent(!!granted));
-    }, []);
 
     useEffect(() => {
         if (!showEmojiPicker) return undefined;
@@ -76,16 +64,9 @@ export function ProfileIdentity({
         return () => document.removeEventListener('click', onDocClick);
     }, [showEmojiPicker, onToggleEmojiPicker]);
 
-    if (limitedMode) {
-        /* Limited hero is rendered by ProfileModal so it can replace auth tabs too. */
-        return null;
-    }
-
     return (
         <>
-            <div
-                className={`profile-identity-head${guestMode ? ' profile-identity-head--guest' : ''}${usernameAttention ? ' profile-identity-head--attention' : ''}`}
-            >
+            <div className="profile-identity-head">
                 <div className="profile-identity-head__avatar" ref={pickerRef}>
                     <button
                         type="button"
@@ -98,17 +79,11 @@ export function ProfileIdentity({
                         }}
                     >
                         <span id="avatar-display">
-                            <ChromeEmoji
-                                emoji={tempAvatar}
-                                size={guestMode ? 22 : 28}
-                                className="arborito-emoji-glyph"
-                            />
+                            <ChromeEmoji emoji={tempAvatar} size={28} className="arborito-emoji-glyph" />
                         </span>
-                        {!guestMode ? (
-                            <div className="absolute inset-0 bg-black/10 dark:bg-black/40 rounded-full flex items-center justify-center text-white text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[1px]">
-                                ✏️
-                            </div>
-                        ) : null}
+                        <div className="absolute inset-0 bg-black/10 dark:bg-black/40 rounded-full flex items-center justify-center text-white text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[1px]">
+                            ✏️
+                        </div>
                     </button>
                     <div
                         id="emoji-picker"
@@ -141,42 +116,15 @@ export function ProfileIdentity({
                     </div>
                 </div>
                 <div className="profile-identity-head__main">
-                    {guestMode ? (
-                        <label htmlFor="inp-username" className="profile-identity__online-label">
-                            {ui.profileSignInUsernameLabel || 'Username'}
-                        </label>
-                    ) : null}
                     <input
                         id="inp-username"
                         value={tempUsername}
-                        placeholder={
-                            guestMode
-                                ? ui.profileSignInUsernamePlaceholder ||
-                                  ui.usernamePlaceholder ||
-                                  'your_username'
-                                : ui.usernamePlaceholder || ''
-                        }
-                        aria-label={
-                            guestMode
-                                ? ui.profileSignInUsernameLabel || 'Username'
-                                : ui.profileIdentity || ui.usernamePlaceholder || 'Display name'
-                        }
-                        autoComplete={guestMode ? 'username' : 'nickname'}
+                        placeholder={ui.usernamePlaceholder || ''}
+                        aria-label={ui.profileIdentity || ui.usernamePlaceholder || 'Display name'}
+                        autoComplete="nickname"
                         spellCheck={false}
-                        className={`profile-identity__name${guestMode ? ' profile-identity__name--guest' : ''}`}
+                        className="profile-identity__name"
                         onChange={(e) => onUsernameChange(e.target.value)}
-                        onKeyDown={
-                            guestMode
-                                ? (e) => {
-                                      if (e.key === 'Enter' && !e.shiftKey) {
-                                          e.preventDefault();
-                                          window.dispatchEvent(
-                                              new CustomEvent('arborito-profile-auth-primary')
-                                          );
-                                      }
-                                  }
-                                : undefined
-                        }
                     />
                 </div>
             </div>

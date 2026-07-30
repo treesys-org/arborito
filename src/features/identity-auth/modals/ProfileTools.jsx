@@ -6,7 +6,7 @@ export function ProfileToolsFooter({
     embedded: _embedded,
     onOpenBackup,
     onOpenPrivacy,
-    onLocalWipe: _onLocalWipe,
+    onLocalWipe,
     inline = false,
 }) {
     const { ui } = useIdentityAuth();
@@ -20,16 +20,29 @@ export function ProfileToolsFooter({
         ? 'profile-tools-inline profile-footer-group profile-footer-group--legal'
         : 'arborito-modal-footer arborito-modal-footer--blend profile-tools-footer profile-footer-group profile-footer-group--legal';
 
-    /* Guest register/login: privacy only — backup/wipe compete with the account form. */
+    /* Guest: privacy + wipe as quiet footer links — secondary chores must not
+     * compete with the auth CTA above (wipe stays reachable, not loud). */
     if (!signedIn) {
         return (
-            <div className={rootClass}>
-                <button type="button" id="btn-open-privacy" className={btnClass} onClick={onOpenPrivacy}>
-                    <span className="profile-action-btn__icon" aria-hidden="true">
-                        <ChromeEmoji emoji="📄" size={16} />
-                    </span>
+            <div className={`${rootClass} profile-footer-group--quiet`}>
+                <button
+                    type="button"
+                    id="btn-open-privacy"
+                    className={`${btnClass} profile-action-btn--quiet`}
+                    onClick={onOpenPrivacy}
+                >
                     <span className="profile-action-btn__text">
                         {ui.profilePrivacyAndDataButton || ui.syncPrivacyNote || 'Privacy'}
+                    </span>
+                </button>
+                <button
+                    type="button"
+                    id="profile-local-wipe-btn"
+                    className={`${btnClass} profile-action-btn--quiet profile-action-btn--quiet-danger`}
+                    onClick={onLocalWipe}
+                >
+                    <span className="profile-action-btn__text">
+                        {ui.profileLocalWipeButton || 'Wipe local data'}
                     </span>
                 </button>
             </div>

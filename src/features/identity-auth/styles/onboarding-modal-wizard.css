@@ -131,6 +131,11 @@
     box-shadow: 0 0 0 3px rgb(52 211 153 / 0.2);
 }
 
+:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-input--attention {
+    border-color: rgb(234 179 8);
+    box-shadow: 0 0 0 3px rgb(250 204 21 / 0.35);
+}
+
 :is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-password-wrap {
     position: relative;
     display: flex;

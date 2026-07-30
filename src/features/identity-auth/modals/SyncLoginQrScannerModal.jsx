@@ -9,6 +9,7 @@ import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import { detectQrOnce, isBarcodeDetectorAvailable } from '../api/identity-qr.js';
 import { parseRecoveryKitFromText } from '../api/recovery-kit.js';
 import { completeOnboardingWizard } from '../api/onboarding-complete.js';
+import { humanizeAuthError } from '../api/sync-login-error-humanize.js';
 
 function QrVideoFrame({ frameTone, videoRef }) {
     const borderCls = frameTone === 'amber'
@@ -93,10 +94,11 @@ export function ModalSyncLoginQrScanner() {
                 }
             }, 1200);
         } catch (e) {
-            setStatus('error');
-            setErrorMessage(String((e && e.message) || e));
+            const friendly = humanizeAuthError(e, ui);
+            if (friendly) setErrorMessage(friendly);
+            setStatus(friendly ? 'error' : 'scanning');
         }
-    }, [tearDownStream, ui.syncLoginQrUnreadable, signInWithSyncSecret, modal, setModal]);
+    }, [tearDownStream, ui.syncLoginQrUnreadable, signInWithSyncSecret, modal, setModal, ui]);
 
     const scanLoop = useCallback((video) => {
         const tick = async () => {

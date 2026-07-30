@@ -1,5 +1,6 @@
 import { getArboritoStore as store } from '../../../core/store-singleton.js';
 import { getPanelRef } from '../../../app/panel-refs.js';
+import { groundGraphRootForTour } from '../../tree-graph/api/logic/path-scroll.js';
 
 export const TOUR_PAD = 10;
 /** Extra ring padding for the root clover SVG (visual bounds exceed the knot box). */
@@ -29,12 +30,18 @@ export function queryTourTarget(target) {
     if (target === 'graph' || target === 'graph-root') {
         const root = queryGraphRootTourTarget();
         if (root) return root;
-        if (target === 'graph-root') {
-            const panel =
+        /*
+         * Never fall back to the whole graph panel for graph-root: on long
+         * branches that box is huge and parks the tip at a random corner.
+         * `graph` (map overview) may still use the panel.
+         */
+        if (target === 'graph') {
+            return (
                 document.querySelector('[data-arborito-panel="graph"]') ||
-                document.querySelector('#mobile-tree-ui.visible');
-            if (panel) return panel;
+                document.querySelector('#mobile-tree-ui.visible')
+            );
         }
+        return null;
     }
 
     const escaped = CSS.escape(target);
@@ -76,6 +83,46 @@ export function rectForElement(el, targetHint) {
     const r = el.getBoundingClientRect();
     if (r.width < 2 && r.height < 2) return null;
     return r;
+}
+
+function rootHasPaintedGeometry(r) {
+    return !!(r && r.width >= 8 && r.height >= 8);
+}
+
+/**
+ * True when the root clover exists with real geometry.
+ * After grounding, allow slight bleed below the viewport (SVG overflow).
+ */
+export function isGraphRootReadyForTour() {
+    const el = queryGraphRootTourTarget();
+    if (!el) return false;
+    const r = rectForElement(el, 'graph-root');
+    if (!rootHasPaintedGeometry(r)) return false;
+    const vh = window.innerHeight || 0;
+    const vw = window.innerWidth || 0;
+    if (vh < 8 || vw < 8) return false;
+    /* Clover may extend a few px past the floor — still count as ready. */
+    return r.bottom > -40 && r.top < vh + 8 && r.right > 0 && r.left < vw;
+}
+
+/**
+ * Ground the trunk floor, then report whether the root is tour-ready.
+ * Call this while waiting to start — do not wait passively for scroll settle.
+ */
+export function prepareGraphRootForTour() {
+    groundGraphRootForTour();
+    return isGraphRootReadyForTour();
+}
+
+/**
+ * Re-ground the trunk so the root clover sits on the floor, then return its rect.
+ * Prefer this over generic scrollIntoView (which fights the trunk scroll policy).
+ */
+export function ensureGraphRootVisibleForTour() {
+    groundGraphRootForTour();
+    const el = queryGraphRootTourTarget();
+    if (!el) return null;
+    return rectForElement(el, 'graph-root');
 }
 
 export function fallbackRect() {

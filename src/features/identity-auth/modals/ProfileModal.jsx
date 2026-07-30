@@ -138,8 +138,6 @@ export function ModalProfile({ embed = false }) {
             tempUsername={tempUsername}
             showEmojiPicker={showEmojiPicker}
             profileDirty={profileDirty}
-            guestMode={!signedIn}
-            usernameAttention={usernameAttention}
             onToggleEmojiPicker={setShowEmojiPicker}
             onPickEmoji={(emoji) => {
                 setTempAvatar(emoji);
@@ -148,8 +146,6 @@ export function ModalProfile({ embed = false }) {
             onUsernameChange={(v) => {
                 setTempUsername(v);
                 if (authError) setAuthError('');
-                setUsernameAttention(false);
-                clearProfileUsernameAttention();
             }}
             onSaveProfile={() => {
                 const username = tempUsername.trim();
@@ -172,6 +168,7 @@ export function ModalProfile({ embed = false }) {
             usernameSuggestions={usernameSuggestions}
             syncQrVisible={syncAccessQrVisible}
             signedIn={signedIn}
+            usernameAttention={usernameAttention}
             suggestHostRef={suggestHostRef}
             onSyncModeChange={(mode) => {
                 setSyncMode(mode);
@@ -179,7 +176,12 @@ export function ModalProfile({ embed = false }) {
                 setUsernameSuggestions([]);
             }}
             onUsernameAttention={setUsernameAttention}
-            onUsernameChange={setTempUsername}
+            onUsernameChange={(v) => {
+                setTempUsername(v);
+                if (authError) setAuthError('');
+                setUsernameAttention(false);
+                clearProfileUsernameAttention();
+            }}
             onSecretChange={setSyncSecretDraft}
             onAuthErrorClear={() => setAuthError('')}
             onAuthBusyChange={setAuthBusy}
@@ -215,10 +217,7 @@ export function ModalProfile({ embed = false }) {
             {guestLimited ? (
                 <ProfileLimitedModeHero />
             ) : (
-                <>
-                    <div className="profile-guest-unified__identity">{identityBlock}</div>
-                    {sessionBlock}
-                </>
+                sessionBlock
             )}
         </section>
     ) : null;

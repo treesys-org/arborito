@@ -7,7 +7,12 @@
  * Pure utility: takes the error plus a UI label dictionary (typically
  * `store.ui`) and returns the translated string. Falls back to a
  * truncated version of the raw message when nothing matches.
+ *
+ * Returns '' when the user cancelled (e.g. local-progress choice dialog) so
+ * callers can skip showing an error banner.
  */
+
+import { isSignInCancelledError } from './sign-in-local-progress-choice.js';
 
 const TECHNICAL_DETAIL_RE = /\n{2,}detalle t[eé]cnico:/i;
 const RAW_MAX = 280;
@@ -18,6 +23,7 @@ const RAW_MAX = 280;
  * @returns {string}
  */
 export function humanizeAuthError(err, ui = {}) {
+    if (isSignInCancelledError(err)) return '';
     const raw = String((err && err.message) || err || '').trim();
     if (!raw) {
         return ui.syncLoginGenericError || 'Could not complete the operation. Try again.';

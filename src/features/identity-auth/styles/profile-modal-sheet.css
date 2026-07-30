@@ -228,120 +228,25 @@ html.dark .profile-guest-device-hint {
 }
 
 .profile-guest-unified .profile-sheet__session {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     display: flex;
     flex-direction: column;
     min-height: 0;
 }
 
 .profile-guest-auth {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-height: 0;
     display: flex;
     flex-direction: column;
     gap: 0.55rem;
 }
 
-.profile-guest-auth:not(:has(.profile-guest-auth__mascot-slot)) {
-    gap: 0.4rem;
-}
-
 .profile-guest-auth__panel {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-height: 0;
     padding-top: 0;
     overflow-y: auto;
-}
-
-.profile-guest-auth__mascot-slot {
-    flex: 0 0 8.25rem;
-    width: 100%;
-    height: 8.25rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.profile-guest-auth__mascot {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    justify-content: center;
-    transition: opacity 0.35s ease;
-}
-
-.profile-guest-auth__mascot--hero {
-    align-items: center;
-}
-
-.profile-guest-auth__mascot--compact {
-    align-items: flex-end;
-    padding-bottom: 0.15rem;
-}
-
-.profile-guest-auth__mascot--busy {
-    opacity: 0;
-    pointer-events: none;
-}
-
-.profile-guest-auth__mascot-ring {
-    width: 4.75rem;
-    height: 4.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 9999px;
-    color: rgb(16 185 129);
-    background: var(--arborito-theme-onboarding-mascot-bg, rgb(236 253 245));
-    border: 2px solid var(--arborito-theme-onboarding-mascot-border, rgb(167 243 208));
-    box-shadow: var(--arborito-theme-onboarding-mascot-shadow, 0 10px 24px rgb(16 185 129 / 0.12));
-    transform-origin: center bottom;
-    transition:
-        width 0.55s cubic-bezier(0.33, 1, 0.68, 1),
-        height 0.55s cubic-bezier(0.33, 1, 0.68, 1),
-        box-shadow 0.55s ease;
-}
-
-.profile-guest-auth__mascot--hero .profile-guest-auth__mascot-ring {
-    width: 7.25rem;
-    height: 7.25rem;
-    box-shadow: 0 14px 32px rgb(16 185 129 / 0.15);
-}
-
-.profile-guest-auth__mascot--compact .profile-guest-auth__mascot-ring {
-    width: 4.75rem;
-    height: 4.75rem;
-}
-
-.profile-guest-auth__mascot-logo {
-    display: block;
-    line-height: 0;
-}
-
-.profile-guest-auth__mascot-logo svg {
-    display: block;
-    width: 2.35rem;
-    height: 2.35rem;
-    transition:
-        width 0.55s cubic-bezier(0.33, 1, 0.68, 1),
-        height 0.55s cubic-bezier(0.33, 1, 0.68, 1);
-}
-
-.profile-guest-auth__mascot--hero .profile-guest-auth__mascot-logo svg {
-    width: 3.65rem;
-    height: 3.65rem;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .profile-guest-auth__mascot-ring,
-    .profile-guest-auth__mascot-logo svg {
-        transition-duration: 0.01ms !important;
-    }
-}
-
-:where(html.dark, html[data-theme='dark']) .profile-guest-auth__mascot-ring {
-    color: rgb(52 211 153);
-    background: rgb(6 78 59 / 0.35);
-    border-color: rgb(16 185 129 / 0.35);
 }
 
 .profile-offline-network-callout {
@@ -453,19 +358,18 @@ html.dark .profile-offline-network-callout__cta {
 
 .profile-sheet--desktop.profile-sheet--login .profile-guest-unified,
 .profile-sheet--desktop.profile-sheet--register .profile-guest-unified {
-    min-height: 26rem;
     max-width: 100%;
 }
 
 .profile-sheet--desktop.profile-sheet--login .profile-guest-auth,
 .profile-sheet--desktop.profile-sheet--register .profile-guest-auth {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-height: 0;
 }
 
 .profile-sheet--desktop.profile-sheet--login .profile-sync-panel,
 .profile-sheet--desktop.profile-sheet--register .profile-sync-panel {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     min-height: 0;
     overflow-y: auto;
 }

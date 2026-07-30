@@ -1,12 +1,12 @@
 import { getArboritoStore as store } from '../../../../core/store-singleton.js';
 import { getPanelRef } from '../../../../app/panel-refs.js';
-import { shouldShowMobileUI } from '../../../../shared/ui/breakpoints.js';
 import {
     TOUR_PAD as PAD,
     TOUR_PAD_GRAPH_ROOT,
     queryTourTarget,
     rectForElement,
     fallbackRect,
+    ensureGraphRootVisibleForTour,
 } from '../product-tour-targets.js';
 
 export const TOUR_DONE_KEY = 'arborito-ui-tour-done';
@@ -95,12 +95,57 @@ function elementNeedsScroll(el) {
     );
 }
 
+function placeTip(t, l, w, h, tw, th, { preferAbove = false } = {}) {
+    const margin = 12;
+    const bottom = t + h;
+    const vh = window.innerHeight;
+    const vw = window.innerWidth;
+
+    let ty;
+    let tx;
+
+    const tryAbove = () => t - th - margin;
+    const tryBelow = () => bottom + margin;
+    const aboveFits = tryAbove() >= margin;
+    const belowFits = tryBelow() + th <= vh - margin;
+
+    if (preferAbove) {
+        if (aboveFits) ty = tryAbove();
+        else if (belowFits) ty = tryBelow();
+        else ty = Math.max(margin, Math.min(t, vh - th - margin));
+    } else {
+        if (belowFits) ty = tryBelow();
+        else if (aboveFits) ty = tryAbove();
+        else ty = Math.max(margin, Math.min(tryBelow(), vh - th - margin));
+    }
+
+    /* Root sits bottom-left of the trunk — nudge tip to the right so it does not cover the clover. */
+    if (preferAbove) {
+        tx = l + w + margin;
+        if (tx + tw > vw - margin) {
+            tx = Math.max(margin, l + w / 2 - tw / 2);
+        }
+        if (tx + tw > vw - margin) {
+            tx = Math.max(margin, vw - tw - margin);
+        }
+    } else {
+        tx = l + w / 2 - tw / 2;
+        tx = Math.max(margin, Math.min(vw - tw - margin, tx));
+    }
+
+    ty = Math.max(margin, Math.min(vh - th - margin, ty));
+    return { top: ty, left: tx };
+}
+
 export function computeLayout(step, tipEl, { smoothScroll = false } = {}) {
     const stepTarget = step?.target;
     const el = step ? queryTourTarget(stepTarget) : null;
-    if (
+
+    if (stepTarget === 'graph-root') {
+        /* Trunk policy: root stays on the floor — never generic scrollIntoView. */
+        ensureGraphRootVisibleForTour();
+    } else if (
         el &&
-        (stepTarget !== 'graph-root' || shouldShowMobileUI()) &&
         typeof el.scrollIntoView === 'function' &&
         elementNeedsScroll(el)
     ) {
@@ -115,7 +160,11 @@ export function computeLayout(step, tipEl, { smoothScroll = false } = {}) {
             }
         }
     }
-    let r = rectForElement(el, stepTarget);
+
+    let r =
+        stepTarget === 'graph-root' ?
+            rectForElement(queryTourTarget('graph-root'), 'graph-root')
+        :   rectForElement(el, stepTarget);
     if (!r) r = fallbackRect();
 
     const pad = stepTarget === 'graph-root' ? TOUR_PAD_GRAPH_ROOT : PAD;
@@ -126,16 +175,12 @@ export function computeLayout(step, tipEl, { smoothScroll = false } = {}) {
     const w = Math.max(0, right - l);
     const h = Math.max(0, bottom - t);
 
-    const margin = 12;
     const tw = tipEl?.offsetWidth || 320;
     const th = tipEl?.offsetHeight || 200;
-    let ty = bottom + margin;
-    if (ty + th > window.innerHeight - margin) {
-        ty = t - th - margin;
-    }
-    if (ty < margin) ty = margin;
-    let tx = l + w / 2 - tw / 2;
-    tx = Math.max(margin, Math.min(window.innerWidth - tw - margin, tx));
+    /* Root is grounded near the bottom of the trunk — tip must sit above it. */
+    const preferAbove =
+        stepTarget === 'graph-root' || t + h / 2 > window.innerHeight * 0.55;
+    const tip = placeTip(t, l, w, h, tw, th, { preferAbove });
 
     return {
         ring: { top: t, left: l, width: w, height: h },
@@ -150,7 +195,7 @@ export function computeLayout(step, tipEl, { smoothScroll = false } = {}) {
             },
             bottom: { top: t + h, height: Math.max(0, window.innerHeight - t - h) },
         },
-        tip: { top: ty, left: tx },
+        tip,
     };
 }
 

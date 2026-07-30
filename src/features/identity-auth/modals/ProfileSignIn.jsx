@@ -130,7 +130,7 @@ function requireUsername(ui, tempUsername, onAuthError, onUsernameAttention) {
     onAuthError(
         ui.profileAuthUsernameRequired ||
             ui.authUsernameRequired ||
-            '↑ Enter your online username above first.'
+            'Enter your online username.'
     );
     onUsernameAttention?.(true);
     focusProfileUsernameField();
@@ -147,6 +147,7 @@ export function ProfileSignIn({
     usernameSuggestions,
     syncQrVisible,
     signedIn,
+    usernameAttention = false,
     onSyncModeChange,
     onUsernameChange,
     onSecretChange,
@@ -228,7 +229,8 @@ export function ProfileSignIn({
             await signInWithSyncSecret(u, s);
             profileAfterSignedIn();
         } catch (e) {
-            onAuthError(humanizeAuthError(e, ui));
+            const friendly = humanizeAuthError(e, ui);
+            if (friendly) onAuthError(friendly);
         } finally {
             onAuthBusyChange(false);
         }
@@ -394,6 +396,43 @@ export function ProfileSignIn({
                 >
                     <div className={`arborito-onb-form profile-guest-auth__form${authBusy ? ' arborito-onb-busy' : ''}`}>
                         {authBusy ? <BusyBanner label={busyBannerText} /> : null}
+
+                        <div className="arborito-onb-field">
+                            <label htmlFor="profile-auth-username">
+                                {ui.profileSignInUsernameLabel || 'Online username'}
+                            </label>
+                            <input
+                                id="profile-auth-username"
+                                type="text"
+                                autoComplete="username"
+                                spellCheck={false}
+                                value={tempUsername}
+                                placeholder={
+                                    ui.profileSignInUsernamePlaceholder ||
+                                    ui.usernamePlaceholder ||
+                                    'your_username'
+                                }
+                                className={`arborito-onb-input${usernameAttention ? ' arborito-onb-input--attention' : ''}`}
+                                disabled={authBusy}
+                                aria-invalid={usernameAttention ? 'true' : undefined}
+                                onChange={(e) => {
+                                    onUsernameChange(e.target.value);
+                                    onAuthErrorClear();
+                                    onUsernameAttention?.(false);
+                                    clearProfileUsernameAttention();
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key !== 'Enter' || e.shiftKey) return;
+                                    e.preventDefault();
+                                    if (modeCr && !registerPasswordStep) void tryUsernameContinue();
+                                    else if (modeCr && registerPasswordStep) {
+                                        document.getElementById('login-reg-password')?.focus();
+                                    } else if (!modeCr && loginMethod === 'password') {
+                                        document.getElementById('profile-sync-secret')?.focus();
+                                    }
+                                }}
+                            />
+                        </div>
 
                         {modeCr && !registerPasswordStep ? (
                             <UsernameSuggestions
