@@ -31,19 +31,27 @@ function normalizeBranchDataFromLoad(json) {
 async function loadBranchPayloadForRef(store, ref) {
     const branchId = String(ref.branchId || '').trim();
     const sourceUrl = String(ref.sourceUrl || ref.networkUrl || '').trim();
+    const nostrUrl =
+        sourceUrl.startsWith('nostr://') || parseNostrTreeUrl(sourceUrl) ? sourceUrl : '';
 
     if (sourceUrl.startsWith('branch://') || branchId) {
         await store.userStore.ensureBranchesHydrated();
         const id = branchId || sourceUrl.slice('branch://'.length).split('/')[0];
         const entry = store.userStore.state.branches.find((b) => b.id === id);
-        if (!entry?.data) throw new Error(`Branch not found: ${id}`);
-        return { ref: { ...ref, branchId: id, refId: ref.refId || id }, data: entry.data };
+        if (entry?.data) {
+            return { ref: { ...ref, branchId: id, refId: ref.refId || id }, data: entry.data };
+        }
+        /* Remote composed trees often set branchId to the remote universe id.
+         * If we also have a nostr URL, load from the network instead of failing. */
+        if (!nostrUrl) {
+            throw new Error(`Branch not found: ${id}`);
+        }
     }
 
-    if (sourceUrl.startsWith('nostr://') || parseNostrTreeUrl(sourceUrl)) {
+    if (nostrUrl) {
         const src = store.state.communitySources?.find(
-            (s) => String(s.url) === sourceUrl || String(s.id) === String(ref.communityId || '')
-        ) || { id: ref.communityId || branchId, url: sourceUrl, type: 'community', name: ref.displayName || '' };
+            (s) => String(s.url) === nostrUrl || String(s.id) === String(ref.communityId || '')
+        ) || { id: ref.communityId || branchId, url: nostrUrl, type: 'community', name: ref.displayName || '' };
         const out = await store.sourceManager.loadData(src, store.state.lang, false);
         return {
             ref: { ...ref, refId: ref.refId || src.id },
