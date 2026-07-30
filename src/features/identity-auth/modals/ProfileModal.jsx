@@ -342,13 +342,18 @@ export function ModalProfile({ embed = false }) {
         );
     }
 
+    const guestHeroTitle =
+        syncMode === 'create'
+            ? ui.profileGuestRegisterTitle || ui.syncLoginSubmitRegister || 'Create account'
+            : ui.profileGuestSignInTitle || ui.syncLoginSubmitLogin || 'Sign in';
+
     const hero = (
         <ModalHubHero
             ui={ui}
             mobile={mob}
-            title={ui.navProfile || 'Profile'}
-            subtitle={mob ? undefined : ui.profileSheetTagline || ui.profileIdentity || ''}
-            leadingIcon={mob ? tempAvatar || g.avatar || '👤' : '🪪'}
+            title={signedIn ? ui.navProfile || 'Profile' : guestHeroTitle}
+            subtitle={signedIn ? (mob ? undefined : ui.profileSheetTagline || ui.profileIdentity || '') : undefined}
+            leadingIcon={signedIn ? (mob ? tempAvatar || g.avatar || '👤' : '🪪') : mob ? undefined : '🪪'}
             tagClass="btn-close-profile"
             showClose={!mob}
             showBack={mob}

@@ -39,22 +39,6 @@ const EMOJI_DATA = {
     ],
 };
 
-function GuestLocalHintIcon() {
-    return (
-        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" className="profile-guest-device-hint__svg">
-            <path
-                d="M8 1.2 14.8 13.5H1.2L8 1.2Z"
-                fill="#facc15"
-                stroke="#a16207"
-                strokeWidth="1.1"
-                strokeLinejoin="round"
-            />
-            <path d="M8 5.4v3.4" stroke="#713f12" strokeWidth="1.35" strokeLinecap="round" />
-            <circle cx="8" cy="11.1" r="0.75" fill="#713f12" />
-        </svg>
-    );
-}
-
 export function ProfileIdentity({
     tempAvatar,
     tempUsername,
@@ -100,24 +84,31 @@ export function ProfileIdentity({
     return (
         <>
             <div
-                className={`profile-identity-head${usernameAttention ? ' profile-identity-head--attention' : ''}`}
+                className={`profile-identity-head${guestMode ? ' profile-identity-head--guest' : ''}${usernameAttention ? ' profile-identity-head--attention' : ''}`}
             >
                 <div className="profile-identity-head__avatar" ref={pickerRef}>
                     <button
                         type="button"
                         id="btn-avatar-picker"
                         className="profile-avatar-btn bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center relative group transition-transform hover:scale-105 shadow-sm border-2 border-slate-100 dark:border-slate-700"
+                        aria-label={ui.profileEmojiPickerAria || 'Choose emoji'}
                         onClick={(e) => {
                             e.stopPropagation();
                             onToggleEmojiPicker(!showEmojiPicker);
                         }}
                     >
                         <span id="avatar-display">
-                            <ChromeEmoji emoji={tempAvatar} size={28} className="arborito-emoji-glyph" />
+                            <ChromeEmoji
+                                emoji={tempAvatar}
+                                size={guestMode ? 22 : 28}
+                                className="arborito-emoji-glyph"
+                            />
                         </span>
-                        <div className="absolute inset-0 bg-black/10 dark:bg-black/40 rounded-full flex items-center justify-center text-white text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[1px]">
-                            ✏️
-                        </div>
+                        {!guestMode ? (
+                            <div className="absolute inset-0 bg-black/10 dark:bg-black/40 rounded-full flex items-center justify-center text-white text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[1px]">
+                                ✏️
+                            </div>
+                        ) : null}
                     </button>
                     <div
                         id="emoji-picker"
@@ -152,7 +143,7 @@ export function ProfileIdentity({
                 <div className="profile-identity-head__main">
                     {guestMode ? (
                         <label htmlFor="inp-username" className="profile-identity__online-label">
-                            {ui.profileSignInUsernameLabel || 'Online username'}
+                            {ui.profileSignInUsernameLabel || 'Username'}
                         </label>
                     ) : null}
                     <input
@@ -167,13 +158,12 @@ export function ProfileIdentity({
                         }
                         aria-label={
                             guestMode
-                                ? ui.profileSignInUsernameLabel || 'Online username'
+                                ? ui.profileSignInUsernameLabel || 'Username'
                                 : ui.profileIdentity || ui.usernamePlaceholder || 'Display name'
                         }
-                        aria-describedby={guestMode ? 'profile-username-guest-hint' : undefined}
                         autoComplete={guestMode ? 'username' : 'nickname'}
                         spellCheck={false}
-                        className="profile-identity__name"
+                        className={`profile-identity__name${guestMode ? ' profile-identity__name--guest' : ''}`}
                         onChange={(e) => onUsernameChange(e.target.value)}
                         onKeyDown={
                             guestMode
@@ -188,24 +178,6 @@ export function ProfileIdentity({
                                 : undefined
                         }
                     />
-                    {guestMode ? (
-                        <p id="profile-username-guest-hint" className="profile-identity__online-hint">
-                            {ui.profileSignInUsernameHint ||
-                                'This name is your online account. Pick one before registering or signing in.'}
-                        </p>
-                    ) : null}
-                    {guestMode ? (
-                        <p className="profile-guest-device-hint" role="status">
-                            <span className="profile-guest-device-hint__ic" aria-hidden="true">
-                                <GuestLocalHintIcon />
-                            </span>
-                            <span>
-                                {ui.profileGuestLocalHint ||
-                                    ui.guestAccountHintTip ||
-                                    'Progress stays on this device until you create an account.'}
-                            </span>
-                        </p>
-                    ) : null}
                 </div>
             </div>
             {profileDirty ? (

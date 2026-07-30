@@ -2,13 +2,13 @@
 /* --- arborito-username-suggest --- */
 /**
  * Username suggest dropdown — shared "name already taken" suggestion strip.
- * Used by onboarding and profile modals (modal-specific padding overrides remain local).
+ * Used by profile register (modal-specific padding overrides remain local).
  *
  * Used by:
- *   - `.arborito-modal--onboarding .arborito-onb-suggest{,-chip,__label,__chips}` (onboarding register flow)
- *   - `.profile-username-suggest{,-chip,__label,__chips}`                         (profile register flow)
+ *   - `.arborito-auth-surface .arborito-onb-suggest{,-chip,__label,__chips}`
+ *   - `.profile-username-suggest{,-chip,__label,__chips}`
  *
- * HTML shape (both modals):
+ * HTML shape:
  *   <div class="<root>" role="group">
  *       <p class="<root>__label">Probá con:</p>
  *       <div class="<root>__chips">

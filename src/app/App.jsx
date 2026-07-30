@@ -3,17 +3,16 @@ import { BootScreen } from './components/BootScreen.jsx';
 import { HeavyShell } from './components/HeavyShell.jsx';
 import { OverlayShell } from './components/OverlayShell.jsx';
 import { ArboritoDebugger } from './components/ArboritoDebugger.jsx';
+import { applyDocumentSeo } from '../shared/lib/document-seo.js';
 
 const DEV = import.meta.env?.DEV;
 
 function useDocumentLang() {
     useEffect(() => {
         try {
-            const lang = (localStorage.getItem('arborito-lang') || 'EN').toUpperCase();
-            const es = lang.indexOf('ES') === 0;
-            document.documentElement.lang = es ? 'es' : 'en';
+            applyDocumentSeo(localStorage.getItem('arborito-lang') || 'EN');
         } catch {
-            /* ignore */
+            applyDocumentSeo('EN');
         }
     }, []);
 }

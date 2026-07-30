@@ -26,7 +26,7 @@ export const MOBILE_DOCK_TAKEOVER_MODAL_TYPES = new Set([
     'privacy',
     'security-warning',
     'sources',
-    /* Viewport confirms (Continue without account…): cover the dock, no dock-gap strip. */
+    /* Viewport confirms: cover the dock, no dock-gap strip. */
     'dialog',
 ]);
 

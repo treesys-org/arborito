@@ -42,7 +42,6 @@ export function ModalRecoverAccount() {
             const hint = typeof m.fromOnboarding === 'object' ? m.fromOnboarding : {};
             const payload = { type: 'onboarding', ...extra };
             if (Number(hint.step) === 2) payload.step = 2;
-            if (hint.view) payload.view = hint.view;
             setModal(payload);
         },
         [m.fromOnboarding, setModal]

@@ -16,7 +16,6 @@ import { LoginPasswordField } from '../components/LoginPasswordField.jsx';
 import { LoginPasswordRecoveryLinks } from '../components/LoginAuthExtras.jsx';
 import { ProfileLoginMethodTabs } from '../components/ProfileLoginMethodTabs.jsx';
 import { ProfilePasswordSecurityPanel } from '../components/ProfilePasswordSecurityPanel.jsx';
-import { ProfileGuestAuthMascot } from '../components/ProfileGuestAuthMascot.jsx';
 import { ProfileAutoSyncLocalSwitch } from '../components/ProfileAutoSyncLocalSwitch.jsx';
 import { armRegisterLocalBranchSync, disarmRegisterLocalBranchSync } from '../api/register-sync-local.js';
 function BusyBanner({ label }) {
@@ -170,22 +169,16 @@ export function ProfileSignIn({
     const [registerPasswordStep, setRegisterPasswordStep] = useState(false);
     const [registerCheckingUsername, setRegisterCheckingUsername] = useState(false);
     const [loginMethod, setLoginMethod] = useState('password');
-    const [loginPasswordFocused, setLoginPasswordFocused] = useState(false);
 
     useEffect(() => {
         setRegisterPasswordStep(false);
         setRegisterPassword('');
         setRegisterPasswordConfirm('');
-        setLoginPasswordFocused(false);
     }, [tempUsername, syncMode]);
 
     useEffect(() => {
         if (syncMode !== 'login') setLoginMethod('password');
     }, [syncMode]);
-
-    useEffect(() => {
-        setLoginPasswordFocused(false);
-    }, [loginMethod]);
 
     const scheduleUsernameCheck = () => {
         scheduleUsernameAvailabilityCheck(suggestHostRef.current, {
@@ -387,13 +380,6 @@ export function ProfileSignIn({
                   ? ui.qrSyncScanCta || 'Scan sync QR'
                   : ui.syncLoginSubmitLogin || 'Sign in';
 
-        const passwordPhase =
-            (modeCr && registerPasswordStep) ||
-            (!modeCr &&
-                loginMethod === 'password' &&
-                (loginPasswordFocused || String(syncSecretDraft || '').trim().length > 0));
-        const mascotCompact = passwordPhase;
-
         panelBody = (
             <div className="profile-session-auth arborito-auth-surface profile-guest-auth">
                 <ProfileAuthTabs
@@ -455,8 +441,6 @@ export function ProfileSignIn({
                                             value={syncSecretDraft}
                                             ui={ui}
                                             onChange={onSecretChange}
-                                            onFocus={() => setLoginPasswordFocused(true)}
-                                            onBlur={() => setLoginPasswordFocused(false)}
                                             onEnter={() => void tryTypedLogin()}
                                         />
                                         <LoginPasswordRecoveryLinks
@@ -519,10 +503,6 @@ export function ProfileSignIn({
                         ) : null}
                     </div>
                 </div>
-                <ProfileGuestAuthMascot
-                    compact={mascotCompact}
-                    busy={authBusy || registerCheckingUsername}
-                />
             </div>
         );
     }

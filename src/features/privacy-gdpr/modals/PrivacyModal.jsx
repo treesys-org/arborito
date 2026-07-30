@@ -166,7 +166,7 @@ export function ModalPrivacy() {
                                             <LocaleRichText
                                                 html={
                                                     ui.privacyOnboardingNetworkPreviewBody ||
-                                                    'Online is not active yet. <strong>Sign in or Register</strong> or <strong>Continue without an account</strong> on the welcome screen enables the recommended public network. Use the button below to stay without network features.'
+                                                    'Online is not active yet. <strong>Choose what to study</strong> or <strong>I have an online account</strong> on the welcome screen turns on the recommended public network. Prefer no catalog, share codes, or sync? Choose <strong>Force offline mode</strong> below.'
                                                 }
                                             />
                                         </p>

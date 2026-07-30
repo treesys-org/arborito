@@ -37,19 +37,24 @@
   <!-- YouTube embeds require an HTTP Referer (Error 153). same-origin / no-referrer suppress it; this matches YouTube’s recommended policy. -->
   <meta name="referrer" content="strict-origin-when-cross-origin">
 
-  <title>Arborito: Free interactive lesson maps</title>
-  <meta name="description" content="Learn any subject as a visual tree of lessons. Free and open source from Treesys: quizzes, Memory Garden, optional Arcade. No ads, no subscription.">
+  <title>Arborito: Learn anything for free</title>
+  <meta name="description" content="Learn any subject as a visual tree of lessons. Free and open source from Treesys: quizzes, Memory Garden, optional Arcade. No ads, no subscription." data-seo-es="Aprende cualquier tema como un árbol visual de lecciones. Gratis y de código abierto de Treesys: cuestionarios, Jardín de memoria, Arcade opcional. Sin anuncios ni suscripción.">
   <link rel="canonical" href="https://arborito.org/">
+  <link rel="alternate" hreflang="en" href="https://arborito.org/">
+  <link rel="alternate" hreflang="es" href="https://arborito.org/">
+  <link rel="alternate" hreflang="x-default" href="https://arborito.org/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Arborito">
   <meta property="og:url" content="https://arborito.org/">
-  <meta property="og:title" content="Arborito: Free interactive lesson maps">
-  <meta property="og:description" content="Learn any subject as a visual tree of lessons. Free and open source: quizzes, Memory Garden, optional Arcade. No ads, no subscription.">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="es_ES">
+  <meta property="og:title" content="Arborito: Learn anything for free" data-seo-es="Arborito: Aprende gratis lo que quieras">
+  <meta property="og:description" content="Learn any subject as a visual tree of lessons. Free and open source: quizzes, Memory Garden, optional Arcade. No ads, no subscription." data-seo-es="Aprende cualquier tema como un árbol visual de lecciones. Gratis y de código abierto: cuestionarios, Jardín de memoria, Arcade opcional. Sin anuncios ni suscripción.">
   <meta property="og:image" content="https://arborito.org/demo-media/02-mapa-claro-en.png">
-  <meta property="og:image:alt" content="Arborito lesson map">
+  <meta property="og:image:alt" content="Arborito lesson map" data-seo-es="Mapa de lecciones de Arborito">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Arborito: Free interactive lesson maps">
-  <meta name="twitter:description" content="Learn any subject as a visual tree of lessons. Free and open source: quizzes, Memory Garden, optional Arcade. No ads, no subscription.">
+  <meta name="twitter:title" content="Arborito: Learn anything for free" data-seo-es="Arborito: Aprende gratis lo que quieras">
+  <meta name="twitter:description" content="Learn any subject as a visual tree of lessons. Free and open source: quizzes, Memory Garden, optional Arcade. No ads, no subscription." data-seo-es="Aprende cualquier tema como un árbol visual de lecciones. Gratis y de código abierto: cuestionarios, Jardín de memoria, Arcade opcional. Sin anuncios ni suscripción.">
   <meta name="twitter:image" content="https://arborito.org/demo-media/02-mapa-claro-en.png">
   <script type="application/ld+json">
   {
@@ -60,13 +65,58 @@
     "applicationCategory": "EducationalApplication",
     "operatingSystem": "Web, Linux, Windows, macOS, Android",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "description": "Free, open-source learning app: explore subjects as interactive lesson maps with quizzes, Memory Garden, and optional Arcade.",
+    "inLanguage": ["en", "es"],
+    "description": [
+      {
+        "@value": "Free, open-source learning app: explore subjects as interactive lesson maps with quizzes, Memory Garden, and optional Arcade.",
+        "@language": "en"
+      },
+      {
+        "@value": "App de aprendizaje gratuita y de código abierto: explorá temas como mapas de lecciones interactivos con cuestionarios, Jardín de memoria y Arcade opcional.",
+        "@language": "es"
+      }
+    ],
     "publisher": {
       "@type": "Organization",
       "name": "Treesys",
       "url": "https://www.treesys.org/"
     }
   }
+  </script>
+  <!-- Prefer Spanish document meta before React when UI lang (or browser) is ES. -->
+  <script>
+    (function () {
+      try {
+        var stored = (localStorage.getItem('arborito-lang') || '').toUpperCase();
+        var preferEs =
+          stored.indexOf('ES') === 0 ||
+          (!stored &&
+            typeof navigator !== 'undefined' &&
+            String(navigator.language || '')
+              .toLowerCase()
+              .indexOf('es') === 0);
+        if (!preferEs) return;
+        var titleEs = 'Arborito: Aprende gratis lo que quieras';
+        document.title = titleEs;
+        document.documentElement.lang = 'es';
+        function apply(sel, attr) {
+          var el = document.head.querySelector(sel);
+          if (!el) return;
+          var v = el.getAttribute('data-seo-es');
+          if (v) el.setAttribute(attr, v);
+        }
+        apply('meta[name="description"]', 'content');
+        apply('meta[property="og:title"]', 'content');
+        apply('meta[property="og:description"]', 'content');
+        apply('meta[property="og:image:alt"]', 'content');
+        apply('meta[name="twitter:title"]', 'content');
+        apply('meta[name="twitter:description"]', 'content');
+        var loc = document.head.querySelector('meta[property="og:locale"]');
+        if (loc) loc.setAttribute('content', 'es_ES');
+      } catch (e) {
+        /* ignore */
+      }
+    })();
   </script>
   <link rel="icon" href="./favicon.png" type="image/png" sizes="512x512">
   <link rel="apple-touch-icon" href="./favicon.png">

@@ -9,6 +9,7 @@ import {
 } from '../shared/ui/mobile-shell-sync.js';
 import { modalType } from '../shared/ui/modal-enter.js';
 import { applyArboritoTheme, resolveStoredTheme } from '../shared/lib/boot-theme.js';
+import { applyDocumentSeo } from '../shared/lib/document-seo.js';
 import { getPanelRef } from '../app/panel-refs.js';
 import { isSagePointerGuarded } from '../features/learning/api/sage-pointer-guard.js';
 import { syncReactI18nSnapshot } from './react-state.js';
@@ -260,8 +261,7 @@ export class ShellStore extends EventTarget {
             localStorage.setItem('arborito-lang', this.state.lang);
             try {
                 if (typeof document !== 'undefined') {
-                    const lc = String(this.state.lang || 'EN').toLowerCase();
-                    document.documentElement.lang = lc.startsWith('es') ? 'es' : 'en';
+                    applyDocumentSeo(this.state.lang);
                 }
             } catch {
                 /* ignore */

@@ -124,6 +124,17 @@ html.dark .profile-register-spotlight {
     font-size: 1.0625rem;
 }
 
+:is(.profile-sheet--mobile, .profile-sheet--embedded) .profile-identity__name--guest {
+    font-size: 1rem;
+    font-weight: 650;
+}
+
+:is(.profile-sheet--mobile, .profile-sheet--embedded) .profile-identity-head--guest .profile-identity-head__avatar .profile-avatar-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.25rem;
+}
+
 :is(.profile-sheet--mobile, .profile-sheet--embedded) :is(.profile-session__label, .profile-footer-group__label) {
     font-size: 0.8125rem;
     letter-spacing: 0.01em;
@@ -339,6 +350,17 @@ html.dark .profile-register-spotlight {
 
     .profile-sheet--desktop .profile-identity__name {
         font-size: 1.125rem;
+    }
+
+    .profile-sheet--desktop .profile-identity__name--guest {
+        font-size: 1rem;
+        font-weight: 650;
+    }
+
+    .profile-sheet--desktop .profile-identity-head--guest .profile-identity-head__avatar .profile-avatar-btn {
+        width: 2.75rem;
+        height: 2.75rem;
+        font-size: 1.25rem;
     }
 
     .profile-sheet--desktop .profile-session__label,

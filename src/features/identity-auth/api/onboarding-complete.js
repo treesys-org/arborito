@@ -22,12 +22,12 @@ export function completeOnboardingWizard(store, opts = {}) {
     } catch {
         /* ignore */
     }
-    /* Fire-and-forget — never await; must not delay login/register success paths. */
+    /* Fire-and-forget — never await; must not delay sign-in success paths. */
     if (hasGdprNetworkConsent()) {
         prewarmForestNetworkIndices(getArboritoStore());
     }
     const returnStep = Number(opts.returnStep) === 1 ? 1 : 2;
-    const fromOnboarding = { step: returnStep, view: 'start' };
+    const fromOnboarding = { step: returnStep };
     if (opts.localOnly) fromOnboarding.showLocalModeBanner = true;
     store.setModal({
         type: 'sources',

@@ -6,7 +6,7 @@ export function ProfileToolsFooter({
     embedded: _embedded,
     onOpenBackup,
     onOpenPrivacy,
-    onLocalWipe,
+    onLocalWipe: _onLocalWipe,
     inline = false,
 }) {
     const { ui } = useIdentityAuth();
@@ -19,6 +19,22 @@ export function ProfileToolsFooter({
     const rootClass = inline
         ? 'profile-tools-inline profile-footer-group profile-footer-group--legal'
         : 'arborito-modal-footer arborito-modal-footer--blend profile-tools-footer profile-footer-group profile-footer-group--legal';
+
+    /* Guest register/login: privacy only — backup/wipe compete with the account form. */
+    if (!signedIn) {
+        return (
+            <div className={rootClass}>
+                <button type="button" id="btn-open-privacy" className={btnClass} onClick={onOpenPrivacy}>
+                    <span className="profile-action-btn__icon" aria-hidden="true">
+                        <ChromeEmoji emoji="📄" size={16} />
+                    </span>
+                    <span className="profile-action-btn__text">
+                        {ui.profilePrivacyAndDataButton || ui.syncPrivacyNote || 'Privacy'}
+                    </span>
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className={rootClass}>
@@ -38,21 +54,6 @@ export function ProfileToolsFooter({
                     {ui.profilePrivacyAndDataButton || ui.syncPrivacyNote || 'Privacy'}
                 </span>
             </button>
-            {!signedIn ? (
-                <button
-                    type="button"
-                    id="profile-local-wipe-btn"
-                    className={`${btnClass} profile-action-btn--danger`}
-                    onClick={onLocalWipe}
-                >
-                    <span className="profile-action-btn__icon" aria-hidden="true">
-                        <ChromeEmoji emoji="🗑️" size={16} />
-                    </span>
-                    <span className="profile-action-btn__text">
-                        {ui.profileLocalWipeButton || 'Wipe local data'}
-                    </span>
-                </button>
-            ) : null}
         </div>
     );
 }

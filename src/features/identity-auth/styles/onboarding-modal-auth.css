@@ -1,79 +1,4 @@
-/* --- onboarding-modal-auth — entry links, login, recovery, password --- */
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-entry-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.45rem;
-    align-self: center;
-    padding: 0.35rem 0.5rem;
-    border: none;
-    background: transparent;
-    color: var(--arborito-callout-blue-fg);
-    font-size: 0.78rem;
-    font-weight: 800;
-    cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-style: dotted;
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-entry-link:hover:not(:disabled) {
-    color: var(--arborito-theme-sheet-text);
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-entry-link:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-entry-link__ic {
-    font-size: 1rem;
-    line-height: 1;
-    text-decoration: none;
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-entry-skip {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-    margin-top: 0.35rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid var(--arborito-theme-onboarding-privacy-border);
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-entry-skip__btn {
-    padding: 0.2rem 0.35rem;
-    border: none;
-    background: transparent;
-    font-size: 0.72rem;
-    line-height: 1.35;
-    font-weight: 700;
-    color: var(--arborito-theme-muted-fg, rgba(148, 163, 184, 0.92));
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    cursor: pointer;
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-entry-skip__btn:hover:not(:disabled) {
-    color: var(--arborito-theme-fg, inherit);
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-entry-skip__btn:disabled {
-    opacity: 0.55;
-    cursor: default;
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-entry-skip__hint {
-    margin: 0;
-    max-width: 18rem;
-    font-size: 0.65rem;
-    line-height: 1.4;
-    font-weight: 600;
-    text-align: center;
-    color: var(--arborito-theme-eyebrow-fg);
-}
+/* --- onboarding-modal-auth — login, recovery, password --- */
 
 :is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-cta {
     width: 100%;
@@ -102,33 +27,15 @@
     box-shadow: none;
 }
 
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-cta--signin,
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-cta--accent {
+:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-cta--signin {
     background: linear-gradient(135deg, rgb(124 58 237), rgb(168 85 247));
     box-shadow: 0 6px 14px rgb(139 92 246 / 0.3);
 }
 
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-cta--signin:hover:not([disabled]),
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-cta--accent:hover:not([disabled]) {
+:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-cta--signin:hover:not([disabled]) {
     filter: brightness(1.05);
     transform: translateY(-1px);
     box-shadow: 0 10px 22px rgb(139 92 246 / 0.4);
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-cta--alt {
-    margin-top: 0;
-    background: color-mix(in srgb, var(--arborito-accent, #0ea5e9) 8%, transparent);
-    border: 1.5px solid color-mix(in srgb, var(--arborito-accent, #0ea5e9) 35%, var(--arborito-border, #cbd5e1));
-    color: inherit;
-    font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-cta--alt:hover:not([disabled]) {
-    background: color-mix(in srgb, var(--arborito-accent, #0ea5e9) 14%, transparent);
 }
 
 .login-forgot-row {
@@ -186,79 +93,6 @@
     cursor: not-allowed;
 }
 
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-alt-block {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    margin-top: 0.2rem;
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-alt-divider {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    color: var(--arborito-theme-eyebrow-fg);
-    text-transform: none;
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-alt-divider::before,
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-alt-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--arborito-theme-auth-alt-divider);
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-alt-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.55rem;
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-alt-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    min-height: 3rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.85rem;
-    border: 1.5px solid var(--arborito-theme-auth-card-border);
-    background: var(--arborito-theme-auth-card-bg);
-    color: var(--arborito-theme-sheet-text);
-    font-size: 0.85rem;
-    font-weight: 800;
-    cursor: pointer;
-    transition:
-        border-color 0.15s ease,
-        background 0.15s ease,
-        transform 0.12s ease,
-        box-shadow 0.18s ease;
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-alt-btn:hover {
-    border-color: var(--arborito-theme-auth-alt-hover-border);
-    background: var(--arborito-theme-auth-alt-hover-bg);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 14px rgb(16 185 129 / 0.15);
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-alt-btn:active {
-    transform: translateY(0);
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-alt-btn__ic {
-    font-size: 1.15rem;
-    line-height: 1;
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-alt-btn__label {
-    line-height: 1.1;
-}
-
 :is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-chip {
     display: inline-flex;
     align-items: center;
@@ -290,57 +124,6 @@
 :is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-chip--recovery:hover {
     border-color: color-mix(in srgb, #ef4444 65%, var(--arborito-theme-border-muted));
     background: color-mix(in srgb, #ef4444 14%, var(--arborito-theme-auth-chip-hover-bg));
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-registered-title {
-    margin: 0;
-    font-size: 1.05rem;
-    font-weight: 900;
-    color: var(--arborito-theme-auth-registered-title-fg);
-    text-align: center;
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-registered-sub {
-    margin: 0;
-    font-size: 0.75rem;
-    line-height: 1.5;
-    color: var(--arborito-theme-auth-body-fg);
-    text-align: center;
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-cred {
-    padding: 0.55rem 0.75rem;
-    border-radius: 0.65rem;
-    border: 1px solid var(--arborito-theme-auth-cred-border);
-    background: var(--arborito-theme-auth-cred-bg);
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-cred__label {
-    margin: 0 0 0.15rem;
-    font-size: 0.6rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--arborito-theme-eyebrow-fg);
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-cred__value {
-    margin: 0;
-    font-size: 0.85rem;
-    font-weight: 800;
-    color: var(--arborito-theme-sheet-text);
-    word-break: break-all;
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-cred__value--mono {
-    font-family: var(--font-family-mono);
-    letter-spacing: 0.04em;
-}
-
-:is(.arborito-modal--onboarding, .arborito-auth-surface) .arborito-onb-cred-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
 }
 
 .login-recovery-card {

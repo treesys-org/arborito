@@ -62,7 +62,6 @@ export function ModalSyncLoginQrScanner() {
             const hint = typeof fromOnb === 'object' ? fromOnb : {};
             const payload = { type: 'onboarding' };
             if (Number(hint.step) === 2) payload.step = 2;
-            if (hint.view) payload.view = hint.view;
             setModal(payload);
             return;
         }

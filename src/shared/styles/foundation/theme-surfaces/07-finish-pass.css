@@ -64,7 +64,6 @@
         --arborito-theme-auth-chip-border: rgb(226 232 240);
         --arborito-theme-auth-chip-hover-bg: rgb(241 245 249);
         --arborito-theme-auth-chevron-fg: rgb(148 163 184);
-        --arborito-theme-auth-chevron-hover-fg: rgb(51 65 85);
         --arborito-theme-auth-dot-idle: rgb(203 213 225);
         --arborito-theme-profile-sheet-bg: rgb(255 255 255 / 0.92);
         --arborito-theme-profile-sheet-border: rgb(226 232 240 / 0.9);
@@ -81,13 +80,6 @@
         --arborito-theme-onboarding-tagline-fg: rgb(6 95 70);
         --arborito-theme-onboarding-tagline-bg: rgb(209 250 229 / 0.85);
         --arborito-theme-onboarding-tagline-border: rgb(167 243 208);
-        --arborito-theme-onb-choice-primary-bg: rgb(209 250 229);
-        --arborito-theme-onb-choice-primary-fg: rgb(6 78 59);
-        --arborito-theme-onb-choice-accent-bg: rgb(237 233 254);
-        --arborito-theme-onb-choice-accent-fg: rgb(76 29 149);
-        --arborito-theme-onb-choice-ghost-bg: rgb(241 245 249);
-        --arborito-theme-onb-choice-ghost-fg: rgb(51 65 85);
-        --arborito-theme-onb-globe-slash-ring: rgb(241 245 249);
         --arborito-theme-sync-tabs-bg: rgb(241 245 249);
         --arborito-theme-sync-tabs-mobile-bg: rgb(241 245 249);
         --arborito-theme-auth-stat-chip-bg: rgb(255 255 255 / 0.72);
@@ -113,15 +105,10 @@
         --arborito-theme-auth-switch-bg: rgb(203 213 225);
         --arborito-theme-auth-switch-knob: rgb(255 255 255);
         --arborito-theme-auth-switch-on: rgb(16 185 129);
-        --arborito-theme-auth-registered-title-fg: rgb(6 78 59);
-        --arborito-theme-auth-cred-bg: rgb(248 250 252);
-        --arborito-theme-auth-cred-border: rgb(226 232 240);
         --arborito-theme-auth-qr-bg: rgb(255 255 255);
         --arborito-theme-auth-qr-border: rgb(226 232 240);
         --arborito-theme-auth-lang-fg: rgb(6 78 59);
         --arborito-theme-auth-lang-hover-shadow: 0 10px 22px rgb(15 23 42 / 0.08);
-        --arborito-theme-auth-choice-hover-shadow: 0 10px 24px rgb(15 23 42 / 0.1);
-        --arborito-theme-auth-alt-divider: rgb(226 232 240);
         --arborito-theme-sources-active-pin-background: linear-gradient(
     145deg,
     rgba(209, 250, 229, 0.72) 0%,
@@ -263,7 +250,6 @@ html.dark {
         --arborito-theme-auth-chip-border: rgb(51 65 85);
         --arborito-theme-auth-chip-hover-bg: rgb(51 65 85 / 0.7);
         --arborito-theme-auth-chevron-fg: rgb(100 116 139);
-        --arborito-theme-auth-chevron-hover-fg: rgb(203 213 225);
         --arborito-theme-auth-dot-idle: rgb(51 65 85);
         --arborito-theme-profile-sheet-bg: rgb(15 23 42 / 0.55);
         --arborito-theme-profile-sheet-border: rgb(51 65 85 / 0.9);
@@ -280,13 +266,6 @@ html.dark {
         --arborito-theme-onboarding-tagline-fg: rgb(167 243 208);
         --arborito-theme-onboarding-tagline-bg: rgb(6 78 59 / 0.35);
         --arborito-theme-onboarding-tagline-border: rgb(52 211 153 / 0.35);
-        --arborito-theme-onb-choice-primary-bg: rgb(6 78 59 / 0.55);
-        --arborito-theme-onb-choice-primary-fg: rgb(209 250 229);
-        --arborito-theme-onb-choice-accent-bg: rgb(76 29 149 / 0.55);
-        --arborito-theme-onb-choice-accent-fg: rgb(237 233 254);
-        --arborito-theme-onb-choice-ghost-bg: rgb(30 41 59 / 0.7);
-        --arborito-theme-onb-choice-ghost-fg: rgb(203 213 225);
-        --arborito-theme-onb-globe-slash-ring: rgb(30 41 59);
         --arborito-theme-sync-tabs-bg: rgb(255 255 255 / 0.06);
         --arborito-theme-sync-tabs-mobile-bg: rgb(0 0 0 / 0.18);
         --arborito-theme-auth-stat-chip-bg: rgb(255 255 255 / 0.06);
@@ -312,15 +291,10 @@ html.dark {
         --arborito-theme-auth-switch-bg: rgb(71 85 105);
         --arborito-theme-auth-switch-knob: rgb(255 255 255);
         --arborito-theme-auth-switch-on: rgb(52 211 153);
-        --arborito-theme-auth-registered-title-fg: rgb(167 243 208);
-        --arborito-theme-auth-cred-bg: rgb(15 23 42 / 0.55);
-        --arborito-theme-auth-cred-border: rgb(51 65 85);
         --arborito-theme-auth-qr-bg: rgb(15 23 42 / 0.55);
         --arborito-theme-auth-qr-border: rgb(51 65 85);
         --arborito-theme-auth-lang-fg: rgb(209 250 229);
         --arborito-theme-auth-lang-hover-shadow: 0 10px 22px rgb(0 0 0 / 0.25);
-        --arborito-theme-auth-choice-hover-shadow: 0 10px 24px rgb(0 0 0 / 0.25);
-        --arborito-theme-auth-alt-divider: rgb(51 65 85);
         --arborito-theme-sources-active-pin-background: rgba(15, 23, 42, 0.55);
         --arborito-theme-sources-active-pin-border-color: rgba(52, 211, 153, 0.22);
         --arborito-theme-sources-active-pin-box-shadow: none;

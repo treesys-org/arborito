@@ -2,7 +2,7 @@ import { hasGdprNetworkConsent } from './connected-services/index.js';
 
 const ONBOARDING_SEEN_KEY = 'arborito-onboarding-seen-v1';
 
-/** Wizard not finished yet (step 2/3 still pending), stays true after GDPR accept. */
+/** Wizard not finished yet (welcome / sign-in still pending). */
 export function isOnboardingWizardIncomplete() {
     try {
         return localStorage.getItem(ONBOARDING_SEEN_KEY) !== 'true';
@@ -21,10 +21,10 @@ export function reopenOnboardingWizard() {
 }
 
 /**
- * Build `{ type: 'onboarding', step?, view? }` from a `fromOnboarding` hint.
+ * Build `{ type: 'onboarding', step? }` from a `fromOnboarding` hint.
  * Clears the “seen” flag so OnboardingModal does not bounce straight back to Forest.
  * @param {unknown} fromOnboarding
- * @returns {{ type: 'onboarding', step?: number, view?: string }}
+ * @returns {{ type: 'onboarding', step?: number }}
  */
 export function onboardingModalFromSourcesHint(fromOnboarding) {
     reopenOnboardingWizard();
@@ -32,7 +32,6 @@ export function onboardingModalFromSourcesHint(fromOnboarding) {
     const payload = { type: 'onboarding' };
     const returnStep = Number(hint.step);
     if (returnStep === 1 || returnStep === 2) payload.step = returnStep;
-    if (hint.view) payload.view = hint.view;
     return payload;
 }
 

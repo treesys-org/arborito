@@ -1,7 +1,5 @@
-import { useState } from 'react';
 import { useIdentityAuth } from '../hooks/useIdentityAuth.js';
 import { LoadingBrandRing } from '../../../shared/ui/Loading.jsx';
-import { LoginRecoverySetupCard } from '../components/LoginRecoverySetupCard.jsx';
 import { LoginPasswordField } from '../components/LoginPasswordField.jsx';
 import { LoginPasswordRecoveryLinks } from '../components/LoginAuthExtras.jsx';
 import { ProfileLoginMethodTabs } from '../components/ProfileLoginMethodTabs.jsx';
@@ -13,6 +11,20 @@ function BusyBanner({ label }) {
             <LoadingBrandRing size="sm" />
             <span className="arborito-onb-busy-banner__text">{label}</span>
         </p>
+    );
+}
+
+export function OnboardingStep2Hero() {
+    const { ui } = useIdentityAuth();
+    const title = ui.onboardingSessionTitle || 'Sign in';
+    const subtitle =
+        ui.onboardingSessionSubtitle || 'Use your online account to sync progress across devices.';
+
+    return (
+        <div className="arborito-onboarding-hero arborito-onboarding-hero--step2">
+            <h2 className="arborito-onb-step-title">{title}</h2>
+            <p className="arborito-onb-step-subtitle">{subtitle}</p>
+        </div>
     );
 }
 
@@ -120,61 +132,5 @@ export function OnboardingSignInLogin({
                 </button>
             </div>
         </>
-    );
-}
-
-export function OnboardingSignInRegistered({
-    registerResult,
-    guardActive,
-    secretSaved,
-    onDownload,
-    onSetupRecovery,
-    onFinish,
-}) {
-    const { ui } = useIdentityAuth();
-    const [recoverySetupOn, setRecoverySetupOn] = useState(false);
-    const r = registerResult || { username: '' };
-    const title = ui.onboardingRegisteredTitle || 'Account created!';
-    const subtitle =
-        ui.onboardingRegisteredPasswordSubtitle ||
-        'Your password is ready. Export a sync key or set a recovery phrase. You can also do this later in Profile.';
-    const userLbl = ui.onboardingRegisteredUsernameLabel || 'Username';
-    const finishLbl = ui.onboardingContinue || 'Continue';
-    const finishWaitLbl = ui.onboardingPleaseWait || 'Please wait a moment…';
-
-    return (
-        <div className="arborito-onb-form arborito-onb-form--registered">
-            <p className="arborito-onb-registered-title">{title}</p>
-            <p className="arborito-onb-registered-sub">{subtitle}</p>
-            <div className="arborito-onb-cred">
-                <p className="arborito-onb-cred__label">{userLbl}</p>
-                <p className="arborito-onb-cred__value">{r.username}</p>
-            </div>
-            <LoginRecoverySetupCard
-                ui={ui}
-                enabled={recoverySetupOn}
-                onEnabledChange={setRecoverySetupOn}
-                onDownloadBackup={onDownload}
-                onSetupRecovery={onSetupRecovery}
-            />
-            {secretSaved ? (
-                <p className="login-recovery-card__saved" role="status" aria-live="polite">
-                    ✓ {ui.onboardingRegisteredRecoverySavedHint || 'Backup saved. You can continue.'}
-                </p>
-            ) : null}
-            <button
-                type="button"
-                className="arborito-onb-cta"
-                disabled={guardActive}
-                aria-disabled={guardActive ? 'true' : undefined}
-                onClick={onFinish}
-            >
-                {guardActive
-                    ? finishWaitLbl
-                    : !secretSaved
-                      ? ui.loginRecoverySkipCta || 'Continue without backup'
-                      : finishLbl}
-            </button>
-        </div>
     );
 }

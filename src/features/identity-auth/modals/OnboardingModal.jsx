@@ -8,25 +8,17 @@ import {
     hasGdprNetworkConsent,
     grantGdprNetworkConsent,
 } from '../../../shared/lib/connected-services/index.js';
-import { normalizeUsername } from '../api/sync-login-secret.js';
 import { humanizeAuthError } from '../api/sync-login-error-humanize.js';
-import {
-    scheduleUsernameAvailabilityCheck,
-    fetchUsernameAvailability,
-} from '../api/sync-login-username-availability.js';
-import { suggestUsernamesFor } from '../api/sync-login-username-suggest.js';
 import { runAfterPaint, scheduleIdle } from '../../../shared/lib/yield-to-paint.js';
 import { OnboardingWelcome } from './OnboardingWelcome.jsx';
 import { pickOnboardingLanguage } from '../hooks/useIdentityAuth.js';
-import { OnboardingAccountEntry, OnboardingStep2Hero } from './OnboardingChoose.jsx';
-import { OnboardingSignInLogin, OnboardingSignInRegistered } from './OnboardingSignIn.jsx';
+import { OnboardingSignInLogin, OnboardingStep2Hero } from './OnboardingSignIn.jsx';
 import { completeOnboardingWizard } from '../api/onboarding-complete.js';
 import { prewarmForestNetworkIndices } from '../api/prewarm-forest-network.js';
 import { ensureModalChunk } from '../../../app/modal-chunk-loaders.js';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import { isOnboardingWizardIncomplete } from '../../../shared/lib/onboarding-boot-gate.js';
 import { persistUserNostrRelays, SUGGESTED_NOSTR_RELAYS } from '../../nostr/api/nostr-relays-runtime.js';
-import { armRegisterLocalBranchSync, disarmRegisterLocalBranchSync } from '../api/register-sync-local.js';
 
 const TOTAL_STEPS = 2;
 
@@ -39,37 +31,17 @@ function modalHasExplicitOnboardingStep(modal) {
 
 function readInitialOnboardingState(modal) {
     let step = 1;
-    let sessionView = 'start';
     try {
         const m = modal;
         if (m && typeof m === 'object' && Number(m.step) === 2) {
             step = 2;
-            const v = m.view;
-            if (v === 'login' || v === 'registered') {
-                sessionView = v;
-            } else if (v === 'register' || v === 'choose') {
-                sessionView = 'start';
-            }
         } else if (m && typeof m === 'object' && Number(m.step) === 1) {
             step = 1;
         }
     } catch {
         /* ignore */
     }
-    return { step, sessionView };
-}
-
-/** Rebuild post-register screen after leaving for recovery / QR (modal remount loses local state). */
-function registerResultFromAuthSession(sess) {
-    const username = String(sess?.username || '').trim();
-    if (!username) return null;
-    return {
-        username,
-        plainSecret: String(sess?.syncSecretPlain || '').trim(),
-        qrDataUrl: String(sess?.syncQrDataUrl || '').trim(),
-        credentialKind: sess?.credentialKind,
-        recoveryKeyPlain: String(sess?.recoveryKeyPlain || '').trim(),
-    };
+    return { step };
 }
 
 function OnboardingNavbar({ ui, step, theme, canGoBack, onBack, onToggleTheme }) {
@@ -129,67 +101,32 @@ export function ModalOnboarding() {
     const auth = useIdentityAuth();
     const {
         ui,
-        dismissModal,
         setModal,
-        notify,
         lang,
         theme,
         toggleTheme,
-        gamification,
         modal,
-        authSession,
         identityActions,
         isSignedIn,
-        userStore,
         warmNostrRelays,
     } = auth;
 
-    const {
-        loadLanguage,
-        signInWithSyncSecret,
-        registerSyncLoginAccount,
-        updateUserProfile,
-        grantNetworkSocialConsent,
-        downloadRecoveryKitFile,
-    } = identityActions;
+    const { loadLanguage, signInWithSyncSecret } = identityActions;
 
     const initial = useRef(readInitialOnboardingState(auth.modal));
     const [step, setStep] = useState(initial.current.step);
-    const [sessionView, setSessionView] = useState(initial.current.sessionView);
-    const [sessionUsername, setSessionUsername] = useState(() =>
-        initial.current.sessionView === 'registered'
-            ? String(auth.authSession?.username || '').trim()
-            : ''
-    );
+    const [sessionUsername, setSessionUsername] = useState('');
     const [sessionSecret, setSessionSecret] = useState('');
-    const [registerPassword, setRegisterPassword] = useState('');
-    const [registerPasswordConfirm, setRegisterPasswordConfirm] = useState('');
-    const [registerResult, setRegisterResult] = useState(() =>
-        initial.current.sessionView === 'registered'
-            ? registerResultFromAuthSession(auth.authSession)
-            : null
-    );
-    const [secretSaved, setSecretSaved] = useState(
-        () => !!(auth.modal && typeof auth.modal === 'object' && auth.modal.secretSaved)
-    );
     const [busy, setBusy] = useState(false);
-    const [checkingUsername, setCheckingUsername] = useState(false);
     const [stepAdvancing, setStepAdvancing] = useState(false);
     const [error, setError] = useState('');
     const [loginInfo, setLoginInfo] = useState('');
     const [loginMethod, setLoginMethod] = useState('password');
-    const [usernameSuggestions, setUsernameSuggestions] = useState([]);
     const completedRef = useRef(false);
-    const confirmingFinishRef = useRef(false);
-    const finishTapGuardUntilRef = useRef(0);
-    const [, bumpGuard] = useState(0);
-    const suggestHostRef = useRef({ _suggestTimer: null });
     const shellPaintedRef = useRef(false);
 
     const mobile = shouldShowMobileUI();
-    const sessionBusy = busy || checkingUsername;
-    const canGoBack = step !== 1 && sessionView !== 'registered' && !sessionBusy;
-    const guardActive = Date.now() < (finishTapGuardUntilRef.current || 0);
+    const canGoBack = step !== 1 && !busy;
 
     useEffect(() => {
         if (!modal || modal.type !== 'onboarding') return;
@@ -197,71 +134,36 @@ export function ModalOnboarding() {
             setModal({
                 type: 'sources',
                 instantOpen: true,
-                fromOnboarding: { step: 2, view: 'start' },
+                fromOnboarding: { step: 2 },
             });
             return;
         }
         /*
-         * Only apply step/view when the modal payload *explicitly* carries them
+         * Only apply step when the modal payload *explicitly* carries it
          * (return from privacy / recovery / QR, or cold-start step 2). A bare
-         * `{ type: 'onboarding' }` must not reset local step — authSession
-         * updates mid-register used to re-run this effect and drop the user
-         * back to the language picker after a slow create-account.
+         * `{ type: 'onboarding' }` must not reset local step.
          *
-         * While register/sign-in is in flight, skip navigation sync: the auth
-         * session is committed before the UI moves to "registered".
+         * While sign-in is in flight, skip navigation sync.
          */
         const explicit = modalHasExplicitOnboardingStep(modal);
         const next = readInitialOnboardingState(modal);
         if (explicit && !busy) {
             setStep(next.step);
-            setSessionView(next.sessionView);
             if (next.step < 2) {
                 completedRef.current = false;
                 setStepAdvancing(false);
             }
         }
-        if (modal.secretSaved) setSecretSaved(true);
-        if (explicit && next.sessionView === 'registered') {
-            const hydrated = registerResultFromAuthSession(authSession);
-            if (hydrated) {
-                setRegisterResult((prev) => {
-                    if (prev?.username && prev?.plainSecret) return prev;
-                    return { ...hydrated, ...(prev?.qrDataUrl ? { qrDataUrl: prev.qrDataUrl } : {}) };
-                });
-                setSessionUsername((prev) => prev || hydrated.username);
-            }
-        }
-    }, [modal, authSession, setModal, busy]);
+    }, [modal, setModal, busy]);
 
     useEffect(() => {
-        if (sessionView !== 'registered') return;
-        const qr = String(auth.authSession?.syncQrDataUrl || '').trim();
-        const rk = String(auth.authSession?.recoveryKeyPlain || '').trim();
-        if (!qr && !rk) return;
-        setRegisterResult((prev) => {
-            if (!prev?.username) return prev;
-            let next = prev;
-            if (qr && !prev.qrDataUrl) next = { ...next, qrDataUrl: qr };
-            if (rk && !prev.recoveryKeyPlain) next = { ...next, recoveryKeyPlain: rk };
-            return next;
-        });
-    }, [auth.authSession?.syncQrDataUrl, auth.authSession?.recoveryKeyPlain, sessionView]);
-
-    useEffect(() => {
-        if (step !== 2 || sessionView !== 'start') return;
+        if (step !== 2) return;
         try {
             void warmNostrRelays?.({ timeoutMs: 8_000, perRelayMs: 3_000, probe: true });
         } catch {
             /* ignore */
         }
-    }, [step, sessionView, warmNostrRelays]);
-
-    useEffect(() => {
-        const onRecoverySetup = () => setSecretSaved(true);
-        window.addEventListener('arborito-onboarding-recovery-setup', onRecoverySetup);
-        return () => window.removeEventListener('arborito-onboarding-recovery-setup', onRecoverySetup);
-    }, []);
+    }, [step, warmNostrRelays]);
 
     useEffect(() => {
         if (step === 1) void ensureModalChunk('sources');
@@ -281,12 +183,10 @@ export function ModalOnboarding() {
 
     useEffect(() => {
         if (step !== 2) return;
-        /* Registered screen must stay visible (sync key / recovery setup). */
-        if (sessionView === 'registered' || sessionView === 'start') return;
         if (!(typeof isSignedIn === 'function' ? isSignedIn() : false)) return;
         if (completedRef.current) return;
         complete();
-    }, [step, sessionView, isSignedIn, complete]);
+    }, [step, isSignedIn, complete]);
 
     const goToStep = useCallback(
         (n) => {
@@ -301,25 +201,10 @@ export function ModalOnboarding() {
         [busy, setModal]
     );
 
-    const setSessionViewSafe = useCallback(
-        (view) => {
-            if (sessionBusy) return;
-            setSessionView(view);
-            setError('');
-            setLoginInfo('');
-            setModal({ type: 'onboarding', step: 2, view });
-        },
-        [sessionBusy, setModal]
-    );
-
     const navBack = useCallback(() => {
-        if (sessionBusy) return;
-        if (step === 2 && sessionView !== 'start') {
-            setSessionViewSafe('start');
-            return;
-        }
+        if (busy) return;
         if (step === 2) goToStep(1);
-    }, [sessionBusy, step, sessionView, setSessionViewSafe, goToStep]);
+    }, [busy, step, goToStep]);
 
     const openSubModalAndReturn = useCallback((payload) => {
         if (busy) return;
@@ -331,7 +216,7 @@ export function ModalOnboarding() {
         setStepAdvancing(true);
         persistUserNostrRelays(SUGGESTED_NOSTR_RELAYS);
         if (!hasGdprNetworkConsent()) grantGdprNetworkConsent();
-        /* Warm relays + directory indices ASAP — never await (login/register must stay free). */
+        /* Warm relays + directory indices ASAP — never await (login must stay free). */
         prewarmForestNetworkIndices();
         void loadLanguage(lang);
         completedRef.current = true;
@@ -339,26 +224,6 @@ export function ModalOnboarding() {
             completeOnboardingWizard({ setModal }, { guest: true, returnStep: 1 });
         });
     }, [stepAdvancing, busy, loadLanguage, lang, setModal]);
-
-    const scheduleUsernameCheck = useCallback(() => {
-        scheduleUsernameAvailabilityCheck(suggestHostRef.current, {
-            getRaw: () => sessionUsername,
-            onRun: async (raw) => {
-                if (!raw) {
-                    setUsernameSuggestions([]);
-                    return;
-                }
-                const result = await fetchUsernameAvailability(raw);
-                if (!result) return;
-                if (String(sessionUsername || '').trim() !== result.target) return;
-                setUsernameSuggestions(result.taken ? result.suggestions : []);
-            },
-        });
-    }, [sessionUsername]);
-
-    useEffect(() => {
-        if (sessionView === 'start') scheduleUsernameCheck();
-    }, [sessionUsername, sessionView, scheduleUsernameCheck]);
 
     useEffect(() => {
         if (step === 1 && !shellPaintedRef.current) {
@@ -369,15 +234,6 @@ export function ModalOnboarding() {
             scheduleIdle(() => void loadLanguage(lang), 120);
         }
     }, [step]);
-
-    useEffect(
-        () => () => {
-            if (suggestHostRef.current._suggestTimer) {
-                clearTimeout(suggestHostRef.current._suggestTimer);
-            }
-        },
-        []
-    );
 
     const doLogin = async () => {
         if (busy) return;
@@ -398,253 +254,99 @@ export function ModalOnboarding() {
         }
     };
 
-    const doRegister = async (rawUsername) => {
-        if (busy || checkingUsername) return;
-        const u = String(rawUsername ?? sessionUsername ?? '').trim();
-        if (!u) {
-            setError(ui.authUsernameRequired || 'Enter a username first.');
-            return;
-        }
-        setBusy(true);
-        setError('');
-        try {
-            const g = gamification || {};
-            const norm = normalizeUsername(u);
-            if (norm && norm !== normalizeUsername(g.username)) {
-                updateUserProfile(norm, g.avatar || '👤');
-            }
-            grantNetworkSocialConsent?.();
-            /* Silent default: keep local courses on the account; opt-out lives in Profile. */
-            armRegisterLocalBranchSync(userStore);
-            const res = await registerSyncLoginAccount(norm || u, {
-                credentialKind: 'password',
-                password: registerPassword,
-                passwordConfirm: registerPasswordConfirm,
-            });
-            setRegisterResult(res || null);
-            setSecretSaved(false);
-            setSessionView('registered');
-            setStep(2);
-            setModal({ type: 'onboarding', step: 2, view: 'registered' });
-            finishTapGuardUntilRef.current = Date.now() + 1600;
-            setTimeout(() => bumpGuard((n) => n + 1), 1650);
-        } catch (e) {
-            disarmRegisterLocalBranchSync();
-            const msg = humanizeAuthError(e, ui);
-            setError(msg);
-            const low = String(msg || '').toLowerCase();
-            if (low.includes('ya está') || low.includes('ya esta') || low.includes('already')) {
-                try {
-                    setUsernameSuggestions(await suggestUsernamesFor(u));
-                } catch {
-                    /* ignore */
-                }
-            }
-        } finally {
-            setBusy(false);
-        }
-    };
-
-    const continueFromStart = async () => {
-        if (sessionBusy) return false;
-        const u = String(sessionUsername || '').trim();
-        if (!u) {
-            setError(ui.authUsernameRequired || 'Enter a username first.');
-            return false;
-        }
-        setCheckingUsername(true);
-        setError('');
-        try {
-            const result = await fetchUsernameAvailability(u);
-            if (result?.taken) {
-                setUsernameSuggestions(result.suggestions || []);
-                setError(
-                    ui.syncLoginUsernameTaken ||
-                        'That username is already taken. Pick another or sign in from the Sign in tab.'
-                );
-                return false;
-            }
-            return true;
-        } finally {
-            setCheckingUsername(false);
-        }
-    };
-
-    const registerFromPasswordStep = async () => {
-        const u = String(sessionUsername || '').trim();
-        if (!u) {
-            setError(ui.authUsernameRequired || 'Enter a username first.');
-            return;
-        }
-        await doRegister(u);
-    };
-
-    const confirmAndCompleteFromRegistered = async () => {
-        if (completedRef.current || confirmingFinishRef.current) return;
-        if (Date.now() < (finishTapGuardUntilRef.current || 0)) return;
-        confirmingFinishRef.current = true;
-        try {
-            complete();
-        } finally {
-            confirmingFinishRef.current = false;
-        }
-    };
-
-    let step2Panel;
-    if (sessionView === 'login') {
-        step2Panel = (
-            <>
-                <OnboardingSignInLogin
-                    username={sessionUsername}
-                    secret={sessionSecret}
-                    busy={busy}
-                    error={error}
-                    info={loginInfo}
-                    loginMethod={loginMethod}
-                    onLoginMethodChange={(method) => {
-                        setLoginMethod(method);
-                        if (error) setError('');
-                    }}
-                    onUsernameChange={(v) => {
-                        setSessionUsername(v);
-                        if (error) setError('');
-                        if (loginInfo) setLoginInfo('');
-                    }}
-                    onSecretChange={(v) => {
-                        setSessionSecret(v);
-                        if (error) setError('');
-                    }}
-                    onSubmit={() => void doLogin()}
-                    onOpenQr={() =>
-                        setModal({
-                            type: 'sync-login-qr-scanner',
-                            fromOnboarding: { step: 2, view: 'login' },
-                        })
-                    }
-                    onOpenRecover={() =>
-                        setModal({
-                            type: 'account-recovery',
-                            mode: 'recover',
-                            prefillUsername: String(sessionUsername || '').trim(),
-                            fromOnboarding: { step: 2, view: 'login' },
-                        })
-                    }
-                />
-            </>
-        );
-    } else if (sessionView === 'registered') {
-        step2Panel = (
-            <OnboardingSignInRegistered
-                registerResult={registerResult}
-                guardActive={guardActive}
-                secretSaved={secretSaved}
-                onDownload={async () => {
-                    const r = registerResult;
-                    if (!r?.plainSecret || !r.recoveryKeyPlain) return;
-                    try {
-                        await downloadRecoveryKitFile(r.username, r.plainSecret, r.recoveryKeyPlain);
-                        setSecretSaved(true);
-                    } catch (e) {
-                        setError(String(e?.message || e));
-                    }
-                }}
-                onSetupRecovery={() => {
-                    const r = registerResult;
-                    if (!r) return;
-                    setModal({
-                        type: 'account-recovery',
-                        mode: 'setup',
-                        fromOnboarding: { step: 2, view: 'registered' },
-                    });
-                }}
-                onFinish={() => void confirmAndCompleteFromRegistered()}
-            />
-        );
-    } else {
-        step2Panel = (
-            <OnboardingAccountEntry
-                username={sessionUsername}
-                busy={busy}
-                checking={checkingUsername}
-                error={error}
-                suggestions={usernameSuggestions}
-                password={registerPassword}
-                passwordConfirm={registerPasswordConfirm}
-                onUsernameChange={(v) => {
-                    setSessionUsername(v);
-                    if (error) setError('');
-                }}
-                onPasswordChange={setRegisterPassword}
-                onPasswordConfirmChange={setRegisterPasswordConfirm}
-                onUsernameContinue={continueFromStart}
-                onRegister={() => void registerFromPasswordStep()}
-                onSignIn={() => setSessionViewSafe('login')}
-                onPickSuggestion={(name) => {
-                    setSessionUsername(name);
-                    setUsernameSuggestions([]);
-                    setError('');
-                }}
-            />
-        );
-    }
-
     const onboardingInner = (
         <>
-                <OnboardingNavbar
-                    ui={ui}
-                    step={step}
-                    theme={theme}
-                    canGoBack={canGoBack}
-                    onBack={navBack}
-                    onToggleTheme={() => toggleTheme()}
-                />
-                <div
-                    className={`arborito-onboarding-inner flex flex-col${step === 1 ? ' arborito-onboarding-inner--step1' : ' arborito-onboarding-inner--step2'}`}
-                >
-                    {step === 1 ? (
-                        <OnboardingWelcome
-                            lang={lang}
-                            stepAdvancing={stepAdvancing}
-                            onPickLanguage={(code) => void pickOnboardingLanguage(code)}
-                            onAcceptAndContinue={acceptAndAdvance}
-                            onAccountIntent={() => {
-                                if (stepAdvancing || busy) return;
-                                persistUserNostrRelays(SUGGESTED_NOSTR_RELAYS);
-                                if (!hasGdprNetworkConsent()) grantGdprNetworkConsent();
-                                /* Prewarm while user fills login — do not await. */
-                                prewarmForestNetworkIndices();
-                                setError('');
-                                setSessionView('login');
-                                setStep(2);
-                                setModal({ type: 'onboarding', step: 2, view: 'login' });
-                            }}
-                            onOpenPrivacy={() =>
-                                openSubModalAndReturn({
-                                    type: 'privacy',
-                                    readonly: true,
-                                    fromOnboarding: { step: 1 },
-                                })
-                            }
-                            onOpenAccessibility={() =>
-                                openSubModalAndReturn({
-                                    type: 'accessibility-prefs',
-                                    fromOnboarding: { step: 1 },
-                                })
-                            }
-                            onOpenDownload={() =>
-                                openSubModalAndReturn({
-                                    type: 'download-app',
-                                    fromOnboarding: { step: 1 },
-                                })
-                            }
-                        />
-                    ) : (
-                        <>
-                            {sessionView !== 'registered' ? <OnboardingStep2Hero /> : null}
-                            <div className="arborito-onb-session-panel">{step2Panel}</div>
-                        </>
-                    )}
-                </div>
+            <OnboardingNavbar
+                ui={ui}
+                step={step}
+                theme={theme}
+                canGoBack={canGoBack}
+                onBack={navBack}
+                onToggleTheme={() => toggleTheme()}
+            />
+            <div
+                className={`arborito-onboarding-inner flex flex-col${step === 1 ? ' arborito-onboarding-inner--step1' : ' arborito-onboarding-inner--step2'}`}
+            >
+                {step === 1 ? (
+                    <OnboardingWelcome
+                        lang={lang}
+                        stepAdvancing={stepAdvancing}
+                        onPickLanguage={(code) => void pickOnboardingLanguage(code)}
+                        onAcceptAndContinue={acceptAndAdvance}
+                        onAccountIntent={() => {
+                            if (stepAdvancing || busy) return;
+                            persistUserNostrRelays(SUGGESTED_NOSTR_RELAYS);
+                            if (!hasGdprNetworkConsent()) grantGdprNetworkConsent();
+                            /* Prewarm while user fills login — do not await. */
+                            prewarmForestNetworkIndices();
+                            setError('');
+                            setStep(2);
+                            setModal({ type: 'onboarding', step: 2 });
+                        }}
+                        onOpenPrivacy={() =>
+                            openSubModalAndReturn({
+                                type: 'privacy',
+                                readonly: true,
+                                fromOnboarding: { step: 1 },
+                            })
+                        }
+                        onOpenAccessibility={() =>
+                            openSubModalAndReturn({
+                                type: 'accessibility-prefs',
+                                fromOnboarding: { step: 1 },
+                            })
+                        }
+                        onOpenDownload={() =>
+                            openSubModalAndReturn({
+                                type: 'download-app',
+                                fromOnboarding: { step: 1 },
+                            })
+                        }
+                    />
+                ) : (
+                    <>
+                        <OnboardingStep2Hero />
+                        <div className="arborito-onb-session-panel">
+                            <OnboardingSignInLogin
+                                username={sessionUsername}
+                                secret={sessionSecret}
+                                busy={busy}
+                                error={error}
+                                info={loginInfo}
+                                loginMethod={loginMethod}
+                                onLoginMethodChange={(method) => {
+                                    setLoginMethod(method);
+                                    if (error) setError('');
+                                }}
+                                onUsernameChange={(v) => {
+                                    setSessionUsername(v);
+                                    if (error) setError('');
+                                    if (loginInfo) setLoginInfo('');
+                                }}
+                                onSecretChange={(v) => {
+                                    setSessionSecret(v);
+                                    if (error) setError('');
+                                }}
+                                onSubmit={() => void doLogin()}
+                                onOpenQr={() =>
+                                    setModal({
+                                        type: 'sync-login-qr-scanner',
+                                        fromOnboarding: { step: 2 },
+                                    })
+                                }
+                                onOpenRecover={() =>
+                                    setModal({
+                                        type: 'account-recovery',
+                                        mode: 'recover',
+                                        prefillUsername: String(sessionUsername || '').trim(),
+                                        fromOnboarding: { step: 2 },
+                                    })
+                                }
+                            />
+                        </div>
+                    </>
+                )}
+            </div>
         </>
     );
 

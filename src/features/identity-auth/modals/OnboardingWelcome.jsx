@@ -30,7 +30,7 @@ export function OnboardingWelcome({
         ui.onboardingJustExploreCta || ui.onboardingLaterCta || 'Choose what to study'
     ).trim();
     const accountLbl = String(
-        ui.onboardingAccountEntryLink || 'Already have an account? Sign in'
+        ui.onboardingAccountEntryLink || 'Sign in'
     ).trim();
     const a11yLbl = String(ui.onboardingAccessibilityButton || ui.a11yPrefsTitle || 'Accessibility').trim();
     const appLinkLbl = String(
