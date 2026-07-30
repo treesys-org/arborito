@@ -94,7 +94,7 @@ export function ModalSources({ embed = false }) {
                             globalDirMetrics={sources.globalDirMetrics}
                             globalDirLoading={sources.globalDirLoading}
                             globalDirError={sources.globalDirError}
-                            globalDirUiTruncated={sources.globalDirUiTruncated}
+                            globalDirHitCap={sources.globalDirHitCap}
                             sourcesTreeLoading={sources.sourcesTreeLoading}
                             sourcesListCover={sources.sourcesListCover}
                             rowActionsOpen={sources.rowActionsOpen}
@@ -103,6 +103,7 @@ export function ModalSources({ embed = false }) {
                             onAction={onAction}
                             onToggleRowActions={sources.toggleRowActions}
                             onSwitchTab={switchMainTab}
+                            onLoadMoreCatalog={sources.loadMoreDirectoryCatalog}
                         />
                     ) : (
                         <SourcesBranchesPanel
@@ -118,7 +119,7 @@ export function ModalSources({ embed = false }) {
                             globalDirFilter={sources.globalDirFilter}
                             globalDirLoading={sources.globalDirLoading}
                             globalDirError={sources.globalDirError}
-                            globalDirUiTruncated={sources.globalDirUiTruncated}
+                            globalDirHitCap={sources.globalDirHitCap}
                             globalDirMetrics={sources.globalDirMetrics}
                             treeFreezeBusy={sources.treeFreezeBusy}
                             sourcesTreeLoading={sources.sourcesTreeLoading}
@@ -129,6 +130,7 @@ export function ModalSources({ embed = false }) {
                             bump={sources.bump}
                             onAction={onAction}
                             onSwitchTab={switchMainTab}
+                            onLoadMoreCatalog={sources.loadMoreDirectoryCatalog}
                         />
                     )}
                 </div>

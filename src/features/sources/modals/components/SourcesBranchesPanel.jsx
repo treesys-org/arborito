@@ -12,7 +12,9 @@ import { SourcesInternetRow } from './SourcesInternetRow.jsx';
 import { SourcesFilterChip } from './SourcesFilterChip.jsx';
 import { CrossTabActiveBanner } from './SourcesForestTab.jsx';
 import { SourcesLoadingPanel } from './SourcesLoadingPanel.jsx';
-import { SOURCES_UNIFIED_DISPLAY_CAP } from '../../../p2p-webtorrent/api/directory-index-config.js';
+import {
+    DIRECTORY_CLIENT_FETCH_PAGE,
+} from '../../../p2p-webtorrent/api/directory-index-config.js';
 
 /**
  * Active curriculum pin for Branches: local garden or saved/online community source.
@@ -85,7 +87,7 @@ export function SourcesBranchesPanel({
     globalDirFilter,
     globalDirLoading,
     globalDirError,
-    globalDirUiTruncated,
+    globalDirHitCap,
     globalDirMetrics,
     treeFreezeBusy,
     sourcesTreeLoading,
@@ -97,6 +99,7 @@ export function SourcesBranchesPanel({
     onAction,
     onSwitchTab,
     mainTab,
+    onLoadMoreCatalog,
 }) {
     const { userStore, getNostrPublisherPair } = useSources();
     const scope = String(sourcesScope || 'all');
@@ -179,49 +182,83 @@ export function SourcesBranchesPanel({
                                       'Hide'
                                     : ui.sourcesFiltersShowShort ||
                                       ui.sourcesFiltersShow ||
-                                      'Filters'}
+                                      'More'}
                             </button>
+                        </div>
+                        <div
+                            className="flex flex-wrap gap-2 items-center"
+                            role="group"
+                            aria-label={ui.sourcesUnifiedScopeAria || 'Which list to show'}
+                        >
+                            <SourcesFilterChip
+                                label={ui.sourcesUnifiedScopeMine || ui.sourcesUnifiedScopeLocal || 'My courses'}
+                                active={scope === 'branch'}
+                                onClick={() => setSourcesScope('branch')}
+                            />
+                            <SourcesFilterChip
+                                label={ui.sourcesUnifiedScopeExplore || 'Explore'}
+                                tone="online"
+                                active={scope === 'internet'}
+                                onClick={() => setSourcesScope('internet')}
+                            />
                         </div>
                         {advancedOpen ? (
                             <div className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/20 space-y-3">
-                                <div className="flex flex-wrap gap-2 items-center" role="group">
-                                    {[
-                                        ['all', ui.sourcesUnifiedScopeAll || 'All'],
-                                        [
-                                            'branch',
-                                            ui.sourcesUnifiedScopeLocal ||
-                                                ui.sourcesTreesScopeDevice ||
-                                                ui.sourcesPillLocal ||
-                                                'Local',
-                                        ],
-                                        ['saved', ui.sourcesPillSaved || ui.sourcesUnifiedScopeSaved || 'Saved'],
-                                        ['internet', ui.sourcesPillInternet || ui.sourcesUnifiedScopeInternet || 'Internet'],
-                                    ].map(([id, label]) => (
-                                        <SourcesFilterChip
-                                            key={id}
-                                            label={label}
-                                            active={scope === id}
-                                            onClick={() => setSourcesScope(id)}
-                                        />
-                                    ))}
-                                </div>
-                                {(scope === 'all' || scope === 'internet') && (
+                                <div className="space-y-1.5">
+                                    <p className="m-0 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                                        {ui.sourcesFiltersWhereHint || 'Which list to show'}
+                                    </p>
                                     <div className="flex flex-wrap gap-2 items-center" role="group">
                                         {[
-                                            ['discover', ui.sourcesGlobalFilterDiscover || 'Discover'],
-                                            ['recent', ui.sourcesGlobalFilterRecent || 'Recent'],
-                                            ['voted', ui.sourcesGlobalFilterVoted || 'Top votes'],
-                                            ['used7', ui.sourcesGlobalFilterUsed7 || 'Popular (7d)'],
-                                            ['active', ui.sourcesGlobalFilterActive || 'Active now'],
+                                            ['all', ui.sourcesUnifiedScopeAll || 'All'],
+                                            [
+                                                'branch',
+                                                ui.sourcesUnifiedScopeMine ||
+                                                    ui.sourcesUnifiedScopeLocal ||
+                                                    'My courses',
+                                            ],
+                                            [
+                                                'saved',
+                                                ui.sourcesUnifiedScopeSaved || 'Downloaded',
+                                            ],
+                                            [
+                                                'internet',
+                                                ui.sourcesUnifiedScopeInternet || 'Online',
+                                            ],
                                         ].map(([id, label]) => (
                                             <SourcesFilterChip
                                                 key={id}
                                                 label={label}
-                                                tone="online"
-                                                active={dirFilter === id}
-                                                onClick={() => onAction('global-filter', { filter: id })}
+                                                active={scope === id}
+                                                onClick={() => setSourcesScope(id)}
                                             />
                                         ))}
+                                    </div>
+                                </div>
+                                {(scope === 'all' || scope === 'internet') && (
+                                    <div className="space-y-1.5">
+                                        <p className="m-0 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                                            {ui.sourcesFiltersSortHint ||
+                                                ui.sourcesUnifiedInternetSortTitle ||
+                                                'Online sort'}
+                                        </p>
+                                        <div className="flex flex-wrap gap-2 items-center" role="group">
+                                            {[
+                                                ['discover', ui.sourcesGlobalFilterDiscover || 'Recommended'],
+                                                ['recent', ui.sourcesGlobalFilterRecent || 'Newest'],
+                                                ['voted', ui.sourcesGlobalFilterVoted || 'Most voted'],
+                                                ['used7', ui.sourcesGlobalFilterUsed7 || 'Popular (7d)'],
+                                                ['active', ui.sourcesGlobalFilterActive || 'Active now'],
+                                            ].map(([id, label]) => (
+                                                <SourcesFilterChip
+                                                    key={id}
+                                                    label={label}
+                                                    tone="online"
+                                                    active={dirFilter === id}
+                                                    onClick={() => onAction('global-filter', { filter: id })}
+                                                />
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -326,7 +363,9 @@ export function SourcesBranchesPanel({
                 ) : null}
                 {listEmpty && !demoBranch ? (
                     <div className="arborito-empty arborito-empty--dashed">
-                        {ui.sourcesUnifiedEmpty || 'No results.'}
+                        {scope === 'branch'
+                            ? ui.sourcesUnifiedEmptyMine || ui.sourcesUnifiedEmpty || 'No results.'
+                            : ui.sourcesUnifiedEmpty || 'No results.'}
                     </div>
                 ) : (
                     <div className="space-y-3">
@@ -400,27 +439,29 @@ export function SourcesBranchesPanel({
                         })}
                     </div>
                 )}
-                {remaining > 0 ? (
+                {remaining > 0 || (globalDirHitCap && !loading) ? (
                     <div className="mt-3 flex justify-center">
                         <button
                             type="button"
                             className="arborito-sources-action-chip"
-                            onClick={() => setShown((n) => n + pageSize)}
+                            disabled={!!loading}
+                            onClick={() => {
+                                if (remaining > 0) {
+                                    setShown((n) => n + pageSize);
+                                    return;
+                                }
+                                onLoadMoreCatalog?.();
+                                setShown((n) => n + Math.max(pageSize, DIRECTORY_CLIENT_FETCH_PAGE));
+                            }}
                         >
-                            {String(ui.sourcesUnifiedLoadMore || 'Show more ({{n}} more)').replace(
-                                /\{\{n\}\}/g,
-                                String(remaining)
-                            )}
+                            {remaining > 0
+                                ? String(ui.sourcesUnifiedLoadMore || 'Show more ({{n}} more)').replace(
+                                      /\{\{n\}\}/g,
+                                      String(remaining)
+                                  )
+                                : ui.sourcesUnifiedLoadMoreCatalog || 'Load more from catalog'}
                         </button>
                     </div>
-                ) : null}
-                {globalDirUiTruncated ? (
-                    <p className="text-[11px] text-violet-950 dark:text-violet-100">
-                        {(ui.sourcesUnifiedListTruncTitle || 'List shortened ({{n}} rows)').replace(
-                            /\{\{n\}\}/g,
-                            String(SOURCES_UNIFIED_DISPLAY_CAP)
-                        )}
-                    </p>
                 ) : null}
                     </>
                 )}

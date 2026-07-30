@@ -1,6 +1,9 @@
 import { getArboritoStore as store } from '../../../../../core/store-singleton.js';
 import { formatNostrTreeUrl, parseNostrTreeUrl } from '../../../../nostr/api/nostr-refs.js';
-import { DIRECTORY_CLIENT_FETCH_LIMIT } from '../../../../p2p-webtorrent/api/directory-index-config.js';
+import {
+    DIRECTORY_CLIENT_FETCH_MAX,
+    DIRECTORY_CLIENT_FETCH_PAGE,
+} from '../../../../p2p-webtorrent/api/directory-index-config.js';
 import {
     loadGlobalDirectoryRowsFromHttp,
     loadGlobalDirectoryRowsFromTorrent,
@@ -375,21 +378,35 @@ export function ensureSavedSourcesMetrics(sources, metricsMap, setMetricsMap) {
 
 export function scheduleGlobalDirectoryFetch(state, setters, { reason = 'input', onUpdate } = {}) {
     if (state.globalDirTimer) clearTimeout(state.globalDirTimer);
-    const delay = reason === 'render' ? 0 : 450;
+    const delay = reason === 'render' ? 0 : reason === 'load-more' ? 0 : 450;
     const timer = setTimeout(() => {
-        void runGlobalDirectoryFetch(state, setters, { onUpdate });
+        void runGlobalDirectoryFetch(state, setters, { onUpdate, reason });
     }, delay);
     setters.setGlobalDirTimer(timer);
 }
 
-export async function runGlobalDirectoryFetch(state, setters, { onUpdate } = {}) {
+export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason = 'input' } = {}) {
     const now = Date.now();
     const q = String(state.globalDirQ || '').trim();
-    if (q === state.globalDirLastQuery && now - (state.globalDirLastFetchAt || 0) < 2000) return;
-    if (now - (state.globalDirLastFetchAt || 0) < 800 && state.globalDirLoading) return;
+    const fetchLimit = Math.max(
+        DIRECTORY_CLIENT_FETCH_PAGE,
+        Math.min(
+            DIRECTORY_CLIENT_FETCH_MAX,
+            Number(state.globalDirFetchLimit) || DIRECTORY_CLIENT_FETCH_PAGE
+        )
+    );
+    const sameQuery = q === state.globalDirLastQuery;
+    const sameLimit = fetchLimit === Number(state.globalDirLastFetchLimit || 0);
+    if (reason !== 'load-more') {
+        if (sameQuery && sameLimit && now - (state.globalDirLastFetchAt || 0) < 2000) return;
+        if (now - (state.globalDirLastFetchAt || 0) < 800 && state.globalDirLoading) return;
+    }
 
     setters.setGlobalDirLastFetchAt(now);
     setters.setGlobalDirLastQuery(q);
+    if (typeof setters.setGlobalDirLastFetchLimit === 'function') {
+        setters.setGlobalDirLastFetchLimit(fetchLimit);
+    }
     setters.setGlobalDirLoading(true);
     setters.setGlobalDirError('');
     onUpdate?.();
@@ -410,19 +427,20 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate } = {})
              * parallel with the relay path: on catalogs beyond what relay
              * `#t` queries can cover, the shards ARE the search tier. Rows
              * are individually verified, so merging them is safe. */
-            const shardRowsPromise = q.length >= 3
-                ? searchGlobalDirectoryViaHttpShards({ query: q, limit: DIRECTORY_CLIENT_FETCH_LIMIT }).catch(() => [])
-                : Promise.resolve([]);
+            const shardRowsPromise =
+                q.length >= 3
+                    ? searchGlobalDirectoryViaHttpShards({ query: q, limit: fetchLimit }).catch(() => [])
+                    : Promise.resolve([]);
 
             if (net && typeof net.listGlobalTreeDirectoryEntriesOnce === 'function') {
                 try {
                     rows = await net.listGlobalTreeDirectoryEntriesOnce({
-                        limit: DIRECTORY_CLIENT_FETCH_LIMIT,
+                        limit: fetchLimit,
                         query: q,
                     });
                     rows = Array.isArray(rows) ? rows : [];
                     rows = rows.filter((r) => !store.isNostrTreeMaintainerBlocked(r?.ownerPub, r?.universeId));
-                    directoryHitCap = rows.length >= DIRECTORY_CLIENT_FETCH_LIMIT;
+                    directoryHitCap = rows.length >= fetchLimit;
 
                     if (qNorm && /^[a-z0-9]{4,14}$/i.test(qNorm) && typeof net.resolveTreeShareCode === 'function') {
                         try {
@@ -535,7 +553,7 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate } = {})
                 try {
                     net._unpauseAllRelays?.();
                     rows = await net.listGlobalTreeDirectoryEntriesOnce({
-                        limit: DIRECTORY_CLIENT_FETCH_LIMIT,
+                        limit: fetchLimit,
                         query: q,
                     });
                     rows = Array.isArray(rows) ? rows : [];
@@ -557,12 +575,14 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate } = {})
             }
             rows = enrichDirectoryRowsWithKnownIcons(rows);
             let hitCap = false;
-            if (rows.length > DIRECTORY_CLIENT_FETCH_LIMIT) {
-                rows = rows.slice(0, DIRECTORY_CLIENT_FETCH_LIMIT);
+            if (rows.length > fetchLimit) {
+                rows = rows.slice(0, fetchLimit);
                 hitCap = true;
             } else {
                 hitCap = directoryHitCap;
             }
+            /* At absolute max, stop offering network “load more”. */
+            if (fetchLimit >= DIRECTORY_CLIENT_FETCH_MAX) hitCap = false;
 
             setters.setGlobalDirRows(rows);
             setters.setGlobalDirLoading(false);

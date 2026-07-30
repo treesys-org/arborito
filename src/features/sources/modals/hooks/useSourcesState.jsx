@@ -8,6 +8,10 @@ import {
     applyGlobalDirectorySortAndMetrics,
 } from '../../api/modals/logic/sources-directory-fetch.js';
 import { closeSourcesModal } from '../../api/modals/logic/sources-actions/index.js';
+import {
+    DIRECTORY_CLIENT_FETCH_MAX,
+    DIRECTORY_CLIENT_FETCH_PAGE,
+} from '../../../p2p-webtorrent/api/directory-index-config.js';
 
 function readInitialMainTab(store) {
     const m = store.value.modal;
@@ -31,15 +35,17 @@ export function useSourcesState({ embed }) {
     const [exportBusy, setExportBusy] = useState(false);
     const [sourcesQ, setSourcesQ] = useState('');
     const [treesQ, setTreesQ] = useState('');
-    const [treesScope, setTreesScope] = useState('all');
+    const [treesScope, setTreesScope] = useState('internet');
     const [treesAdvancedOpen, setTreesAdvancedOpen] = useState(false);
-    const [sourcesScope, setSourcesScope] = useState('all');
+    const [sourcesScope, setSourcesScope] = useState('internet');
     const [sourcesAdvancedOpen, setSourcesAdvancedOpen] = useState(false);
     const [treeFreezeBusy, setTreeFreezeBusy] = useState({});
     const [rowActionsOpen, setRowActionsOpen] = useState(() => new Set());
     const [globalDirFilter, setGlobalDirFilter] = useState('discover');
     const [globalDirHitCap, setGlobalDirHitCap] = useState(false);
     const [globalDirUiTruncated, setGlobalDirUiTruncated] = useState(false);
+    const [globalDirFetchLimit, setGlobalDirFetchLimit] = useState(DIRECTORY_CLIENT_FETCH_PAGE);
+    const [globalDirLastFetchLimit, setGlobalDirLastFetchLimit] = useState(0);
     /* `collectBranchesTabItems`/`collectTreesTabItems` set this flag while they
      * run, and they run inside the tab panels' `useMemo`, i.e. DURING render.
      * Writing React state there triggers "Cannot update a component while
@@ -78,6 +84,10 @@ export function useSourcesState({ embed }) {
         (opts = {}) => {
             setOverlay(null);
             setTreeEditor(null);
+            setSourcesScope('internet');
+            setTreesScope('internet');
+            setSourcesAdvancedOpen(false);
+            setTreesAdvancedOpen(false);
             closeSourcesModal(opts, embed);
         },
         [embed]
@@ -132,6 +142,7 @@ export function useSourcesState({ embed }) {
             setGlobalDirHitCap,
             setGlobalDirLastFetchAt,
             setGlobalDirLastQuery,
+            setGlobalDirLastFetchLimit,
             setGlobalDirTimer,
         }),
         []
@@ -144,8 +155,10 @@ export function useSourcesState({ embed }) {
             globalDirMetrics,
             globalDirLoading,
             globalDirQ,
+            globalDirFetchLimit,
             globalDirLastFetchAt,
             globalDirLastQuery,
+            globalDirLastFetchLimit,
             globalDirTimer,
         }),
         [
@@ -154,8 +167,10 @@ export function useSourcesState({ embed }) {
             globalDirMetrics,
             globalDirLoading,
             globalDirQ,
+            globalDirFetchLimit,
             globalDirLastFetchAt,
             globalDirLastQuery,
+            globalDirLastFetchLimit,
             globalDirTimer,
         ]
     );
@@ -241,12 +256,14 @@ export function useSourcesState({ embed }) {
     };
 
     useEffect(() => {
+        setGlobalDirFetchLimit(DIRECTORY_CLIENT_FETCH_PAGE);
         setGlobalDirQ(sourcesQ);
     }, [sourcesQ]);
 
     useEffect(() => {
+        const widening = globalDirFetchLimit > (globalDirLastFetchLimit || 0);
         scheduleGlobalDirectoryFetch(directoryState(), directorySetters, {
-            reason: 'input',
+            reason: widening ? 'load-more' : 'input',
             onUpdate: bump,
         });
         return () => {
@@ -254,7 +271,14 @@ export function useSourcesState({ embed }) {
             if (t) clearTimeout(t);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [globalDirQ]);
+    }, [globalDirQ, globalDirFetchLimit]);
+
+    const loadMoreDirectoryCatalog = useCallback(() => {
+        setGlobalDirFetchLimit((n) => {
+            const cur = Math.max(DIRECTORY_CLIENT_FETCH_PAGE, Number(n) || DIRECTORY_CLIENT_FETCH_PAGE);
+            return Math.min(DIRECTORY_CLIENT_FETCH_MAX, cur + DIRECTORY_CLIENT_FETCH_PAGE);
+        });
+    }, []);
 
     useEffect(() => {
         const dirStale =
@@ -349,10 +373,12 @@ export function useSourcesState({ embed }) {
         globalDirFilter,
         setGlobalDirFilter,
         globalDirUiTruncated,
+        globalDirHitCap,
         globalDirLoading,
         globalDirError,
         globalDirRows,
         globalDirMetrics,
+        loadMoreDirectoryCatalog,
         sourcesTreeLoading,
         sourcesListCover,
         treeEditor,

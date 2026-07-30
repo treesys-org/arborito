@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSources } from '../../hooks/useSources.js';
-import { SOURCES_UNIFIED_DISPLAY_CAP } from '../../../p2p-webtorrent/api/directory-index-config.js';
+import { DIRECTORY_CLIENT_FETCH_PAGE } from '../../../p2p-webtorrent/api/directory-index-config.js';
 import {
     ensurePublishedTreeMetrics,
     ensureSavedSourcesMetrics,
@@ -82,7 +82,7 @@ export function SourcesForestTab({
     globalDirMetrics,
     globalDirLoading,
     globalDirError,
-    globalDirUiTruncated,
+    globalDirHitCap,
     sourcesTreeLoading,
     sourcesListCover,
     rowActionsOpen,
@@ -91,6 +91,7 @@ export function SourcesForestTab({
     onAction,
     onToggleRowActions,
     onSwitchTab,
+    onLoadMoreCatalog,
 }) {
     const { userStore, getNostrPublisherPair } = useSources();
     const scope = String(treesScope || 'all');
@@ -111,7 +112,7 @@ export function SourcesForestTab({
     }, [globalDirMetrics, collectCtx.setGlobalDirMetrics]);
 
     useEffect(() => {
-        if (scope === 'all' || scope === 'saved') {
+        if (scope === 'all' || scope === 'saved' || scope === 'device' || scope === 'internet') {
             const savedTrees = (state.communitySources || []).filter(
                 (s) => String(s?.contentKind || '') === 'composed-tree'
             );
@@ -173,31 +174,56 @@ export function SourcesForestTab({
                                       'Hide'
                                     : ui.sourcesFiltersShowShort ||
                                       ui.sourcesFiltersShow ||
-                                      'Filters'}
+                                      'More'}
                             </button>
                         </div>
+                        <div
+                            className="flex flex-wrap gap-2 items-center"
+                            role="group"
+                            aria-label={
+                                ui.sourcesTreesScopeAria ||
+                                ui.sourcesUnifiedScopeAria ||
+                                'Which list to show'
+                            }
+                        >
+                            <SourcesFilterChip
+                                label={
+                                    ui.sourcesUnifiedScopeMine ||
+                                    ui.sourcesTreesScopeDevice ||
+                                    'My courses'
+                                }
+                                active={scope === 'device'}
+                                onClick={() => setTreesScope('device')}
+                            />
+                            <SourcesFilterChip
+                                label={ui.sourcesUnifiedScopeExplore || 'Explore'}
+                                tone="online"
+                                active={scope === 'internet'}
+                                onClick={() => setTreesScope('internet')}
+                            />
+                        </div>
                         {treesAdvancedOpen ? (
-                            <div className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/20">
-                                <div
-                                    className="flex flex-wrap gap-2 items-center"
-                                    role="group"
-                                    aria-label={
-                                        ui.sourcesTreesScopeAria ||
-                                        ui.sourcesUnifiedScopeAria ||
-                                        'Filter trees'
-                                    }
-                                >
+                            <div className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/20 space-y-2">
+                                <p className="m-0 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                                    {ui.sourcesFiltersWhereHint || 'Which list to show'}
+                                </p>
+                                <div className="flex flex-wrap gap-2 items-center" role="group">
                                     {[
                                         ['all', ui.sourcesUnifiedScopeAll || 'All'],
                                         [
                                             'device',
-                                            ui.sourcesUnifiedScopeLocal ||
+                                            ui.sourcesUnifiedScopeMine ||
                                                 ui.sourcesTreesScopeDevice ||
-                                                ui.sourcesPillLocal ||
-                                                'Local',
+                                                'My courses',
                                         ],
-                                        ['saved', ui.sourcesUnifiedScopeSaved || ui.sourcesPillSaved || 'Saved'],
-                                        ['internet', ui.sourcesUnifiedScopeInternet || ui.sourcesPillInternet || 'Internet'],
+                                        [
+                                            'saved',
+                                            ui.sourcesUnifiedScopeSaved || 'Downloaded',
+                                        ],
+                                        [
+                                            'internet',
+                                            ui.sourcesUnifiedScopeInternet || 'Online',
+                                        ],
                                     ].map(([id, label]) => (
                                         <SourcesFilterChip
                                             key={id}
@@ -278,7 +304,11 @@ export function SourcesForestTab({
                 ) : null}
                 {listEmpty ? (
                     <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-8">
-                        {ui.sourcesTreesEmpty || 'Create a tree by combining branches.'}
+                        {scope === 'device'
+                            ? ui.sourcesUnifiedEmptyMine ||
+                              ui.sourcesTreesEmpty ||
+                              'Create a tree by combining branches.'
+                            : ui.sourcesTreesEmpty || 'Create a tree by combining branches.'}
                     </p>
                 ) : (
                     <>
@@ -366,34 +396,37 @@ export function SourcesForestTab({
                                     </div>
                                 );
                             })}
-                            {hasMoreTrees ? (
+                            {hasMoreTrees || (globalDirHitCap && !loading) ? (
                                 <button
                                     type="button"
-                                    className="w-full min-h-10 py-2 rounded-xl text-[11px] font-extrabold bg-violet-50 dark:bg-violet-950/40 text-violet-800 dark:text-violet-200 border border-violet-200 dark:border-violet-800"
-                                    onClick={() => setTreesVisible((n) => n + TREES_LIST_PAGE)}
+                                    className="w-full min-h-10 py-2 rounded-xl text-[11px] font-extrabold bg-violet-50 dark:bg-violet-950/40 text-violet-800 dark:text-violet-200 border border-violet-200 dark:border-violet-800 disabled:opacity-60"
+                                    disabled={!!loading}
+                                    onClick={() => {
+                                        if (hasMoreTrees) {
+                                            setTreesVisible((n) => n + TREES_LIST_PAGE);
+                                            return;
+                                        }
+                                        onLoadMoreCatalog?.();
+                                        setTreesVisible((n) => n + Math.max(TREES_LIST_PAGE, DIRECTORY_CLIENT_FETCH_PAGE));
+                                    }}
                                 >
-                                    {(ui.sourcesShowMoreTrees || 'Show more trees').replace(
-                                        '{n}',
-                                        String(Math.min(TREES_LIST_PAGE, items.length - treesVisible))
-                                    )}
+                                    {hasMoreTrees
+                                        ? (ui.sourcesShowMoreTrees || 'Show more trees').replace(
+                                              '{n}',
+                                              String(Math.min(TREES_LIST_PAGE, items.length - treesVisible))
+                                          )
+                                        : ui.sourcesUnifiedLoadMoreCatalog || 'Load more from catalog'}
                                 </button>
                             ) : null}
                         </div>
                     </>
                 )}
-                {globalDirUiTruncated ? (
-                    <p className="text-[11px] text-violet-950 dark:text-violet-100">
-                        {(ui.sourcesUnifiedListTruncTitle || 'List shortened ({{n}} rows)').replace(
-                            /\{\{n\}\}/g,
-                            String(SOURCES_UNIFIED_DISPLAY_CAP)
-                        )}
-                    </p>
-                ) : null}
                     </>
                 )}
             </div>
         </div>
     );
 }
+
 
 export { composedTreeRowKey };

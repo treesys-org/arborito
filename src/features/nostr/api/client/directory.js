@@ -5,7 +5,12 @@
  * that haven't consumed a snapshot yet.
  */
 
-import { getConfiguredDirectoryIndexPublishers } from '../../../p2p-webtorrent/api/directory-index-config.js';
+import {
+    DIRECTORY_CLIENT_CRAWL_MAX_AGE_SEC,
+    DIRECTORY_CLIENT_CRAWL_MAX_EVENTS,
+    DIRECTORY_CLIENT_CRAWL_PAGE_SIZE,
+    getConfiguredDirectoryIndexPublishers,
+} from '../../../p2p-webtorrent/api/directory-index-config.js';
 import {
     catalogRowMatchesQuery,
     directoryRowKey,
@@ -660,14 +665,74 @@ export const directoryMixin = {
         return [...best.values()];
     },
 
+    /**
+     * Cursor-paginated live crawl (same idea as `directory-index-aggregator`).
+     * Relays apply `limit` to *events*, not unique courses: delist/republish
+     * churn on kind 30100 would otherwise hide live rows within days.
+     */
     async _traverseGlobalDirectoryEntries(opts) {
         const limit = Math.max(1, Math.min(800, Number(opts.limit) || 120));
         const q = String(opts.query || '').trim().toLowerCase();
         const excludeKeys = opts.excludeKeys instanceof Set ? opts.excludeKeys : new Set();
-        const evs = await this._query({ kinds: [KIND_TREE_DIRECTORY], limit: Math.min(200, limit * 2) }, QUERY_MS);
+        const pageSize = Math.max(50, Math.min(500, Number(DIRECTORY_CLIENT_CRAWL_PAGE_SIZE) || 200));
+        const maxEvents = Math.max(pageSize, Math.min(20000, Number(DIRECTORY_CLIENT_CRAWL_MAX_EVENTS) || 3000));
+        const maxAgeSec = Math.max(86400, Number(DIRECTORY_CLIENT_CRAWL_MAX_AGE_SEC) || 180 * 86400);
+        const oldestAllowed = Math.floor(Date.now() / 1000) - maxAgeSec;
+
+        /** @type {Map<string, { ev: import('core.js').Event, body: object }>} */
+        const best = new Map();
+        let until = Math.floor(Date.now() / 1000) + 60;
+        let fetched = 0;
+        let pages = 0;
+        let stagnantLivePages = 0;
+        let prevLiveUnique = 0;
+        const maxPages = Math.ceil(maxEvents / pageSize) + 2;
+
+        while (fetched < maxEvents && pages < maxPages) {
+            pages += 1;
+            const evs = await this._query(
+                {
+                    kinds: [KIND_TREE_DIRECTORY],
+                    until,
+                    limit: Math.min(pageSize, maxEvents - fetched),
+                },
+                QUERY_MS_LONG
+            );
+            if (!Array.isArray(evs) || !evs.length) break;
+            fetched += evs.length;
+            let oldest = until;
+            for (const ev of evs) {
+                const ca = Number(ev.created_at) || 0;
+                if (ca && ca < oldest) oldest = ca;
+            }
+            for (const item of this._latestTreeDirectoryRowsFromEvents(evs)) {
+                const key = `${String(item.body.ownerPub || '')}/${String(item.body.universeId || '')}`;
+                const prev = best.get(key);
+                const ca = Number(item.ev.created_at) || 0;
+                if (!prev || ca > (Number(prev.ev.created_at) || 0)) best.set(key, item);
+            }
+            let liveUnique = 0;
+            for (const { body } of best.values()) {
+                if (body && body.delisted !== true) liveUnique += 1;
+            }
+            /* Enough unique live candidates for this request — stop paging. */
+            if (!q && liveUnique >= limit) break;
+            /* Catalog is small: further pages are mostly delist tombstones. */
+            if (liveUnique <= prevLiveUnique) stagnantLivePages += 1;
+            else stagnantLivePages = 0;
+            prevLiveUnique = liveUnique;
+            if (pages >= 2 && stagnantLivePages >= 2) break;
+            if (oldest >= until) break;
+            if (oldest <= oldestAllowed) break;
+            if (evs.length < pageSize) break;
+            until = oldest - 1;
+        }
+
         const out = [];
         const seen = new Set();
-        const rows = this._latestTreeDirectoryRowsFromEvents(evs);
+        const rows = [...best.values()].sort(
+            (a, b) => (Number(b.ev.created_at) || 0) - (Number(a.ev.created_at) || 0)
+        );
         for (const { ev, body } of rows) {
             if (out.length >= limit) break;
             const row = await this._directoryRowFromVerifiedEvent(ev, body);

@@ -1,6 +1,5 @@
 import { getArboritoStore as store } from '../../../../../core/store-singleton.js';
 import { formatNostrTreeUrl, parseNostrTreeUrl } from '../../../../nostr/api/nostr-refs.js';
-import { SOURCES_UNIFIED_DISPLAY_CAP } from '../../../../p2p-webtorrent/api/directory-index-config.js';
 import { catalogTitlesSearchBlob } from '../../../../../shared/lib/catalog-titles.js';
 import { canonicalNetworkTreeUrlString, resolveActiveBranchId } from './sources-helpers.js';
 import { listingKind } from '../../sources-kind-ui.js';
@@ -74,7 +73,7 @@ export function collectBranchesTabItems(ctx, ui, state, activeSource, { scope, q
             });
         }
     }
-    if (scope !== 'internet' && scope !== 'saved') {
+    if (scope !== 'saved') {
         for (const t of branchesAll) {
             if (isPinnedActive(t?.id, t?.publishedNetworkUrl)) continue;
             const pubUrlRaw = String(t?.publishedNetworkUrl || '').trim();
@@ -110,11 +109,9 @@ export function collectBranchesTabItems(ctx, ui, state, activeSource, { scope, q
 
     const communityAll = state.communitySources || [];
     const hasLocalDemo = branchesAll.some((b) => isBundledDemoBranchId(b?.id));
-    if (scope !== 'branch' && scope !== 'internet') {
-        void ctx._ensureSavedSourcesMetrics?.(communityAll);
-    }
-    if (scope !== 'branch' && scope !== 'internet') {
-        for (const s0 of communityAll) {
+    /* Mis cursos + Explorar: incluir cursos online que el usuario añadió (saved). */
+    void ctx._ensureSavedSourcesMetrics?.(communityAll);
+    for (const s0 of communityAll) {
             if (String(s0?.contentKind || '').trim() === 'composed-tree') continue;
             const savedBranchId = String(s0?.url || '').startsWith('branch://')
                 ? String(s0.url).slice('branch://'.length).split('/')[0]
@@ -164,7 +161,6 @@ export function collectBranchesTabItems(ctx, ui, state, activeSource, { scope, q
             } catch {
                 /* ignore */
             }
-        }
     }
 
     let rows = scope === 'branch' ? [] : Array.isArray(ctx._globalDirRows) ? ctx._globalDirRows : [];
@@ -202,8 +198,8 @@ export function collectBranchesTabItems(ctx, ui, state, activeSource, { scope, q
                     const c = canonicalNetworkTreeUrlString(String(cs?.url || '').trim());
                     return !!c && !!uCanon && c === uCanon;
                 });
-                if (installedInCommunity && scope === 'all') continue;
-                if (scope === 'all' && uCanon && ownPublishedCanonUrls.has(uCanon)) continue;
+                if (installedInCommunity && (scope === 'all' || scope === 'internet')) continue;
+                if ((scope === 'all' || scope === 'internet') && uCanon && ownPublishedCanonUrls.has(uCanon)) continue;
                 if (u && seenPublishedTreeUrls.has(String(u)) && !ownPublishedTreeUrls.has(String(u))) continue;
             } catch {
                 /* ignore */
@@ -219,11 +215,12 @@ export function collectBranchesTabItems(ctx, ui, state, activeSource, { scope, q
             if (isPinnedActive(null, publicTreeUrl)) continue;
             const stRow = computeDirectoryRowState(r, metricsMap);
             if (shouldHideRowFromDirectory(r, metricsMap)) continue;
+            /* Never score against ownerPub hex: random substring hits (e.g. "adb"
+             * inside a pubkey) fake-match unrelated courses in Discover search. */
             const s = scoreSourcesMatch(
                 q2,
                 catalogTitlesSearchBlob(r),
                 r?.shareCode,
-                r?.ownerPub,
                 r?.description,
                 r?.authorName
             );
@@ -244,7 +241,7 @@ export function collectBranchesTabItems(ctx, ui, state, activeSource, { scope, q
     }
 
     items.sort((a, b) => b.score - a.score);
-    const cap = SOURCES_UNIFIED_DISPLAY_CAP;
-    if (items.length > cap) ctx._globalDirUiTruncated = true;
-    return items.slice(0, cap);
+    /* No hard slice: the panel “Show more” pages locally; network width grows via fetchLimit. */
+    ctx._globalDirUiTruncated = false;
+    return items;
 }

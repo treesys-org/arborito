@@ -2,7 +2,6 @@ import { getArboritoStore as store } from '../../../../../core/store-singleton.j
 import { formatNostrTreeUrl } from '../../../../nostr/api/nostr-refs.js';
 import { listingKind } from '../../sources-kind-ui.js';
 import { resolveBranchRefDisplayNames } from '../../../../forest/api/tree-branch-labels.js';
-import { SOURCES_UNIFIED_DISPLAY_CAP } from '../../../../p2p-webtorrent/api/directory-index-config.js';
 import { catalogTitlesSearchBlob } from '../../../../../shared/lib/catalog-titles.js';
 import { scoreSourcesMatch } from './sources-search-utils.js';
 import { getRowMetricsFromMap, shouldHideRowFromDirectory } from './sources-directory-row-state.js';
@@ -56,7 +55,7 @@ export function collectForestTabItems(ctx, ui, state, activeSource, { scope, q }
     const seenTreeIds = new Set();
     const ownPublishedCanonUrls = new Set();
 
-    if (sc === 'all' || sc === 'device') {
+    if (sc === 'all' || sc === 'device' || sc === 'internet') {
         for (const t of store.userStore?.state?.trees || []) {
             if (!t?.id) continue;
             const treeId = String(t.id);
@@ -79,7 +78,8 @@ export function collectForestTabItems(ctx, ui, state, activeSource, { scope, q }
         }
     }
 
-    if (sc === 'all' || sc === 'saved') {
+    /* Mis cursos + Explorar: árboles locales/añadidos; no duplicar en el catálogo de red. */
+    if (sc === 'all' || sc === 'saved' || sc === 'device' || sc === 'internet') {
         const activeUrlCanon = (() => {
             const fromActive = activeSource?.url
                 ? canonicalNetworkTreeUrlString(String(activeSource.url).trim())
@@ -126,12 +126,19 @@ export function collectForestTabItems(ctx, ui, state, activeSource, { scope, q }
                     const c = canonicalNetworkTreeUrlString(String(cs?.url || '').trim());
                     return !!c && !!uCanon && c === uCanon;
                 });
-                if (installedInCommunity && sc === 'all') continue;
-                if (sc === 'all' && uCanon && ownPublishedCanonUrls.has(uCanon)) continue;
+                if (installedInCommunity && (sc === 'all' || sc === 'internet')) continue;
+                if ((sc === 'all' || sc === 'internet') && uCanon && ownPublishedCanonUrls.has(uCanon)) continue;
             } catch {
                 /* ignore */
             }
-            const s = scoreSourcesMatch(q2, catalogTitlesSearchBlob(r), r?.shareCode, r?.ownerPub, r?.description, r?.authorName);
+            /* Never score against ownerPub hex (substring false-positives). */
+            const s = scoreSourcesMatch(
+                q2,
+                catalogTitlesSearchBlob(r),
+                r?.shareCode,
+                r?.description,
+                r?.authorName
+            );
             if (q2 && s <= 0) continue;
             const hash = String(r?.branchSetHash || '').trim();
             const m = getRowMetricsFromMap(r, metricsMap);
@@ -166,9 +173,9 @@ export function collectForestTabItems(ctx, ui, state, activeSource, { scope, q }
     }
 
     items.sort((a, b) => b.score - a.score);
-    const cap = SOURCES_UNIFIED_DISPLAY_CAP;
-    if (items.length > cap) ctx._globalDirUiTruncated = true;
-    return items.slice(0, cap);
+    /* No hard slice: Forest “Show more” pages locally; network width via fetchLimit. */
+    ctx._globalDirUiTruncated = false;
+    return items;
 }
 
 export { findLocalTreeForSavedSource };

@@ -7,17 +7,49 @@
 export const DIRECTORY_INDEX_SNAPSHOT_CAP = 800;
 
 /**
- * Shared cap between:
- * - directory request (`listGlobalTreeDirectoryEntriesOnce` with UI `limit`), and
- * - trimming the unified list (local + saved + Internet).
+ * First Discover fetch size, and how many more rows each “Show more” catalog
+ * bump requests. The list UI pages locally (12/24); this is the network page.
  */
-export const DIRECTORY_CLIENT_FETCH_LIMIT = 160;
-export const SOURCES_UNIFIED_DISPLAY_CAP = DIRECTORY_CLIENT_FETCH_LIMIT;
+export const DIRECTORY_CLIENT_FETCH_PAGE = 48;
 
 /**
- * Max rows read from the optional global index via WebTorrent (aligned with Nostr list cap).
+ * Absolute ceiling for progressive Discover fetches (Show more → bump limit).
+ * Below this, every “Show more” widens the client crawl/search instead of a
+ * dead “list shortened” wall.
  */
-export const GLOBAL_DIRECTORY_TORRENT_MAX_ENTRIES = DIRECTORY_CLIENT_FETCH_LIMIT;
+export const DIRECTORY_CLIENT_FETCH_MAX = 2000;
+
+/**
+ * @deprecated Prefer DIRECTORY_CLIENT_FETCH_PAGE + progressive bumps up to MAX.
+ * Kept as the initial/default request size alias used by a few call sites.
+ */
+export const DIRECTORY_CLIENT_FETCH_LIMIT = DIRECTORY_CLIENT_FETCH_PAGE;
+
+/** @deprecated Display is no longer hard-sliced; Show more pages the full fetch. */
+export const SOURCES_UNIFIED_DISPLAY_CAP = DIRECTORY_CLIENT_FETCH_MAX;
+
+/**
+ * Live Discover crawl budget (events, not unique courses).
+ * Kind 30100 is replaceable: each publish/delist/republish is a new event, so a
+ * single `limit:200` window is mostly churn and can drop live rows that are only
+ * days old. The client pages backwards with `until` up to this many events.
+ */
+export const DIRECTORY_CLIENT_CRAWL_MAX_EVENTS = 3000;
+
+/** Per-REQ page size while paging the live directory crawl. */
+export const DIRECTORY_CLIENT_CRAWL_PAGE_SIZE = 200;
+
+/**
+ * Do not page the live crawl older than this (seconds). Older listings remain
+ * reachable via trigram `#t` search and optional HTTP/torrent mirrors.
+ */
+export const DIRECTORY_CLIENT_CRAWL_MAX_AGE_SEC = 180 * 86400;
+
+/**
+ * Max rows read from the optional global index via WebTorrent.
+ * Align with progressive Discover max so “load more” is not stuck at the first page.
+ */
+export const GLOBAL_DIRECTORY_TORRENT_MAX_ENTRIES = DIRECTORY_CLIENT_FETCH_MAX;
 
 /** Default JSON path inside the global directory torrent (metadata mirror). */
 export const GLOBAL_DIRECTORY_TORRENT_DEFAULT_PATH = 'global-directory.json';
