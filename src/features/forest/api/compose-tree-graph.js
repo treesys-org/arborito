@@ -41,6 +41,41 @@ function pickLangRoot(branchData, langCode) {
 }
 
 /**
+ * Early paint from branch refs only (titles/icons), before member bundles arrive.
+ * @param {{ treeEntry: { id: string, name: string, branchRefs?: object[] }, lang: string }} opts
+ */
+export function composeTreeGraphPlaceholder({ treeEntry, lang }) {
+    const refs = Array.isArray(treeEntry?.branchRefs) ? treeEntry.branchRefs : [];
+    const code = String(lang || 'EN').toUpperCase();
+    const fakePayloads = refs.map((ref) => {
+        const name = String(ref?.displayName || ref?.branchId || 'Branch').trim() || 'Branch';
+        return {
+            ref,
+            data: {
+                languages: {
+                    [code]: {
+                        id: 'root',
+                        name,
+                        type: 'root',
+                        icon: String(ref?.icon || '🌿').trim() || '🌿',
+                        children: [],
+                    },
+                },
+            },
+        };
+    });
+    const composed = composeTreeGraph({ treeEntry, branchPayloads: fakePayloads, lang });
+    if (composed?.graphJson) {
+        composed.graphJson.meta =
+            composed.graphJson.meta && typeof composed.graphJson.meta === 'object'
+                ? composed.graphJson.meta
+                : {};
+        composed.graphJson.meta.skeleton = true;
+    }
+    return composed;
+}
+
+/**
  * @param {{
  *   treeEntry: { id: string, name: string, branchRefs: object[] },
  *   branchPayloads: Array<{ ref: object, data: object }>,
