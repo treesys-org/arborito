@@ -64,9 +64,15 @@
 }
 
 .arborito-modal--onboarding .arborito-modal-nav__btn--back {
-    font-size: 1.5rem;
-    font-weight: 800;
-    padding-bottom: 0.15rem;
+    /* SVG chevron (ModalBackChevronIcon) — inherits --arborito-theme-modal-nav-btn-fg. */
+    padding: 0;
+}
+
+.arborito-modal--onboarding .arborito-modal-nav__btn--back svg {
+    display: block;
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
 }
 
 .arborito-modal--onboarding .arborito-modal-nav__btn--theme {

@@ -3,7 +3,7 @@ import { Callout } from '../../../shared/ui/Callout.jsx';
 import { fillSageAiConsentTokens } from '../../learning/api/ai-models.js';
 import { isElectronDesktop } from '../../learning/api/electron-bridge.js';
 import { DockModalShell, ModalCenteredShell } from '../../../app/components/ModalShell.jsx';
-import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
+import { ModalHubHero, ModalBackChevronIcon } from '../../../app/components/ModalHero.jsx';
 import { MODAL_CTA_CANCEL, modalCtaConfirm } from '../../../shared/ui/modal-action-chrome.js';
 import { isModalBackdropEmptyTap } from '../../../shared/ui/mobile-tap.js';
 
@@ -48,7 +48,7 @@ function MobToolbar({ ui, title, tone = 'default', onBack, onClose, showCloseX }
                 aria-label={ui.navBack}
                 onClick={onBack}
             >
-                ←
+                <ModalBackChevronIcon className="w-5 h-5" />
             </button>
             <h3
                 className={`${danger ? 'font-semibold text-xs text-slate-200' : 'font-black text-xs text-slate-100'} flex-1 min-w-0 truncate`}
@@ -381,7 +381,7 @@ export function GamePlayerPlayHeader({ ui, title, aiMode, staticQuizLessonCount,
                     className="arborito-game-player-back flex items-center gap-1.5 text-slate-300 hover:text-white hover:bg-white/10 px-2.5 py-2 rounded-lg transition-colors text-sm font-bold shrink-0 min-h-[2.75rem]"
                     onClick={onClose}
                 >
-                    <span className="shrink-0 text-base leading-none">←</span>{' '}
+                    <ModalBackChevronIcon className="w-5 h-5 shrink-0" />{' '}
                     <span className="truncate max-w-[28vw]">{ui.gameBackButton}</span>
                 </button>
                 <div className="min-w-0 flex items-center justify-center gap-1.5">

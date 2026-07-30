@@ -107,6 +107,8 @@ export class ShellStore extends EventTarget {
              *  the publishing toast and the construction-panel edit
              *  lock. Cleared in `publishTreePublicInteractive`'s `finally`. */
             publishingTree: false,
+            /** True while `runSourceBoot` is in flight (suppresses green tree overlay). */
+            sourceBootInProgress: false,
             error: null,
             lastErrorMessage: null,
             viewMode: 'explore',

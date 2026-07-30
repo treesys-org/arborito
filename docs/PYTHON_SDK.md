@@ -1,6 +1,6 @@
 # Python SDK
 
-Package: **[arborito-sdk](https://github.com/treesys-org/arborito-sdk)** · version **0.2.5**
+Package: **[arborito-sdk](https://github.com/treesys-org/arborito-sdk)** · version **0.2.6**
 
 ## Who are you?
 
@@ -48,8 +48,11 @@ prose = api.lesson.plainText(lesson)
 
 # Optional AI (needs local llama.cpp)
 api = Arborito.from_arborito("course.arborito", lang="EN", ai_mode="dynamic")
-res = api.ask.lesson_action(lesson, "What should I practice?", {"persona": "Guide"})
+print(api.ask.speak("Guide", "Welcome. Say hello.")["line"])
+res = api.ask.tutor(lesson, "What should I practice?", {"persona": "Guide"})
 ```
+
+Full static / dynamic mode / advanced API table: [arborito-sdk README](https://github.com/treesys-org/arborito-sdk#api-surface-static-vs-dynamic-mode) and [`sdk-spec.md`](sdk-spec.md#dynamic-ai-scene-helpers-dynamic-mode).
 
 ## Naming
 
@@ -57,18 +60,17 @@ Arcade surface methods keep **camelCase** (`fromLesson`, `buildCard`, `tasksFrom
 
 ## CLI
 
+Full table in the [SDK README](https://github.com/treesys-org/arborito-sdk#cli-commands). Summary:
+
 | Area | Commands |
 |------|----------|
-| Interactive | `shell` or `arborito-cli course.arborito` (REPL) |
-| Navigate | `list`, `go`, `search` |
-| Lesson | `read` (enriched), `edit` (TUI / F2 Quiz), `edit --raw`, `games` |
+| Interactive | `shell` or `arborito-cli course.arborito` (REPL); `help`; `exit` |
+| Navigate | `list`, `go N` / `back` / `where` / `"name"`, `search`, `search --courses` |
+| Lesson | `read`, `edit`, `edit --raw`, `games`, `info` |
 | Study | `quiz`, `ask` |
-| Branches | `branch list`, `branch add CODE`, `branch open "Name"`, `branch import`, `branch publish` |
-| Trees | `tree list`, `tree open "Name"`, `tree import` |
-| Copy | `cp branch "Name"` / `cp tree "Name"` |
-| Account | `session register`, `session login`, `session whoami` |
-| Memory | `memory due`, `memory report` |
-| Config | `config relay …`, `config ai …` |
+| Branches / trees | `branch …`, `tree …`, `cp branch|tree`, `fav …` |
+| Account / memory | `session …`, `memory due|report` |
+| Config / scripts | `config relay|ai …`, `script` / `run` / `batch` |
 
 ### Lesson editor (terminal)
 
@@ -101,9 +103,9 @@ api.quiz.grade_answer(lesson, {"q": "…", "correct": "…"}, "student answer")
 
 `api.narrative` exists for programmatic YAML scenes; the CLI uses `read` / `quiz` for study.
 
-Parity with browser SDK: `lesson.by_id` / `byId`, `lesson.plainText`, `lesson.context_for_ai`, `challenge.tasksFromLesson`, `quiz.grade_answer`, `quiz.find_code_replay`, `ask.lesson_action` — see [`sdk-spec.md`](sdk-spec.md).
+Parity with browser SDK: quiz/challenge helpers plus dynamic mode scene AI (`ask.speak` / `reply` / `fromCourse` / `check` / `tutor`) — see [`sdk-spec.md`](sdk-spec.md).
 
-Examples: `examples/minimal_quiz.py` (static), `examples/ai_tutor.py` (AI tutor REPL).
+Examples: `examples/minimal_quiz.py` (static), `examples/ai_scene.py` (scene gates), `examples/ai_tutor.py` (tutor REPL).
 
 ## What you can build
 
@@ -114,6 +116,7 @@ Examples: `examples/minimal_quiz.py` (static), `examples/ai_tutor.py` (AI tutor 
 | Discord SRS bot | `memory.due()`, `quiz()` |
 | CI `@quiz` validator | `challenge.isComplete` |
 | Terminal course editor | `arborito-cli edit` + `[tui]` |
+| Visual novel / speaking gate | `ask.speak` / `reply` / `fromCourse` / `check` |
 
 ## Authoring: three surfaces
 

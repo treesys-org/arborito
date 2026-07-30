@@ -1,16 +1,19 @@
 #!/usr/bin/env node
 /**
- * Fail when feature modals violate MODAL_STANDARDS hard rules (docs/MODAL_STANDARDS.md §2).
+ * Fail when feature modals violate MODAL_STANDARDS hard rules (docs/MODAL_STANDARDS.md §2 + §8b).
  *
  * Scans src/features modals (*.js, *.jsx under modals/) for:
  * - fixed inset-0 (hand-built backdrop)
  * - shadow-2xl (duplicate modal shadow)
  * - <div class="animate-spin (hand-rolled spinner)
  * - panelClass with max-w-* (width must use panelSize)
+ * - Unicode ← / ‹ as back controls (use ModalBackChevronIcon / arborito-mmenu-back)
+ * - Cancel/confirm CTAs without footer chrome (ModalBinaryFooter / arborito-modal-footer / footer=)
+ * - Shell + binary CTAs without shell `footer=` slot (piso / consolidation)
  *
  * Scans all src/features JS/JSX for raw CTA color contracts.
  *
- * Allowlist: documented §4 exceptions (see ALLOWLIST_SUFFIXES).
+ * Allowlist: documented §4 / §8b exceptions (see ALLOWLIST_*).
  */
 import { readdir, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
@@ -22,6 +25,15 @@ const FEATURES = join(ROOT, 'src/features');
 const ALLOWLIST_SUFFIXES = [
     'learning/components/Content.jsx',
 ];
+
+/**
+ * File-level consolidation exceptions (MODAL_STANDARDS §8b).
+ * Keys: rule kind → path suffixes.
+ */
+const CONSOLIDATION_ALLOWLIST = {
+    /** Diff lines show “after ← before”; not a back control. */
+    'unicode-back-nav': ['editor/modals/ConstructionHistoryModal.jsx'],
+};
 
 const CTA_TONES = '(emerald|blue|amber|rose|purple|green|red|sky|indigo)';
 const CALLOUT_TONES = '(amber|red|blue|green|emerald|sky|purple)';
@@ -58,6 +70,13 @@ const MODAL_RULES = [
         ),
         detail: 'Hand-built callout colors : use Callout',
     },
+    {
+        kind: 'unicode-back-nav',
+        re: /(?:^\s*←\s*$|>\s*←\s*<|['"`]←['"`]|←\s*\{[A-Za-z_$]|>\s*‹\s*<|['"`]‹['"`])/,
+        detail:
+            'Unicode back glyph : use ModalBackChevronIcon / arborito-mmenu-back (modal consolidation)',
+        consolidationAllowlist: true,
+    },
 ];
 
 const CTA_COLOR_RULES = [
@@ -81,8 +100,19 @@ const CTA_COLOR_RULES = [
 ];
 
 function isAllowlisted(relPath, rule) {
-    if (!rule.allowlist) return false;
-    return ALLOWLIST_SUFFIXES.some((suffix) => relPath.endsWith(suffix));
+    if (rule.allowlist) {
+        return ALLOWLIST_SUFFIXES.some((suffix) => relPath.endsWith(suffix));
+    }
+    if (rule.consolidationAllowlist) {
+        const list = CONSOLIDATION_ALLOWLIST[rule.kind] || [];
+        return list.some((suffix) => relPath.endsWith(suffix));
+    }
+    return false;
+}
+
+function isConsolidationAllowlisted(relPath, kind) {
+    const list = CONSOLIDATION_ALLOWLIST[kind] || [];
+    return list.some((suffix) => relPath.endsWith(suffix));
 }
 
 /** @param {string} dir */
@@ -103,6 +133,7 @@ const violations = [];
 
 const allFeatureSources = await walkSources(FEATURES);
 const modalSources = allFeatureSources.filter((f) => f.includes('/modals/'));
+const modalJsxSources = modalSources.filter((f) => f.endsWith('.jsx'));
 
 function scanFile(file, rules) {
     const rel = relative(ROOT, file).replace(/\\/g, '/');
@@ -131,22 +162,70 @@ function scanFile(file, rules) {
     });
 }
 
+/**
+ * File-level consolidation: binary CTAs must live in shared footer chrome / shell footer slot.
+ * @param {string} file
+ */
+async function scanModalConsolidation(file) {
+    const rel = relative(ROOT, file).replace(/\\/g, '/');
+    const content = await readFile(file, 'utf8');
+    const hasBinaryCancel = /\bMODAL_CTA_CANCEL\b/.test(content);
+    const hasFooterChrome =
+        /\bModalBinaryFooter\b/.test(content) || /arborito-modal-footer/.test(content);
+    const hasFooterProp = /\bfooter\s*=/.test(content);
+    const hasShell = /\b(DockModalShell|ModalCenteredShell|DockHubShell)\b/.test(content);
+
+    if (
+        hasBinaryCancel &&
+        !hasFooterChrome &&
+        !isConsolidationAllowlisted(rel, 'cta-without-footer-chrome')
+    ) {
+        violations.push({
+            file: rel,
+            kind: 'cta-without-footer-chrome',
+            detail:
+                'MODAL_CTA_CANCEL without ModalBinaryFooter / arborito-modal-footer (modal consolidation / piso)',
+            line: 0,
+            excerpt: 'file uses MODAL_CTA_CANCEL without shared footer chrome',
+        });
+    }
+
+    if (
+        hasShell &&
+        hasBinaryCancel &&
+        hasFooterChrome &&
+        !hasFooterProp &&
+        !isConsolidationAllowlisted(rel, 'shell-without-footer-slot')
+    ) {
+        violations.push({
+            file: rel,
+            kind: 'shell-without-footer-slot',
+            detail:
+                'Shell + Cancel CTA must pass footer={…} (sticky piso). Do not leave confirm actions only in the scroll body.',
+            line: 0,
+            excerpt: 'DockModalShell / ModalCenteredShell / DockHubShell missing footer= prop',
+        });
+    }
+}
+
 await Promise.all([
     ...modalSources.map((file) => scanFile(file, [...MODAL_RULES, ...CTA_COLOR_RULES])),
     ...allFeatureSources
         .filter((f) => !f.includes('/modals/'))
         .map((file) => scanFile(file, CTA_COLOR_RULES)),
+    ...modalJsxSources.map((file) => scanModalConsolidation(file)),
 ]);
 
 if (violations.length) {
     console.error(`[check-modal-compliance] ${violations.length} violation(s):\n`);
     for (const v of violations) {
-        console.error(`  ${v.file}:${v.line} [${v.kind}] ${v.detail}`);
+        const loc = v.line ? `${v.file}:${v.line}` : v.file;
+        console.error(`  ${loc} [${v.kind}] ${v.detail}`);
         console.error(`    ${v.excerpt}`);
     }
     process.exit(1);
 }
 
 console.log(
-    `[check-modal-compliance] OK : ${modalSources.length} modal file(s), ${allFeatureSources.length} feature source file(s) scanned`
+    `[check-modal-compliance] OK : ${modalSources.length} modal file(s), ${allFeatureSources.length} feature source file(s) scanned (incl. consolidation / piso)`
 );

@@ -19,6 +19,7 @@ export const shellUiStore = createArboritoStore(() => ({
     lastErrorMessage: null,
     lastActionMessage: null,
     publishingTree: false,
+    sourceBootInProgress: false,
     creatorModerationAlerts: [],
     creatorModerationUnreadCount: 0,
 }));
@@ -39,6 +40,7 @@ export function syncShellUiStoreFromSnapshot(snap) {
         lastErrorMessage: snap.lastErrorMessage ?? null,
         lastActionMessage: snap.lastActionMessage ?? null,
         publishingTree: !!snap.publishingTree,
+        sourceBootInProgress: !!snap.sourceBootInProgress,
         creatorModerationAlerts: Array.isArray(snap.creatorModerationAlerts) ? snap.creatorModerationAlerts : [],
         creatorModerationUnreadCount: Number(snap.creatorModerationUnreadCount) || 0,
     });

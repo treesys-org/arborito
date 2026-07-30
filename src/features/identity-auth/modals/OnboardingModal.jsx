@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { notifyOnboardingShellPainted } from '../../../boot-loader.js';
 import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 import { DockModalShell, ModalCenteredShell } from '../../../app/components/ModalShell.jsx';
+import { ModalBackChevronIcon } from '../../../app/components/ModalHero.jsx';
 import {
     hasGdprNetworkConsent,
     grantGdprNetworkConsent,
@@ -89,7 +90,7 @@ function OnboardingNavbar({ ui, step, theme, canGoBack, onBack, onToggleTheme })
                     title={backLbl}
                     onClick={onBack}
                 >
-                    <span aria-hidden="true">‹</span>
+                    <ModalBackChevronIcon className="w-5 h-5" />
                 </button>
             ) : (
                 <span className="arborito-modal-nav__btn arborito-modal-nav__btn--ghost" aria-hidden="true" />

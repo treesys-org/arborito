@@ -6,7 +6,6 @@ import { useTreeGraphSlice } from '../../../stores/tree-graph-store.js';
 import { LoadingBrand, LoadingRow } from '../../../shared/ui/Loading.jsx';
 import { isBibliotecaUiOpen } from '../../sources/api/sources-session.js';
 import { isBootLoaderDismissed } from '../../../boot-loader.js';
-import { getArboritoStore } from '../../../core/store-singleton.js';
 
 const STYLE_ID = 'arborito-tree-growing-overlay-style';
 
@@ -156,12 +155,7 @@ function currentMode(state) {
      * stack the green modal — that was the empty-sky flash after early dismiss.
      */
     if (!isBootLoaderDismissed() || s.bootChromeReady === false) return null;
-    try {
-        const store = getArboritoStore?.();
-        if (store?._sourceBootStarted && !store._sourceBootFinished) return null;
-    } catch {
-        /* ignore */
-    }
+    if (s.sourceBootInProgress) return null;
 
     if (publishHubOpen) {
         if (s.publishingTree) return 'block';
@@ -196,7 +190,12 @@ function currentText(state, ui) {
 export function TreeGrowingOverlay() {
     const ui = useHookUi();
     const { modal } = useShellModalLang();
-    const publishingTree = useShellUiSlice((s) => s.publishingTree);
+    const { publishingTree, sourceBootInProgress } = useShellUiSlice(
+        useShallow((s) => ({
+            publishingTree: s.publishingTree,
+            sourceBootInProgress: s.sourceBootInProgress,
+        }))
+    );
     const { treeHydrating, treeGrowingOverlay, treeGrowingHint, activeSource, data, rawGraphData } =
         useTreeGraphSlice(useShallow(overlaySliceSelector));
     const [bootChromeReady, setBootChromeReady] = useState(() => isBootLoaderDismissed());
@@ -213,6 +212,7 @@ export function TreeGrowingOverlay() {
         () => ({
             modal,
             publishingTree,
+            sourceBootInProgress,
             treeHydrating,
             treeGrowingOverlay,
             treeGrowingHint,
@@ -224,6 +224,7 @@ export function TreeGrowingOverlay() {
         [
             modal,
             publishingTree,
+            sourceBootInProgress,
             treeHydrating,
             treeGrowingOverlay,
             treeGrowingHint,

@@ -47,11 +47,13 @@ In `src/features/**/modals/*.jsx` and `components/*.jsx`:
 4. **No** `modalShellHtml` / `modalHeroHtml` / `calloutHtml` in features — use React components from §1.
 5. **Width:** use `panelSize` prop (`compact`, `content`, `dock-hub`, …), see `modal-panel-size.js`. No ad hoc `max-w-*` on the panel.
 6. **Mobile:** `ModalShell` infers `shouldShowMobileUI()`; do not duplicate `arborito-modal--mobile` flags by hand.
+7. **Consolidation / piso (confirm + choice):** binary actions use `DialogModal` / `ModalBinaryFooter` / `arborito-modal-footer` in the shell `footer={…}` slot (sticky bottom). No Unicode `←` / `‹` for back — use `ModalBackChevronIcon` / `arborito-mmenu-back`. Enforced by `npm run check:modal-compliance`.
 
 Quick audit before PR:
 
 ```bash
 rg -n 'dangerouslySetInnerHTML|bindMobileTap|wireArboritoSwitch|modalShellHtml|fixed inset-0' src/features/*/modals/*.jsx
+npm run check:quality -- --only modal-compliance
 ```
 
 Zero matches in touched files = good.

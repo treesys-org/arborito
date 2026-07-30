@@ -565,7 +565,7 @@ Full chat; returns provider-specific result. Host uses `aiService.chat()` (nativ
 
 - `quiz(lesson, { count?, askOptions? })`: classroom-style Q/A array. See [Quiz helpers: `quiz`](#quiz-helpers-quiz) for `quiz.pool`, `quiz.pick`, `quiz.buildOptions`, and `quiz.itemKey`.
 - `matchPairs(lesson, { count?, askOptions?, fillFromCurriculum?, excludeFaces? })`, `{ t, d }[]` pairs. Each card **face** is unique (no duplicate text on the board). In static mode, each Quiz V2 item can yield a pair (question→answer when present, otherwise concept→definition). When `fillFromCurriculum` is true (default), pairs from other playlist lessons are merged until `count` is reached. Pass `excludeFaces` (string keys or `{t,d}` objects) to skip faces already shown in the session. Set `fillFromCurriculum: false` to use only the current lesson. Memory Garden keeps fill on so the grid stays full, and passes `excludeFaces` so advancing lessons does not recycle the same filler cards.
-- **Scene (easy dynamic):** `ask.fromCourse(topic)`, `ask.speak(who, text)`, `ask.reply(who, playerSaid, facts)`, `ask.check(playerSaid, card)` — see below.
+- **Scene (dynamic mode):** `ask.fromCourse(topic)`, `ask.speak(who, text)`, `ask.reply(who, playerSaid, facts)`, `ask.check(playerSaid, card)` — see below.
 - **Study:** `ask.tutor(lesson, playerSaid, opts?)` (alias: `ask.lessonAction`) — chat grounded in course questionnaires.
 - `ai.persona` / `ai.arborito`: string getter/setter for tutor voice.
 
@@ -618,12 +618,35 @@ Optional persona (dynamic mode only):
 window.arborito.ai.persona = 'You are a night wizard in a dungeon.';
 ```
 
-### Dynamic AI: easy scene helpers (same difficulty as static quiz)
+### Dynamic AI: scene helpers (dynamic mode)
+
+Same difficulty as the static quiz loop: a few named calls. Prefer these in **dynamic mode**; use **advanced** only when you write the prompt yourself.
+
+#### All API commands (static / dynamic / advanced)
+
+| Mode | Call | Role |
+|------|------|------|
+| Dynamic | `ask.fromCourse` / `from_course` | Practice card from the open course (`greeting`, `origin`, `purpose`, `goodbye`) |
+| Dynamic | `ask.speak(who, text)` | Paraphrase an authored line (no course quizzes in the prompt) |
+| Dynamic | `ask.reply(who, playerSaid, facts)` | NPC answers using only `facts` |
+| Dynamic | `ask.check(playerSaid, card)` | Grade against a `fromCourse` card (local match, then optional AI judge) |
+| Dynamic | `ask.tutor(lesson, playerSaid, opts?)` | Study chat grounded in course questionnaires (aliases: `lessonAction`, `lesson_action`) |
+| Static | `lesson.at` / `byId` / `plainText` | Load lesson prose for HUD / NPC |
+| Static | `challenge.fromLesson` → `modes.buildCard` | Static challenge cards |
+| Static | `challenge.tasksFromLesson` | Mission list from questionnaires |
+| Static | `quiz` / `matchPairs` | Classroom Q/A and Memory pairs |
+| Static | `quiz.matchesAny` / `gradeAnswer` / `pick` / `findCodeReplay` | Grade and pick |
+| Static | `memory.due` / `report` / `isDue` / `getStatus` | Care / SM-2 local |
+| Both | `memory.pull` / `push` / `sync` | Care sync (Nostr + login) |
+| Advanced | `ask.json` / `ask.chat` / `ask.with_context` | Raw / grounded power tools |
+| Advanced | `ask.npc` | Legacy narrative helper — prefer `speak` / `reply` |
+| Advanced | `narrative.start` / `advance` | YAML scene runner |
+| Advanced | `ai.persona` / `ai.arborito` | Tutor voice strings |
 
 Static vs dynamic — same mental model:
 
-| Static | Dynamic (scene) |
-|--------|-----------------|
+| Static | Dynamic mode |
+|--------|----------------|
 | `challenge.fromLesson` | `ask.fromCourse("greeting")` |
 | `modes.buildCard` | `ask.speak(who, text)` |
 | `quiz.matchesAny` | `ask.check(playerSaid, card)` |

@@ -46,6 +46,7 @@ const SHELL_UI_KEYS = [
     'lastErrorMessage',
     'lastActionMessage',
     'publishingTree',
+    'sourceBootInProgress',
     'creatorModerationAlerts',
     'creatorModerationUnreadCount',
 ];

@@ -34,12 +34,13 @@ function tryOpenSharedCertificate(store) {
 async function runSourceBoot(store) {
     if (store._sourceBootStarted) return;
     store._sourceBootStarted = true;
-    await ensureAppCoreReady();
-    store._restorePersistedAuthSession?.();
-    store.checkStreak?.();
-    /* Diploma share links open immediately — visitors should not wait for onboarding/tree. */
-    tryOpenSharedCertificate(store);
+    store.update({ sourceBootInProgress: true });
     try {
+        await ensureAppCoreReady();
+        store._restorePersistedAuthSession?.();
+        store.checkStreak?.();
+        /* Diploma share links open immediately — visitors should not wait for onboarding/tree. */
+        tryOpenSharedCertificate(store);
         await store.userStore.ensureBranchesHydrated();
         await store.ensureNostrReady();
         let source = null;
@@ -142,8 +143,13 @@ async function runSourceBoot(store) {
         } finally {
             clearTimeout(slowHintTimer);
         }
+    } catch (e) {
+        console.warn('[Arborito] source boot aborted', e);
+        hideInitialLoader();
+        store.update({ loading: false, treeHydrating: false, treeGrowingOverlay: false });
     } finally {
         store._sourceBootFinished = true;
+        store.update({ sourceBootInProgress: false });
         store._scheduleDeferredProductTourAfterBoot();
         scheduleIdle(() => {
             void store.checkPublishedInactivityAutoRetract?.();

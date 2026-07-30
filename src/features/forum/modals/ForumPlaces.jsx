@@ -1,4 +1,4 @@
-import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
+import { ModalHubHero, ModalBackChevronIcon } from '../../../app/components/ModalHero.jsx';
 import { threadsFor, placeNodeName } from '../api/modals/logic/forum-modal-utils.js';
 
 function PlaceLevelRow({ p, ui, threadCount, onPick, onDrill, pickClass, drillClass, compact }) {
@@ -321,9 +321,12 @@ export function ForumDesktopPlaces({
                         aria-label={mobNavBackLabel}
                         onClick={onDeskBack}
                     >
-                        ← {mobNavBackLabel}{' '}
-                        <span className="text-slate-500 dark:text-slate-400 font-semibold">·</span>{' '}
-                        <span className="font-black">{deskCurTitle}</span>
+                        <span className="inline-flex items-center gap-1.5">
+                            <ModalBackChevronIcon className="w-5 h-5 shrink-0 opacity-90" />
+                            {mobNavBackLabel}{' '}
+                            <span className="text-slate-500 dark:text-slate-400 font-semibold">·</span>{' '}
+                            <span className="font-black">{deskCurTitle}</span>
+                        </span>
                     </button>
                 </div>
             ) : null}

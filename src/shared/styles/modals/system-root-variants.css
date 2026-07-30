@@ -620,6 +620,12 @@ arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-modal-root 
         min-height: 2.75rem;
     }
 
+    .arborito-game-player-toolbar .arborito-game-player-back svg {
+        display: block;
+        flex-shrink: 0;
+        /* stroke=currentColor → slate-300 / white on dark toolbar */
+    }
+
     .arborito-game-player-toolbar .arborito-game-player-title {
         font-size: 1rem !important;
         line-height: 1.15 !important;
