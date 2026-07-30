@@ -69,7 +69,7 @@ export function OnboardingWelcome({
                 {onAccountIntent ? (
                     <button
                         type="button"
-                        className="btn-onb-account-link text-sm"
+                        className="btn-onb-skip text-sm"
                         disabled={stepAdvancing}
                         onClick={() => onAccountIntent()}
                     >
