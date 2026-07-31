@@ -3,14 +3,12 @@ import { useMemo } from 'react';
 import { getToc } from '../../learning/api/content-toc.js';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import { TreeUtils } from '../../tree-graph/api/tree-utils.js';
+import { ListRowEnter, ListRowSkeleton } from '../../../shared/ui/ListRowEnter.jsx';
 
-function SearchLoading({ label, lightChrome }) {
+function SearchLoading({ label }) {
     return (
-        <div
-            className={`py-10 text-center text-sm font-semibold ${lightChrome ? 'text-slate-600 dark:text-slate-300' : 'text-slate-500'}`}
-            role="status"
-        >
-            {label}
+        <div className="px-1 py-2" role="status" aria-live="polite" aria-busy="true" aria-label={label || 'Loading…'}>
+            <ListRowSkeleton count={4} variant="compact" />
         </div>
     );
 }
@@ -196,17 +194,21 @@ function ResultsList({ results, ui, listKind, query, onPick, onDeleteBookmark, s
             {sectionHeader ? (
                 <p className="arborito-menu-section arborito-search-results-section">{sectionHeader}</p>
             ) : null}
-            {sorted.map((res) => (
-                <SearchResultRow
-                    key={`${listKind || 'search'}-${res.id}-${res.bookmarkIndex ?? ''}`}
-                    res={res}
-                    ui={ui}
-                    listKind={listKind}
-                    onPick={onPick}
-                    onDeleteBookmark={onDeleteBookmark}
-                    confirm={confirm}
-                    removeBookmark={removeBookmark}
-                />
+            {sorted.map((res, idx) => (
+                <ListRowEnter
+                    key={`${listKind || 'search'}-${query || ''}-${res.id}-${res.bookmarkIndex ?? ''}`}
+                    index={idx}
+                >
+                    <SearchResultRow
+                        res={res}
+                        ui={ui}
+                        listKind={listKind}
+                        onPick={onPick}
+                        onDeleteBookmark={onDeleteBookmark}
+                        confirm={confirm}
+                        removeBookmark={removeBookmark}
+                    />
+                </ListRowEnter>
             ))}
         </>
     );
@@ -270,12 +272,7 @@ export function SearchResultsPanel({ state, ui, lightChrome = false, onPick, onR
     }, [query, state, onRefresh]);
 
     if (isSearching) {
-        return (
-            <SearchLoading
-                lightChrome={lightChrome}
-                label={ui.editorProcessing || 'Procesando…'}
-            />
-        );
+        return <SearchLoading label={ui.editorProcessing || ui.loading || 'Procesando…'} />;
     }
 
     if (query.length > 0) {

@@ -9,11 +9,15 @@ import {
     promptForTreeNameAndPlant,
 } from '../sources-actions-support.js';
 import {
-    loadBranch,
+    finishSourcesLoadSession,
+    captureHadCurriculumBeforeLoad,
+} from '../../../sources-session.js';
+import {
     exportBranch,
     exportComposedTree,
     exportNetworkSource,
     shareTreeLink,
+    plantNewTree,
 } from '../sources-logic.js';
 
 function isNetworkSourceActive(sourceId) {
@@ -53,6 +57,24 @@ export async function runBranchesAction(ctx, action, fields = {}) {
 
     if (action === 'show-plant') {
         await promptForTreeNameAndPlant(ctx);
+        return true;
+    }
+
+    if (action === 'show-create-kind') {
+        ctx.setOverlay('create-kind');
+        ctx.bump();
+        return true;
+    }
+
+    if (action === 'create-course-named') {
+        const trimmed = String(fields.name || '').trim();
+        if (!trimmed) {
+            store.notify(store.ui?.treeNameRequired || 'Please enter a name.', true);
+            return true;
+        }
+        ctx.setOverlay(null);
+        ctx.bump();
+        await plantNewTree(ctx.modalApi, trimmed, null);
         return true;
     }
 
@@ -131,8 +153,9 @@ export async function runBranchesAction(ctx, action, fields = {}) {
                 console.warn('[Arborito] revoke branch on delete failed', e);
             }
         }
-        /* Account draft must not survive deleting the local branch. */
-        if (branch?.privateSyncedFromAccount && store.isSignedIn?.()) {
+        /* Account draft must not survive deleting the local branch. Always try
+         * while signed in — sync flag may be cleared after sign-out/sign-in. */
+        if (store.isSignedIn?.()) {
             try {
                 await store.unpublishPrivateBranch?.(tid);
             } catch (e) {
@@ -210,7 +233,18 @@ export async function runBranchesAction(ctx, action, fields = {}) {
     }
 
     if (action === 'load-branch') {
-        await withSourcesLoadingChrome(ctx, () => loadBranch(ctx.modalApi, id, name));
+        const hadCurriculumBeforeLoad = captureHadCurriculumBeforeLoad();
+        const ok = await withSourcesNetworkLoad(ctx, () =>
+            store.loadData({
+                id,
+                name,
+                url: `branch://${id}`,
+                type: 'branch',
+                isTrusted: true,
+            })
+        );
+        if (ok) finishSourcesLoadSession(ctx.modalApi, { hadCurriculumBeforeLoad });
+        else ctx.bump();
         return true;
     }
 

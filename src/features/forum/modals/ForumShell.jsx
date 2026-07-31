@@ -29,7 +29,7 @@ function ForumModBannerControls({
     const pendingBtnCls =
         pendingCount > 0
             ? 'arborito-cta-amber border-transparent hover:opacity-90'
-            : 'bg-white text-amber-900 border-amber-300 dark:bg-slate-900/60 dark:text-amber-100 dark:border-amber-800';
+            : 'arborito-surface-tile text-amber-900 border-amber-300 dark:text-amber-100 dark:text-amber-100 dark:border-amber-800';
 
     return (
         <Callout
@@ -51,7 +51,7 @@ function ForumModBannerControls({
                 <div className="inline-flex items-center gap-1" role="group" aria-label={ui.forumModPolicyLabel || 'Posting policy'}>
                     <button
                         type="button"
-                        className={`forum-mod-policy-btn min-h-9 px-3 py-1 rounded-lg border text-[11px] font-bold transition-colors ${mode === 'free' ? 'arborito-cta-amber border-transparent' : 'bg-white text-amber-900 border-amber-300 hover:bg-amber-100 dark:bg-slate-900/60 dark:text-amber-100 dark:border-amber-800 dark:hover:bg-amber-950/40'}${modPolicyLoading ? ' opacity-60 cursor-wait' : ' cursor-pointer'}`}
+                        className={`forum-mod-policy-btn min-h-9 px-3 py-1 rounded-lg border text-[11px] font-bold transition-colors ${mode === 'free' ? 'arborito-cta-amber border-transparent' : 'arborito-surface-tile text-amber-900 border-amber-300 hover:bg-amber-100 dark:text-amber-100 dark:border-amber-800 dark:hover:bg-amber-950/40'}${modPolicyLoading ? ' opacity-60 cursor-wait' : ' cursor-pointer'}`}
                         disabled={modPolicyLoading}
                         aria-pressed={mode === 'free' ? 'true' : 'false'}
                         onClick={() => onSetPolicy('free')}
@@ -60,7 +60,7 @@ function ForumModBannerControls({
                     </button>
                     <button
                         type="button"
-                        className={`forum-mod-policy-btn min-h-9 px-3 py-1 rounded-lg border text-[11px] font-bold transition-colors ${mode === 'strict' ? 'arborito-cta-amber border-transparent' : 'bg-white text-amber-900 border-amber-300 hover:bg-amber-100 dark:bg-slate-900/60 dark:text-amber-100 dark:border-amber-800 dark:hover:bg-amber-950/40'}${modPolicyLoading ? ' opacity-60 cursor-wait' : ' cursor-pointer'}`}
+                        className={`forum-mod-policy-btn min-h-9 px-3 py-1 rounded-lg border text-[11px] font-bold transition-colors ${mode === 'strict' ? 'arborito-cta-amber border-transparent' : 'arborito-surface-tile text-amber-900 border-amber-300 hover:bg-amber-100 dark:text-amber-100 dark:border-amber-800 dark:hover:bg-amber-950/40'}${modPolicyLoading ? ' opacity-60 cursor-wait' : ' cursor-pointer'}`}
                         disabled={modPolicyLoading}
                         aria-pressed={mode === 'strict' ? 'true' : 'false'}
                         onClick={() => onSetPolicy('strict')}
@@ -85,7 +85,7 @@ function ForumModBannerControls({
                       'Every signed message publishes immediately. You can still remove messages and ban users after the fact.'}
             </p>
             {modPanelOpen ? (
-                <div className="forum-mod-pending-panel mt-2 rounded-lg border border-amber-300 dark:border-amber-800 bg-white/80 dark:bg-slate-900/60">
+                <div className="forum-mod-pending-panel mt-2 rounded-lg border border-amber-300 dark:border-amber-800 arborito-surface-tile">
                     <div className="px-3 py-2 border-b border-amber-200/80 dark:border-amber-900/60 flex items-center justify-between gap-2">
                         <span className="text-[11px] font-bold text-amber-900 dark:text-amber-100">
                             {ui.forumModPendingTitle || 'Pending messages awaiting your approval'}
@@ -135,7 +135,7 @@ function ForumModBannerControls({
                                             </button>
                                             <button
                                                 type="button"
-                                                className="forum-mod-reject min-h-9 px-2.5 py-1 rounded-md text-[11px] font-bold bg-white text-rose-700 border border-rose-300 hover:bg-rose-50 dark:bg-slate-900 dark:text-rose-200 dark:border-rose-800"
+                                                className="forum-mod-reject min-h-9 px-2.5 py-1 rounded-md text-[11px] font-bold arborito-surface-tile text-rose-700 border border-rose-300 hover:bg-rose-50 dark:text-rose-200 dark:border-rose-800"
                                                 onClick={() => onReject(id)}
                                             >
                                                 {ui.forumModReject || 'Reject'}
@@ -160,10 +160,10 @@ function ForumLimitNote({ ui, isPublicForumTree }) {
     const limitSummary = ui.forumLimitSummaryShort || 'Forum notice';
     return (
         <>
-            <div className="hidden lg:block shrink-0 px-3 py-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
+            <div className="hidden lg:block shrink-0 px-3 py-2 border-b border-slate-200 dark:border-slate-800 arborito-surface-tile">
                 <p className="m-0 text-[11px] leading-snug text-slate-600 dark:text-slate-300">{limitBody}</p>
             </div>
-            <details className="forum-mob-limit-details lg:hidden shrink-0 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
+            <details className="forum-mob-limit-details lg:hidden shrink-0 border-b border-slate-200 dark:border-slate-800 arborito-surface-tile">
                 <summary className="cursor-pointer select-none list-none flex items-center justify-between gap-2 px-3 py-2.5 min-h-11 text-xs font-bold text-slate-700 dark:text-slate-200">
                     <span>{limitSummary}</span>
                     <span className="forum-mob-limit-chev text-slate-400 shrink-0 text-[10px] leading-none transition-transform" aria-hidden="true">
@@ -202,6 +202,7 @@ function ForumPanelShell({
     children,
     onBackdropClick,
     overlay = null,
+    shellOpts = null,
 }) {
     if (embedded) {
         return (
@@ -227,7 +228,7 @@ function ForumPanelShell({
             mobile={mobile}
             sizeTier="HUB"
             skipBodyWrap
-            shellOpts={{ rootFlags: 'arborito-modal--forum', lift: 'strong' }}
+            shellOpts={{ rootFlags: 'arborito-modal--forum', lift: 'strong', ...(shellOpts || {}) }}
             onBackdropClick={onBackdropClick ?? onClose}
             hero={hero}
             footer={footer}
@@ -563,7 +564,7 @@ export function ForumShell(props) {
                     showNewTopic={embedded}
                 />
             ) : null}
-            <div className="forum-master-detail-root flex-1 flex flex-col lg:flex-row min-h-0 bg-slate-100 dark:bg-slate-950 forum-body-canvas">
+            <div className="forum-master-detail-root forum-body-canvas flex-1 flex flex-col lg:flex-row min-h-0">
                 <ForumDesktopPlaces
                     ui={ui}
                     places={places}
@@ -671,6 +672,7 @@ export function ForumShell(props) {
             embedded={embedded}
             mobile={mobile}
             onClose={onClose}
+            shellOpts={shellOpts}
             hero={mobNavOpen ? mobNavHero : forumHero}
             overlay={newTopicOverlay}
             onBackdropClick={() => {

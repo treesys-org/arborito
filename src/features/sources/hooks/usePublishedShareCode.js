@@ -11,8 +11,10 @@ import {
 /** Resolve + optionally hydrate missing share codes for a library row. */
 export function usePublishedShareCode({ entry, kind = 'branch', rawGraphData, activeSource } = {}) {
     const readCode = () => {
-        const fromEntry = kind === 'composed-tree' ? composedTreeShareCode(entry) : branchShareCode(entry);
-        if (fromEntry) return fromEntry;
+        if (entry) {
+            /* Garden row: only that entry’s publish fields — not activeSource/rawGraph leftovers. */
+            return kind === 'composed-tree' ? composedTreeShareCode(entry) : branchShareCode(entry);
+        }
         return shareCodeFromActiveSource(activeSource, rawGraphData);
     };
     const readOpts = () =>

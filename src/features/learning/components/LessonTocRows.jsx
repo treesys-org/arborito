@@ -280,7 +280,7 @@ export function TocConstructRow({
                 <input
                     ref={editInputRef}
                     type="text"
-                    className="js-toc-edit-title w-full min-w-0 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm py-1.5 px-2 font-bold"
+                    className="js-toc-edit-title w-full min-w-0 rounded-lg border border-slate-200 dark:border-slate-600 arborito-surface-tile text-sm py-1.5 px-2 font-bold"
                     value={editValue}
                     onChange={(e) => setEditValue(e.target.value)}
                     placeholder={editHint || renameHint}

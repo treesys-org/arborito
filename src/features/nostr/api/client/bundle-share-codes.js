@@ -6,7 +6,7 @@
 import { verifyEvent } from '../../../../../vendor/nostr-tools/lib/esm/index.js';
 import { normalizeTreeShareCode } from '../../../sources/api/share-code.js';
 import { normalizeNostrRelayUrls } from '../nostr-relays-runtime.js';
-import { KIND_TREE_CODE, TAG_APP, TAG_APP_VALUE, treeCodeDTag } from '../nostr-spec.js';
+import { KIND_BUNDLE_HEADER, KIND_TREE_CODE, TAG_APP, TAG_APP_VALUE, bundleHeaderDTag, treeCodeDTag } from '../nostr-spec.js';
 
 export const bundleShareCodesMixin = {
     async signTreeCodeClaim(pair, code, universeId, recommendedRelays = null) {
@@ -134,7 +134,44 @@ export const bundleShareCodesMixin = {
         try {
             if (await this.isUniverseRevoked({ pub: owner, universeId })) return null;
         } catch {
-            /* soft-fail: still return the claim if revoke check errors */
+            /* soft-fail on revoke query errors — still probe the newest header below */
+        }
+        /* Playlist/course may keep a live tree_code claim after revoke when the
+         * share-code tombstone failed; newest bundle header is the content truth. */
+        try {
+            const d = bundleHeaderDTag(owner, universeId);
+            const hdrEvs = await this._query(
+                { kinds: [KIND_BUNDLE_HEADER], authors: [owner], '#d': [d], limit: 8 },
+                5000
+            );
+            let best = null;
+            let bestKey = '';
+            for (const ev of hdrEvs || []) {
+                if (!ev || String(ev.pubkey) !== owner) continue;
+                let updated = '';
+                try {
+                    updated = String(JSON.parse(ev.content || 'null')?.updatedAt || '').trim();
+                } catch {
+                    updated = '';
+                }
+                const created = String(Math.max(0, Number(ev.created_at) || 0)).padStart(16, '0');
+                const key = `${updated}\0${created}\0${String(ev.id || '')}`;
+                if (!best || key > bestKey) {
+                    best = ev;
+                    bestKey = key;
+                }
+            }
+            if (best) {
+                let meta;
+                try {
+                    meta = JSON.parse(best.content || 'null');
+                } catch {
+                    meta = null;
+                }
+                if (meta && meta.revoked) return null;
+            }
+        } catch {
+            /* header probe is best-effort */
         }
         const relays = Array.isArray(raw.recommendedRelays) ? normalizeNostrRelayUrls(raw.recommendedRelays) : [];
         return { pub: owner, universeId, recommendedRelays: relays };

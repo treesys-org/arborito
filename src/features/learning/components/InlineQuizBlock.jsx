@@ -78,7 +78,7 @@ export function InlineQuizBlock({
     if (!isQuizChallengeComplete(block)) {
         return (
             <div
-                className={`arborito-inline-quiz arborito-inline-quiz--incomplete not-prose my-8 rounded-2xl border-2 border-slate-200 dark:border-slate-600 bg-slate-50/90 dark:bg-slate-900/40 px-4 py-5 text-center`}
+                className={`arborito-inline-quiz arborito-inline-quiz--incomplete not-prose my-8 rounded-2xl border-2 border-slate-200 dark:border-slate-600 arborito-surface-tile px-4 py-5 text-center`}
                 data-quiz-block-id={blockId}
             >
                 <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">
@@ -171,7 +171,7 @@ export function InlineQuizBlock({
     if (isExamMode && !sessionActive && blockAttempted) {
         return (
             <div
-                className={`arborito-inline-quiz arborito-inline-quiz--exam-section not-prose my-6 rounded-xl border ${borderClass} bg-slate-50 dark:bg-slate-800/50 px-4 py-3`}
+                className={`arborito-inline-quiz arborito-inline-quiz--exam-section not-prose my-6 rounded-xl border ${borderClass} arborito-surface-tile px-4 py-3`}
                 data-quiz-block-id={blockId}
             >
                 <div className="flex items-center justify-between gap-3">
@@ -222,7 +222,7 @@ export function InlineQuizBlock({
         if (isExamMode) {
             return (
                 <div
-                    className={`arborito-inline-quiz arborito-inline-quiz--exam-loading not-prose my-8 rounded-3xl border-2 ${borderClass} bg-white dark:bg-slate-800 p-6 md:p-8 text-center`}
+                    className={`arborito-inline-quiz arborito-inline-quiz--exam-loading not-prose my-8 rounded-3xl border-2 ${borderClass} arborito-surface-tile p-6 md:p-8 text-center`}
                     data-quiz-block-id={blockId}
                     aria-busy="true"
                 >
@@ -245,7 +245,7 @@ export function InlineQuizBlock({
             : ui.quizBlockStart || ui.quizStart || 'Start';
         return (
             <div
-                className={`arborito-inline-quiz arborito-inline-quiz--idle not-prose my-8 rounded-3xl border-2 ${borderClass} bg-white dark:bg-slate-800 p-6 md:p-8 text-center`}
+                className={`arborito-inline-quiz arborito-inline-quiz--idle not-prose my-8 rounded-3xl border-2 ${borderClass} arborito-surface-tile p-6 md:p-8 text-center`}
                 data-quiz-block-id={blockId}
                 data-attention-nonce={attentionNonce}
             >

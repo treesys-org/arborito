@@ -9,9 +9,8 @@
  * state) and makes the "Publicando árbol…" toast feel intentional instead
  * of "is the app frozen?".
  *
- * The toast itself (`.arborito-tree-growing-toast`) lives at z-index 10000
- * with `pointer-events: none` so it stays visible above the lock and never
- * intercepts the user's clicks.
+ * The block overlay (`.arborito-tree-growing-block`) lives at z-index 100000
+ * so it stays visible above the lock during publish.
  */
 
 html.arborito-publishing-tree :is(arborito-construction-panel, [data-arborito-panel="construction-panel"]),

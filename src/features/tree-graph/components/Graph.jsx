@@ -13,18 +13,24 @@ import { GraphConstructionLayer } from './construction/GraphConstructionLayer.js
 import { CurriculumSwitcherModal } from './curriculum/CurriculumSwitcherModal.jsx';
 import { GardenBackground } from '../../garden-progress/components/GardenBackground.jsx';
 import { ensureDeferredConstructionStyles } from '../../../shared/lib/lazy-stylesheet.js';
+import { GraphAwaitingTrunkSvg, GraphRootComicAwaiting } from './GraphRootComicAwaiting.jsx';
 
 function useGraphShellClasses(state, userStore) {
     return useMemo(() => {
         const hasData = !!state.data;
         const hydrating = !!state.treeHydrating;
+        const softMount = !!state.bibliotecaSoftMount;
         const growingOverlay = !!state.treeGrowingOverlay;
         const hasSource = !!state.activeSource;
         const isConstruct = !!state.constructionMode;
+        const hasRaw = !!(state.rawGraphData?.languages || state.rawGraphData?.nodes);
 
-        const showLoadingContent = hydrating || growingOverlay || (hasSource && !hasData);
+        const showLoadingContent = hydrating || softMount || growingOverlay || (hasSource && !hasData);
+        /* Keep the canvas visible when a raw/skeleton payload exists, or while
+         * hydrating — knot/child skeletons paint instead of a blank sky. */
+        const hideTreeChrome = showLoadingContent && !hasData && !hasRaw && !hydrating && !softMount;
 
-        const treeUiVisible = !!(hasData || hydrating || hasSource);
+        const treeUiVisible = !!(hasData || hydrating || softMount || hasSource || hasRaw);
 
         const src = state.activeSource;
         const id = String(src?.id || '');
@@ -39,8 +45,8 @@ function useGraphShellClasses(state, userStore) {
             'graph-container',
             'transition-colors',
             'duration-500',
-            treeUiVisible && hasData ? 'graph-container--mobile-tree-active' : '',
-            showLoadingContent && !hasData ? 'graph-container--tree-content-hidden' : '',
+            treeUiVisible ? 'graph-container--mobile-tree-active' : '',
+            hideTreeChrome ? 'graph-container--tree-content-hidden' : '',
             frozen ? 'arborito-tree-frozen' : '',
             isConstruct ? 'bg-blueprint' : 'bg-sky',
         ]
@@ -59,7 +65,9 @@ function useGraphShellClasses(state, userStore) {
         return { containerClasses, mobileTreeClasses };
     }, [
         state.data,
+        state.rawGraphData,
         state.treeHydrating,
+        state.bibliotecaSoftMount,
         state.treeGrowingOverlay,
         state.activeSource,
         state.constructionMode,
@@ -105,6 +113,16 @@ export function Graph({ embed }) {
     useMobileTrunkScroll({ model, scroll, hostRefs });
 
     const { containerClasses, mobileTreeClasses } = useGraphShellClasses(state, userStore);
+    const softOrHydrating = !!(state.bibliotecaSoftMount || state.treeHydrating);
+    const hasPath = !!model?.pathNodes?.length;
+    /* Keep placeholder trunk SVG for the whole wait — never blank it when structure arrives. */
+    const showAwaitingTrunk = softOrHydrating || (state.activeSource && !state.data && !hasPath);
+    /* Comic root slot only before path exists; then real knots keep the same root SVG. */
+    const showComicSlot = showAwaitingTrunk && !hasPath;
+    const comicCopy = {
+        title: state.ui?.treeTrunkGrowingTitle || state.ui?.treeGrowingTitle || '',
+        body: state.ui?.treeTrunkGrowingBody || state.ui?.treeGrowingPleaseWait || '',
+    };
 
     useEffect(() => {
         if (state.constructionMode) void ensureDeferredConstructionStyles();
@@ -163,8 +181,15 @@ export function Graph({ embed }) {
                             />
                             <div ref={trunkBodyRef} className="mobile-trunk-body" id="mobile-trunk-body">
                                 <div ref={trunkColRef} className="mobile-trunk-col" id="mobile-trunk-col">
+                                    {showAwaitingTrunk ? <GraphAwaitingTrunkSvg /> : null}
                                     <div ref={knotsRef} id="mobile-knots-container" className="mobile-knots-container">
-                                        <MobileKnotsColumn model={model} />
+                                        {showComicSlot ? (
+                                            <GraphRootComicAwaiting
+                                                title={comicCopy.title}
+                                                body={comicCopy.body}
+                                            />
+                                        ) : null}
+                                        {hasPath ? <MobileKnotsColumn model={model} /> : null}
                                     </div>
                                 </div>
                                 <div className="mobile-right-col" id="mobile-right-col">

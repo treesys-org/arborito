@@ -1,6 +1,6 @@
 import { useGardenProgress } from '../hooks/useGardenProgress.js';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
-import { LoadingBrand } from '../../../shared/ui/Loading.jsx';
+import { ListRowEnter, ListRowSkeleton } from '../../../shared/ui/ListRowEnter.jsx';
 import { buildGardenPlotItems, getVitalityLabel, getVitalityPct } from '../api/garden-stage.js';
 import { getAvailableLumens, getConsumableOwnedCount, getEquippedDecor, GARDEN_SHOP_ITEMS } from '../api/lumen-shop.js';
 
@@ -219,9 +219,11 @@ export function GardenRankingList({ rows, ui, weekKey }) {
     return (
         <>
             <ol className="garden-ranking__list">
-                {rows.map((row) => (
-                    <li
+                {rows.map((row, idx) => (
+                    <ListRowEnter
                         key={`${row.rank}-${row.displayName}`}
+                        as="li"
+                        index={idx}
                         className={`garden-ranking__row${row.isSelf ? ' garden-ranking__row--self' : ''}`}
                     >
                         <span className="garden-ranking__rank">
@@ -234,7 +236,7 @@ export function GardenRankingList({ rows, ui, weekKey }) {
                         <span className="garden-ranking__score">
                             {row.weeklyLumens} {ui.xpUnit || ''}
                         </span>
-                    </li>
+                    </ListRowEnter>
                 ))}
             </ol>
             <p className="garden-ranking__week">
@@ -284,13 +286,8 @@ export function GardenRankingSection({
             </p>
             <div id="garden-ranking-body">
                 {loading ? (
-                    <div className="arborito-loading-panel arborito-loading-panel--sky" role="status" aria-live="polite" aria-busy="true">
-                        <LoadingBrand
-                            label={ui.loading}
-                            size="lg"
-                            tone="sage"
-                            extraClass="arborito-loading-brand--panel"
-                        />
+                    <div role="status" aria-live="polite" aria-busy="true" aria-label={ui.loading || 'Loading…'}>
+                        <ListRowSkeleton count={3} variant="compact" />
                     </div>
                 ) : emptyMessage ? (
                     <p className="garden-ranking__empty">{emptyMessage}</p>

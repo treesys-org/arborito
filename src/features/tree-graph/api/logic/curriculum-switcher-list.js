@@ -2,14 +2,31 @@ import { getArboritoStore as store } from '../../../../core/store-singleton.js';
 import { formatBranchNamesSummary, resolveBranchRefDisplayNames } from '../../../forest/api/tree-branch-labels.js';
 import { canonicalNetworkTreeUrlString, resolveActiveBranchId } from '../../../sources/api/modals/logic/sources-helpers.js';
 import { isBundledArboritoDemoBranch } from '../../../../core/demo/arborito-demo-ids.js';
+import {
+    resolveBranchCatalogIcon,
+    resolveDirectoryIconForPublish,
+    resolveOnlineListingIcon,
+} from '../../../sources/api/branch-catalog-icon.js';
+import { kindEmoji } from '../../../sources/api/sources-kind-ui.js';
+import { parseNostrTreeUrl } from '../../../nostr/api/nostr-refs.js';
 
 export const TREE_SWITCHER_LIST_CAP = 80;
 
-/** @typedef {{ kind: string, id: string, name: string, url: string, isActive: boolean, branchSummary: string }} TreeSwitcherItem */
+/** @typedef {{ kind: string, id: string, name: string, url: string, isActive: boolean, branchSummary: string, icon?: string }} TreeSwitcherItem */
 
 function branchIdFromUrl(url) {
     const u = String(url || '');
     return u.startsWith('branch://') ? u.slice('branch://'.length).split('/')[0] : '';
+}
+
+function composedTreeSwitcherIcon(tree) {
+    const fromPublish = resolveDirectoryIconForPublish(
+        tree?.data ? { tree: tree.data, meta: tree.data?.meta } : null,
+        tree
+    );
+    if (fromPublish) return fromPublish;
+    const direct = String(tree?.icon || '').trim();
+    return direct || kindEmoji('composed-tree');
 }
 
 export function resolveActiveComposedTreeId(active) {
@@ -60,6 +77,7 @@ export function collectTreeSwitcherSources() {
             url: `branch://${id}`,
             isActive: isTreeSwitcherItemActive({ kind: 'branch', id, url: `branch://${id}` }, active),
             branchSummary: '',
+            icon: resolveBranchCatalogIcon(t),
         });
     }
 
@@ -76,6 +94,7 @@ export function collectTreeSwitcherSources() {
             url: `tree://${id}`,
             isActive: isTreeSwitcherItemActive({ kind: 'composed-tree', id, url: `tree://${id}` }, active),
             branchSummary: formatBranchNamesSummary(names, store.ui, { max: 3 }),
+            icon: composedTreeSwitcherIcon(t),
         });
     }
 
@@ -93,6 +112,15 @@ export function collectTreeSwitcherSources() {
         const installedKind =
             String(s.contentKind || '').trim() === 'composed-tree' ? 'composed-tree' : 'installed';
         const kind = installedKind === 'composed-tree' ? 'composed-tree' : 'installed';
+        let ownerPub = '';
+        let universeId = '';
+        try {
+            const ref = parseNostrTreeUrl(url);
+            ownerPub = String(ref?.pub || '');
+            universeId = String(ref?.universeId || '');
+        } catch {
+            /* ignore */
+        }
         out.push({
             kind,
             id,
@@ -100,6 +128,12 @@ export function collectTreeSwitcherSources() {
             url,
             isActive: isTreeSwitcherItemActive({ kind, id, url }, active),
             branchSummary: '',
+            icon: resolveOnlineListingIcon({
+                icon: s.icon,
+                contentKind: s.contentKind || (kind === 'composed-tree' ? 'composed-tree' : 'branch'),
+                ownerPub,
+                universeId,
+            }),
         });
     }
     return out;
@@ -132,8 +166,10 @@ export function scoreSwitcherMatch(q, name) {
 }
 
 function sectionLabel(ui, key) {
-    if (key === 'branch') return ui.treeSwitcherSectionBranches || ui.sourcesTabBranches || 'Branches';
-    if (key === 'composed-tree') return ui.treeSwitcherSectionTrees || ui.sourcesTabTrees || 'Trees';
+    if (key === 'branch') return ui.sourcesPillBranch || ui.treeSwitcherSectionBranches || 'Course';
+    if (key === 'composed-tree') {
+        return ui.sourcesPillComposedTree || ui.sourcesSectionPlaylists || ui.treeSwitcherSectionTrees || 'Playlist';
+    }
     return ui.treeSwitcherSectionNetwork || ui.sourcesUnifiedScopeInternet || 'Internet';
 }
 
@@ -263,7 +299,14 @@ export function treeSwitcherItemMeta(ui, item) {
               ? 'arborito-tree-switcher-pill arborito-tree-switcher-pill--frozen'
               : 'arborito-tree-switcher-pill arborito-tree-switcher-pill--installed';
     const emoji =
-        item.kind === 'branch' ? '🌿' : item.kind === 'composed-tree' ? '🌳' : isFrozen ? '❄️' : '🌐';
+        String(item.icon || '').trim() ||
+        (item.kind === 'branch'
+            ? kindEmoji('branch')
+            : item.kind === 'composed-tree'
+              ? kindEmoji('composed-tree')
+              : isFrozen
+                ? '❄️'
+                : '🌐');
     const avatarCls =
         item.kind === 'branch'
             ? 'arborito-tree-switcher-avatar arborito-tree-switcher-avatar--local'

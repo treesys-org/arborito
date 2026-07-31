@@ -14,7 +14,7 @@
 
 Pick a subject, explore a visual map at your own pace, plant your own course, translate lessons, or remix what others published. No subscription, no mandatory account, no ads.
 
-> **v0.1.1 alpha** at [arborito.org](https://arborito.org). Try it, tell us what confuses you, plant a tree, or contribute. See [CHANGELOG.md](CHANGELOG.md) for tagged release notes (web deploys continuously; desktop installs follow release tags).
+> **v0.1.2 alpha** at [arborito.org](https://arborito.org). Try it, tell us what confuses you, plant a tree, or contribute. See [CHANGELOG.md](CHANGELOG.md) for tagged release notes (web deploys continuously; desktop installs follow release tags).
 
 **Knowledge is a right, not a privilege.** Arborito is a **community project**, not a product catalogue. The goal is a forest everyone tends together.
 
@@ -65,7 +65,7 @@ Each pillar evolves on its own. See [`ROADMAP.md`](ROADMAP.md) for where we are 
 - **Visual editor**: create lessons without code.
 - **Lesson Arcade**: optional minigames tied to what you are learning.
 - **Local-first**: progress stays on your device by default; optional online account (username + password, no email).
-- **Shared courses**: content over the open network, HTTPS, or share links. No single company you depend on.
+- **Shared courses**: publish and open courses on the open network, by HTTPS, or with a short share code (`XXXX-XXXX`). Discover browse is a bounded window; search and codes reach the wider catalogue (see [`docs/NETWORK.md`](docs/NETWORK.md)). No single company you depend on.
 - **English & Spanish UI**: help translate in `locales/`.
 - **Sage (optional, off by default)**: see [A short note on AI](#a-short-note-on-ai).
 

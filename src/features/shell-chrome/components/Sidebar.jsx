@@ -77,7 +77,12 @@ export function Sidebar({ embed }) {
                 </>
             ) : (
                 <>
-                    <SidebarMobileTopActions ui={ui} chrome={chrome} />
+                    <SidebarMobileTopActions
+                        ui={ui}
+                        chrome={chrome}
+                        onCloseMenu={closeMobileMenuIfOpen}
+                        dockToggleModal={dockToggleModal}
+                    />
                     <SidebarMobileDock
                         ui={ui}
                         chrome={chrome}

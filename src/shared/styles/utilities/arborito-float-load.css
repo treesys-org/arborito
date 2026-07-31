@@ -1,0 +1,94 @@
+/* Floating centered load scrim — until first content paints (graph, chunks, …). */
+
+.arborito-float-load-scrim {
+    position: fixed;
+    inset: 0;
+    /* Above graph chrome; below modal hubs (z ~125–220) so Arcade never gets stuck under it. */
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    pointer-events: auto;
+    cursor: progress;
+    background: transparent;
+    animation: arborito-float-load-in 220ms ease-out both;
+}
+
+.arborito-float-load-scrim--dim {
+    background: var(--arborito-theme-modal-scrim, rgb(15 23 42 / 0.48));
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+html.dark .arborito-float-load-scrim--dim {
+    background: var(--arborito-theme-modal-scrim, rgb(0 0 0 / 0.55));
+}
+
+.arborito-float-load-scrim__panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 1.15rem 1.35rem;
+    min-width: min(16rem, calc(100vw - 3rem));
+    max-width: 22rem;
+    border-radius: 1rem;
+    text-align: center;
+    background: color-mix(in srgb, var(--arborito-theme-surface-bg, #fff) 94%, transparent);
+    border: 1px solid var(--arborito-theme-surface-border, rgb(167 243 208 / 0.45));
+    box-shadow: var(--arborito-theme-float-card-shadow, 0 18px 48px rgb(15 23 42 / 0.28));
+    color: var(--arborito-theme-text-strong, rgb(22 101 52));
+    cursor: default;
+    animation: arborito-float-load-panel-in 240ms ease-out both;
+}
+
+html.dark .arborito-float-load-scrim__panel {
+    background: color-mix(in srgb, var(--arborito-theme-surface-bg, #0f172a) 96%, transparent);
+    color: var(--arborito-theme-text-strong, rgb(187 247 208));
+}
+
+.arborito-float-load-scrim__title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.arborito-float-load-scrim__label {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.35;
+    opacity: 0.88;
+    color: var(--arborito-theme-text-muted, inherit);
+}
+
+@keyframes arborito-float-load-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes arborito-float-load-panel-in {
+    from {
+        opacity: 0;
+        transform: translateY(0.35rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .arborito-float-load-scrim,
+    .arborito-float-load-scrim__panel {
+        animation: none !important;
+        opacity: 1;
+        transform: none;
+    }
+}

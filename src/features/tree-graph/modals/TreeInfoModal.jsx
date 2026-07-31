@@ -71,7 +71,7 @@ function TreeInfoHealthSection({ raw, isBranch }) {
         : ui.treePresentationTitle || 'Credits & license';
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 px-3 py-3 text-left">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 arborito-surface-tile px-3 py-3 text-left">
             <p className="arborito-eyebrow m-0 mb-2">{title}</p>
             <ul className="list-disc pl-4 m-0 space-y-1 text-xs leading-snug text-slate-600 dark:text-slate-300">
                 <li>

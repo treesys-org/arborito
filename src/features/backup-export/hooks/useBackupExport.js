@@ -38,7 +38,3 @@ export function useBackupExport() {
         setModal,
     };
 }
-
-export function useBackupExportStore() {
-    return store;
-}

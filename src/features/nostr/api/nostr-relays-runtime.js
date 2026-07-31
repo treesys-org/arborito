@@ -8,15 +8,16 @@
 
 export const NOSTR_RELAYS_STORAGE_KEY = 'arborito-nostr-relays-v1';
 const RELAYS_BACKFILL_KEY = 'arborito-relays-backfill-v1';
+const RELAYS_STOCK_MIGRATE_KEY = 'arborito-relays-stock-migrate-v2';
 
 /** Stock build: no implicit relay connections until the user opts in. */
 export const DEFAULT_NOSTR_RELAYS = [];
 
 /**
- * Availability-first bundle offered in onboarding / profile restore.
- * Mixed EU + US operators; disclosed in privacy copy when the user accepts network.
+ * Former onboarding bundle (pre-v2). Used only to detect unmodified stock lists
+ * for a silent one-shot swap — custom lists are never rewritten.
  */
-export const SUGGESTED_NOSTR_RELAYS = [
+export const LEGACY_SUGGESTED_NOSTR_RELAYS = [
     'wss://relay.tchncs.de',
     'wss://nostr.einundzwanzig.space',
     'wss://purplepag.es',
@@ -24,13 +25,26 @@ export const SUGGESTED_NOSTR_RELAYS = [
     'wss://relay.primal.net',
 ];
 
+/**
+ * Availability-first bundle offered in onboarding / profile restore.
+ * Relays that already carry Arborito directory + bundle data (DE + CA).
+ * Disclosed in privacy copy when the user accepts network.
+ */
+export const SUGGESTED_NOSTR_RELAYS = [
+    'wss://nos.lol',
+    'wss://nostr.mom',
+    'wss://relay.primal.net',
+    'wss://relay.ditto.pub',
+    'wss://relay.nostr.net',
+];
+
 /** Short labels for onboarding relay chips (host + region hint). */
 export const SUGGESTED_NOSTR_RELAY_LABELS = {
-    'wss://relay.tchncs.de': 'DE',
-    'wss://nostr.einundzwanzig.space': 'DE',
-    'wss://purplepag.es': 'multi',
-    'wss://nos.lol': 'US',
-    'wss://relay.primal.net': 'US',
+    'wss://nos.lol': 'DE',
+    'wss://nostr.mom': 'DE',
+    'wss://relay.primal.net': 'CA',
+    'wss://relay.ditto.pub': 'CA',
+    'wss://relay.nostr.net': 'CA',
 };
 
 /**
@@ -75,6 +89,20 @@ export function mergeNostrRelayUrls(...lists) {
         }
     }
     return out;
+}
+
+/**
+ * Same URLs as a set (order ignored).
+ * @param {unknown} a
+ * @param {unknown} b
+ * @returns {boolean}
+ */
+export function sameNostrRelayUrlSet(a, b) {
+    const aa = normalizeNostrRelayUrls(a);
+    const bb = normalizeNostrRelayUrls(b);
+    if (aa.length !== bb.length) return false;
+    const setB = new Set(bb);
+    return aa.every((u) => setB.has(u));
 }
 
 /** @returns {string[]} */
@@ -154,6 +182,44 @@ export function backfillSuggestedRelaysIfNeeded(opts = {}) {
         return null;
     }
     return persistUserNostrRelays(resolveDefaultOptInNostrRelays());
+}
+
+/**
+ * Silent one-shot: if the stored list is exactly the old stock bundle, replace
+ * with the current suggested set. Custom lists are left untouched.
+ * @returns {string[]|null} relays written, or null if skipped
+ */
+export function migrateStockSuggestedRelaysIfNeeded() {
+    if (typeof localStorage === 'undefined') return null;
+    try {
+        if (localStorage.getItem(RELAYS_STOCK_MIGRATE_KEY)) return null;
+    } catch {
+        return null;
+    }
+    const current = loadUserNostrRelays();
+    if (!current.length) {
+        try {
+            localStorage.setItem(RELAYS_STOCK_MIGRATE_KEY, '1');
+        } catch {
+            /* ignore */
+        }
+        return null;
+    }
+    if (!sameNostrRelayUrlSet(current, LEGACY_SUGGESTED_NOSTR_RELAYS)) {
+        try {
+            localStorage.setItem(RELAYS_STOCK_MIGRATE_KEY, '1');
+        } catch {
+            /* ignore */
+        }
+        return null;
+    }
+    const next = persistUserNostrRelays(resolveDefaultOptInNostrRelays());
+    try {
+        localStorage.setItem(RELAYS_STOCK_MIGRATE_KEY, '1');
+    } catch {
+        /* ignore */
+    }
+    return next;
 }
 
 /** Display hostname from wss URL for UI chips. */

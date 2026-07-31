@@ -7,7 +7,6 @@
 import {
     sourcesLsGet,
     sourcesLsSet,
-    sourcesLsDel,
     sourcesVoteKey,
     sourcesVoteKeyFallback,
 } from './sources-local-storage.js';
@@ -45,10 +44,6 @@ export function readVoteCountFloor(ownerPub, universeId) {
 export function writeVoteCountFloor(ownerPub, universeId, votes) {
     const n = Math.max(0, Math.floor(Number(votes) || 0));
     sourcesLsSet(countKey(ownerPub, universeId), String(n));
-}
-
-export function clearVoteCountFloor(ownerPub, universeId) {
-    sourcesLsDel(countKey(ownerPub, universeId));
 }
 
 /**

@@ -58,7 +58,7 @@ export function storedTreeAuthorName(store) {
 }
 
 /** Best-effort display name from forum messages for a Nostr pubkey. */
-export function forumDisplayNameForPub(store, pub) {
+function forumDisplayNameForPub(store, pub) {
     try {
         const s = asStore(store);
         const p = String(pub || '');
@@ -80,7 +80,7 @@ export function forumDisplayNameForPub(store, pub) {
 }
 
 /** Anonymous directory fallback when no published or forum name exists. */
-export function anonOwnerLabel(ownerPub) {
+function anonOwnerLabel(ownerPub) {
     const p = String(ownerPub || '');
     return p ? `Anon-${p.slice(0, 6)}` : '';
 }
@@ -108,15 +108,4 @@ export function resolveOpenTreeOwnerDisplay(store, ownerPub) {
     const session = currentOnlineAccountUsername(s);
     if (session) return { label: session, sub: '' };
     return { label: '', sub: '' };
-}
-
-/**
- * Author line for directory / saved-tree rows (metadata from index, tree may be closed).
- */
-export function resolveDirectoryAuthorLabel(row = {}) {
-    const authorName = String(row.authorName || '').trim();
-    if (authorName) return authorName;
-    const pub = String(row.ownerPub || '').trim();
-    if (pub) return anonOwnerLabel(pub);
-    return '';
 }

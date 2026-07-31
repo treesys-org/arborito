@@ -47,7 +47,7 @@ items:
     answer: Jugar (el botón de juegos)
     modes: multiple,recall
     traps:
-      - Bosque
+      - Cursos
       - Exportar
       - Solo Sage
   - question: ¿Qué modo funciona sin IA?
@@ -70,7 +70,7 @@ title: Algunos juegos
 - **Alonso Duel:** un duelo rápido.
 
 @quiz
-concept: Catálogo Arcade
+concept: Juegos Arcade
 items:
   - question: ¿Qué juego usa parejas de concepto y respuesta?
     answer: Memory
@@ -78,7 +78,7 @@ items:
     traps:
       - Classroom
       - Solo examen
-      - Bosque
+      - Cursos
   - question: ¿Qué juego es una consola retro?
     answer: Hacky Terminal
     modes: multiple,recall
@@ -92,5 +92,5 @@ items:
     traps:
       - Hacky Terminal
       - Memory solamente
-      - El Bosque
+      - Cursos
 @/quiz

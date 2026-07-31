@@ -8,4 +8,4 @@ index: 1
 title: Construction mode
 @/section
 
-Construction mode: write your course. New course = plant a branch in the Forest.
+Construction mode: write your course. New course = **Courses → Create → Course**.

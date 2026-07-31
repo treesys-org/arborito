@@ -98,7 +98,7 @@ export function NostrRelayEditor({ ui, initialUrls, disabled = false, onSave, on
                             className={`px-2 py-1 rounded-lg text-[10px] font-bold border ${
                                 on
                                     ? 'bg-violet-100 dark:bg-violet-950/50 border-violet-300 dark:border-violet-700 text-violet-900 dark:text-violet-100'
-                                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500'
+                                    : 'arborito-surface-tile border-slate-200 dark:border-slate-700 text-slate-500'
                             }`}
                             onClick={() => toggleSuggested(url)}
                             title={url}
@@ -153,7 +153,7 @@ export function NostrRelayEditor({ ui, initialUrls, disabled = false, onSave, on
                     />
                     <button
                         type="button"
-                        className="shrink-0 min-h-9 px-2 rounded-lg text-[10px] font-extrabold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700"
+                        className="shrink-0 min-h-9 px-2 rounded-lg text-[10px] font-extrabold arborito-surface-tile border border-slate-200 dark:border-slate-700"
                         disabled={disabled || !String(customUrl || '').trim()}
                         onClick={addCustom}
                     >

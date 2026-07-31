@@ -23,21 +23,3 @@ export function getSelectedNodeId() {
     const id = getGraphUi().selectedNodeId;
     return id != null ? String(id) : null;
 }
-
-export function getPendingMoveNodeId() {
-    const id = getGraphUi().pendingMoveNodeId;
-    return id != null ? String(id) : null;
-}
-
-export function getInlineRenameNodeId() {
-    const id = getGraphUi().inlineRenameNodeId;
-    return id != null ? String(id) : null;
-}
-
-export function isMoveMode() {
-    return !!getGraphUi().isMoveMode;
-}
-
-export function isTreeSwitcherOpen() {
-    return !!getGraphUi().treeSwitcherOpen;
-}

@@ -277,12 +277,10 @@ if (uiImportDebt) {
 }
 
 const templateHtmlAllow = [
-    '/features/backup-export/api/export/print-blocks.js',
     '/features/editor/api/editor-engine.js',
     '/features/editor/api/quiz-wizard-block.js',
     '/features/editor/api/logic/editor-table.js',
     '/editor/hooks/useQuizWizard.jsx',
-    '/features/shell-chrome/api/sidebar-utils.js',
 ];
 const templateHtmlDebt = grepSrc('return\\s*`\\s*<', { glob: 'features', jsOnly: true })
     .split('\n')

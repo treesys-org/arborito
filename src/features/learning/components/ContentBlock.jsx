@@ -42,7 +42,7 @@ function LessonAudio({ src, ui, blocked, onRetry, branchId }) {
     const resolved = useResolvedLessonMediaSrc(src, branchId);
     if (blocked) return <ExternalMediaPlaceholder b={{ type: 'audio', src }} ui={ui} onRetry={onRetry} />;
     return (
-        <div className="my-6 p-4 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center gap-4 shadow-sm">
+        <div className="my-6 p-4 arborito-surface-tile rounded-xl flex items-center gap-4 shadow-sm">
             <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full flex items-center justify-center text-xl">
                 🎵
             </div>
@@ -68,7 +68,7 @@ function ExternalMediaPlaceholder({ b, ui, onRetry }) {
               : ui.mediaPlaceholderImage || 'Image';
     const youtubeWatch = kind === 'video' ? youtubeWatchUrlFromEmbedOrRaw(b?.src) : '';
     return (
-        <div className="arborito-media-blocked my-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-6 text-center">
+        <div className="arborito-media-blocked my-10 rounded-xl border border-slate-200 dark:border-slate-700 arborito-surface-tile p-6 text-center">
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">
                 {ui.mediaBlockedTitle || 'External media'}
             </p>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, startTransition } from 'react';
 import { useSourcesStore } from '../../hooks/useSources.js';
 import { runAfterPaint, scheduleIdle } from '../../../../shared/lib/yield-to-paint.js';
 import { runThrottledBackgroundTask } from '../../../../shared/lib/background-task-gate.js';
@@ -12,18 +12,46 @@ import {
     DIRECTORY_CLIENT_FETCH_MAX,
     DIRECTORY_CLIENT_FETCH_PAGE,
 } from '../../../p2p-webtorrent/api/directory-index-config.js';
+import {
+    normalizeSourcesMainTab,
+    sourcesScopeForMainTab,
+    hasSeenSourcesExplore,
+    markSourcesExploreSeen,
+} from '../../api/modals/logic/sources-main-tab.js';
 
 function readInitialMainTab(store) {
     const m = store.value.modal;
-    if (m && typeof m === 'object' && (m.focusTab === 'trees' || m.focusTab === 'tree' || m.focusTab === 'forest')) {
-        return 'trees';
+    if (m && typeof m === 'object') {
+        if (m.focusTab === 'trees' || m.focusTab === 'tree' || m.focusTab === 'forest') {
+            return 'trees';
+        }
+        if (m.focusTab === 'explore' || m.focusTab === 'internet') {
+            markSourcesExploreSeen();
+            return 'explore';
+        }
+        if (m.focusTab === 'branch' || m.focusTab === 'mine' || m.focusTab === 'branches') {
+            return 'mine';
+        }
+        if (m.fromOnboarding) {
+            /* First open from welcome: Explorar (catalog). Daily home stays Mis cursos. */
+            markSourcesExploreSeen();
+            return 'explore';
+        }
     }
-    return 'branches';
+    /* First open: Explorar so the catalog is obvious. Later opens: Mis cursos. */
+    if (!hasSeenSourcesExplore()) {
+        markSourcesExploreSeen();
+        return 'explore';
+    }
+    return 'mine';
 }
 
 export function useSourcesState({ embed }) {
     const store = useSourcesStore();
-    const [mainTab, setMainTab] = useState(() => readInitialMainTab(store));
+    const [mainTab, setMainTabRaw] = useState(() => readInitialMainTab(store));
+    const setMainTab = useCallback((v) => {
+        setMainTabRaw(normalizeSourcesMainTab(v));
+    }, []);
     const [activeTab, setActiveTab] = useState(() =>
         readInitialMainTab(store) === 'trees' ? 'trees' : 'branch'
     );
@@ -35,10 +63,13 @@ export function useSourcesState({ embed }) {
     const [exportBusy, setExportBusy] = useState(false);
     const [sourcesQ, setSourcesQ] = useState('');
     const [treesQ, setTreesQ] = useState('');
-    const [treesScope, setTreesScope] = useState('internet');
+    const [treesScope, setTreesScope] = useState('device');
     const [treesAdvancedOpen, setTreesAdvancedOpen] = useState(false);
-    const [sourcesScope, setSourcesScope] = useState('internet');
+    const [sourcesScope, setSourcesScope] = useState(() =>
+        sourcesScopeForMainTab(readInitialMainTab(store))
+    );
     const [sourcesAdvancedOpen, setSourcesAdvancedOpen] = useState(false);
+    const [sourcesKindFilter, setSourcesKindFilter] = useState('all');
     const [treeFreezeBusy, setTreeFreezeBusy] = useState({});
     const [rowActionsOpen, setRowActionsOpen] = useState(() => new Set());
     const [globalDirFilter, setGlobalDirFilter] = useState('discover');
@@ -60,8 +91,6 @@ export function useSourcesState({ embed }) {
     const [globalDirRows, setGlobalDirRows] = useState([]);
     const [globalDirMetrics, setGlobalDirMetrics] = useState({});
     const [sourcesTreeLoading, setSourcesTreeLoading] = useState(false);
-    /** Cover the branches/trees list while network/skeleton hydrate (not instant local). */
-    const [sourcesListCover, setSourcesListCover] = useState(false);
     const [treeEditor, setTreeEditor] = useState(null);
     const [globalDirQ, setGlobalDirQ] = useState('');
     const [globalDirLastFetchAt, setGlobalDirLastFetchAt] = useState(0);
@@ -84,13 +113,15 @@ export function useSourcesState({ embed }) {
         (opts = {}) => {
             setOverlay(null);
             setTreeEditor(null);
-            setSourcesScope('internet');
-            setTreesScope('internet');
+            setMainTab('mine');
+            setSourcesScope('branch');
+            setTreesScope('device');
+            setSourcesKindFilter('all');
             setSourcesAdvancedOpen(false);
             setTreesAdvancedOpen(false);
             closeSourcesModal(opts, embed);
         },
-        [embed]
+        [embed, setMainTab]
     );
 
     const mountedRef = useRef(true);
@@ -102,13 +133,17 @@ export function useSourcesState({ embed }) {
             },
             updateContent: () => {},
             close: (opts) => {},
-            _mainTab: 'branches',
+            _mainTab: 'mine',
             _activeTab: 'branch',
             get _sourcesMainTab() {
                 return this._mainTab;
             },
             set _sourcesMainTab(v) {
-                this._setMainTab?.(v);
+                const next = normalizeSourcesMainTab(v);
+                this._setMainTab?.(next);
+                if (next !== 'trees') {
+                    this._setSourcesScope?.(sourcesScopeForMainTab(next));
+                }
             },
             get activeTab() {
                 return this._activeTab;
@@ -123,6 +158,7 @@ export function useSourcesState({ embed }) {
     modalApi._activeTab = activeTab;
     modalApi._setMainTab = setMainTab;
     modalApi._setActiveTab = setActiveTab;
+    modalApi._setSourcesScope = setSourcesScope;
     modalApi.updateContent = bump;
     modalApi.close = close;
 
@@ -248,7 +284,6 @@ export function useSourcesState({ embed }) {
         setTreesScope,
         setGlobalDirFilter,
         setSourcesTreeLoading,
-        setSourcesListCover,
         toggleRowActions,
         directoryState,
         directorySetters,
@@ -260,7 +295,13 @@ export function useSourcesState({ embed }) {
         setGlobalDirQ(sourcesQ);
     }, [sourcesQ]);
 
+    const directoryFetchEnabled =
+        mainTab === 'explore' || sourcesScope === 'internet' || sourcesScope === 'all';
+
     useEffect(() => {
+        if (!directoryFetchEnabled) {
+            return undefined;
+        }
         const widening = globalDirFetchLimit > (globalDirLastFetchLimit || 0);
         scheduleGlobalDirectoryFetch(directoryState(), directorySetters, {
             reason: widening ? 'load-more' : 'input',
@@ -271,7 +312,7 @@ export function useSourcesState({ embed }) {
             if (t) clearTimeout(t);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [globalDirQ, globalDirFetchLimit]);
+    }, [globalDirQ, globalDirFetchLimit, directoryFetchEnabled, mainTab]);
 
     const loadMoreDirectoryCatalog = useCallback(() => {
         setGlobalDirFetchLimit((n) => {
@@ -281,6 +322,7 @@ export function useSourcesState({ embed }) {
     }, []);
 
     useEffect(() => {
+        if (!directoryFetchEnabled) return;
         const dirStale =
             !globalDirLastFetchAt || Date.now() - (globalDirLastFetchAt || 0) > 120000;
         if (!globalDirRows?.length && dirStale) {
@@ -294,7 +336,7 @@ export function useSourcesState({ embed }) {
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [directoryFetchEnabled]);
 
     useEffect(() => {
         scheduleIdle(() => {
@@ -319,9 +361,16 @@ export function useSourcesState({ embed }) {
                 return mainTab;
             },
             set _sourcesMainTab(v) {
-                setMainTab(v);
-                setActiveTab(v === 'trees' ? 'trees' : 'branch');
-                bump();
+                const next = normalizeSourcesMainTab(v);
+                setMainTab(next);
+                setActiveTab(next === 'trees' ? 'trees' : 'branch');
+                startTransition(() => {
+                    if (next !== 'trees') {
+                        setSourcesScope(sourcesScopeForMainTab(next));
+                    } else {
+                        setTreesScope('device');
+                    }
+                });
             },
             get activeTab() {
                 return activeTab;
@@ -335,7 +384,7 @@ export function useSourcesState({ embed }) {
             },
             close,
         }),
-        [mainTab, activeTab, close, bump]
+        [mainTab, activeTab, close, bump, setMainTab]
     );
 
     return {
@@ -367,6 +416,8 @@ export function useSourcesState({ embed }) {
         setSourcesScope,
         sourcesAdvancedOpen,
         setSourcesAdvancedOpen,
+        sourcesKindFilter,
+        setSourcesKindFilter,
         treeFreezeBusy,
         rowActionsOpen,
         toggleRowActions,
@@ -380,7 +431,6 @@ export function useSourcesState({ embed }) {
         globalDirMetrics,
         loadMoreDirectoryCatalog,
         sourcesTreeLoading,
-        sourcesListCover,
         treeEditor,
         setTreeEditor,
         bump,

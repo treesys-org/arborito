@@ -21,10 +21,10 @@ arborito-sage.arborito-sage--open .arborito-sage-external-download-card {
 }
 
 :root {
-    /* Full-viewport modal dim — translucent so the forest stays visible. */
+    /* Full-viewport modal dim — translucent forest; focus via opacity (no backdrop-blur). */
     --arborito-modal-overlay: var(--arborito-theme-modal-scrim);
     --arborito-modal-radius: 1.5rem;
-    --arborito-modal-shadow: 0 22px 48px -12px rgb(0 0 0 / 0.38), 0 0 0 1px rgb(255 255 255 / 0.05);
+    --arborito-modal-shadow: 0 24px 56px -16px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(255 255 255 / 0.06);
     --arborito-modal-shadow-light: 0 22px 48px -12px rgb(15 23 42 / 0.12), 0 0 0 1px rgb(167 243 208 / 0.35);
     /* Modal surface — mint gradient (app standard, no blur) */
     --arborito-modal-surface-gradient-light: linear-gradient(
@@ -33,18 +33,19 @@ arborito-sage.arborito-sage--open .arborito-sage-external-download-card {
         rgb(236 253 245) 32%,
         rgb(209 250 229) 100%
     );
+    /* Dark: ink charcoal panels (professional). Emerald is accent-only, not fill. */
     --arborito-modal-surface-gradient-dark: linear-gradient(
         180deg,
-        rgb(42 50 46) 0%,
-        rgb(32 40 36) 45%,
-        rgb(24 32 28) 100%
+        rgb(20 24 32) 0%,
+        rgb(14 17 24) 55%,
+        rgb(10 12 18) 100%
     );
     --arborito-surface-tile-light: rgb(236 253 245);
-    --arborito-surface-tile-dark: rgb(48 40 36);
+    --arborito-surface-tile-dark: rgb(28 33 44);
     --arborito-surface-tile-border-light: rgb(167 243 208 / 0.65);
-    --arborito-surface-tile-border-dark: rgb(141 110 99 / 0.32);
+    --arborito-surface-tile-border-dark: rgb(255 255 255 / 0.08);
     --arborito-surface-panel-border-light: rgb(167 243 208 / 0.55);
-    --arborito-surface-panel-border-dark: rgb(141 110 99 / 0.28);
+    --arborito-surface-panel-border-dark: rgb(255 255 255 / 0.08);
 }
 
 /* Canonical surface — modals, popovers, tiles (use in JS shells instead of bg-white) */
@@ -732,19 +733,19 @@ html.force-mobile .arborito-game-player-toolbar .arborito-game-player-head-space
 }
 
 .arborito-game-ai-busy__scrim {
-    background: rgb(2 6 23);
+    background: var(--arborito-theme-scrim-game);
 }
 
 .arborito-game-ai-busy__panel {
     padding: 0.85rem 1.1rem 1rem;
     border-radius: 1rem;
-    background: rgb(15 23 42);
-    border: 1px solid rgb(148 163 184 / 0.28);
-    box-shadow: 0 12px 40px rgb(0 0 0 / 0.35);
+    background: var(--arborito-theme-card-bg);
+    border: 1px solid var(--arborito-theme-card-border);
+    box-shadow: var(--arborito-theme-float-card-shadow);
 }
 
 .arborito-game-ai-busy__label {
-    color: rgb(226 232 240);
+    color: var(--arborito-theme-modal-prose);
 }
 
 #modal-backdrop.arborito-game-player--desktop-widescreen > .arborito-float-modal-card > main,

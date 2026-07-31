@@ -8,7 +8,7 @@ import { MODAL_CTA_CANCEL, modalCtaConfirmFull } from '../../../shared/ui/modal-
 
 export function ModalExportPdf() {
     const backup = useBackupExport();
-    const { ui, dismissModal, notify, findNode, loadNodeChildren, alert, modal } = backup;
+    const { ui, dismissModal, findNode, loadNodeChildren, alert, modal } = backup;
     const mobile = shouldShowMobileUI();
     const node = modal?.node;
     const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);

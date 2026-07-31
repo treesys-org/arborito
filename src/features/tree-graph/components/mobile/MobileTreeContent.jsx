@@ -6,6 +6,7 @@ import { getMobilePath, getSelectedNodeId } from '../../api/graph-ui-accessors.j
 import { Callout } from '../../../../shared/ui/Callout.jsx';
 import { MobileKnotRow, MobilePathLabelRow } from './MobileKnotRow.jsx';
 import { MobileBranchPanel } from './MobileBranchPanel.jsx';
+import { useGrowReveal } from '../../hooks/useGrowReveal.js';
 
 function MobileMovePickBanner() {
     const tree = useTreeGraph();
@@ -49,6 +50,12 @@ function MobileMovePickBanner() {
     );
 }
 
+function graphMountKey(tree) {
+    const src = tree.activeSource;
+    const data = tree.data;
+    return `${String(src?.id || src?.url || '')}:${String(data?.id || '')}`;
+}
+
 /** Knot column content, inline in Graph.jsx. */
 export function MobileKnotsColumn({ model }) {
     const tree = useTreeGraph();
@@ -59,15 +66,20 @@ export function MobileKnotsColumn({ model }) {
         return subscribeUserProgressChanged(() => setRecentEpoch((n) => n + 1));
     }, [subscribeUserProgressChanged]);
 
-    if (!model?.pathNodes?.length) return null;
-
-    const { pathNodes, harvested, activeIndex, pulseKnotIndex } = model;
-    const lastOpenedId = !constructionMode ? resolveLastMapFocusId(tree) : '';
     void recentEpoch;
+
+    const pathNodes = model?.pathNodes;
+    const pathLen = pathNodes?.length || 0;
+    const pathShown = useGrowReveal(graphMountKey(tree), pathLen, 90);
+
+    if (!pathLen) return null;
+
+    const { harvested, activeIndex, pulseKnotIndex } = model;
+    const lastOpenedId = !constructionMode ? resolveLastMapFocusId(tree) : '';
 
     return pathNodes.map((node, index) => (
         <MobileKnotRow
-            key={`${node.id}-${index}`}
+            key={String(node.id)}
             tree={tree}
             node={node}
             index={index}
@@ -76,6 +88,7 @@ export function MobileKnotsColumn({ model }) {
             isActive={index === activeIndex}
             tone={getMobileTone(node)}
             pulseGrowth={index === pulseKnotIndex}
+            revealVisible={index < pathShown}
             leadsToOpened={
                 !!lastOpenedId && nodeLeadsToLessonId(node, lastOpenedId, (id) => tree.findNode?.(id))
             }
@@ -93,17 +106,36 @@ export function MobileRightColumn({ model, panelRef, scrollRootRef }) {
         return subscribeUserProgressChanged(() => setRecentEpoch((n) => n + 1));
     }, [subscribeUserProgressChanged]);
 
-    if (!model?.pathNodes?.length) return null;
+    void recentEpoch;
 
-    const { pathNodes, current, harvested, activeIndex } = model;
-    const children = Array.isArray(current.children) ? current.children : [];
+    const pathNodes = model?.pathNodes;
+    const pathLen = pathNodes?.length || 0;
+    const mountKey = graphMountKey(tree);
+    const pathShown = useGrowReveal(mountKey, pathLen, 90);
+
+    const current = model?.current;
+    const harvested = model?.harvested;
+    const activeIndex = model?.activeIndex ?? 0;
+    const children = Array.isArray(current?.children) ? current.children : [];
+    /* Kids reveal once the active knot slot exists (active branch always mounts). */
+    const kidsReady = pathLen > 0 && activeIndex >= 0;
+    const kidsShown = useGrowReveal(
+        kidsReady ? `${mountKey}:${String(current?.id || '')}:kids` : `${mountKey}:kids-wait`,
+        kidsReady ? children.length : 0,
+        75
+    );
+
+    if (!pathLen) return null;
+
     const selectedId = getSelectedNodeId();
     const directChildSelected =
         selectedId != null && children.some((c) => String(c.id) === String(selectedId));
     const lastOpenedId = !constructionMode ? resolveLastMapFocusId(tree) : '';
-    void recentEpoch;
 
     return pathNodes.map((node, index) => {
+        /* Always mount the active branch so the connector arm has a panel host
+         * immediately on navigate — stagger only inactive path labels. */
+        if (index >= pathShown && index !== activeIndex) return null;
         const isActive = index === activeIndex;
         const leadsToOpened =
             !!lastOpenedId && nodeLeadsToLessonId(node, lastOpenedId, (id) => tree.findNode?.(id));
@@ -122,6 +154,7 @@ export function MobileRightColumn({ model, panelRef, scrollRootRef }) {
                         directChildSelected={directChildSelected}
                         panelRef={panelRef}
                         scrollRootRef={scrollRootRef}
+                        revealLimit={kidsShown}
                     />
                 </div>
             );

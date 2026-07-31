@@ -36,13 +36,13 @@ items:
     modes: recall,multiple
     traps:
       - A code editor
-      - The Forest
+      - Courses
       - The final exam only
   - question: Where do you open Hacky Terminal?
     answer: From Arcade with the course open
     modes: recall,multiple
     traps:
-      - Forest only
+      - Courses only
       - Export only
       - Sage only
   - question: Does static mode work without AI?
@@ -70,12 +70,12 @@ items:
     traps:
       - Hacky Terminal
       - Memory only
-      - The Forest
+      - Courses
   - question: Where do you open Classroom?
     answer: From Arcade with the course open
     modes: multiple,recall
     traps:
       - Final exam only
-      - Forest only
+      - Courses only
       - Export only
 @/quiz

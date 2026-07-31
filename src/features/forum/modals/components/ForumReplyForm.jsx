@@ -4,7 +4,6 @@ export function ForumReplyForm({
     ui,
     threadId,
     isAuthed,
-    msgs,
     replyTarget,
     composeLabel,
     composePlaceholder,
@@ -21,7 +20,7 @@ export function ForumReplyForm({
 
     if (!isAuthed) {
         return (
-            <div id="forum-compose-panel" className="shrink-0 border-t-2 border-slate-300 dark:border-slate-600 p-3 md:p-4 bg-slate-100 dark:bg-slate-900">
+            <div id="forum-compose-panel" className="shrink-0 border-t-2 border-slate-300 dark:border-slate-600 p-3 md:p-4">
                 <div className="flex flex-col items-center justify-center text-center py-6">
                     <span className="text-2xl mb-2" aria-hidden="true">
                         🔒
@@ -46,10 +45,10 @@ export function ForumReplyForm({
         <div
             id="forum-compose-panel"
             ref={composePanelRef}
-            className="shrink-0 border-t-2 border-slate-300 dark:border-slate-600 p-3 md:p-4 bg-slate-100 dark:bg-slate-900"
+            className="shrink-0 border-t-2 border-slate-300 dark:border-slate-600 p-3 md:p-4"
         >
             {replyTarget ? (
-                <div className="forum-reply-target mb-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/80 px-3 py-2 text-xs text-slate-700 dark:text-slate-200 flex items-start justify-between gap-2">
+                <div className="forum-reply-target mb-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-xs text-slate-700 dark:text-slate-200 flex items-start justify-between gap-2">
                     <span className="min-w-0">
                         <span className="font-bold">
                             {(ui.forumReplyingToLabel || 'Replying to {name}').replace('{name}', replyWho)}

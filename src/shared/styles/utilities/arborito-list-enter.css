@@ -1,0 +1,110 @@
+/* Staggered list/grid enter — bosque, Arcade, search, certificates, graph.
+ * Never animate opacity on the row wrapper: it hid consolidated CTAs/headers
+ * (Añadir, course titles) when delay + a11y duration overrides interacted badly.
+ */
+@keyframes arboritoListRowIn {
+    from {
+        transform: translateY(0.2rem);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.arborito-list-row-enter,
+.arborito-sources-row-enter {
+    opacity: 1 !important;
+    transform: none;
+    animation: arboritoListRowIn 0.22s ease-out backwards;
+    animation-delay: calc(var(--arborito-row-i, 0) * 24ms);
+}
+
+/* fadeOnly kept as alias — same motion, never opacity. */
+.arborito-list-row-enter--fade {
+    animation-name: arboritoListRowIn;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .arborito-list-row-enter,
+    .arborito-list-row-enter--fade,
+    .arborito-sources-row-enter {
+        animation: none !important;
+        animation-delay: 0s !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
+/* Inert placeholders while the first real row is still in flight. */
+.arborito-list-row-skel {
+    pointer-events: none;
+    user-select: none;
+    background: color-mix(in srgb, var(--arborito-theme-surface-bg, #fff) 55%, rgb(148 163 184 / 0.35));
+    border: 1px solid color-mix(in srgb, rgb(148 163 184 / 0.35) 70%, transparent);
+    border-radius: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.arborito-list-row-skel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgb(255 255 255 / 0.35) 50%,
+        transparent 100%
+    );
+    transform: translateX(-100%);
+    animation: arboritoListRowSkelShimmer 1.1s ease-in-out infinite;
+}
+
+html.dark .arborito-list-row-skel {
+    background: color-mix(in srgb, var(--arborito-theme-surface-bg, #0f172a) 70%, rgb(148 163 184 / 0.2));
+}
+
+html.dark .arborito-list-row-skel::after {
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgb(255 255 255 / 0.08) 50%,
+        transparent 100%
+    );
+}
+
+@keyframes arboritoListRowSkelShimmer {
+    to {
+        transform: translateX(100%);
+    }
+}
+
+.arborito-list-row-skel--card {
+    height: 5.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.arborito-list-row-skel--compact {
+    height: 3.25rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.85rem;
+}
+
+.arborito-list-row-skel--knot {
+    width: 2.75rem;
+    height: 2.75rem;
+    margin: 0.55rem auto;
+    border-radius: 999px;
+}
+
+.arborito-list-row-skel--child {
+    height: 3.5rem;
+    margin: 0.35rem 0.5rem;
+    border-radius: 0.85rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .arborito-list-row-skel::after {
+        animation: none !important;
+    }
+}

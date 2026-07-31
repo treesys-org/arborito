@@ -161,8 +161,8 @@ export function composeSageSystemContext({
         }
         if (appHelp) {
             systemContext += lang === 'ES'
-                ? '\n\nPregunta sobre la app Arborito. Priorizá [Definición de la función] / «Hecho clave» y el aviso de ayuda de la app. La primera frase debe decir qué es esa función de la aplicación (Arborito / Arcade / Bosque / construcción). No digas que está haciendo un curso demo. No inventes ecología ni nombres cortados (Arbor, Construcc).'
-                : '\n\nApp-feature question. Prioritize [Feature definition] / “Key fact” and the app-help notice. The first sentence must say what that application feature is (Arborito / Arcade / Forest / construction). Do not say they are taking a demo course. Do not invent ecology or truncated names.';
+                ? '\n\nPregunta sobre la app Arborito. Priorizá [Definición de la función] / «Hecho clave» y el aviso de ayuda de la app. La primera frase debe decir qué es esa función de la aplicación (Arborito / Arcade / Cursos / construcción). No digas que está haciendo un curso demo. No inventes ecología ni nombres cortados (Arbor, Construcc).'
+                : '\n\nApp-feature question. Prioritize [Feature definition] / “Key fact” and the app-help notice. The first sentence must say what that application feature is (Arborito / Arcade / Courses / construction). Do not say they are taking a demo course. Do not invent ecology or truncated names.';
         }
         if (currentPrompts.withContext && !appHelp) {
             systemContext += `\n\n${currentPrompts.withContext}`;

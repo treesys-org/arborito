@@ -496,6 +496,7 @@ arborito-sage.arborito-sage--open.arborito-sage-mob-frame {
 
 html.arborito-lesson-reader-open .arborito-desktop-sage-fab,
 html.arborito-lesson-reader-open .js-btn-sage-mobile-dock,
+html.arborito-lesson-reader-open .js-btn-sage-mobile-top,
 html.arborito-lesson-reader-open #btn-construction-sage {
     display: none !important;
 }
@@ -577,7 +578,8 @@ arborito-sage.arborito-sage--open .arborito-sage-guide-full-mob .arborito-modal-
 /* Block owl FAB / dock from stealing the same tap as the Sage mode switch. */
 
 html.arborito-sage-pointer-guard .arborito-desktop-sage-fab,
-html.arborito-sage-pointer-guard .js-btn-sage-mobile-dock {
+html.arborito-sage-pointer-guard .js-btn-sage-mobile-dock,
+html.arborito-sage-pointer-guard .js-btn-sage-mobile-top {
     pointer-events: none !important;
 }
 

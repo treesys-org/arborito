@@ -1,12 +1,12 @@
 import '../styles/sources.css';
 import { useSourcesModal } from '../hooks/useSourcesModal.js';
 import { DockModalShell } from '../../../app/components/ModalShell.jsx';
-import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
-import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
+import { ModalHubHero, ModalBackChevronIcon } from '../../../app/components/ModalHero.jsx';
 import { TabBar } from '../../../app/components/TabBar.jsx';
 import { SourcesTreeEditor } from './SourcesTreeEditor.jsx';
 import { SourcesForestTab } from './components/SourcesForestTab.jsx';
 import { SourcesDeleteOverlay } from './components/SourcesDeleteOverlay.jsx';
+import { SourcesCreateKindOverlay } from './components/SourcesCreateKindOverlay.jsx';
 import { ExportCurriculumSheet } from './components/ExportCurriculumSheet.jsx';
 import { SourcesTabFooter } from './components/SourcesTabFooter.jsx';
 import { SourcesBranchesPanel } from './components/SourcesBranchesPanel.jsx';
@@ -23,7 +23,6 @@ export function ModalSources({ embed = false }) {
         onAction,
         mainTab,
         mainTabs,
-        tabSubtitle,
         switchMainTab,
         close,
         closeBlocked,
@@ -68,15 +67,31 @@ export function ModalSources({ embed = false }) {
                             }}
                         />
                         <div data-arbor-tour="sources-main-tabs">
-                            <TabBar
-                                tabs={mainTabs}
-                                activeTab={mainTab}
-                                onTabChange={switchMainTab}
-                                ariaLabel={ui.sourcesMainTabsAria || 'Library'}
-                            />
-                            <p className="m-0 mt-2 text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-                                {tabSubtitle}
-                            </p>
+                            {mainTab === 'trees' ? (
+                                <div className="flex items-center gap-2 min-h-11">
+                                    <button
+                                        type="button"
+                                        className="arborito-mmenu-back shrink-0"
+                                        aria-label={ui.navBack || 'Back'}
+                                        data-arbor-tour="sources-combined-back"
+                                        onClick={() => switchMainTab('mine')}
+                                    >
+                                        <ModalBackChevronIcon />
+                                    </button>
+                                    <p className="m-0 text-sm font-extrabold text-slate-900 dark:text-white truncate">
+                                        {ui.sourcesCombinedTitle ||
+                                            ui.sourcesTabTrees ||
+                                            'Combined courses'}
+                                    </p>
+                                </div>
+                            ) : (
+                                <TabBar
+                                    tabs={mainTabs}
+                                    activeTab={mainTab}
+                                    onTabChange={switchMainTab}
+                                    ariaLabel={ui.sourcesMainTabsAria || 'Library'}
+                                />
+                            )}
                         </div>
                     </div>
                     {mainTab === 'trees' ? (
@@ -96,7 +111,6 @@ export function ModalSources({ embed = false }) {
                             globalDirError={sources.globalDirError}
                             globalDirHitCap={sources.globalDirHitCap}
                             sourcesTreeLoading={sources.sourcesTreeLoading}
-                            sourcesListCover={sources.sourcesListCover}
                             rowActionsOpen={sources.rowActionsOpen}
                             collectCtx={sources.collectCtx}
                             bump={sources.bump}
@@ -116,6 +130,8 @@ export function ModalSources({ embed = false }) {
                             setSourcesScope={sources.setSourcesScope}
                             sourcesAdvancedOpen={sources.sourcesAdvancedOpen}
                             setSourcesAdvancedOpen={sources.setSourcesAdvancedOpen}
+                            sourcesKindFilter={sources.sourcesKindFilter}
+                            setSourcesKindFilter={sources.setSourcesKindFilter}
                             globalDirFilter={sources.globalDirFilter}
                             globalDirLoading={sources.globalDirLoading}
                             globalDirError={sources.globalDirError}
@@ -123,11 +139,9 @@ export function ModalSources({ embed = false }) {
                             globalDirMetrics={sources.globalDirMetrics}
                             treeFreezeBusy={sources.treeFreezeBusy}
                             sourcesTreeLoading={sources.sourcesTreeLoading}
-                            sourcesListCover={sources.sourcesListCover}
                             rowActionsOpen={sources.rowActionsOpen}
                             toggleRowActions={sources.toggleRowActions}
-                            getBranchesTabRows={sources.getBranchesTabRows}
-                            bump={sources.bump}
+                            collectCtx={sources.collectCtx}
                             onAction={onAction}
                             onSwitchTab={switchMainTab}
                             onLoadMoreCatalog={sources.loadMoreDirectoryCatalog}
@@ -152,6 +166,18 @@ export function ModalSources({ embed = false }) {
             className={`arborito-sources-overlay absolute inset-0 z-[200] ${sources.overlay ? '' : 'hidden pointer-events-none'}`}
             aria-hidden={sources.overlay ? 'false' : 'true'}
         >
+            {sources.overlay === 'create-kind' ? (
+                <SourcesCreateKindOverlay
+                    ui={ui}
+                    onCancel={() => onAction('cancel-overlay')}
+                    onCourse={(name) => {
+                        onAction('create-course-named', { name });
+                    }}
+                    onPlaylist={(name) => {
+                        onAction('create-composed-tree', { name });
+                    }}
+                />
+            ) : null}
             {sources.overlay === 'delete' ? (
                 <SourcesDeleteOverlay
                     ui={ui}
@@ -261,16 +287,23 @@ export function ModalSources({ embed = false }) {
         );
     }
 
-    const leadingIcon = <ChromeEmoji emoji="🌲" size={20} />;
+    const sourcesDockUi = !!(mobile && modal && typeof modal === 'object' && modal.dockUi);
+    const sourcesRootFlags = sourcesDockUi
+        ? 'arborito-modal--sources arborito-sources-dock'
+        : 'arborito-modal--sources';
 
     return (
         <div ref={rootRef} data-arborito-panel="modal-sources">
             <DockModalShell
                 mobile={mobile}
                 sizeTier="HUB"
-                rootClass="arborito-sources-modal-shell"
+                rootClass={`arborito-sources-modal-shell${sourcesDockUi ? ' arborito-sources-modal-shell--dock' : ''}`}
                 skipBodyWrap
-                shellOpts={{ rootFlags: 'arborito-modal--sources', scrim: 'translucent' }}
+                shellOpts={{
+                    rootFlags: sourcesRootFlags,
+                    scrim: 'translucent',
+                    ...(sourcesDockUi ? { layout: 'dock-bottom' } : {}),
+                }}
                 onBackdropClick={() => {
                     if (closeBlocked) return;
                     if (sources.overlay) {
@@ -284,11 +317,10 @@ export function ModalSources({ embed = false }) {
                     <ModalHubHero
                         mobile={mobile}
                         title={ui.sourceManagerTitle}
-                        subtitle={ui.sourceManagerDesc}
+                        leadingIcon="📚"
                         showClose={!mobile}
                         showBack={!!mobile}
                         closeDisabled={closeBlocked}
-                        leadingIcon={leadingIcon}
                         onClose={() => {
                             if (closeBlocked) return;
                             if (sources.overlay) {

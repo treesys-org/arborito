@@ -375,11 +375,18 @@ const [active, setActive] = useState(false);
                 store.state.modalOverlay ||
                 store.state.treeGrowingOverlay
             );
+            /* Soft-mount keeps treeHydrating true while the trunk is already painted.
+             * Waiting on it delayed the first shell step after Cursos. */
+            const structureReady = !!(store.state.data && store.state.rawGraphData);
             const uiBlocking =
                 !!(store.value.modal || store.value.previewNode || store.state.modalOverlay) ||
-                !!(store.state.treeGrowingOverlay || store.state.treeHydrating);
+                !!store.state.treeGrowingOverlay ||
+                (!!store.state.treeHydrating && !structureReady);
 
             if (skipDock) {
+                /* Prefetch shell-tour CSS while the picker tour is up so the map
+                 * tour after Cursos does not wait on stylesheet fetch. */
+                void ensureDeferredProductTourStyles();
                 if (!force) {
                     try {
                         if (localStorage.getItem(TOUR_DONE_KEY_SOURCES_PICKER)) return;
@@ -436,7 +443,7 @@ const [active, setActive] = useState(false);
                  * start event fires after opening a long branch — retry, don't drop. */
                 if (m === 'default' && modalWaitRetryRef.current < 48) {
                     modalWaitRetryRef.current += 1;
-                    scheduleTryStart({ force, mode: m }, 120);
+                    scheduleTryStart({ force, mode: m }, 50);
                 }
                 return;
             }
@@ -527,7 +534,7 @@ const [active, setActive] = useState(false);
             ) {
                 if (anchorWaitRetryRef.current < 48) {
                     anchorWaitRetryRef.current += 1;
-                    scheduleTryStart({ force, mode: m }, 80);
+                    scheduleTryStart({ force, mode: m }, 50);
                     return;
                 }
             }

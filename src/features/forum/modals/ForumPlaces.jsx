@@ -12,7 +12,7 @@ function PlaceLevelRow({ p, ui, threadCount, onPick, onDrill, pickClass, drillCl
 
     return (
         <div
-            className={`${compact ? 'w-[calc(100%-0.75rem)]' : 'w-[calc(100%-0.5rem)]'} mx-auto mb-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/80 overflow-hidden`}
+            className={`${compact ? 'w-[calc(100%-0.75rem)]' : 'w-[calc(100%-0.5rem)]'} mx-auto mb-1.5 rounded-lg border border-slate-200 dark:border-slate-700 arborito-surface-tile overflow-hidden`}
         >
             <div className="flex items-stretch w-full min-w-0">
                 <button
@@ -41,7 +41,7 @@ function PlaceLevelRow({ p, ui, threadCount, onPick, onDrill, pickClass, drillCl
                 {canDrill ? (
                     <button
                         type="button"
-                        className={`${drillClass} shrink-0 ${compact ? 'w-12' : 'w-14'} min-h-11 border-l border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-400 dark:focus-visible:ring-slate-500 font-black text-slate-700 dark:text-slate-200`}
+                        className={`${drillClass} shrink-0 ${compact ? 'w-12' : 'w-14'} min-h-11 border-l border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-400 dark:focus-visible:ring-slate-500 font-black text-slate-700 dark:text-slate-200`}
                         data-place-id={id}
                         aria-label={drillAria}
                         title={drillAria}
@@ -181,7 +181,7 @@ export function ForumMobileNavBody({
     const structureSummary = ui.forumStructureHintSummary || ui.forumLimitSummaryShort || ui.forumPlacesHeading || 'About sections';
 
     return (
-        <div className="forum-mob-nav-panel lg:hidden flex flex-col flex-1 min-h-0 w-full overflow-hidden bg-white dark:bg-slate-900">
+        <div className="forum-mob-nav-panel lg:hidden flex flex-col flex-1 min-h-0 w-full overflow-hidden">
                 <div className="forum-mob-nav-filter shrink-0 w-full border-b border-slate-200 dark:border-slate-700 px-3 py-2.5">
                     {structureHint ? (
                         <details className="forum-mob-structure-details mb-2">
@@ -237,7 +237,7 @@ export function ForumMobileZoneBar({ ui, pLabel, onOpenNav, onOpenNewTopic, show
     const mobNavTitle = ui.forumPlacesHeading || 'Course area';
     const mobNavOpenLabel = ui.forumMobileOpenNav || ui.forumPlacesHeading || 'Course area';
     return (
-        <div className="forum-mob-zone-root lg:hidden shrink-0 w-full border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+        <div className="forum-mob-zone-root lg:hidden shrink-0 w-full border-b border-slate-200 dark:border-slate-700">
             <div className="forum-mob-zone-bar flex items-center gap-2 px-3 py-2.5 min-h-11">
                 <button
                     type="button"
@@ -291,7 +291,7 @@ export function ForumDesktopPlaces({
     const rows = buildLevelRows(places, deskCurParentId, forumPlaceFilterQ, allThreads, ui, deskNavStack.length === 0);
 
     return (
-        <aside className="forum-aside forum-aside--categories forum-master-nav hidden lg:flex lg:w-[13rem] xl:w-[14rem] shrink-0 flex-col border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 min-h-0">
+        <aside className="forum-aside forum-aside--categories forum-master-nav hidden lg:flex lg:w-[13rem] xl:w-[14rem] shrink-0 flex-col border-r border-slate-200 dark:border-slate-700 min-h-0">
             <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 shrink-0">
                 <p className="text-xs font-bold tracking-wide text-slate-600 dark:text-slate-300">
                     {ui.forumPlacesHeading || 'Categories'}
@@ -317,7 +317,7 @@ export function ForumDesktopPlaces({
                 <div className="shrink-0 px-4 py-2 border-b border-slate-200 dark:border-slate-700">
                     <button
                         type="button"
-                        className="forum-desk-nav-back min-h-10 px-3 py-2 rounded-xl text-xs font-bold tracking-wide border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 w-full text-left"
+                        className="forum-desk-nav-back min-h-10 px-3 py-2 rounded-xl text-xs font-bold tracking-wide border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 w-full text-left"
                         aria-label={mobNavBackLabel}
                         onClick={onDeskBack}
                     >

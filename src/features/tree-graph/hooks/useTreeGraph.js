@@ -47,6 +47,7 @@ export function useTreeGraph() {
         curriculumEditLang,
         treeHydrating,
         treeGrowingOverlay,
+        bibliotecaSoftMount,
         nostrLiveSeeds,
         webtorrentSeeder,
     } = slice;
@@ -184,6 +185,7 @@ export function useTreeGraph() {
         curriculumEditLang,
         treeHydrating,
         treeGrowingOverlay,
+        bibliotecaSoftMount,
         nostrLiveSeeds,
         webtorrentSeeder,
         forumNavEnabled,

@@ -21,9 +21,9 @@ index: 2
 title: Tres nombres útiles
 @/section
 
-- **Rama:** un curso completo (este demo es una rama).
+- **Curso:** lo que estudias de punta a punta (este demo es un curso).
 - **Lección:** una página con texto, capturas y preguntas.
-- **Árbol:** cursos combinados (varias ramas en un solo recorrido).
+- **Playlist:** varios cursos juntos en un solo recorrido.
 
 Si activas la IA en ajustes, puedo ayudarte. Por defecto está **apagada**.
 
@@ -35,10 +35,10 @@ items:
     modes: multiple,recall
     traps:
       - Hacky Terminal
-      - El Bosque
+      - Solo Arcade
       - Un examen automático
-  - question: ¿Cómo se llama un curso completo?
-    answer: Una Rama
+  - question: ¿Qué es este demo?
+    answer: Un curso
     modes: recall,multiple
     traps:
       - Solo un cuestionario
@@ -68,7 +68,7 @@ items:
     modes: recall,multiple
     traps:
       - Solo en Arcade
-      - En el Bosque
+      - Solo en Cursos
       - En la papelera
   - question: ¿Puedes repetir un cuestionario ya hecho?
     answer: Sí, cuando quieras

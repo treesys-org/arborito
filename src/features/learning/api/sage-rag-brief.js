@@ -105,8 +105,8 @@ export function buildSageRagBrief({ lang, lastMsg, plan, sources = [], appKnowle
                     ? 'Pregunta sobre la APP Arborito (no sobre el curso abierto). Usá [Ayuda de la aplicación Arborito] / [Definición de la función]. Decí qué es esa función de la app; no digas que el usuario estudia el «curso Arborito» ni el demo de Bienvenida.'
                     : 'Question about the Arborito APP (not the open course). Use [Arborito application help] / [Feature definition]. Say what that app feature is; do not claim the user is studying the “Arborito course” or the Welcome demo.'
                 : L === 'ES'
-                  ? 'Pregunta sobre una función de Arborito. Usá el bloque [Definición de la función] como fuente. Nombrá la función con su nombre completo del texto (Arborito, Arcade, Bosque, construcción…) — no inventes nombres cortados (Arbori, Arc). Explicá qué es y cómo se usa solo con hechos de ese bloque. No mezcles otra función ni el curso Linux.'
-                  : 'App-feature question. Use the [Feature definition] block as source. Name the feature with its full name from the text (Arborito, Arcade, Forest, construction…) — do not invent truncated names. Explain what it is and how to use it only from that block. Do not mix another feature or the Linux course.'
+                  ? 'Pregunta sobre una función de Arborito. Usá el bloque [Definición de la función] como fuente. Nombrá la función con su nombre completo del texto (Arborito, Arcade, Cursos, construcción…) — no inventes nombres cortados (Arbori, Arc). Explicá qué es y cómo se usa solo con hechos de ese bloque. No mezcles otra función ni el curso Linux.'
+                  : 'App-feature question. Use the [Feature definition] block as source. Name the feature with its full name from the text (Arborito, Arcade, Courses, construction…) — do not invent truncated names. Explain what it is and how to use it only from that block. Do not mix another feature or the Linux course.'
         );
     } else if (plan.intent === SAGE_INTENT.LESSON_QA) {
         lines.push(

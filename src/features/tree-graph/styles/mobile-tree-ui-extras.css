@@ -144,13 +144,26 @@ html:not(.dark) .arborito-mobile-path .mobile-panel-back:hover {
     background: var(--arborito-theme-branch-version-chip-card-background);
     border-radius: 0.85rem;
     overflow: hidden;
+    transition: transform 0.15s ease;
 }
 
-.mobile-panel-branch-unit:has(.arborito-explore-curriculum-chip) {
-    border-color: var(--arborito-theme-tree-chip-border);
-    background: var(--arborito-theme-tree-chip-bg);
+/* Whole vignette sinks on press (matches pick-card / child rows). */
+.mobile-panel-branch-unit:has(.arborito-branch-panel-version-chip--unit:active) {
+    transform: scale(0.98);
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .mobile-panel-branch-unit {
+        transition: none;
+    }
+
+    .mobile-panel-branch-unit:has(.arborito-branch-panel-version-chip--unit:active) {
+        transform: none;
+    }
+}
+
+/* Explore root + branch folder: same emerald unit (Course/Playlist kind is copy + emoji). */
+.mobile-panel-branch-unit:has(.arborito-explore-curriculum-chip),
 .mobile-panel-branch-unit:has(.arborito-branch-curriculum-chip) {
     border-color: var(--arborito-theme-branch-chip-border);
     /* One surface: unit paint matches chip so chrome/tools gaps are not a second box. */
@@ -295,8 +308,13 @@ html:not(.dark) .arborito-mobile-path .mobile-panel-back:hover {
 }
 
 .mobile-panel-branch-unit .arborito-branch-panel-version-chip--unit .arborito-switcher-chip-chev {
-    margin-top: 0.2rem;
-    font-size: 0.8rem;
+    margin-top: 0;
+    align-self: center;
+    flex-shrink: 0;
+    font-size: 1.15rem;
+    line-height: 1;
+    opacity: 0.55;
+    pointer-events: none;
 }
 
 .mobile-panel-branch-unit .arborito-switcher-chip-icon {
@@ -467,15 +485,9 @@ html:not(.dark) .arborito-mobile-path .mobile-panel-back:hover {
     border-color: var(--arborito-theme-branch-version-chip-ver-border-color);
 }
 
-/* Tree chip: warm brown (beats .arborito-timeline-chip--btn green). */
+/* Curriculum switcher chips: consolidated emerald (kind via label/emoji, not brown paint). */
 .arborito-explore-curriculum-chip.arborito-timeline-chip--btn,
-.mobile-panel-branch-unit .arborito-explore-curriculum-chip {
-    border-color: var(--arborito-theme-tree-chip-border) !important;
-    background: var(--arborito-theme-tree-chip-bg) !important;
-    color: var(--arborito-theme-tree-chip-fg);
-}
-
-/* Branch chip: green identity (tree chip stays brown). */
+.mobile-panel-branch-unit .arborito-explore-curriculum-chip,
 .arborito-branch-curriculum-chip.arborito-timeline-chip--btn,
 .mobile-panel-branch-unit .arborito-branch-curriculum-chip {
     border-color: var(--arborito-theme-branch-chip-border) !important;

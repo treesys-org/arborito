@@ -22,6 +22,7 @@ import {
 } from '../../branch-catalog-icon.js';
 import { BRANCH_CHIP_ICON } from '../../../../tree-graph/api/node-property-emojis.js';
 import { mergeDisplayedVotes, readLocalLiked } from './sources-vote-persist.js';
+import { normalizeTreeShareCode } from '../../share-code.js';
 
 /**
  * Fill missing directory `icon` from local published twins / Saved community meta
@@ -187,7 +188,14 @@ export async function ensureGlobalMetricsForRows(rows, filter, metricsMap, setMe
     if (sortOnly && !needVotes && !needUsed7 && !needUsed1 && !needForks) return metricsMap;
     if (moderationOnly && !needReports && !needLegal) return metricsMap;
 
-    const metricsRowLimit = sortOnly ? 16 : 24;
+    /* Rank/display needs votes for the whole Discover page, not only the first
+     * 16 by recency. Otherwise a liked-but-older course never gets `votes`,
+     * shows no likes in the UI, and `discoverListingScore` keeps it at the
+     * bottom. Cap at two network pages so “Show more” stays bounded. */
+    const metricsRowLimit = Math.min(
+        rows.length,
+        sortOnly ? DIRECTORY_CLIENT_FETCH_PAGE : DIRECTORY_CLIENT_FETCH_PAGE * 2
+    );
     const queue = [];
     const nextMap = { ...(metricsMap || {}) };
 
@@ -331,13 +339,27 @@ export async function applyGlobalDirectorySortAndMetrics(state, setters, { onUpd
     }
 
     await yieldToPaint();
-    await ensureGlobalMetricsForRows(rows, filter, state.globalDirMetrics, setters.setGlobalDirMetrics, {
-        sortOnly: true,
-    });
-    const sorted = rerankRows(rows, filter, state.globalDirMetrics);
+    /* Use the map returned by ensure* — React state here is still the pre-fetch
+     * snapshot, so ranking with `state.globalDirMetrics` would ignore votes. */
+    let metrics =
+        (await ensureGlobalMetricsForRows(rows, filter, state.globalDirMetrics, setters.setGlobalDirMetrics, {
+            sortOnly: true,
+        })) || state.globalDirMetrics;
+    let sorted = rerankRows(rows, filter, metrics);
     setters.setGlobalDirRows(sorted);
     onUpdate?.();
-    void ensureGlobalMetricsForRows(sorted, filter, state.globalDirMetrics, setters.setGlobalDirMetrics, {
+
+    /* After first rank, fill engagement for any page rows still missing metrics
+     * (e.g. crawl grew past the first sortOnly window), then re-rank again. */
+    metrics =
+        (await ensureGlobalMetricsForRows(sorted, filter, metrics, setters.setGlobalDirMetrics, {
+            sortOnly: false,
+        })) || metrics;
+    sorted = rerankRows(sorted, filter, metrics);
+    setters.setGlobalDirRows(sorted);
+    onUpdate?.();
+
+    void ensureGlobalMetricsForRows(sorted, filter, metrics, setters.setGlobalDirMetrics, {
         moderationOnly: true,
     }).then(() => onUpdate?.());
 }
@@ -376,6 +398,9 @@ export function ensureSavedSourcesMetrics(sources, metricsMap, setMetricsMap) {
     void ensureGlobalMetricsForRows(rows, 'discover', metricsMap, setMetricsMap, { sortOnly: true });
 }
 
+/** Bumps whenever a Discover fetch starts; stale async work must not paint. */
+let globalDirFetchGeneration = 0;
+
 export function scheduleGlobalDirectoryFetch(state, setters, { reason = 'input', onUpdate } = {}) {
     if (state.globalDirTimer) clearTimeout(state.globalDirTimer);
     const delay = reason === 'render' ? 0 : reason === 'load-more' ? 0 : 450;
@@ -402,6 +427,9 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
         if (now - (state.globalDirLastFetchAt || 0) < 800 && state.globalDirLoading) return;
     }
 
+    const fetchGen = ++globalDirFetchGeneration;
+    const stillCurrent = () => fetchGen === globalDirFetchGeneration;
+
     setters.setGlobalDirLastFetchAt(now);
     setters.setGlobalDirLastQuery(q);
     if (typeof setters.setGlobalDirLastFetchLimit === 'function') {
@@ -412,13 +440,41 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
     onUpdate?.();
     await yieldToPaint();
 
+    /**
+     * Paint Discover as soon as snapshot/trigram/crawl batches arrive — do not
+     * wait for mirrors or final sort. Still drop known-revoked ghosts immediately.
+     * @param {object[]} partial
+     */
+    const publishPartialRows = (partial) => {
+        void (async () => {
+            if (!stillCurrent()) return;
+            let next = Array.isArray(partial) ? partial : [];
+            next = next.filter((r) => !store.isNostrTreeMaintainerBlocked(r?.ownerPub, r?.universeId));
+            const net = store.nostr;
+            if (net && typeof net._filterDirectoryRowsWithPublishedBundle === 'function') {
+                try {
+                    next = await net._filterDirectoryRowsWithPublishedBundle(next);
+                } catch {
+                    /* keep unfiltered partial on probe errors */
+                }
+            }
+            if (!stillCurrent()) return;
+            next = enrichDirectoryRowsWithKnownIcons(next);
+            if (next.length > fetchLimit) next = next.slice(0, fetchLimit);
+            setters.setGlobalDirRows(next);
+            onUpdate?.();
+        })();
+    };
+
     try {
         await runBibliotecaNetworkLoad(async () => {
             /* Remote maintainer blocklist (GitHub) — only with network consent. */
             await refreshMaintainerNostrTreeBlocklist().catch(() => false);
+            if (!stillCurrent()) return;
 
             const net = store.nostr;
             const qNorm = q.replace(/^#/, '').trim();
+            const shareCodeNorm = normalizeTreeShareCode(qNorm);
             let rows = [];
             let directoryHitCap = false;
             let directoryFetchError = '';
@@ -437,14 +493,18 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
                     rows = await net.listGlobalTreeDirectoryEntriesOnce({
                         limit: fetchLimit,
                         query: q,
+                        onPartial: publishPartialRows,
                     });
+                    if (!stillCurrent()) return;
                     rows = Array.isArray(rows) ? rows : [];
                     rows = rows.filter((r) => !store.isNostrTreeMaintainerBlocked(r?.ownerPub, r?.universeId));
                     directoryHitCap = rows.length >= fetchLimit;
+                    /* Full Nostr list before mirrors / bundle filter. */
+                    publishPartialRows(rows);
 
-                    if (qNorm && /^[a-z0-9]{4,14}$/i.test(qNorm) && typeof net.resolveTreeShareCode === 'function') {
+                    if (shareCodeNorm && typeof net.resolveTreeShareCode === 'function') {
                         try {
-                            const ref = await net.resolveTreeShareCode(qNorm);
+                            const ref = await net.resolveTreeShareCode(shareCodeNorm);
                             if (ref?.pub && ref?.universeId) {
                                 const canonPub = String(ref.pub);
                                 const canonUid = String(ref.universeId);
@@ -452,66 +512,47 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
                                     const exists = rows.some(
                                         (r) => String(r.ownerPub) === canonPub && String(r.universeId) === canonUid
                                     );
-                                    if (!exists) {
-                                        let codeRow = {
-                                            ownerPub: canonPub,
-                                            universeId: canonUid,
-                                            title: `Code #${qNorm}`,
-                                            shareCode: qNorm,
-                                            updatedAt: '',
-                                        };
-                                        if (Array.isArray(ref.recommendedRelays) && ref.recommendedRelays.length) {
-                                            codeRow.recommendedRelays = ref.recommendedRelays;
-                                        }
-                                        /* Share-code resolve only returns pub/uid — pull the
-                                         * signed directory row so title + catalog icon show. */
+                                    let full = null;
+                                    if (typeof net.loadGlobalTreeDirectoryEntryOnce === 'function') {
                                         try {
-                                            if (typeof net.loadGlobalTreeDirectoryEntryOnce === 'function') {
-                                                const full = await net.loadGlobalTreeDirectoryEntryOnce({
-                                                    pub: canonPub,
-                                                    universeId: canonUid,
-                                                });
-                                                if (full && typeof full === 'object') {
-                                                    codeRow = {
-                                                        ...codeRow,
-                                                        ...full,
-                                                        ownerPub: canonPub,
-                                                        universeId: canonUid,
-                                                        shareCode: String(full.shareCode || qNorm),
-                                                    };
-                                                }
-                                            }
+                                            full = await net.loadGlobalTreeDirectoryEntryOnce({
+                                                pub: canonPub,
+                                                universeId: canonUid,
+                                            });
                                         } catch {
-                                            /* keep stub */
+                                            full = null;
                                         }
-                                        rows = [codeRow, ...rows];
-                                    } else if (typeof net.loadGlobalTreeDirectoryEntryOnce === 'function') {
-                                        /* List hit may omit `icon` (older publishes). Refresh that row. */
+                                    }
+                                    /* Claim can outlive delist/revoke — never invent a Discover card
+                                     * from share-code alone (dead playlist / course ghosts). */
+                                    if (!full || typeof full !== 'object') {
+                                        /* Keep any existing list hit; bundle-header filter drops dead rows. */
+                                    } else if (!exists) {
+                                        rows = [
+                                            {
+                                                ...full,
+                                                ownerPub: canonPub,
+                                                universeId: canonUid,
+                                                shareCode: String(full.shareCode || shareCodeNorm),
+                                            },
+                                            ...rows,
+                                        ];
+                                    } else {
                                         const idx = rows.findIndex(
                                             (r) =>
                                                 String(r.ownerPub) === canonPub &&
                                                 String(r.universeId) === canonUid
                                         );
-                                        if (idx >= 0 && !normalizeDirectoryCatalogIcon(rows[idx]?.icon)) {
-                                            try {
-                                                const full = await net.loadGlobalTreeDirectoryEntryOnce({
-                                                    pub: canonPub,
-                                                    universeId: canonUid,
-                                                });
-                                                if (full && typeof full === 'object') {
-                                                    rows[idx] = {
-                                                        ...rows[idx],
-                                                        ...full,
-                                                        ownerPub: canonPub,
-                                                        universeId: canonUid,
-                                                        shareCode: String(
-                                                            full.shareCode || rows[idx].shareCode || qNorm
-                                                        ),
-                                                    };
-                                                }
-                                            } catch {
-                                                /* keep list row */
-                                            }
+                                        if (idx >= 0) {
+                                            rows[idx] = {
+                                                ...rows[idx],
+                                                ...full,
+                                                ownerPub: canonPub,
+                                                universeId: canonUid,
+                                                shareCode: String(
+                                                    full.shareCode || rows[idx].shareCode || shareCodeNorm
+                                                ),
+                                            };
                                         }
                                     }
                                 }
@@ -520,6 +561,7 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
                             /* ignore */
                         }
                     }
+                    if (stillCurrent()) publishPartialRows(rows);
                 } catch (e) {
                     directoryFetchError = String(e?.message || e);
                     rows = [];
@@ -527,6 +569,8 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
             } else {
                 directoryFetchError = String(store.ui.nostrNotLoadedHint || 'Nostr is not available.').trim();
             }
+
+            if (!stillCurrent()) return;
 
             const nostrRowsOk = rows.length > 0 && !directoryFetchError;
             /* Always merge mirrors when Nostr is empty/errored, or when the
@@ -541,11 +585,13 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
                 } catch (e) {
                     console.warn('[Arborito] global directory torrent', e);
                 }
+                if (!stillCurrent()) return;
                 try {
                     httpRows = await loadGlobalDirectoryRowsFromHttp({ query: q });
                 } catch (e) {
                     console.warn('[Arborito] global directory http', e);
                 }
+                if (!stillCurrent()) return;
             }
 
             /* Empty Nostr + failed mirrors: clear circuit breaker and retry once. */
@@ -555,7 +601,9 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
                     rows = await net.listGlobalTreeDirectoryEntriesOnce({
                         limit: fetchLimit,
                         query: q,
+                        onPartial: publishPartialRows,
                     });
+                    if (!stillCurrent()) return;
                     rows = Array.isArray(rows) ? rows : [];
                     rows = rows.filter((r) => !store.isNostrTreeMaintainerBlocked(r?.ownerPub, r?.universeId));
                     if (rows.length) directoryFetchError = '';
@@ -564,14 +612,19 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
                 }
             }
 
+            if (!stillCurrent()) return;
+
             const shardRows = await shardRowsPromise;
+            if (!stillCurrent()) return;
             rows = mergeNostrAndTorrentDirectoryRows(
                 mergeNostrAndTorrentDirectoryRows(mergeNostrAndTorrentDirectoryRows(rows, shardRows), torrentRows),
                 httpRows
             );
             rows = rows.filter((r) => !store.isNostrTreeMaintainerBlocked(r?.ownerPub, r?.universeId));
+            publishPartialRows(rows);
             if (net && typeof net._filterDirectoryRowsWithPublishedBundle === 'function') {
                 rows = await net._filterDirectoryRowsWithPublishedBundle(rows);
+                if (!stillCurrent()) return;
             }
             rows = enrichDirectoryRowsWithKnownIcons(rows);
             let hitCap = false;
@@ -584,6 +637,7 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
             /* At absolute max, stop offering network “load more”. */
             if (fetchLimit >= DIRECTORY_CLIENT_FETCH_MAX) hitCap = false;
 
+            if (!stillCurrent()) return;
             setters.setGlobalDirRows(rows);
             setters.setGlobalDirLoading(false);
             setters.setGlobalDirHitCap(hitCap);
@@ -593,13 +647,28 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
                 setters.setGlobalDirError('');
             }
             onUpdate?.();
+            const sortSetters = {
+                ...setters,
+                setGlobalDirRows: (next) => {
+                    if (!stillCurrent()) return;
+                    setters.setGlobalDirRows(next);
+                },
+                setGlobalDirMetrics: (next) => {
+                    if (!stillCurrent()) return;
+                    setters.setGlobalDirMetrics(next);
+                },
+            };
             await applyGlobalDirectorySortAndMetrics(
                 { ...state, globalDirRows: rows, globalDirLoading: false },
-                setters,
-                { onUpdate }
+                sortSetters,
+                { onUpdate: () => {
+                    if (!stillCurrent()) return;
+                    onUpdate?.();
+                } }
             );
         }, { timeoutMs: 6000 });
     } catch (e) {
+        if (!stillCurrent()) return;
         setters.setGlobalDirHitCap(false);
         setters.setGlobalDirLoading(false);
         setters.setGlobalDirRows([]);

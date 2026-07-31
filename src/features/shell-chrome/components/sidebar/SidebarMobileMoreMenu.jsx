@@ -104,7 +104,7 @@ export function SidebarMobileMoreMenu({
                                 className={`flex items-start gap-3 p-3.5 rounded-2xl border-2 transition-all text-left ${
                                     lang === l.code
                                         ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
-                                        : 'border-slate-100 dark:border-slate-700 bg-white/70 dark:bg-slate-800/40'
+                                        : 'border-slate-100 dark:border-slate-700 arborito-surface-tile'
                                 }`}
                                 onClick={() => onPickLanguage(l.code)}
                             >
@@ -145,12 +145,6 @@ export function SidebarMobileMoreMenu({
                             />
                         ) : null}
                         <MmenuDrillRow icon="ℹ️" label={ui.navAbout} onClick={() => onPushPane('about')} onPointerEnter={() => prefetchModal('about')} />
-                        <MmenuDrillRow
-                            icon="🌳"
-                            label={ui.moreMenuRowSources || ui.navSources}
-                            onClick={() => onPushPane('sources')}
-                            onPointerEnter={() => prefetchModal('sources')}
-                        />
                         <MmenuDrillRow
                             icon="🏆"
                             label={ui.moreMenuRowCertificates || ui.navCertificates}
@@ -218,10 +212,10 @@ export function SidebarMobileMoreMenu({
                                 onClick={onDownload}
                             />
                         ) : null}
-                        <div className="px-4 pb-4 mt-6 opacity-60 hover:opacity-100 transition-opacity flex justify-center">
+                        <div className="mt-3 opacity-60 hover:opacity-100 transition-opacity flex justify-center">
                             <button
                                 type="button"
-                                className="text-[10px] text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 w-full text-center py-2 underline decoration-slate-300 dark:decoration-slate-700 underline-offset-4"
+                                className="text-[10px] text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300 w-full text-center py-1.5 underline decoration-slate-300 dark:decoration-slate-700 underline-offset-4"
                                 onClick={onLegal}
                             >
                                 treesys.org · {ui.tabLegal || 'Legal notice'}

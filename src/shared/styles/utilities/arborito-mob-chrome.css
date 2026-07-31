@@ -138,8 +138,10 @@ html.arborito-construction-mobile .construction-panel-host--float-dock .arborito
 }
 
 .arborito-mob-top-actions__btn--profile,
-.arborito-mob-top-actions__btn--progress {
-    height: var(--arborito-mob-chrome-btn);
+.arborito-mob-top-actions__btn--progress,
+.arborito-mob-top-actions__btn--lead,
+.arborito-mob-top-actions__btn--icon {
+    min-height: 2.75rem;
 }
 
 /* Sage guide hub tiles: icon slot matches tab min width (full-mob hub only) */

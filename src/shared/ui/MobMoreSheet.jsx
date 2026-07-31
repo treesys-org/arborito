@@ -26,7 +26,9 @@ export function mobMoreSheetClass({ freshEnter = false, instant = false, extra =
         .join(' ');
 }
 
-const MORE_SCROLL_PAD = { paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom, 12px))' };
+/* Sheet already clears the dock (`--arborito-sheet-dock-gap`); extra safe-area here only
+ * created phantom scroll when the root rows + Legal footer already fit. */
+const MORE_SCROLL_PAD = { paddingBottom: '0.75rem' };
 
 /**
  * Mobile “More” sheet shell: backdrop + dialog + hero + scroll host.

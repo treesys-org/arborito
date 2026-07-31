@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, startTransition } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useSources } from './useSources.js';
 import { useTreeGraphSlice } from '../../../stores/tree-graph-store.js';
@@ -9,6 +9,10 @@ import { useSourcesState } from '../modals/hooks/useSourcesState.jsx';
 import { useSourcesActions } from '../modals/hooks/useSourcesActions.jsx';
 import { useSourcesLifecycle } from '../modals/hooks/useSourcesLifecycle.jsx';
 import { dispatchSourcesAction } from '../api/modals/logic/dispatch-sources-action.js';
+import {
+    normalizeSourcesMainTab,
+    sourcesScopeForMainTab,
+} from '../api/modals/logic/sources-main-tab.js';
 
 /** Sources / biblioteca modal, wiring hook (jr entry for ModalSources). */
 export function useSourcesModal(embed = false) {
@@ -53,6 +57,8 @@ export function useSourcesModal(embed = false) {
         setActiveTab: sources.setActiveTab,
         setOverlay: sources.setOverlay,
         setTreeEditor: sources.setTreeEditor,
+        setSourcesScope: sources.setSourcesScope,
+        setTreesScope: sources.setTreesScope,
     });
 
     useEffect(() => {
@@ -61,60 +67,40 @@ export function useSourcesModal(embed = false) {
         return () => unlinkPanelDom(rootRef.current);
     }, [embed, sources.panelApi]);
 
-    const mainTab = String(sources.mainTab || 'branches');
+    const mainTab = normalizeSourcesMainTab(sources.mainTab);
 
     const mainTabs = useMemo(
         () => [
             {
-                id: 'branches',
-                label: ui.sourcesTabBranches || 'Individual courses',
-                caption: ui.sourcesTabBranchesCaption || 'Branches',
-                emoji: '🌱',
+                id: 'mine',
+                label: ui.sourcesTabMine || ui.sourcesUnifiedScopeMine || 'My courses',
                 tourTarget: 'sources-tab-branches',
             },
             {
-                id: 'trees',
-                label: ui.sourcesTabTrees || ui.sourcesTabForest || 'Combined courses',
-                caption: ui.sourcesTabTreesCaption || 'Trees',
-                emoji: '🌳',
-                tourTarget: 'sources-tab-trees',
+                id: 'explore',
+                label: ui.sourcesTabExplore || ui.sourcesUnifiedScopeExplore || 'Explore',
+                tourTarget: 'sources-tab-explore',
             },
         ],
-        [
-            ui.sourcesTabBranches,
-            ui.sourcesTabBranchesCaption,
-            ui.sourcesTabTrees,
-            ui.sourcesTabForest,
-            ui.sourcesTabTreesCaption,
-        ]
+        [ui.sourcesTabMine, ui.sourcesUnifiedScopeMine, ui.sourcesTabExplore, ui.sourcesUnifiedScopeExplore]
     );
 
-    const tabSubtitle = useMemo(() => {
-        if (mainTab === 'trees') {
-            return (
-                ui.sourcesTabTreesSubtitle ||
-                ui.sourcesTabForestSubtitle ||
-                'Playlists that combine branches, create, remix, publish and share.'
-            );
-        }
-        return (
-            ui.sourcesTabBranchesSubtitle ||
-            'Full branches, plant, import, install from the network and study.'
-        );
-    }, [
-        mainTab,
-        ui.sourcesTabTreesSubtitle,
-        ui.sourcesTabForestSubtitle,
-        ui.sourcesTabBranchesSubtitle,
-    ]);
-
+    const { setMainTab, setActiveTab, setSourcesScope, setTreesScope } = sources;
     const switchMainTab = useCallback(
         (tab) => {
-            sources.setMainTab(tab);
-            sources.setActiveTab(tab === 'trees' ? 'trees' : 'branch');
-            sources.bump();
+            const next = normalizeSourcesMainTab(tab);
+            /* Tab chrome updates urgently; list scope is transitioned so the click paints now. */
+            setMainTab(next);
+            setActiveTab(next === 'trees' ? 'trees' : 'branch');
+            startTransition(() => {
+                if (next === 'trees') {
+                    setTreesScope?.('device');
+                } else {
+                    setSourcesScope(sourcesScopeForMainTab(next));
+                }
+            });
         },
-        [sources]
+        [setMainTab, setActiveTab, setSourcesScope, setTreesScope]
     );
 
     const close = useCallback(() => sources.close(), [sources]);
@@ -139,7 +125,6 @@ export function useSourcesModal(embed = false) {
         onAction,
         mainTab,
         mainTabs,
-        tabSubtitle,
         switchMainTab,
         close,
         closeBlocked,

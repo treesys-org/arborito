@@ -1,1 +1,1 @@
-export { profileAfterSignedIn, profileEnableCloudSync } from '../api/profile-prefs-flow.js';
+export { profileAfterSignedIn } from '../api/profile-prefs-flow.js';

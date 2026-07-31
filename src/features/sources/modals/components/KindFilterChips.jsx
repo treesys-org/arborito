@@ -1,7 +1,7 @@
 const KIND_OPTIONS = [
     ['all', (ui) => ui.sourcesKindFilterAll || 'All', ''],
-    ['branch', (ui) => ui.sourcesPillBranch || 'Branch', 'sources-tab-branches'],
-    ['composed-tree', (ui) => ui.sourcesPillComposedTree || 'Tree', 'sources-tab-trees'],
+    ['branch', (ui) => ui.sourcesPillBranch || 'Course', 'sources-tab-branches'],
+    ['composed-tree', (ui) => ui.sourcesPillComposedTree || 'Playlist', 'sources-tab-trees'],
 ];
 
 /** Branch vs composed-tree kind filter chips. */
@@ -38,7 +38,7 @@ export function KindFilterChips({ ui, kindFilter, onChange, variant = 'bibliotec
     }
 
     return (
-        <div className="flex flex-wrap gap-2 items-center" data-arbor-tour="sources-main-tabs">
+        <div className="flex flex-wrap gap-2 items-center" data-arbor-tour="sources-kind-filter">
             <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 shrink-0">
                 {ui.sourcesKindFilterLabel || 'Type'}
             </span>

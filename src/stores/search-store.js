@@ -31,7 +31,4 @@ export function useSearchSlice(selector) {
     return useStore(searchStore, selector);
 }
 
-/** Alias, prefer `useSearchSlice` (matches other domain stores). */
-export const useSearchStore = useSearchSlice;
-
 export { commitSearchState, searchActions, searchAction, searchBroadAction } from './search-store-actions.js';

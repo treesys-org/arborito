@@ -36,13 +36,13 @@ items:
     modes: recall,multiple
     traps:
       - Un editor de código
-      - El Bosque
+      - Cursos
       - Solo el examen final
   - question: ¿Dónde abres Hacky Terminal?
     answer: Desde Arcade con el curso abierto
     modes: recall,multiple
     traps:
-      - Solo en el Bosque
+      - Solo en Cursos
       - Solo exportando
       - Solo con Sage
   - question: ¿El modo estático funciona sin IA?
@@ -70,12 +70,12 @@ items:
     traps:
       - Hacky Terminal
       - Memory solamente
-      - El Bosque
+      - Cursos
   - question: ¿Dónde abres Classroom?
     answer: Desde Arcade con el curso abierto
     modes: multiple,recall
     traps:
       - Solo examen final
-      - Solo Bosque
+      - Solo Cursos
       - Solo exportar
 @/quiz

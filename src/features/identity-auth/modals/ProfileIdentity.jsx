@@ -71,7 +71,7 @@ export function ProfileIdentity({
                     <button
                         type="button"
                         id="btn-avatar-picker"
-                        className="profile-avatar-btn bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center relative group transition-transform hover:scale-105 shadow-sm border-2 border-slate-100 dark:border-slate-700"
+                        className="profile-avatar-btn arborito-surface-tile rounded-full flex items-center justify-center relative group transition-transform hover:scale-105 shadow-sm border-2 border-slate-100 dark:border-slate-700"
                         aria-label={ui.profileEmojiPickerAria || 'Choose emoji'}
                         onClick={(e) => {
                             e.stopPropagation();
@@ -87,13 +87,13 @@ export function ProfileIdentity({
                     </button>
                     <div
                         id="emoji-picker"
-                        className={`absolute left-0 top-full z-50 mt-2 max-h-[min(18rem,50vh)] w-[min(20rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] overflow-y-auto rounded-xl border border-slate-200 bg-white p-0 text-left [box-shadow:var(--arborito-theme-float-card-shadow)] animate-in duration-200 zoom-in-95 custom-scrollbar dark:border-slate-700 dark:bg-slate-800 md:h-72 md:max-h-none md:w-80${showEmojiPicker ? '' : ' hidden'}`}
+                        className={`absolute left-0 top-full z-50 mt-2 max-h-[min(18rem,50vh)] w-[min(20rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] overflow-y-auto rounded-xl border border-slate-200 arborito-surface-tile p-0 text-left [box-shadow:var(--arborito-theme-float-card-shadow)] animate-in duration-200 zoom-in-95 custom-scrollbar dark:border-slate-700 md:h-72 md:max-h-none md:w-80${showEmojiPicker ? '' : ' hidden'}`}
                         role="dialog"
                         aria-label={ui.profileEmojiPickerAria || 'Choose emoji'}
                     >
                         {Object.entries(EMOJI_DATA).map(([cat, emojis]) => (
                             <div key={cat}>
-                                <div className="arborito-eyebrow arborito-eyebrow--md sticky top-0 z-10 border-b border-slate-100 bg-white px-3 py-2 text-left dark:border-slate-700 dark:bg-slate-800">
+                                <div className="arborito-eyebrow arborito-eyebrow--md sticky top-0 z-10 border-b border-slate-100 arborito-surface-tile px-3 py-2 text-left dark:border-slate-700">
                                     {cat}
                                 </div>
                                 <div className="grid grid-cols-4 gap-1 p-2 sm:grid-cols-6">

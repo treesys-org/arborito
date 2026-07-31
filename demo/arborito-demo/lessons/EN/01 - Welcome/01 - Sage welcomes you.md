@@ -21,9 +21,9 @@ index: 2
 title: Three useful names
 @/section
 
-- **Branch:** a full course (this demo is one).
+- **Course:** what you study end to end (this demo is one).
 - **Lesson:** a page with text, screenshots, and questions.
-- **Tree:** combined courses (several branches in one path).
+- **Playlist:** several courses together in one path.
 
 Turn on AI in settings if you want my help. It is **off** by default.
 
@@ -35,10 +35,10 @@ items:
     modes: multiple,recall
     traps:
       - Hacky Terminal
-      - The Forest
+      - Arcade only
       - An automatic exam
-  - question: What do we call a full course?
-    answer: A Branch
+  - question: What is this demo?
+    answer: A course
     modes: recall,multiple
     traps:
       - Just a quiz
@@ -68,7 +68,7 @@ items:
     modes: recall,multiple
     traps:
       - Only in Arcade
-      - In the Forest
+      - Only in Courses
       - In the trash
   - question: Can you retry a quiz you already passed?
     answer: Yes, anytime

@@ -20,8 +20,8 @@ export const FLATPAK_FLATPAKREPO_URL = `${FLATPAK_REMOTE_BASE}/arborito.flatpakr
  * Artifact names follow electron-builder output (see scripts/release-build.mjs).
  * @param {string} [version], from package.json / ARBORITO_BUILD_ID when available
  */
-export function getReleaseDownloadPlatforms(version = '0.1.1-alpha') {
-    const v = String(version || '0.1.1-alpha').replace(/^v/i, '');
+export function getReleaseDownloadPlatforms(version = '0.1.2-alpha') {
+    const v = String(version || '0.1.2-alpha').replace(/^v/i, '');
     const base = `${GITHUB_RELEASES}/download/v${v}`;
     return [
         {

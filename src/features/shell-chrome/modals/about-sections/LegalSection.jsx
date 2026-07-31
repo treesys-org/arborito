@@ -21,7 +21,7 @@ function ImpressumDetailsPre({ text, ui }) {
     const copyLabel = ui.copyEmailLabel || 'Copy email address';
     const copiedLabel = ui.copyEmailCopied || '✓ Copied';
     const preCls =
-        'whitespace-pre-wrap font-mono text-xs text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-100 dark:border-slate-800 select-text';
+        'whitespace-pre-wrap font-mono text-xs text-slate-500 dark:text-slate-400 arborito-surface-tile p-4 rounded-lg border border-slate-100 dark:border-slate-800 select-text';
 
     if (parts.length === 1) {
         return <pre className={preCls}>{processed}</pre>;
@@ -49,7 +49,7 @@ export function LegalSection({ ui }) {
                 <h2 className="text-xl font-black text-slate-800 dark:text-white">{ui.impressumTitle}</h2>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-950/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 mb-6">
+            <div className="arborito-surface-tile p-6 rounded-2xl border border-slate-100 dark:border-slate-800 mb-6">
                 <LocaleRichText
                     as="p"
                     className="text-slate-600 dark:text-slate-300 mb-4 leading-relaxed text-sm select-text"
@@ -65,14 +65,14 @@ export function LegalSection({ ui }) {
             </div>
 
             {ui.supportContributionsTitle ? (
-                <div className="bg-slate-50 dark:bg-slate-950/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 mb-6">
+                <div className="arborito-surface-tile p-6 rounded-2xl border border-slate-100 dark:border-slate-800 mb-6">
                     <h3 className="font-black text-slate-800 dark:text-white text-sm mb-3">{ui.supportContributionsTitle}</h3>
                     <p className="text-[12px] leading-relaxed text-slate-600 dark:text-slate-300 select-text">{ui.supportContributionsBody}</p>
                 </div>
             ) : null}
 
             {ui.dsaSectionTitle ? (
-                <div className="bg-slate-50 dark:bg-slate-950/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 mb-6">
+                <div className="arborito-surface-tile p-6 rounded-2xl border border-slate-100 dark:border-slate-800 mb-6">
                     <h3 className="font-black text-slate-800 dark:text-white text-sm mb-3">{ui.dsaSectionTitle}</h3>
                     <div className="space-y-3">
                         {[ui.dsaContactBody, ui.discoverIndexPolicyBody, ui.dsaModerationBody, ui.dsaNoticeBody].filter(Boolean).map((body, i) => (

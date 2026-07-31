@@ -45,9 +45,9 @@ items:
     answer: The lesson opens
     modes: multiple,recall
     traps:
-      - The branch is deleted
+      - The course is deleted
       - Only music plays
-      - The Forest opens
+      - Courses opens
   - question: How do you go back on the map?
     answer: The arrow or the path at the top
     modes: multiple,recall

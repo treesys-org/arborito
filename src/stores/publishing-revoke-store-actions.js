@@ -134,6 +134,8 @@ export async function revokeActivePublicTreeInteractiveAction() {
     }
     const result = await store._revokePublicTreeCore(treeRef, { contentKind: 'network' });
     if (!result?.ok) return;
+    const ok = await store.ensureMinimumDemoMounted?.({ force: true });
+    if (ok) return;
     const defaultSrc = await store.sourceManager.getDefaultSource();
     if (defaultSrc) {
         await store.loadData(defaultSrc, true);

@@ -68,7 +68,6 @@ src/features/identity-auth/
  ProfileLoginMethodTabs.jsx
  ProfileQrSyncPanel.jsx
  ProfilePasswordSecurityPanel.jsx
- LoginRecoverySetupCard.jsx
  modals/
  OnboardingSignIn.jsx
  OnboardingModal.jsx

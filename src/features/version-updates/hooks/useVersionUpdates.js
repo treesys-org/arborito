@@ -55,7 +55,3 @@ export function useVersionUpdates() {
         value: slice,
     };
 }
-
-export function useVersionUpdatesStore() {
-    return store;
-}

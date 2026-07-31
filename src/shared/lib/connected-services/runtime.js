@@ -2,7 +2,6 @@ import { getArboritoStore } from '../../../core/store-singleton.js';
 import { hasGdprNetworkConsent } from '../../../features/privacy-gdpr/api/network-consent.js';
 import { isNostrNetworkAvailable } from '../../../features/nostr/api/nostr-network-env.js';
 import { KIND_TREE_DIRECTORY } from '../../../features/nostr/api/nostr-spec.js';
-import { yieldToPaint } from '../yield-to-paint.js';
 
 const defaultStore = () => getArboritoStore();
 
@@ -144,19 +143,20 @@ export async function ensureConnectedAI(storeRef = defaultStore()) {
     return storeRef.ensureAILogic?.() ?? null;
 }
 
-/** Yield to paint, then run work after Nostr relays are warmed. */
+/** Warm relays in the background, then run work (do not block first fetch on warm). */
 export async function runConnectedNetworkLoad(work, storeRef = defaultStore(), { timeoutMs = 0 } = {}) {
     const ms = timeoutMs || 12000;
-    await warmNostrRelayConnections(storeRef, {
+    void warmNostrRelayConnections(storeRef, {
         timeoutMs: ms,
         perRelayMs: Math.min(4500, Math.max(1500, Math.floor(ms * 0.6))),
         probe: false,
+    }).catch(() => {
+        /* warm is best-effort; load path has its own connect */
     });
-    await yieldToPaint();
     return work();
 }
 
-/** Biblioteca network loads (Nostr warm + paint before merge/plant/directory). */
+/** Biblioteca network loads (warm relays in background, then work). */
 export async function runBibliotecaNetworkLoad(work, { timeoutMs = 0 } = {}) {
     return runConnectedNetworkLoad(work, defaultStore(), { timeoutMs });
 }

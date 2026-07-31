@@ -47,6 +47,7 @@ export const treeGraphStore = createArboritoStore(() => ({
     treeHydrating: false,
     treeGrowingOverlay: false,
     treeGrowingHint: null,
+    bibliotecaSoftMount: false,
     treeContext: null,
     nostrLiveSeeds: null,
     webtorrentSeeder: { running: false, total: 0, done: 0, peers: 0 },
@@ -67,6 +68,7 @@ export function syncTreeGraphStoreFromSnapshot(snap) {
         treeHydrating: !!snap.treeHydrating,
         treeGrowingOverlay: !!snap.treeGrowingOverlay,
         treeGrowingHint: snap.treeGrowingHint != null ? String(snap.treeGrowingHint) : null,
+        bibliotecaSoftMount: !!snap.bibliotecaSoftMount,
         treeContext: snap.treeContext ?? null,
         nostrLiveSeeds: snap.nostrLiveSeeds ?? null,
         webtorrentSeeder:

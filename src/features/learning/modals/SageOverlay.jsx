@@ -143,7 +143,6 @@ export function SageOverlay() {
                 sageEnterAnim={sageEnterAnim}
                 isAi={isAi}
                 constructionMode={constructionMode}
-                sageLessonContext={sageLessonContext}
                 onSwitchMode={switchSageAiMode}
                 onClose={close}
                 onOpenSettings={openSettings}

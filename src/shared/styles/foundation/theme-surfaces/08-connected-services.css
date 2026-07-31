@@ -61,14 +61,14 @@ html.dark {
         --arborito-theme-cloud-accent-soft: rgb(6 78 59 / 0.35);
         --arborito-theme-cloud-fg: rgb(167 243 208);
 
-        --arborito-theme-filter-chip-idle-bg: rgb(15 23 42);
-        --arborito-theme-filter-chip-idle-fg: rgb(226 232 240);
-        --arborito-theme-filter-chip-idle-border: rgb(51 65 85);
-        --arborito-theme-filter-chip-idle-hover-bg: rgb(30 41 59);
+        --arborito-theme-filter-chip-idle-bg: rgb(14 17 24);
+        --arborito-theme-filter-chip-idle-fg: rgb(212 212 216);
+        --arborito-theme-filter-chip-idle-border: rgb(63 63 70);
+        --arborito-theme-filter-chip-idle-hover-bg: rgb(28 33 44);
 
-        --arborito-theme-filter-chip-neutral-active-bg: rgb(248 250 252);
-        --arborito-theme-filter-chip-neutral-active-fg: rgb(15 23 42);
-        --arborito-theme-filter-chip-neutral-active-border: rgb(248 250 252);
+        --arborito-theme-filter-chip-neutral-active-bg: rgb(250 250 250);
+        --arborito-theme-filter-chip-neutral-active-fg: rgb(14 17 24);
+        --arborito-theme-filter-chip-neutral-active-border: rgb(250 250 250);
 }
 
 /* Sage AI surfaces — alias duplicated indigo/purple tokens to connected-service AI scale */

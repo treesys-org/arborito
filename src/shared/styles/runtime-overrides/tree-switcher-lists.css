@@ -71,9 +71,22 @@
     border: var(--arborito-theme-switcher-arborito-tree-switcher-avatar-border);
 }
 
+.arborito-tree-switcher-avatar .arborito-sources-row-title__emoji,
+.arborito-tree-switcher-avatar .arborito-emoji-img {
+    width: 1.35rem !important;
+    height: 1.35rem !important;
+    max-width: 1.35rem !important;
+    max-height: 1.35rem !important;
+}
+
 .arborito-tree-switcher-avatar--local {
     background: var(--arborito-theme-switcher-arborito-tree-switcher-avatar--local-background);
     border-color: var(--arborito-theme-switcher-arborito-tree-switcher-avatar--local-border-color);
+}
+
+.arborito-tree-switcher-avatar--composed {
+    background: rgba(139, 92, 246, 0.14);
+    border-color: rgba(139, 92, 246, 0.35);
 }
 
 .arborito-tree-switcher-avatar--installed {

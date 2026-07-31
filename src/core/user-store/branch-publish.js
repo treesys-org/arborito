@@ -1,3 +1,8 @@
+import {
+    forgetPrivateAccountDeleted,
+    isPrivateAccountDeleted,
+} from './private-account-delete-tombstones.js';
+
 export const branchPublishMixin = {
     /**
      * Ingest a private-tree blob pulled from the user account on Nostr.
@@ -15,6 +20,7 @@ export const branchPublishMixin = {
     upsertPrivateBranchFromAccount(payload) {
         const id = String((payload && payload.id) || '').trim();
         if (!id) return false;
+        if (isPrivateAccountDeleted(id)) return false;
         const data = (payload && payload.data) || null;
         if (!data || typeof data !== 'object') return false;
         const name = String(payload.name || data.universeName || id);
@@ -59,6 +65,7 @@ export const branchPublishMixin = {
         if (!treeId) return false;
         const entry = this.state.branches.find((t) => t.id === treeId);
         if (!entry) return false;
+        forgetPrivateAccountDeleted(treeId);
         entry.privateSyncedFromAccount = true;
         this.state.branches = [...this.state.branches];
         /* Flag-only: do not enqueue another account republish. */

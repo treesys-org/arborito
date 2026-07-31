@@ -42,6 +42,7 @@ export function mascotForTarget(mode, target) {
     else if (t === 'sources-main-tabs') m = '🌲';
     else if (
         t === 'sources' ||
+        t === 'mob-sources' ||
         t === 'sources-pick-tree' ||
         t === 'sources-tab-branches' ||
         t === 'sources-demo-branch'
@@ -214,13 +215,19 @@ export function syncSourcesPickerTabForStep(step, sourcesPickerOnlyTour) {
     if (
         t === 'sources-main-tabs' ||
         t === 'sources-tab-branches' ||
+        t === 'sources-tab-explore' ||
         t === 'sources-pick-tree' ||
         t === 'sources-demo-branch' ||
-        t === 'sources-tab-trees' ||
         t === 'sources-trees-footer'
     ) {
-        mainTab = 'branches';
-    } else if (t === 'sources-pick-tree-trees' || t === 'sources-trees-panel') {
+        /* Onboarding picker opens on Explorar; demo is also listed there (local garden). */
+        mainTab = 'explore';
+    } else if (
+        t === 'sources-tab-trees' ||
+        t === 'sources-pick-tree-trees' ||
+        t === 'sources-trees-panel' ||
+        t === 'sources-combined-back'
+    ) {
         mainTab = 'trees';
     }
     if (!mainTab || modal._sourcesMainTab === mainTab) return false;

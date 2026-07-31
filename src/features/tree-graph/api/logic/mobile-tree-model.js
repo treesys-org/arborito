@@ -4,15 +4,8 @@ import { curriculumTreeDisplayName } from '../../../version-updates/api/version-
 import { TreeUtils } from '../tree-utils.js';
 import { computeMobilePathNodes } from './mobile-path-nodes.js';
 
-export { computeMobilePathNodes } from './mobile-path-nodes.js';
-
-/** Cleared after path / selection / completed-set changes so the next render rebuilds. */
-export function invalidateMobilePrototypeKeys() {
-    store.bumpGraphUiRevision();
-}
-
 /** @param {object} graphLike, mobilePath + graphUi fields used by buildTrunkSig */
-export function buildTrunkSig(graphLike, root, current, pathNodes, harvested, completedSet) {
+function buildTrunkSig(graphLike, root, current, pathNodes, harvested, completedSet) {
     const mobilePath = Array.isArray(graphLike.mobilePath) ? graphLike.mobilePath : [];
     return [
         mobilePath.join('>'),
@@ -39,7 +32,7 @@ export function buildTrunkSig(graphLike, root, current, pathNodes, harvested, co
     ].join('|');
 }
 
-export function buildChildrenSig(current) {
+function buildChildrenSig(current) {
     const kids = Array.isArray(current.children) ? current.children : [];
     return kids
         .map(

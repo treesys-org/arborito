@@ -54,9 +54,11 @@ export function expandKnownAppStems(q) {
         { re: /\barbor/i, add: 'arborito', have: /\barborito\b/i },
         /* arc / arcad / arcade — whole-word so “archivo” does not match. */
         { re: /\barc(?:ade?)?\b/i, add: 'arcade', have: /\barcade\b/i },
-        { re: /\bbosq/i, add: 'bosque forest', have: /\b(bosque|forest)\b/i },
-        { re: /\bbosque?\b/i, add: 'bosque forest', have: /\b(bosque|forest)\b/i },
-        { re: /\bforest/i, add: 'forest bosque', have: /\b(bosque|forest)\b/i },
+        { re: /\bbosq/i, add: 'bosque forest cursos courses', have: /\b(bosque|forest|cursos|courses)\b/i },
+        { re: /\bbosque?\b/i, add: 'bosque forest cursos courses', have: /\b(bosque|forest|cursos|courses)\b/i },
+        { re: /\bforest/i, add: 'forest bosque cursos courses', have: /\b(bosque|forest|cursos|courses)\b/i },
+        { re: /\bcursos?\b/i, add: 'cursos courses bosque forest', have: /\b(bosque|forest|cursos|courses)\b/i },
+        { re: /\bcourses?\b/i, add: 'courses cursos forest bosque', have: /\b(bosque|forest|cursos|courses)\b/i },
         { re: /\bconstruc/i, add: 'construcción construction', have: /\bconstrucci/i },
         { re: /\bmochil/i, add: 'mochila backpack', have: /\b(mochila|backpack)\b/i },
     ];
@@ -75,9 +77,9 @@ export function expandKnownAppStems(q) {
  */
 function expandBosqueTypos(q) {
     let out = String(q || '');
-    if (/\b(bosque|forest)\b/i.test(out)) return out;
+    if (/\b(bosque|forest|cursos|courses)\b/i.test(out)) return out;
     if (/\bbosq[a-z]{0,3}\b/i.test(out) || /\bbosc[a-z]{0,3}\b/i.test(out)) {
-        out += ' bosque forest';
+        out += ' bosque forest cursos courses';
     }
     return out;
 }
@@ -143,6 +145,8 @@ export function warmProductVocabFromDemoPaths() {
         'Arcade',
         'Bosque',
         'Forest',
+        'Cursos',
+        'Courses',
         'Sage',
         'construccion',
         'construction',

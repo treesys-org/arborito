@@ -7,7 +7,6 @@ import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
 import { DockModalShell, ModalShell } from '../../../app/components/ModalShell.jsx';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import { SageChatOverlay } from './SageScreens.jsx';
-import { sageHideDismissButton } from '../api/modals/logic/sage-ui-helpers.js';
 import { SageSwitchRow } from './components/sage/SageSwitchRow.jsx';
 import { useSageSettings } from './hooks/useSageSettings.jsx';
 
@@ -19,7 +18,6 @@ export function SageSettings({
     voice,
 }) {
     const mob = shouldShowMobileUI();
-    const hideDismiss = sageHideDismissButton();
     const s = useSageSettings({ ui, ai, voice, onSave });
     const stopShellBubble = (e) => {
         e.stopPropagation();
@@ -31,8 +29,8 @@ export function SageSettings({
             mobile={mob}
             title={ui.sageConfigTitle}
             leadingIcon="⚙️"
-            showBack={!hideDismiss}
-            showClose={!hideDismiss}
+            showBack
+            showClose
             backTagClass="btn-sage-settings-back"
             tagClass="btn-close"
             onBack={onExit}

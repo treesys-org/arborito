@@ -3,6 +3,7 @@ import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 import { DockModalShell, ModalCenteredShell } from '../../../app/components/ModalShell.jsx';
 import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
+import { ListRowEnter } from '../../../shared/ui/ListRowEnter.jsx';
 
 export function ModalLanguage() {
     const { ui, dismissModal, setLanguage, availableLanguages, lang } = useShellChrome();
@@ -36,20 +37,21 @@ export function ModalLanguage() {
 
     const body = (
         <div className="px-4 pb-6 pt-2 flex flex-col gap-2 overflow-y-auto custom-scrollbar min-h-0 flex-1">
-            {(availableLanguages || []).map((l) => (
-                <button
-                    key={l.code}
-                    type="button"
-                    className={`arborito-lang-pill w-full text-left px-4 py-3 rounded-xl font-semibold transition-colors flex items-center gap-3 ${
-                        lang === l.code
-                            ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-900 dark:text-emerald-100 border-2 border-emerald-500/55'
-                            : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border-2 border-transparent'
-                    }`}
-                    onClick={() => pickLang(l.code)}
-                >
-                    <ChromeEmoji emoji={l.flag || '🌐'} className="text-xl shrink-0" />
-                    <span>{l.nativeName || l.name || l.code}</span>
-                </button>
+            {(availableLanguages || []).map((l, idx) => (
+                <ListRowEnter key={l.code} index={idx}>
+                    <button
+                        type="button"
+                        className={`arborito-lang-pill w-full text-left px-4 py-3 rounded-xl font-semibold transition-colors flex items-center gap-3 ${
+                            lang === l.code
+                                ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-900 dark:text-emerald-100 border-2 border-emerald-500/55'
+                                : 'arborito-surface-tile hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border-2 border-transparent'
+                        }`}
+                        onClick={() => pickLang(l.code)}
+                    >
+                        <ChromeEmoji emoji={l.flag || '🌐'} className="text-xl shrink-0" />
+                        <span>{l.nativeName || l.name || l.code}</span>
+                    </button>
+                </ListRowEnter>
             ))}
         </div>
     );

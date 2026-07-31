@@ -10,7 +10,7 @@ import {
 } from './trunk-scroll-gesture.js';
 
 /** Root clover SVG bleeds below its layout box (translateY + lobes + glow). */
-export const ROOT_KNOT_VISUAL_OVERFLOW_PX = 28;
+const ROOT_KNOT_VISUAL_OVERFLOW_PX = 28;
 
 /** Lesson reader covers the map — do not rewrite trunk scroll underneath it. */
 function isLessonOverlayOpen() {
@@ -236,7 +236,7 @@ export function clampMobileTrunkScrollForVisibleRoot(hosts, lockRef = { current:
  * overflow scroll layer without toggling overflow (that toggle itself used to
  * leave pan-y dead after folder enter/back).
  */
-export function wakeTrunkOverflowScroller(container) {
+function wakeTrunkOverflowScroller(container) {
     if (!container || typeof container.scrollTop !== 'number') return;
     const y = container.scrollTop;
     beginProgrammaticTrunkScroll();
@@ -267,13 +267,6 @@ export function syncMobilePathScroll(hosts, pathNodes, lockRef = { current: fals
     }
 }
 
-export const syncPathScroll = syncMobilePathScroll;
-
-/** @param {object} hosts */
-export function clampTrunkScroll(hosts, lockRef) {
-    clampMobileTrunkScrollForVisibleRoot(hosts, lockRef);
-}
-
 /**
  * After layout/viewport changes: only enforce the ground clamp.
  * Full recenter belongs to path changes (`useMobileTrunkScroll` + syncScroll).
@@ -286,5 +279,3 @@ export function regroundMobileTrunkScroll(hostRefs, lockRef = { current: false }
         clampMobileTrunkScrollForVisibleRoot(hosts, lockRef);
     });
 }
-
-export const regroundTrunkScroll = regroundMobileTrunkScroll;

@@ -1,5 +1,4 @@
-/** Pure helpers for the forum modal (HTML escaping, places, threads). */
-import { escHtml as esc, escAttr } from '../../../../../shared/lib/html-escape.js';
+/** Pure helpers for the forum modal (places, threads, labels). */
 import { folderDisplayIcon } from '../../../../tree-graph/api/node-property-emojis.js';
 
 /** Human-friendly relative time using the UI language (no raw "5m"/"now"). */
@@ -288,8 +287,6 @@ function forumPlaceLabel(places, placeId, ui) {
 }
 
 export {
-    esc,
-    escAttr,
     timeAgo,
     fullTime,
     pseudonym,

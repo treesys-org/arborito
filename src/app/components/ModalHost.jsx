@@ -44,7 +44,7 @@ function ProfileStackModal({ childType }) {
 
 function UnknownModal({ type, ui }) {
     const msg = (ui.modalUnknownType || 'Unknown modal: {type}').replace('{type}', String(type));
-    return <div className="p-8 bg-white m-4 rounded">{msg}</div>;
+    return <div className="p-8 m-4 rounded arborito-surface-panel">{msg}</div>;
 }
 
 function ModalRouteContent({ route, ui }) {

@@ -10,7 +10,7 @@ title: Construction mode
 
 To **write** a course, use construction mode (hammer / wrench on the map). There you create folders, lessons, text, and questions.
 
-If you do not have your own branch yet: in the **Forest**, **Create branch**.
+If you do not have your own course yet: in **Courses**, tap **Create → Course**.
 
 @image
 url: ./media/12-construccion-en.png
@@ -57,10 +57,10 @@ index: 3
 title: Export
 @/section
 
-**Export** builds a `.arborito` to share. Others import it in the **Forest**. No coding needed.
+**Export** builds a `.arborito` to share. Others import it in **Courses**. No coding needed.
 
 @quiz
-concept: Export branch
+concept: Export course
 items:
   - question: What file do you share when you export a course?
     answer: A .arborito file
@@ -70,7 +70,7 @@ items:
       - .mp4
       - An Arcade link
   - question: Where is that .arborito file imported?
-    answer: In the Forest
+    answer: In Courses
     modes: multiple,recall
     traps:
       - Arcade

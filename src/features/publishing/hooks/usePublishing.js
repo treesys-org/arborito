@@ -76,7 +76,3 @@ export function usePublishing() {
         notify,
     };
 }
-
-export function usePublishingStore() {
-    return publishingActions;
-}

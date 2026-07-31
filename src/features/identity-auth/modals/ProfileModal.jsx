@@ -38,7 +38,6 @@ export function ModalProfile({ embed = false }) {
         ui,
         dismissModal,
         setModal,
-        notify,
         gamification,
         modal,
         isSignedIn,
@@ -251,7 +250,6 @@ export function ModalProfile({ embed = false }) {
     const toolsFooter = (
         <ProfileToolsFooter
             signedIn={signedIn}
-            embedded={embed}
             onOpenBackup={openBackup}
             onOpenPrivacy={openPrivacy}
             onLocalWipe={() => wipeAllLocalDataOnThisDeviceInteractive()}
@@ -261,7 +259,6 @@ export function ModalProfile({ embed = false }) {
     const toolsInline = (
         <ProfileToolsFooter
             signedIn={signedIn}
-            embedded={embed}
             inline
             onOpenBackup={openBackup}
             onOpenPrivacy={openPrivacy}
@@ -332,7 +329,7 @@ export function ModalProfile({ embed = false }) {
             <div
                 data-arborito-panel="modal-profile"
                 data-embed="1"
-                className="arborito-profile-embed-root flex flex-col flex-1 min-h-0 w-full h-full min-w-0 overflow-hidden bg-slate-50 dark:bg-slate-950"
+                className="arborito-profile-embed-root arborito-surface-panel flex flex-col flex-1 min-h-0 w-full h-full min-w-0 overflow-hidden"
             >
                 <div className={scrollClass}>
                     <div className={`${sheetClass} ${embedPadX}`}>{sheetInner}</div>

@@ -32,7 +32,7 @@ items:
     modes: recall,multiple
     traps:
       - Solo en Arcade
-      - En el Bosque
+      - En Cursos
       - En el mapa raíz
   - question: ¿Un cuestionario puede tener varias preguntas?
     answer: Sí, varias en un mismo cuestionario

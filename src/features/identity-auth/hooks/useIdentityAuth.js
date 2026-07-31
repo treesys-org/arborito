@@ -80,11 +80,6 @@ export function useIdentityAuth() {
     };
 }
 
-/** Singleton for rare imperative effects in identity hooks only (not components/modals). */
-export function useIdentityAuthStore() {
-    return getArboritoStore();
-}
-
 /** Onboarding step 1, UI language only (no tree content language yet). */
 export async function pickOnboardingLanguage(code) {
     const c = String(code || '').trim();

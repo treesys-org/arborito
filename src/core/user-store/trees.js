@@ -2,6 +2,11 @@ import { randomUUIDSafe } from '../../shared/lib/secure-web-crypto.js';
 import { persistTreeEntry, removeTreeFromCatalog } from '../../shared/lib/arborito-catalog-store.js';
 import { invalidateComposedGraphCache } from '../../features/forest/api/composed-graph-cache.js';
 import { getArboritoStore } from '../store-singleton.js';
+import {
+    isPrivateAccountDeleted,
+    rememberPrivateAccountDeleted,
+    forgetPrivateAccountDeleted,
+} from './private-account-delete-tombstones.js';
 
 /**
  * Composed trees (árboles): named playlists of branch references.
@@ -90,6 +95,7 @@ export const treesMixin = {
         this.state.trees = this.state.trees.filter((t) => String(t.id) !== id);
         this._treesDirty?.delete(id);
         this._rememberCatalogTombstone('trees', id);
+        rememberPrivateAccountDeleted(id);
         invalidateComposedGraphCache(id);
         this.notifyCatalogChanged?.();
         this.persist();
@@ -225,6 +231,7 @@ export const treesMixin = {
         if (!id) return false;
         const entry = this.state.trees.find((t) => t.id === id);
         if (!entry) return false;
+        forgetPrivateAccountDeleted(id);
         entry.privateSyncedFromAccount = true;
         this.state.trees = [...this.state.trees];
         this.markTreeDirty(id);
@@ -269,6 +276,7 @@ export const treesMixin = {
     upsertPrivateComposedTreeFromAccount(payload) {
         const id = String((payload && payload.id) || '').trim();
         if (!id) return false;
+        if (isPrivateAccountDeleted(id)) return false;
         const name = String(payload.name || id).trim() || id;
         const refs = Array.isArray(payload.branchRefs) ? payload.branchRefs.map((r) => ({ ...r })) : [];
         const updatedTs = (() => {

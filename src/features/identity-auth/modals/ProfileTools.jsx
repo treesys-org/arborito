@@ -3,7 +3,6 @@ import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 
 export function ProfileToolsFooter({
     signedIn,
-    embedded: _embedded,
     onOpenBackup,
     onOpenPrivacy,
     onLocalWipe,

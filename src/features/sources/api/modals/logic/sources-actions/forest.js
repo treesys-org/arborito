@@ -34,7 +34,10 @@ export async function runForestAction(ctx, action, fields = {}) {
     }
 
     if (action === 'create-composed-tree') {
-        openTreeEditor(ctx, { mode: 'create' });
+        openTreeEditor(ctx, {
+            mode: 'create',
+            name: String(fields.name || '').trim(),
+        });
         return true;
     }
 
@@ -184,6 +187,14 @@ export async function runForestAction(ctx, action, fields = {}) {
                 }
             } catch (e) {
                 console.warn('[Arborito] revoke composed tree on delete failed', e);
+            }
+        }
+        /* Account draft must not survive deleting the local composed tree. */
+        if (store.isSignedIn?.()) {
+            try {
+                await store.unpublishPrivateComposedTree?.(treeId);
+            } catch (e) {
+                console.warn('[Arborito] clear private account tree on delete failed', e);
             }
         }
         const wasActive =

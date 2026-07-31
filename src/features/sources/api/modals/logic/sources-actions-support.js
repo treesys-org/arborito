@@ -3,7 +3,7 @@ import { onboardingModalFromSourcesHint } from '../../../../../shared/lib/onboar
 import { getPanelRef } from '../../../../../app/panel-refs.js';
 import { runBibliotecaNetworkLoad } from '../../../../../shared/lib/connected-services/index.js';
 import { yieldToPaint } from '../../../../../shared/lib/yield-to-paint.js';
-import { finishSourcesLoadSession, captureHadCurriculumBeforeLoad, isWaitingForCurriculumSkeletonPaint } from '../../sources-session.js';
+import { finishSourcesLoadSession, captureHadCurriculumBeforeLoad, beginBibliotecaSoftMount, endBibliotecaSoftMount, isBibliotecaSoftMount } from '../../sources-session.js';
 import { saveFrozenTreeBundle, removeFrozenTreeBundle } from '../../tree-freeze-cache.js';
 import {
     maybeSeedArboritoDemo,
@@ -43,16 +43,6 @@ function safeSourcesChromeUpdate(ctx, loading) {
     }
 }
 
-function safeSourcesListCover(ctx, cover) {
-    if (!sourcesChromeStillMounted(ctx)) return;
-    try {
-        ctx.setSourcesListCover?.(cover);
-        ctx.bump?.();
-    } catch {
-        /* modal already unmounted */
-    }
-}
-
 export async function withSourcesLoadingChrome(ctx, work) {
     safeSourcesChromeUpdate(ctx, true);
     await yieldToPaint();
@@ -63,17 +53,26 @@ export async function withSourcesLoadingChrome(ctx, work) {
     }
 }
 
-/** Network / skeleton installs: cover the list so rows are not tappable mid-load. */
+/** Network installs: soft-mount on the graph (trunk + comic) instead of “Cargando árbol…”. */
 export async function withSourcesNetworkLoad(ctx, work) {
-    safeSourcesListCover(ctx, true);
+    beginBibliotecaSoftMount();
+    /* Close Bosque on the same turn — do not wait for paint / network. */
     try {
-        return await withSourcesLoadingChrome(ctx, () => runBibliotecaNetworkLoad(work));
+        finishSourcesLoadSession(ctx.modalApi, {});
+    } catch {
+        /* ignore */
+    }
+    /* Soft-mount already painted trunk/comic — skip chrome yield so fetch starts now. */
+    safeSourcesChromeUpdate(ctx, true);
+    try {
+        return await runBibliotecaNetworkLoad(work);
     } finally {
-        safeSourcesListCover(ctx, false);
+        endBibliotecaSoftMount();
+        safeSourcesChromeUpdate(ctx, false);
     }
 }
 
-export function openTreeEditor(ctx, { mode = 'create', treeId = '' } = {}) {
+export function openTreeEditor(ctx, { mode = 'create', treeId = '', name: nameIn = '' } = {}) {
     const isEdit = mode === 'edit' && treeId;
     let name = '';
     let branchIds = [];
@@ -84,6 +83,8 @@ export function openTreeEditor(ctx, { mode = 'create', treeId = '' } = {}) {
         branchIds = (entry.branchRefs || [])
             .map((r) => String(r.branchId || r.refId || ''))
             .filter(Boolean);
+    } else {
+        name = String(nameIn || '').trim();
     }
     ctx.setOverlay('tree-editor');
     ctx.setTreeEditor({
@@ -242,15 +243,23 @@ export function closeSourcesModal(opts = {}, embed = false) {
     }
     const cur = store.value && store.value.modal;
     const fromOnb = cur && typeof cur === 'object' && cur.fromOnboarding;
+    const forceCanvas = opts.returnToMore === false || isBibliotecaSoftMount();
     const userBack = opts.returnToMore !== false;
-    const waitingSkeleton = isWaitingForCurriculumSkeletonPaint(store);
     const graphPainted = !!(store.state.data || store.state.rawGraphData);
 
-    /* Block dismiss until the structure skeleton (or first graph paint) is on screen. */
-    if (userBack && waitingSkeleton) return;
+    /* Soft-mount / Abrir·Añadir: always leave Biblioteca so trunk + comic paint on the graph. */
+    if (forceCanvas) {
+        store.dismissModal({ returnToMore: false });
+        try {
+            getPanelRef('sidebar')?.closeMobileMenuIfOpen?.();
+        } catch {
+            /* ignore */
+        }
+        return;
+    }
 
     /* Biblioteca opened from onboarding (incl. after guest skip): back returns to the wizard
-     * only when no load is in flight. After skeleton paint, show the canvas — do not reopen welcome. */
+     * only when idle. Hydrating / painted → canvas. */
     if (fromOnb && userBack) {
         if (store.state.treeHydrating || graphPainted) {
             store.dismissModal({ returnToMore: false });
@@ -259,14 +268,8 @@ export function closeSourcesModal(opts = {}, embed = false) {
         store.setModal(onboardingModalFromSourcesHint(fromOnb));
         return;
     }
-    if (store.isSourcesDismissBlocked()) {
-        /* Skeleton already painted while still hydrating: allow canvas (full load continues). */
-        if (store.state.treeHydrating && graphPainted) {
-            store.dismissModal({ returnToMore: opts.returnToMore !== false });
-            return;
-        }
-        /* Mid-hydrate with nothing painted: keep the catalog open. Empty canvas: load demo. */
-        if (store.state.treeHydrating) return;
+    /* No dismiss lock while loading — soft-mount owns the wait UI on the graph. */
+    if (store.isSourcesDismissBlocked() && !store.state.treeHydrating) {
         void loadDefaultDemoAndDismissSources(opts);
         return;
     }

@@ -117,11 +117,6 @@ export function sageGuideScreenLabel(ui, nav) {
     return labels[id] || ui.navBack || 'Back';
 }
 
-export function hasSageGuideBreadcrumbs(nav) {
-    if (!nav || nav.screen === 'hub') return false;
-    return nav.screen === 'topic';
-}
-
 export function SageGuideBreadcrumbs({ ui, nav }) {
     if (!nav || nav.screen === 'hub') return null;
     const hubLabel = ui.sageGuideBreadcrumbHub || 'Guide';

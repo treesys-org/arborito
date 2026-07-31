@@ -2,6 +2,7 @@ import {
     getWindowConfiguredNostrRelays,
     loadUserNostrRelays,
     backfillSuggestedRelaysIfNeeded,
+    migrateStockSuggestedRelaysIfNeeded,
 } from '../features/nostr/api/nostr-relays-runtime.js';
 import { hasGdprNetworkConsent } from '../features/privacy-gdpr/api/network-consent.js';
 import { ensureAppCoreReady } from './store-lazy-modules.js';
@@ -16,6 +17,7 @@ export const storeConnectedServiceMethods = {
             /* ignore */
         }
         backfillSuggestedRelaysIfNeeded({ hasGdprNetworkConsent, onboardingSeen });
+        migrateStockSuggestedRelaysIfNeeded();
 
         const userRelays = loadUserNostrRelays();
         if (userRelays.length) {

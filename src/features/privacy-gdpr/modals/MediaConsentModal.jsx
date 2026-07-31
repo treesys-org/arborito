@@ -60,7 +60,7 @@ export function MediaConsentModal({ pending, onAccept, onDecline }) {
                         return (
                             <div
                                 key={p.origin}
-                                className="rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/80 px-3 py-2 mb-2 text-left"
+                                className="rounded-lg border border-slate-200 dark:border-slate-600 arborito-surface-tile px-3 py-2 mb-2 text-left"
                             >
                                 <div className="text-xs font-bold text-slate-800 dark:text-slate-100 mb-1">
                                     {ui.mediaConsentDomainLabel || 'Origin'} ·{' '}

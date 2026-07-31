@@ -21,7 +21,7 @@ import { parseArboritoTreeBundle } from '../../forest/api/arborito-tree-bundle.j
 import { importComposedTreeFromBundle } from '../../forest/api/import-composed-tree-bundle.js';
 import { refreshRemoteTreeBundleInBackground } from './remote-tree-swr-refresh.js';
 import { isUniverseRevokedError, promptStudentUniverseRevoked, hasPendingUniverseRevokePrompt } from './universe-revoked.js';
-import { isBibliotecaUiOpen } from './sources-session.js';
+import { shouldSuppressTreeGrowingBlock, isBibliotecaModalOpen, isBibliotecaSoftMount } from './sources-session.js';
 
 import { DataProcessor } from '../../tree-graph/api/data-processor.js';
 import { normalizeLoadedTreeJson } from '../../tree-graph/api/tree-load-pipeline.js';
@@ -172,9 +172,16 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
         !isComposedTreeUrl
     );
     const isCacheableRemote = isRemoteSource;
-    const sourcesPickerOpen = isBibliotecaUiOpen(store);
-    /** Keep the open tree visible while picking another from Biblioteca, avoids blank canvas on failed loads. */
-    const holdCurrentTreeDuringSwitch = switchedSource && sourcesPickerOpen;
+    const sourcesPickerOpen = shouldSuppressTreeGrowingBlock(store);
+    /**
+     * Keep the open tree visible while Biblioteca modal is still open (failed pick
+     * must not blank the canvas). Soft-mount closes the modal first — then clear
+     * and show trunk loading placeholders until the first paint.
+     * Use modal state only (not sticky panel refs): refs stay after dismiss and
+     * would wrongly hold the previous tree for the whole Añadir wait.
+     */
+    const holdCurrentTreeDuringSwitch =
+        switchedSource && isBibliotecaModalOpen(store) && !isBibliotecaSoftMount();
     /** Import / explicit callers set this before `loadData`; do not clear on local first mount. */
     const explicitGrowingOverlay = !!store.state.treeGrowingOverlay;
 
@@ -244,19 +251,25 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
     store.update({
         /*
          * Soft open (boot / reopen / SWR): never raise hydrating chrome or blank a
-         * warm canvas. Skeleton already on screen is the loading UI.
+         * warm canvas. Soft-mount onto a new source: hydrating so float + skeletons
+         * cover the sky until the first structure paints.
          */
-        treeHydrating: softOpen ? false : !(keepGraphVisible || localFastOpen || softCachedRemote),
+        treeHydrating:
+            softOpen && switchedSource && !keepGraphVisible
+                ? true
+                : softOpen
+                  ? false
+                  : !(keepGraphVisible || localFastOpen || softCachedRemote),
         treeGrowingOverlay: showBlockingOverlay,
         treeGrowingHint: null,
         error: null,
         activeSource: holdCurrentTreeDuringSwitch ? snapBefore.activeSource : source,
-        data: keepGraphVisible || (softOpen && snapBefore.data) ? snapBefore.data : null,
+        data: keepGraphVisible || (softOpen && !switchedSource && snapBefore.data) ? snapBefore.data : null,
         rawGraphData:
-            keepGraphVisible || (softOpen && snapBefore.rawGraphData)
+            keepGraphVisible || (softOpen && !switchedSource && snapBefore.rawGraphData)
                 ? snapBefore.rawGraphData
                 : null,
-        path: keepGraphVisible || (softOpen && snapBefore.path?.length) ? snapBefore.path : [],
+        path: keepGraphVisible || (softOpen && !switchedSource && snapBefore.path?.length) ? snapBefore.path : [],
         selectedNode:
             keepGraphVisible || (softOpen && snapBefore.selectedNode)
                 ? snapBefore.selectedNode
@@ -504,6 +517,19 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
             /* ignore */
         }
 
+        const carryOverSelection =
+            String(prevSourceId || '') === String((finalSource && finalSource.id) || '') ||
+            (!!store.state.rawGraphData?.meta?.skeleton &&
+                String(store.state.activeSource?.id || '') ===
+                    String((finalSource && finalSource.id) || ''));
+        const softMountPaint = isBibliotecaSoftMount();
+        /* Soft-mount already shows trunk/comic — paint structure as soon as JSON is ready. */
+        if (!softMountPaint) await yieldToPaint();
+        DataProcessor.process(store, graphJson, finalSource, {
+            suppressReadmeAutoOpen: !forceRefresh || !!store.state.rawGraphData?.meta?.skeleton,
+            carryOverSelection
+        });
+        /* Pair + governance do not block first graph paint (especially soft-mount). */
         const postLoadParallel = [];
         if (!nextUrl.startsWith('branch://') && typeof store.ensureNetworkUserPair === 'function') {
             postLoadParallel.push(store.ensureNetworkUserPair());
@@ -511,17 +537,15 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
         if (typeof store.refreshTreeNetworkGovernance === 'function') {
             postLoadParallel.push(store.refreshTreeNetworkGovernance(finalSource));
         }
-        if (postLoadParallel.length) await Promise.all(postLoadParallel);
-        const carryOverSelection =
-            String(prevSourceId || '') === String((finalSource && finalSource.id) || '') ||
-            (!!store.state.rawGraphData?.meta?.skeleton &&
-                String(store.state.activeSource?.id || '') ===
-                    String((finalSource && finalSource.id) || ''));
-        await yieldToPaint();
-        DataProcessor.process(store, graphJson, finalSource, {
-            suppressReadmeAutoOpen: !forceRefresh || !!store.state.rawGraphData?.meta?.skeleton,
-            carryOverSelection
-        });
+        if (postLoadParallel.length) {
+            if (softMountPaint) {
+                void Promise.all(postLoadParallel).catch(() => {
+                    /* best-effort after paint */
+                });
+            } else {
+                await Promise.all(postLoadParallel);
+            }
+        }
         // Best-effort: notify the creator on this device if new directory reports exist.
         try {
             if (typeof store.maybeNotifyOwnerAboutNewDirectoryReports === 'function') {

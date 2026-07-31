@@ -26,14 +26,14 @@ title: Carpetas y lecciones
 - Tocas la hoja y se abre la lección.
 
 @quiz
-concept: Mapa y ramas
+concept: Mapa y lecciones
 items:
   - question: ¿Qué abres al tocar una hoja en el mapa?
     answer: Una lección
     modes: multiple,recall
     traps:
       - Solo Arcade
-      - El Bosque entero
+      - Todo el panel Cursos
       - Un trofeo
   - question: ¿Qué es una carpeta en el mapa?
     answer: Un tema con lecciones dentro
@@ -52,7 +52,7 @@ title: Tu progreso
 Tu avance se guarda **en este dispositivo**. El archivo `.arborito` es el **curso**, no tu progreso.
 
 @quiz
-concept: Bosque y datos
+concept: Progreso y datos
 items:
   - question: ¿Dónde se guarda tu progreso por defecto?
     answer: En este dispositivo

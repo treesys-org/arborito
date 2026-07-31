@@ -8,4 +8,4 @@ index: 1
 title: Modo construcción
 @/section
 
-Modo construcción: escribe tu curso. Curso nuevo = plantar rama en el Bosque.
+Modo construcción: escribe tu curso. Curso nuevo = **Cursos → Crear → Curso**.

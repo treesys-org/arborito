@@ -275,18 +275,8 @@ export async function promptStudentUniverseRevoked(store, opts = {}) {
                 console.warn('[Arborito] uninstall after revoke', e);
             }
             clearUniverseRevokeStudentState(source);
-            if (String(store.state.activeSource?.id || '') === String(source.id)) {
-                store.update({
-                    activeSource: null,
-                    data: null,
-                    rawGraphData: null,
-                    path: [],
-                    selectedNode: null,
-                    previewNode: null,
-                    error: null,
-                });
-                queueMicrotask(() => store.maybePromptNoTree?.());
-            }
+            /* removeCommunitySource remounts Arborito demo when this source was
+             * active. Do not null the canvas here — that races the demo remount. */
             store.notify(
                 ui.universeRevokedUninstalledToast || 'Removed from your catalog.',
                 false
@@ -335,18 +325,7 @@ export async function promptStudentUniverseRevoked(store, opts = {}) {
                 console.warn('[Arborito] uninstall after revoke', e);
             }
             clearUniverseRevokeStudentState(source);
-            if (String(store.state.activeSource?.id || '') === String(source.id)) {
-                store.update({
-                    activeSource: null,
-                    data: null,
-                    rawGraphData: null,
-                    path: [],
-                    selectedNode: null,
-                    previewNode: null,
-                    error: null,
-                });
-                queueMicrotask(() => store.maybePromptNoTree?.());
-            }
+            /* Same as single-choice uninstall: let removeCommunitySource remount demo. */
             store.notify(
                 ui.universeRevokedUninstalledToast || 'Removed from your catalog.',
                 false

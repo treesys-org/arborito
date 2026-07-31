@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSources } from '../../hooks/useSources.js';
 import { DIRECTORY_CLIENT_FETCH_PAGE } from '../../../p2p-webtorrent/api/directory-index-config.js';
 import {
@@ -8,15 +8,17 @@ import {
 import { collectForestTabItems } from '../../api/modals/logic/sources-collect-forest.js';
 import { findCommunitySourceByUrl } from '../../api/modals/logic/sources-helpers.js';
 import { SourcesFilterChip } from './SourcesFilterChip.jsx';
-import { SourcesComposedTreeRow, composedTreeRowKey } from './SourcesComposedTreeRow.jsx';
+import { SourcesComposedTreeRow } from './SourcesComposedTreeRow.jsx';
 import { isPublishedResourceOwner } from '../../../publishing/api/published-owner.js';
 import { SourcesSavedRow } from './SourcesSavedRow.jsx';
 import { SourcesInternetRow } from './SourcesInternetRow.jsx';
-import { SourcesLoadingPanel } from './SourcesLoadingPanel.jsx';
+import { SourcesRowEnter } from './SourcesRowEnter.jsx';
+import { ListRowSkeleton } from '../../../../shared/ui/ListRowEnter.jsx';
+import { useInfiniteScrollSentinel } from '../../../../shared/ui/useInfiniteScrollSentinel.js';
 
 const TREES_LIST_PAGE = 24;
 
-function resolveActiveComposedTreePin(state, activeSource, userStore) {
+export function resolveActiveComposedTreePin(state, activeSource, userStore) {
     if (!state?.data || !activeSource?.id) return null;
     if (activeSource.type === 'composed-tree' && activeSource.treeId) {
         const local = userStore?.getTree?.(activeSource.treeId);
@@ -40,6 +42,8 @@ function resolveActiveComposedTreePin(state, activeSource, userStore) {
 export function CrossTabActiveBanner({ ui, state, mainTab, onSwitchTab }) {
     const active = state.activeSource;
     if (!active?.id) return null;
+    /* Mis cursos pins playlists in-list; no jump to a demoted trees chrome. */
+    if (mainTab === 'mine' || mainTab === 'explore') return null;
     const onTrees = mainTab === 'trees';
     const activeIsTree =
         active.type === 'composed-tree' ||
@@ -47,10 +51,12 @@ export function CrossTabActiveBanner({ ui, state, mainTab, onSwitchTab }) {
     if (onTrees && activeIsTree) return null;
     if (!onTrees && !activeIsTree) return null;
     const label = onTrees
-        ? ui.sourcesActiveBranchHeading || 'Active branch'
-        : ui.sourcesActiveTreeHeading || 'Active tree';
-    const switchLbl = onTrees ? ui.sourcesTabBranches || 'Branches' : ui.sourcesTabTrees || ui.sourcesTabForest || 'Trees';
-    const switchTab = onTrees ? 'branches' : 'trees';
+        ? ui.sourcesActiveBranchHeading || 'Active course'
+        : ui.sourcesActiveTreeHeading || 'Active playlist';
+    const switchLbl = onTrees
+        ? ui.sourcesTabMine || ui.sourcesUnifiedScopeMine || 'My courses'
+        : ui.sourcesCombinedTitle || 'Playlists';
+    const switchTab = onTrees ? 'mine' : 'trees';
     const name = String(active.name || '').trim();
     return (
         <div className="arborito-connected-banner mb-3">
@@ -84,7 +90,6 @@ export function SourcesForestTab({
     globalDirError,
     globalDirHitCap,
     sourcesTreeLoading,
-    sourcesListCover,
     rowActionsOpen,
     collectCtx,
     bump,
@@ -94,7 +99,7 @@ export function SourcesForestTab({
     onLoadMoreCatalog,
 }) {
     const { userStore, getNostrPublisherPair } = useSources();
-    const scope = String(treesScope || 'all');
+    const scope = String(treesScope || 'device');
     const q = String(treesQ || '');
     const activeSource = state.activeSource;
 
@@ -120,8 +125,6 @@ export function SourcesForestTab({
         }
     }, [scope, state.communitySources, globalDirMetrics, collectCtx.setGlobalDirMetrics]);
 
-    /* Cover list for network install or skeleton hydrate — not instant local opens. */
-    const listCover = !!sourcesListCover || !!state.treeHydrating;
     const curriculumLoading = !!sourcesTreeLoading || !!state.treeHydrating;
     const activePin = useMemo(
         () => resolveActiveComposedTreePin(state, activeSource, userStore),
@@ -141,16 +144,32 @@ export function SourcesForestTab({
     const visibleItems = items.slice(0, treesVisible);
     const hasMoreTrees = items.length > treesVisible;
 
-    const loadLabel =
-        ui.sourcesComposedTreeHydratingHint ||
-        ui.treeHydratingHint ||
-        ui.loading ||
-        'Loading…';
+    const getScrollRoot = useCallback(
+        () => document.getElementById('tab-content-scroll'),
+        []
+    );
+    const onInfiniteMore = useCallback(() => {
+        if (hasMoreTrees) {
+            setTreesVisible((n) => n + TREES_LIST_PAGE);
+            return;
+        }
+        if (globalDirHitCap && !loading) {
+            onLoadMoreCatalog?.();
+            setTreesVisible((n) => n + Math.max(TREES_LIST_PAGE, DIRECTORY_CLIENT_FETCH_PAGE));
+        }
+    }, [hasMoreTrees, globalDirHitCap, loading, onLoadMoreCatalog]);
+    const infiniteEnabled = hasMoreTrees || (!!globalDirHitCap && !loading);
+    const infiniteSentinelRef = useInfiniteScrollSentinel({
+        enabled: infiniteEnabled,
+        busy: !!loading || !!curriculumLoading,
+        onLoadMore: onInfiniteMore,
+        getScrollRoot,
+    });
 
     return (
         <div className="pt-0 pb-1" data-arbor-tour="sources-trees-panel">
             <div className="sticky top-0 z-20 px-4 pt-0 pb-3 arborito-sources-sticky-head">
-                <div className="p-3 rounded-2xl border border-violet-200/60 dark:border-violet-900/40 bg-white dark:bg-slate-950/30 arborito-sources-sticky-card">
+                <div className="p-3 rounded-2xl border border-violet-200/60 dark:border-violet-900/40 arborito-surface-tile arborito-sources-sticky-card">
                     <div className="flex flex-col gap-2">
                         <div className="arborito-sources-search-bar">
                             <input
@@ -177,39 +196,13 @@ export function SourcesForestTab({
                                       'More'}
                             </button>
                         </div>
-                        <div
-                            className="flex flex-wrap gap-2 items-center"
-                            role="group"
-                            aria-label={
-                                ui.sourcesTreesScopeAria ||
-                                ui.sourcesUnifiedScopeAria ||
-                                'Which list to show'
-                            }
-                        >
-                            <SourcesFilterChip
-                                label={
-                                    ui.sourcesUnifiedScopeMine ||
-                                    ui.sourcesTreesScopeDevice ||
-                                    'My courses'
-                                }
-                                active={scope === 'device'}
-                                onClick={() => setTreesScope('device')}
-                            />
-                            <SourcesFilterChip
-                                label={ui.sourcesUnifiedScopeExplore || 'Explore'}
-                                tone="online"
-                                active={scope === 'internet'}
-                                onClick={() => setTreesScope('internet')}
-                            />
-                        </div>
                         {treesAdvancedOpen ? (
-                            <div className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/20 space-y-2">
+                            <div className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 arborito-surface-tile space-y-2">
                                 <p className="m-0 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {ui.sourcesFiltersWhereHint || 'Which list to show'}
                                 </p>
                                 <div className="flex flex-wrap gap-2 items-center" role="group">
                                     {[
-                                        ['all', ui.sourcesUnifiedScopeAll || 'All'],
                                         [
                                             'device',
                                             ui.sourcesUnifiedScopeMine ||
@@ -222,8 +215,11 @@ export function SourcesForestTab({
                                         ],
                                         [
                                             'internet',
-                                            ui.sourcesUnifiedScopeInternet || 'Online',
+                                            ui.sourcesUnifiedScopeExplore ||
+                                                ui.sourcesUnifiedScopeInternet ||
+                                                'Explore',
                                         ],
+                                        ['all', ui.sourcesUnifiedScopeAll || 'All'],
                                     ].map(([id, label]) => (
                                         <SourcesFilterChip
                                             key={id}
@@ -239,10 +235,6 @@ export function SourcesForestTab({
                 </div>
             </div>
             <div className="mt-4 space-y-3 px-4 arborito-sources-list">
-                {listCover ? (
-                    <SourcesLoadingPanel className="arborito-sources-list-cover" label={loadLabel} />
-                ) : (
-                    <>
                 <CrossTabActiveBanner
                     ui={ui}
                     state={state}
@@ -295,12 +287,15 @@ export function SourcesForestTab({
                         />
                     </div>
                 ) : null}
-                {loading && !activeEntry && !activeSaved && !curriculumLoading ? (
-                    <SourcesLoadingPanel
-                        className="arborito-sources-loading-slot"
-                        label={ui.loading || 'Loading…'}
-                        tone="slate"
-                    />
+                {loading && !activeEntry && !activeSaved && !curriculumLoading && !visibleItems.length ? (
+                    <div
+                        role="status"
+                        aria-live="polite"
+                        aria-busy="true"
+                        aria-label={ui.loading || 'Loading…'}
+                    >
+                        <ListRowSkeleton count={3} variant="card" />
+                    </div>
                 ) : null}
                 {listEmpty ? (
                     <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-8">
@@ -321,35 +316,37 @@ export function SourcesForestTab({
                             {visibleItems.map((it, idx) => {
                                 if (it.kind === 'device') {
                                     return (
-                                        <SourcesComposedTreeRow
-                                            key={`tree-${it.data.tree?.id}-${idx}`}
-                                            tree={it.data.tree}
-                                            ui={ui}
-                                            activeSource={activeSource}
-                                            isPublishedOwner={isPublishedResourceOwner(it.data.tree, getNostrPublisherPair)}
-                                            actionsOpen={rowActionsOpen}
-                                            globalDirMetrics={globalDirMetrics}
-                                            onAction={onAction}
-                                            onToggleRowActions={onToggleRowActions}
-                                        />
+                                        <SourcesRowEnter key={`tree-${it.data.tree?.id}-${idx}`} index={idx}>
+                                            <SourcesComposedTreeRow
+                                                tree={it.data.tree}
+                                                ui={ui}
+                                                activeSource={activeSource}
+                                                isPublishedOwner={isPublishedResourceOwner(it.data.tree, getNostrPublisherPair)}
+                                                actionsOpen={rowActionsOpen}
+                                                globalDirMetrics={globalDirMetrics}
+                                                onAction={onAction}
+                                                onToggleRowActions={onToggleRowActions}
+                                            />
+                                        </SourcesRowEnter>
                                     );
                                 }
                                 if (it.kind === 'saved') {
                                     return (
-                                        <SourcesSavedRow
-                                            key={`saved-${it.data.source?.id}-${idx}`}
-                                            source={it.data.source}
-                                            ui={ui}
-                                            isActive={false}
-                                            actionsOpen={rowActionsOpen}
-                                            freezeBusy={collectCtx.treeFreezeBusy}
-                                            globalDirMetrics={globalDirMetrics}
-                                            onAction={onAction}
-                                            onToggleRowActions={onToggleRowActions}
-                                            onToggleFreeze={(id) =>
-                                                onAction('toggle-tree-freeze', { id })
-                                            }
-                                        />
+                                        <SourcesRowEnter key={`saved-${it.data.source?.id}-${idx}`} index={idx}>
+                                            <SourcesSavedRow
+                                                source={it.data.source}
+                                                ui={ui}
+                                                isActive={false}
+                                                actionsOpen={rowActionsOpen}
+                                                freezeBusy={collectCtx.treeFreezeBusy}
+                                                globalDirMetrics={globalDirMetrics}
+                                                onAction={onAction}
+                                                onToggleRowActions={onToggleRowActions}
+                                                onToggleFreeze={(id) =>
+                                                    onAction('toggle-tree-freeze', { id })
+                                                }
+                                            />
+                                        </SourcesRowEnter>
                                     );
                                 }
                                 const { row, metrics } = it.data;
@@ -361,7 +358,10 @@ export function SourcesForestTab({
                                           ).replace(/\{\{n\}\}/g, String(it.dupNote))
                                         : null;
                                 return (
-                                    <div key={`net-${row?.ownerPub}-${row?.universeId}`}>
+                                    <SourcesRowEnter
+                                        key={`net-${row?.ownerPub}-${row?.universeId}`}
+                                        index={idx}
+                                    >
                                         <SourcesInternetRow
                                             row={row}
                                             metrics={metrics}
@@ -393,40 +393,25 @@ export function SourcesForestTab({
                                                 {dupNote}
                                             </p>
                                         ) : null}
-                                    </div>
+                                    </SourcesRowEnter>
                                 );
                             })}
-                            {hasMoreTrees || (globalDirHitCap && !loading) ? (
-                                <button
-                                    type="button"
-                                    className="w-full min-h-10 py-2 rounded-xl text-[11px] font-extrabold bg-violet-50 dark:bg-violet-950/40 text-violet-800 dark:text-violet-200 border border-violet-200 dark:border-violet-800 disabled:opacity-60"
-                                    disabled={!!loading}
-                                    onClick={() => {
-                                        if (hasMoreTrees) {
-                                            setTreesVisible((n) => n + TREES_LIST_PAGE);
-                                            return;
-                                        }
-                                        onLoadMoreCatalog?.();
-                                        setTreesVisible((n) => n + Math.max(TREES_LIST_PAGE, DIRECTORY_CLIENT_FETCH_PAGE));
-                                    }}
-                                >
-                                    {hasMoreTrees
-                                        ? (ui.sourcesShowMoreTrees || 'Show more trees').replace(
-                                              '{n}',
-                                              String(Math.min(TREES_LIST_PAGE, items.length - treesVisible))
-                                          )
-                                        : ui.sourcesUnifiedLoadMoreCatalog || 'Load more from catalog'}
-                                </button>
+                            {loading && !curriculumLoading && visibleItems.length > 0 ? (
+                                <div role="status" aria-live="polite" aria-busy="true">
+                                    <ListRowSkeleton count={1} variant="card" />
+                                </div>
+                            ) : null}
+                            {infiniteEnabled ? (
+                                <div
+                                    ref={infiniteSentinelRef}
+                                    className="h-8 w-full shrink-0"
+                                    aria-hidden="true"
+                                />
                             ) : null}
                         </div>
-                    </>
-                )}
                     </>
                 )}
             </div>
         </div>
     );
 }
-
-
-export { composedTreeRowKey };

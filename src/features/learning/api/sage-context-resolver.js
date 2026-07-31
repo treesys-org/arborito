@@ -27,7 +27,7 @@ export const SAGE_INTENT = {
 };
 
 const ARBORITO_APP_TERMS =
-    /\b(arborito|sage|arcade|memory\s*garden|jard[ií]n|construcci[oó]n|construction|bosque|forest|backpack|mochila|flatpak|aplicaci[oó]n)\b/i;
+    /\b(arborito|sage|arcade|memory\s*garden|jard[ií]n|construcci[oó]n|construction|bosque|forest|cursos|courses|backpack|mochila|flatpak|aplicaci[oó]n)\b/i;
 
 const SHORT_APP_FOLLOWUP_RE = /^(y|e|and)\s+\S/i;
 
@@ -140,7 +140,7 @@ function extractAppTopic(text) {
     if (!hits.length) {
         const expanded = expandQueryByProductVocab(String(text || ''));
         if (/\barcade\b/i.test(expanded)) return 'arcade';
-        if (/\b(bosque|forest)\b/i.test(expanded)) return 'forest';
+        if (/\b(bosque|forest|cursos|courses)\b/i.test(expanded)) return 'forest';
         if (/\b(construcci|construction)\b/i.test(expanded)) return 'construction';
         if (/\b(mochila|backpack|jardin|garden)\b/i.test(expanded)) return 'backpack';
         if (/\barborito\b/i.test(expanded)) return 'arborito';
@@ -149,7 +149,7 @@ function extractAppTopic(text) {
     }
     const blob = hits.join(' ');
     if (/\barcade\b/i.test(blob)) return 'arcade';
-    if (/\b(bosque|forest)\b/i.test(blob)) return 'forest';
+    if (/\b(bosque|forest|cursos|courses)\b/i.test(blob)) return 'forest';
     if (/construcc|construction/i.test(blob)) return 'construction';
     if (/\b(mochila|backpack|jardin|garden)\b/i.test(blob)) return 'backpack';
     if (/\barborito\b/i.test(blob)) return 'arborito';

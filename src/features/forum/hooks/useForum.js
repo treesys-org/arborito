@@ -5,7 +5,6 @@ import {
     useShellModalLang,
     useTreeLessonContext,
 } from '../../../app/hooks/useHookShell.js';
-import { getArboritoStore } from '../../../core/store-singleton.js';
 import { forumActions } from '../../../stores/forum-store-actions.js';
 import { nostrDomainActions } from '../../../stores/nostr-store-actions.js';
 
@@ -30,8 +29,4 @@ export function useForum() {
         forumActions,
         getNetworkUserPair,
     };
-}
-
-export function useForumStore() {
-    return getArboritoStore();
 }

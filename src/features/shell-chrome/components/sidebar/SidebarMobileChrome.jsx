@@ -8,9 +8,49 @@ import { ArboritoLogoMark } from './SidebarMobileMoreMenu.jsx';
 import { CreatorModerationBell } from './CreatorModerationBell.jsx';
 import { GuestAccountHintBadge } from './GuestAccountHintBadge.jsx';
 
-export function SidebarMobileTopActions({ ui, chrome }) {
+function openSageFromChrome({ onCloseMenu, selectedNode, modal, setModal, openSageModal }) {
+    onCloseMenu?.();
+    if (shouldBlockSageChromeToggle()) return;
+    const inLesson = !!(
+        selectedNode &&
+        (selectedNode.type === 'leaf' || selectedNode.type === 'exam')
+    );
+    const curType = modal && (typeof modal === 'string' ? modal : modal.type);
+    if (curType === 'sage') {
+        setModal(null);
+        return;
+    }
+    openSageModal({
+        type: 'sage',
+        mode: 'context',
+        dockUi: true,
+        ...(inLesson ? { sageLessonContext: true } : {}),
+    });
+}
+
+function openSourcesDock({ onCloseMenu, sourcesActive, setModal, dockToggleModal }) {
+    onCloseMenu?.();
+    if (sourcesActive) {
+        setModal(null);
+        return;
+    }
+    if (typeof dockToggleModal === 'function') {
+        dockToggleModal({ type: 'sources', dockUi: true });
+        return;
+    }
+    setModal({ type: 'sources', dockUi: true });
+}
+
+export function SidebarMobileTopActions({ ui, chrome, onCloseMenu, dockToggleModal }) {
     const { setModal, toggleTheme, modal } = useShellChrome();
-    const { g, mobProfileChipLabel, mobProgressPct, mobProgressScope, constructionMode } = chrome;
+    const {
+        g,
+        mobProfileChipLabel,
+        mobProgressPct,
+        mobProgressScope,
+        constructionMode,
+        sourcesActive,
+    } = chrome;
 
     const openProfile = () => {
         prefetchModal('profile');
@@ -23,56 +63,80 @@ export function SidebarMobileTopActions({ ui, chrome }) {
         setModal({ type: 'profile', focus: 'seeds' });
     };
 
+    const sourcesLabel = ui.navSources || ui.moreMenuRowSources || 'Courses';
+
     return (
         <div
             className="arborito-mob-top-actions"
             role="toolbar"
-            aria-label={`${ui.navProfile || 'Profile'} · ${ui.progressTitle || 'Progress'} · ${ui.themeToggle || 'Theme'}`}
+            aria-label={`${sourcesLabel} · ${ui.navProfile || 'Profile'} · ${ui.progressTitle || 'Progress'} · ${ui.themeToggle || 'Theme'}`}
         >
-            <div className="arborito-guest-account-hint-host">
-                <button
-                    type="button"
-                    className="arborito-mob-top-actions__btn arborito-mob-top-actions__btn--profile js-btn-mobile-profile"
-                    data-arbor-tour="mob-profile"
-                    aria-label={mobProfileChipLabel}
-                    onPointerEnter={() => prefetchModal('profile')}
-                    onClick={openProfile}
-                >
-                    <span className="arborito-mob-top-actions__profile-ic" aria-hidden="true">
-                        <ChromeEmoji emoji={g.avatar || '👤'} size={20} />
-                    </span>
-                    <span className="arborito-mob-top-actions__profile-name">{mobProfileChipLabel}</span>
-                </button>
-                <GuestAccountHintBadge />
-            </div>
-            {!constructionMode ? (
-                <button
-                    type="button"
-                    className={`arborito-mob-top-actions__btn arborito-mob-top-actions__btn--progress js-btn-progress-mobile arborito-chrome-tip ${mobProgressScope}`}
-                    data-arbor-tour="mob-progress"
-                    data-arbor-tip={`${ui.progressTitle || 'Progress'} (${mobProgressPct}%)`}
-                    aria-label={`${ui.progressTitle || 'Progress'} (${mobProgressPct}%)`}
-                    onClick={() => document.dispatchEvent(new CustomEvent('toggle-progress-widget'))}
-                >
-                    <span className="arborito-mob-top-actions__progress-ic" aria-hidden="true">
-                        <ChromeEmoji emoji="🎒" size={20} />
-                    </span>
-                    <span className="arborito-mob-top-actions__progress-pct">{mobProgressPct}%</span>
-                </button>
-            ) : null}
-            <CreatorModerationBell className="arborito-mob-top-actions__btn arborito-mob-top-actions__btn--bell" />
             <button
                 type="button"
-                className="arborito-mob-top-actions__btn js-btn-theme-inline arborito-chrome-tip"
-                data-arbor-tour="mob-theme"
-                data-arbor-tip={ui.themeToggle || 'Toggle theme'}
-                aria-label={ui.themeToggle || 'Toggle theme'}
-                onClick={() => toggleTheme()}
+                className={`arborito-mob-top-actions__btn arborito-mob-top-actions__btn--lead js-btn-sources-mobile-top${sourcesActive ? ' is-active' : ''}`}
+                data-arbor-tour="mob-sources-chip"
+                title={sourcesLabel}
+                aria-label={sourcesLabel}
+                aria-pressed={sourcesActive ? 'true' : 'false'}
+                onPointerEnter={() => prefetchModal('sources')}
+                onClick={() =>
+                    openSourcesDock({
+                        onCloseMenu,
+                        sourcesActive,
+                        setModal,
+                        dockToggleModal,
+                    })
+                }
             >
-                <span aria-hidden="true">
-                    <ChromeEmoji emoji={chrome.theme === 'light' ? '🌙' : '☀️'} size={20} />
+                <span className="arborito-mob-top-actions__lead-ic" aria-hidden="true">
+                    <ChromeEmoji emoji="🌲" size={22} />
                 </span>
+                <span className="arborito-mob-top-actions__lead-name">{sourcesLabel}</span>
             </button>
+            <div className="arborito-mob-top-actions__trailing" role="group">
+                <div className="arborito-guest-account-hint-host">
+                    <button
+                        type="button"
+                        className="arborito-mob-top-actions__btn arborito-mob-top-actions__btn--profile js-btn-mobile-profile"
+                        data-arbor-tour="mob-profile"
+                        aria-label={mobProfileChipLabel}
+                        onPointerEnter={() => prefetchModal('profile')}
+                        onClick={openProfile}
+                    >
+                        <span className="arborito-mob-top-actions__profile-ic" aria-hidden="true">
+                            <ChromeEmoji emoji={g.avatar || '👤'} size={22} />
+                        </span>
+                        <span className="arborito-mob-top-actions__profile-name">{mobProfileChipLabel}</span>
+                    </button>
+                    <GuestAccountHintBadge />
+                </div>
+                {!constructionMode ? (
+                    <button
+                        type="button"
+                        className={`arborito-mob-top-actions__btn arborito-mob-top-actions__btn--progress js-btn-progress-mobile ${mobProgressScope}`}
+                        data-arbor-tour="mob-progress"
+                        aria-label={`${ui.progressTitle || 'Progress'} (${mobProgressPct}%)`}
+                        onClick={() => document.dispatchEvent(new CustomEvent('toggle-progress-widget'))}
+                    >
+                        <span className="arborito-mob-top-actions__progress-ic" aria-hidden="true">
+                            <ChromeEmoji emoji="🎒" size={20} />
+                        </span>
+                        <span className="arborito-mob-top-actions__progress-pct">{mobProgressPct}%</span>
+                    </button>
+                ) : null}
+                <CreatorModerationBell className="arborito-mob-top-actions__btn arborito-mob-top-actions__btn--bell" />
+                <button
+                    type="button"
+                    className="arborito-mob-top-actions__btn arborito-mob-top-actions__btn--icon js-btn-theme-inline"
+                    data-arbor-tour="mob-theme"
+                    aria-label={ui.themeToggle || 'Toggle theme'}
+                    onClick={() => toggleTheme()}
+                >
+                    <span aria-hidden="true">
+                        <ChromeEmoji emoji={chrome.theme === 'light' ? '🌙' : '☀️'} size={22} />
+                    </span>
+                </button>
+            </div>
         </div>
     );
 }
@@ -87,27 +151,6 @@ export function SidebarMobileDock({
 }) {
     const { setModal, openSageModal, requestGoHome, modal, selectedNode } = useShellChrome();
     const { homeActive, searchActive, sageActive, arcadeActive, moreActive, dueCount } = chrome;
-
-    const openSage = () => {
-        onCloseMenu();
-        if (shouldBlockSageChromeToggle()) return;
-        const inLesson = !!(
-            selectedNode &&
-            (selectedNode.type === 'leaf' || selectedNode.type === 'exam')
-        );
-        const cur = modal;
-        const curType = cur && (typeof cur === 'string' ? cur : cur.type);
-        if (curType === 'sage') {
-            setModal(null);
-            return;
-        }
-        openSageModal({
-            type: 'sage',
-            mode: 'context',
-            dockUi: true,
-            ...(inLesson ? { sageLessonContext: true } : {}),
-        });
-    };
 
     const arcadeLabel = ui.navArcade || 'Arcade';
     const arcadeAria = `${arcadeLabel}${dueCount > 0 ? ` (${dueCount})` : ''}`;
@@ -150,7 +193,15 @@ export function SidebarMobileDock({
                     active={sageActive}
                     title={ui.navSage}
                     ariaLabel={ui.navSage}
-                    onClick={openSage}
+                    onClick={() =>
+                        openSageFromChrome({
+                            onCloseMenu,
+                            selectedNode,
+                            modal,
+                            setModal,
+                            openSageModal,
+                        })
+                    }
                     icon={<ChromeEmoji emoji="🦉" size={22} />}
                     label={ui.navSageDock || ui.navSage}
                 />

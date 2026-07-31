@@ -33,7 +33,6 @@ export function useConstructionPanel() {
         notify,
         setViewMode,
         findNode,
-        publishTreePublicInteractive,
         revokePublicTreeInteractive,
         revokeActivePublicTreeInteractive,
         offerLocalCopyFromNetworkTreeForEditing,

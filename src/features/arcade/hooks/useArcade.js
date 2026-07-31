@@ -30,7 +30,3 @@ export function useArcade() {
         update,
     };
 }
-
-export function useArcadeStore() {
-    return arcadeActions;
-}

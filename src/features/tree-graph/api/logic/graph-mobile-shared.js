@@ -18,7 +18,6 @@ export const TREE_SWITCHER_ITEM_CLASS = 'arborito-tree-switcher-item';
 export const CURRICULUM_SWITCHER_BTN_ID = 'arborito-curriculum-switcher-btn';
 export const CURRICULUM_SWITCHER_VERSION_LIVE_ID = 'arborito-curriculum-switcher-version-live';
 export const CURRICULUM_SWITCHER_VERSION_ITEM_CLASS = 'arborito-curriculum-switcher-version-item';
-export const CURRICULUM_SWITCHER_VERSION_LOCAL_ID = 'arborito-curriculum-switcher-version-local';
 export const CURRICULUM_SWITCHER_SNAP_INP_ID = 'arborito-curriculum-switcher-snap-inp';
 export const CURRICULUM_SWITCHER_SNAP_CREATE_ID = 'arborito-curriculum-switcher-snap-create';
 export const CURRICULUM_SWITCHER_SNAP_ITEM_CLASS = 'arborito-curriculum-switcher-snap-item';

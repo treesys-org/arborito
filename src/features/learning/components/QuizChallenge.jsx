@@ -123,7 +123,7 @@ function QuizFinished({ b, ui, state, blockId, quizSession, onRetry, linearMode,
     return (
         <div
             id={blockId}
-            className={`not-prose my-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border p-6 md:p-8 text-center arborito-quiz-result ${footerOwnsNav ? 'arborito-quiz-result--feedback' : ''} ${borderTone}`}
+            className={`not-prose my-12 arborito-surface-tile rounded-3xl shadow-xl border p-6 md:p-8 text-center arborito-quiz-result ${footerOwnsNav ? 'arborito-quiz-result--feedback' : ''} ${borderTone}`}
             data-correct={ok ? '1' : '0'}
         >
             <div
@@ -156,7 +156,7 @@ function QuizCloze({ b, c, ui, blockId, onCheck }) {
     const leadQuestion = String(c.main_question || b.main_question || '').trim();
 
     return (
-        <div id={blockId} className="not-prose my-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border p-6 md:p-8" data-mode="cloze">
+        <div id={blockId} className="not-prose my-12 arborito-surface-tile rounded-3xl shadow-xl border p-6 md:p-8" data-mode="cloze">
             <p className="arborito-eyebrow text-indigo-500 mb-2">{ui.quizModeCloze || 'Huecos'}</p>
             <div className="arborito-quiz-challenge__interaction">
                 {concept ? (
@@ -226,7 +226,7 @@ function QuizRecall({ b, c, ui, blockId, state, onReveal, onAnswer }) {
         return (
             <div
                 id={blockId}
-                className="not-prose my-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border p-6 md:p-8 text-center"
+                className="not-prose my-12 arborito-surface-tile rounded-3xl shadow-xl border p-6 md:p-8 text-center"
                 data-mode="recall"
                 data-recall-phase="prompt"
             >
@@ -256,7 +256,7 @@ function QuizRecall({ b, c, ui, blockId, state, onReveal, onAnswer }) {
     return (
         <div
             id={blockId}
-            className="not-prose my-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border p-6 md:p-8 text-center"
+            className="not-prose my-12 arborito-surface-tile rounded-3xl shadow-xl border p-6 md:p-8 text-center"
             data-mode="recall"
             data-recall-phase="answer"
         >
@@ -307,7 +307,7 @@ function QuizMultiple({ b, c, ui, blockId, state, onAnswer }) {
         [blockId, attempt, b.main_question, c]
     );
     return (
-        <div id={blockId} className="not-prose my-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border p-6 md:p-8" data-mode="multiple">
+        <div id={blockId} className="not-prose my-12 arborito-surface-tile rounded-3xl shadow-xl border p-6 md:p-8" data-mode="multiple">
             <p className="arborito-eyebrow text-purple-500 mb-2">{ui.quizModeMultiple || 'Multiple choice'}</p>
             <div className="arborito-quiz-challenge__interaction">
                 <h3 className="text-lg font-bold mb-6">{c.main_question || b.main_question}</h3>
@@ -336,7 +336,7 @@ function QuizChips({ b, c, ui, state, blockId, onPick, onUnpick, onCheck }) {
     const pool = shuffled.filter((w) => picked.filter((p) => p === w).length < shuffled.filter((x) => x === w).length);
     const prompt = orderingChipsPrompt(c.main_question || b.main_question, lang);
     return (
-        <div id={blockId} className="not-prose my-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border p-6 md:p-8" data-mode="chips">
+        <div id={blockId} className="not-prose my-12 arborito-surface-tile rounded-3xl shadow-xl border p-6 md:p-8" data-mode="chips">
             <p className="arborito-eyebrow text-amber-500 mb-2">{ui.quizModeChips || 'Ordenar respuesta'}</p>
             <div className="arborito-quiz-challenge__interaction">
                 {prompt ? (
@@ -394,7 +394,7 @@ function QuizSteps({ b, c, ui, state, blockId, onPickStep, onUnpickStep, onCheck
         String(c.main_question || b.main_question || '').trim() ||
         String(ui.quizStepsPromptGeneric || 'Put the steps in the correct order.').trim();
     return (
-        <div id={blockId} className="not-prose my-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border p-6 md:p-8" data-mode="steps">
+        <div id={blockId} className="not-prose my-12 arborito-surface-tile rounded-3xl shadow-xl border p-6 md:p-8" data-mode="steps">
             <p className="arborito-eyebrow text-amber-500 mb-2">{ui.quizModeSteps || 'Sequence'}</p>
             <div className="arborito-quiz-challenge__interaction">
                 <p className="text-base font-semibold text-slate-800 dark:text-slate-100 mb-2">{prompt}</p>
@@ -424,7 +424,7 @@ function QuizSteps({ b, c, ui, state, blockId, onPickStep, onUnpickStep, onCheck
                         <button
                             key={`pool-${i}`}
                             type="button"
-                            className="quiz-step-item w-full text-left p-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 font-medium"
+                            className="quiz-step-item w-full text-left p-3 rounded-xl border border-slate-200 dark:border-slate-600 arborito-surface-tile font-medium"
                             onClick={() => onPickStep?.(blockId, step)}
                         >
                             {step}
@@ -537,7 +537,7 @@ export function QuizSessionSummaryConsolidated({
             <div className="arborito-question-runner__card">
                 <div className="arborito-question-runner__stage">
                     <div
-                        className={`not-prose my-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border p-6 md:p-8 text-center arborito-quiz-result arborito-quiz-result--feedback ${borderTone}`}
+                        className={`not-prose my-12 arborito-surface-tile rounded-3xl shadow-xl border p-6 md:p-8 text-center arborito-quiz-result arborito-quiz-result--feedback ${borderTone}`}
                         data-correct={didPass ? '1' : '0'}
                     >
                         <div className="arborito-quiz-challenge__interaction arborito-quiz-challenge__interaction--feedback">
@@ -611,7 +611,7 @@ export function QuizSessionSummary({
             : '';
 
     return (
-        <div className="not-prose my-8 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-6 md:p-8 text-center">
+        <div className="not-prose my-8 arborito-surface-tile rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-6 md:p-8 text-center">
             <div className="text-4xl mb-3" aria-hidden="true">
                 {icon}
             </div>
@@ -714,7 +714,7 @@ export function QuizChallenge({ block, state, quizSession, actions, variant = 'q
     if (!state?.started) {
         return (
             <div
-                className="not-prose my-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border p-6 md:p-8 text-center"
+                className="not-prose my-12 arborito-surface-tile rounded-3xl shadow-xl border p-6 md:p-8 text-center"
                 aria-busy="true"
             >
                 <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">

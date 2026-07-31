@@ -42,7 +42,7 @@ export function normalizeCatalogRow(e) {
 
 /**
  * @param {string} qRaw
- * @param {{ title?: string, titles?: unknown, description?: string, authorName?: string }} row
+ * @param {{ title?: string, titles?: unknown, description?: string, authorName?: string, shareCode?: string }} row
  */
 export function catalogRowMatchesQuery(qRaw, row) {
     /* Accent- and case-insensitive: fold both sides with the same NFKD +
@@ -54,7 +54,8 @@ export function catalogRowMatchesQuery(qRaw, row) {
     const titlesBlob = catalogTitlesSearchBlob(row);
     const description = String(row?.description || '');
     const authorName = String(row?.authorName || '');
-    const hay = catalogRowSearchText(`${titlesBlob} ${description} ${authorName}`);
+    const shareCode = String(row?.shareCode || '');
+    const hay = catalogRowSearchText(`${titlesBlob} ${description} ${authorName} ${shareCode}`);
     return hay.includes(q);
 }
 

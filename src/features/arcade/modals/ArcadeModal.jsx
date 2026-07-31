@@ -3,7 +3,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 import { buildArcadeReturnContext } from '../api/arcade-modal-nav.js';
 import { loadArcadeGamesCatalog } from '../api/arcade-games-loader.js';
-import { clearJsdelivrCommitPinCache } from '../api/arcade-games-cdn.js';
+import {
+    readArcadeCatalogSnapshot,
+    writeArcadeCatalogSnapshot,
+} from '../api/arcade-catalog-snapshot.js';
 import { runArcadeAction } from '../api/modals/logic/arcade-actions/index.js';
 import { hydrateArcadeGameMetrics } from '../api/arcade-local-storage.js';
 import { refreshArcadeGameVotesFromNetwork } from '../api/arcade-vote-network.js';
@@ -50,7 +53,6 @@ export function ModalArcade({ embed, dockEmbed = false, dockEmbedActive = false 
         dismissModal,
         setModal,
         notify,
-        update,
         confirm,
         showDialog,
         modal: appModal,
@@ -68,19 +70,16 @@ export function ModalArcade({ embed, dockEmbed = false, dockEmbedActive = false 
         loadNodeChildren,
         findNode,
         loadNodeContent,
-        loadTreeRanking,
         buyGardenShopItem,
         equipGardenShopItem,
         unequipGardenShopItem,
         setRankingOptIn,
-        getActivePublicTreeRef,
-        getNetworkUserPair,
     } = arcadeActions;
     const mobile = embed || dockEmbed ? true : shouldShowMobileUI();
     const modal = appModal;
 
     const [activeTab, setActiveTab] = useState(() => resolveInitialTab(modal));
-    const [discoveredGames, setDiscoveredGames] = useState([]);
+    const [discoveredGames, setDiscoveredGames] = useState(() => readArcadeCatalogSnapshot());
     const [catalogError, setCatalogError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isPreparingContext, setIsPreparingContext] = useState(false);
@@ -104,7 +103,6 @@ export function ModalArcade({ embed, dockEmbed = false, dockEmbedActive = false 
         bump: bumpArcade,
         setGameMetrics,
         setShowAddGameSheet,
-        getNetworkUserPair,
     };
 
     const handleArcadeAction = useCallback(async (action, fields = {}) => {
@@ -130,18 +128,31 @@ export function ModalArcade({ embed, dockEmbed = false, dockEmbedActive = false 
     }, []);
 
     const loadAllGames = useCallback(async () => {
-        clearJsdelivrCommitPinCache();
+        /* Keep jsDelivr commit pin across opens — clearing it forced a GitHub
+         * round-trip before the first game could paint. Retry still refreshes. */
         setIsLoading(true);
         setCatalogError(null);
         try {
-            const { games, catalogError: err } = await loadArcadeGamesCatalog(userStore);
+            const { games, catalogError: err } = await loadArcadeGamesCatalog(userStore, {
+                onPartial: (partial) => {
+                    setDiscoveredGames(partial);
+                    writeArcadeCatalogSnapshot(partial);
+                },
+            });
             setDiscoveredGames(games);
+            writeArcadeCatalogSnapshot(games);
             setCatalogError(err);
             await refreshOfflineCacheStatus(games);
         } finally {
             setIsLoading(false);
         }
     }, [refreshOfflineCacheStatus, userStore]);
+
+    const retryCatalog = useCallback(async () => {
+        const { clearJsdelivrCommitPinCache } = await import('../api/arcade-games-cdn.js');
+        clearJsdelivrCommitPinCache();
+        await loadAllGames();
+    }, [loadAllGames]);
 
     useEffect(() => {
         void loadAllGames();
@@ -510,7 +521,7 @@ export function ModalArcade({ embed, dockEmbed = false, dockEmbedActive = false 
                 isLoading={isLoading}
                 discoveredGames={discoveredGames}
                 catalogError={catalogError}
-                onRetryCatalog={() => void loadAllGames()}
+                onRetryCatalog={() => void retryCatalog()}
                 gameMetrics={gameMetrics}
                 wateringTargetId={wateringTargetId}
                 offlineCacheReady={offlineCacheReady}

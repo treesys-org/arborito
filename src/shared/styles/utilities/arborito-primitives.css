@@ -640,6 +640,7 @@
 .arborito-action-row > .arborito-cta-emerald,
 .arborito-action-row > .arborito-cta-slate,
 .arborito-action-row > .arborito-cta-amber,
+.arborito-action-row > .arborito-cta-brown,
 .arborito-action-row > .arborito-cta-rose,
 .arborito-action-row > button,
 .arborito-action-row > a {
@@ -744,14 +745,17 @@
     border-bottom: 2px solid transparent;
     background: transparent;
     color: var(--arborito-theme-tab-fg);
+    -webkit-text-fill-color: currentColor;
     cursor: pointer;
     transition: color 0.15s ease, border-color 0.15s ease;
 }
 .arborito-tab-strip__btn:hover {
     color: var(--arborito-theme-tab-hover-fg);
+    -webkit-text-fill-color: currentColor;
 }
 .arborito-tab-strip__btn.is-active {
     color: var(--arborito-theme-tab-active-fg);
+    -webkit-text-fill-color: currentColor;
     border-bottom-color: var(--arborito-theme-tab-active-indicator);
 }
 .arborito-tab-strip__divider {

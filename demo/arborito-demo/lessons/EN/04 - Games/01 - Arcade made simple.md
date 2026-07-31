@@ -46,7 +46,7 @@ items:
     answer: Play (the games button)
     modes: multiple,recall
     traps:
-      - Forest
+      - Courses
       - Export
       - Sage only
   - question: Which mode works without AI?
@@ -69,7 +69,7 @@ title: A few games
 - **Alonso Duel:** a quick duel.
 
 @quiz
-concept: Arcade catalogue
+concept: Arcade games
 items:
   - question: Which game uses concept and answer pairs?
     answer: Memory
@@ -77,7 +77,7 @@ items:
     traps:
       - Classroom
       - Exam only
-      - Forest
+      - Courses
   - question: Which game is a retro console?
     answer: Hacky Terminal
     modes: multiple,recall
@@ -91,5 +91,5 @@ items:
     traps:
       - Hacky Terminal
       - Memory only
-      - The Forest
+      - Courses
 @/quiz

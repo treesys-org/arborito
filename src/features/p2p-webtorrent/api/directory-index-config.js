@@ -25,14 +25,13 @@ export const DIRECTORY_CLIENT_FETCH_MAX = 2000;
  */
 export const DIRECTORY_CLIENT_FETCH_LIMIT = DIRECTORY_CLIENT_FETCH_PAGE;
 
-/** @deprecated Display is no longer hard-sliced; Show more pages the full fetch. */
-export const SOURCES_UNIFIED_DISPLAY_CAP = DIRECTORY_CLIENT_FETCH_MAX;
-
 /**
  * Live Discover crawl budget (events, not unique courses).
  * Kind 30100 is replaceable: each publish/delist/republish is a new event, so a
  * single `limit:200` window is mostly churn and can drop live rows that are only
  * days old. The client pages backwards with `until` up to this many events.
+ * Do not raise this into “scan the whole network” territory — deep reach is
+ * search + share code + optional snapshots (`docs/NETWORK.md`).
  */
 export const DIRECTORY_CLIENT_CRAWL_MAX_EVENTS = 3000;
 

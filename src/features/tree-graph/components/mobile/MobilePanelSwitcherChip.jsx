@@ -1,4 +1,3 @@
-import { fileSystem } from '../../../backup-export/api/filesystem.js';
 import { useTreeGraph } from '../../hooks/useTreeGraph.js';
 import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
 import { parseNostrTreeUrl } from '../../../nostr/api/nostr-refs.js';
@@ -9,11 +8,6 @@ import {
     resolveActiveSourceVersionLabel,
 } from '../../../version-updates/api/version-switch-logic.js';
 import { resolveBranchPanelIcon } from '../../api/logic/graph-mobile-panel-helpers.js';
-import { resolveActiveShareContext } from '../../../sources/api/published-share-context.js';
-import { shareTreeLink } from '../../../sources/api/share-tree-link.js';
-import { SourcesShareCodeField } from '../../../sources/modals/components/SourcesShareCodeField.jsx';
-import { usePublishedShareCode } from '../../../sources/hooks/usePublishedShareCode.js';
-
 function resolvePanelVersionLabel(ui, current, tree) {
     const branchId = current?._composedBranchId ? String(current._composedBranchId) : '';
     return resolveActiveSourceVersionLabel(ui, tree, branchId ? { branchId } : {});
@@ -44,19 +38,19 @@ function PanelSwitcherIcon({ current, skipIcon, resolvePanelTreeIcon }) {
     return null;
 }
 
-function PanelSwitcherChipInner({ ui, current, activeSource, availableReleases, userStore, tree, rawGraphData }) {
+function PanelSwitcherChipInner({
+    ui,
+    current,
+    activeSource,
+    availableReleases,
+    userStore,
+    tree,
+    intent = 'version',
+}) {
     const src = activeSource;
     const releases = availableReleases || [];
     const vp = getVersionPresentation(src, releases, ui);
-    const shareCtx = resolveActiveShareContext(src, userStore, rawGraphData);
-    const localEntry = shareCtx.localEntry;
     const shareKind = src?.type === 'composed-tree' ? 'composed-tree' : 'branch';
-    const { shareCode, shareOpts, loading: shareCodeLoading } = usePublishedShareCode({
-        entry: localEntry || (src?.type === 'composed-tree' && src.treeId ? userStore?.getTree?.(src.treeId) : null),
-        kind: shareKind,
-        rawGraphData,
-        activeSource: src,
-    });
     const treeName = curriculumTreeDisplayName(ui) || String(src?.name || '').trim();
     const folderName = current?.type === 'root' ? '' : String(current?.name || '').trim();
     const activeFrozen =
@@ -78,6 +72,12 @@ function PanelSwitcherChipInner({ ui, current, activeSource, availableReleases, 
         ui.navHome ||
         'Tree';
     const treeContextLine = isBranch && treeName && treeName !== folderName ? treeName : '';
+    const kindLine =
+        intent === 'explore'
+            ? shareKind === 'composed-tree'
+                ? ui.sourcesPillComposedTree || 'Playlist'
+                : ui.sourcesPillBranch || 'Course'
+            : '';
     let authorLine = '';
     if (!vp.isLocal && src?.url) {
         try {
@@ -91,6 +91,7 @@ function PanelSwitcherChipInner({ ui, current, activeSource, availableReleases, 
         }
     }
     const localClass = vp.isLocal ? ' arborito-chip-version-line--local' : '';
+    const metaLine = kindLine ? `${kindLine} · ${versionLine}` : versionLine;
 
     return (
         <>
@@ -104,25 +105,13 @@ function PanelSwitcherChipInner({ ui, current, activeSource, availableReleases, 
                 {authorLine ? (
                     <span className="arborito-switcher-chip-author line-clamp-1 break-words">{authorLine}</span>
                 ) : null}
-                <span className={`arborito-chip-version-line${localClass} arborito-switcher-chip-sub line-clamp-2 break-words`}>
-                    {versionLine}
-                </span>
-                {shareCode || (shareCodeLoading && localEntry?.publishedNetworkUrl) ? (
-                    <span className="block mt-0.5" onClick={(e) => e.stopPropagation()}>
-                        <SourcesShareCodeField
-                            ui={ui}
-                            shareCode={shareCode}
-                            shareOpts={shareOpts}
-                            loading={shareCodeLoading}
-                            published={!!localEntry?.publishedNetworkUrl}
-                            tone={src?.type === 'composed-tree' ? 'violet' : 'emerald'}
-                            className="!mt-0"
-                            onShare={(opts) => void shareTreeLink(opts)}
-                        />
+                {metaLine ? (
+                    <span className={`arborito-chip-version-line${localClass} arborito-switcher-chip-sub line-clamp-2 break-words`}>
+                        {metaLine}
                     </span>
                 ) : null}
             </span>
-            <span className="arborito-switcher-chip-chev shrink-0 self-center" aria-hidden="true">
+            <span className="arborito-switcher-chip-chev" aria-hidden="true">
                 ▾
             </span>
         </>
@@ -133,7 +122,7 @@ function PanelSwitcherChipInner({ ui, current, activeSource, availableReleases, 
 export function MobilePanelSwitcherChip({ current, ui: uiProp, intent = 'version', skipIcon = false }) {
     const tree = useTreeGraph();
     const ui = uiProp ?? tree.ui;
-    const { activeSource, availableReleases, userStore, rawGraphData } = tree;
+    const { activeSource, availableReleases, userStore } = tree;
     const src = activeSource;
     const releases = availableReleases || [];
     const vp = getVersionPresentation(src, releases, ui);
@@ -142,11 +131,11 @@ export function MobilePanelSwitcherChip({ current, ui: uiProp, intent = 'version
     const openLbl =
         intent === 'explore'
             ? ui.treeSwitcherExploreAria ||
+              ui.treeSwitcherExploreHint ||
               ui.treeSwitcherUnifiedAria ||
-              ui.treeSwitcherUnifiedTitle ||
               ui.treeSwitcherTitleShort ||
-              'Switch tree or branch'
-            : `${treeName}${ver ? `, ${ver}` : ''}`;
+              'Switch course or playlist'
+            : `${treeName}${ver ? `, ${ver}` : ''}. ${ui.treeSwitcherTapHint || 'Change'}`;
     const branchChip = isBranchSwitcherChip(current);
     const kindClass = branchChip
         ? ' arborito-branch-curriculum-chip'
@@ -182,7 +171,7 @@ export function MobilePanelSwitcherChip({ current, ui: uiProp, intent = 'version
                     availableReleases={availableReleases}
                     userStore={userStore}
                     tree={tree}
-                    rawGraphData={rawGraphData}
+                    intent={intent}
                 />
             </button>
         </div>

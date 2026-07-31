@@ -121,20 +121,17 @@ export function ModalShell({
     const panelIdAttr = panelId || ((layout === 'dock' || layout === 'dock-bottom') ? 'modal-panel' : undefined);
     const isMobileFull = (layout === 'dock' || layout === 'dock-bottom') && mobile;
     const isBottomSheet = layout === 'bottom-sheet';
-    const isDarkPanel = panelTone === 'dark' || panelTone === 'danger-dark' || o.panelTone === 'dark' || o.panelTone === 'danger-dark';
     const tone = panelTone !== 'default' ? panelTone : (o.panelTone || 'default');
 
     const borderTone = tone === 'danger'
         ? 'border-red-500/50 dark:border-red-500/30'
         : tone === 'sage'
           ? 'border-purple-200 dark:border-purple-800/40'
-          : tone === 'dark'
-            ? 'border-slate-700'
-            : tone === 'danger-dark'
-              ? 'border-red-500/50'
-              : 'arborito-surface-panel-border';
+          : tone === 'dark' || tone === 'danger-dark'
+            ? 'border-white/10'
+            : 'arborito-surface-panel-border';
 
-    const bgTone = isDarkPanel ? 'bg-slate-900' : 'arborito-surface-panel';
+    const bgTone = 'arborito-surface-panel';
 
     const radius = panelRadiusProp ?? o.panelRadius ?? (
         isMobileFull || layout === 'immersive' ? 'none'

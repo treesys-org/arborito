@@ -146,6 +146,10 @@ export function syncModalBackdropClasses(backdrop, state) {
     backdrop.classList.toggle('arborito-modal--immersive', t === 'game-player');
     backdrop.classList.toggle('arborito-modal--onboarding', t === 'onboarding');
     backdrop.classList.toggle('arborito-modal--sources', t === 'sources');
+    backdrop.classList.toggle(
+        'arborito-sources-dock',
+        t === 'sources' && !!(m && typeof m === 'object' && m.dockUi)
+    );
     backdrop.classList.toggle('arborito-modal--mobile-fullbleed', isMobileDockTakeover(state, mobUi));
 }
 

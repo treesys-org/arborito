@@ -11,7 +11,10 @@
     box-sizing: border-box;
     flex-shrink: 0;
     padding: max(1rem, env(safe-area-inset-top, 0px)) 1.35rem 0.95rem;
-    background: var(--arborito-theme-sheet-hero-bg);
+    /* Surface under gradient so rounded card corners never show the scrim. */
+    background:
+        var(--arborito-theme-sheet-hero-bg),
+        var(--arborito-theme-surface-bg);
     border-bottom: 1px solid var(--arborito-theme-sheet-hero-border);
     box-shadow: none;
 }
@@ -49,7 +52,11 @@
     font-weight: 900;
     letter-spacing: -0.02em;
     line-height: 1.15;
-    color: var(--arborito-theme-learning-arborito-mmenu-subtitle-color, var(--arborito-theme-dock-hub-head-title));
+    color: var(
+        --arborito-theme-learning-arborito-mmenu-subtitle-color,
+        var(--arborito-theme-dock-hub-head-title, var(--arborito-theme-text-strong, #0f172a))
+    );
+    -webkit-text-fill-color: currentColor;
 }
 
 .arborito-dock-hub-head__subtitle {
@@ -146,7 +153,7 @@
 
 /* Sheet hero tokens (Search, More sub-panels, Arcade, Profile…) */
 .arborito-sheet__hero--mmenu-sub.arborito-dock-modal-hero,
-.arborito-modal-dock-panel > .arborito-dock-modal-hero {
+.arborito-modal-dock-panel .arborito-dock-modal-hero {
     flex-shrink: 0;
 }
 
@@ -154,7 +161,9 @@
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    background: var(--arborito-theme-sheet-hero-bg);
+    background:
+        var(--arborito-theme-sheet-hero-bg),
+        var(--arborito-theme-surface-bg);
     border-bottom: 1px solid var(--arborito-theme-sheet-hero-border);
     box-shadow: none;
     padding-top: max(0.65rem, env(safe-area-inset-top)) !important;
@@ -163,6 +172,32 @@
     padding-right: max(1rem, env(safe-area-inset-right, 0px)) !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
+}
+
+/*
+ * Edge-to-edge heroes inside rounded float/dock cards (Language, Backup, prefs,
+ * Download, dialogs…). Panel overflow clips the radius; hero must not inset.
+ * Only hub-head / sheet heroes — not danger float heads.
+ */
+.arborito-float-modal-card > .arborito-dock-hub-head,
+.arborito-float-modal-card > .arborito-sheet__hero--mmenu-sub,
+.arborito-float-modal-card .arborito-dock-hub-shell > .arborito-dock-hub-head,
+.arborito-float-modal-card .arborito-dock-hub-shell > .arborito-sheet__hero--mmenu-sub,
+.arborito-modal-dock-panel > .arborito-dock-hub-head,
+.arborito-modal-dock-panel > .arborito-sheet__hero--mmenu-sub,
+.arborito-modal-dock-panel .arborito-dock-hub-shell > .arborito-dock-hub-head,
+.arborito-modal-dock-panel .arborito-dock-hub-shell > .arborito-sheet__hero--mmenu-sub {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    align-self: stretch;
+    border-radius: 0;
+    box-sizing: border-box;
+    background:
+        var(--arborito-theme-sheet-hero-bg),
+        var(--arborito-theme-surface-bg);
+    border-bottom: 1px solid var(--arborito-theme-sheet-hero-border);
+    box-shadow: none;
 }
 
 /* Sheets hosting DockHubShell (browse, progress, construction hubs…) */

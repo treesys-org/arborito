@@ -23,7 +23,7 @@ export function ManifestoSection({ ui, versionLabel = '' }) {
                 ) : null}
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-5 md:p-4 rounded-2xl text-left mb-5 md:mb-4 border border-slate-100 dark:border-slate-800">
+            <div className="arborito-surface-tile p-5 md:p-4 rounded-2xl text-left mb-5 md:mb-4 border border-slate-100 dark:border-slate-800">
                 <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-4 md:mb-3.5 font-medium text-sm md:text-[0.9rem] select-text">
                     <LocaleRichText html={ui.missionText || ''} />
                 </p>
@@ -38,7 +38,7 @@ export function ManifestoSection({ ui, versionLabel = '' }) {
                 </button>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/40 p-4 md:p-3.5 mb-5 md:mb-4">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 arborito-surface-tile p-4 md:p-3.5 mb-5 md:mb-4">
                 <h3 className="arborito-eyebrow arborito-eyebrow--md mb-3 md:mb-2 text-center">
                     {ui.aboutCommunityHeading || 'Community'}
                 </h3>

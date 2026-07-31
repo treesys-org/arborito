@@ -173,7 +173,7 @@ export function SourcesInternetRow({
 
     return (
         <div
-            className={`p-4 bg-white dark:bg-slate-900 border ${kindBorder} rounded-2xl shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors arborito-kind-card arborito-kind-card--${rowKind === 'composed-tree' ? 'composed' : 'branch'}`}
+            className={`p-4 arborito-surface-tile border ${kindBorder} rounded-2xl shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors arborito-kind-card arborito-kind-card--${rowKind === 'composed-tree' ? 'composed' : 'branch'}`}
         >
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
@@ -230,7 +230,7 @@ export function SourcesInternetRow({
                             </SourcesPill>
                         ) : null}
                         {row?.shareCode ? (
-                            <SourcesPill className="bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700">
+                            <SourcesPill className="arborito-surface-tile text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700">
                                 #{row.shareCode}
                             </SourcesPill>
                         ) : null}

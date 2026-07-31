@@ -170,7 +170,7 @@ export function ModalMoveNode() {
 
     const listBody = (
         <>
-            <div className="shrink-0 px-3 pt-3 pb-2 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+            <div className="shrink-0 px-3 pt-3 pb-2 border-b border-slate-100 dark:border-slate-800 arborito-surface-tile">
                 <label htmlFor="move-node-filter" className="sr-only">
                     {ui.moveSearchPlaceholder || 'Search folders'}
                 </label>
@@ -191,7 +191,7 @@ export function ModalMoveNode() {
                         <button
                             key={String(t.id)}
                             type="button"
-                            className="move-node-target-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 transition-colors active:scale-[0.99] flex items-start gap-2"
+                            className="move-node-target-btn w-full text-left px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 arborito-surface-tile hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 transition-colors active:scale-[0.99] flex items-start gap-2"
                             onClick={(ev) => {
                                 ev.stopPropagation();
                                 void onSelectTarget(String(t.id), isCurrentParent);

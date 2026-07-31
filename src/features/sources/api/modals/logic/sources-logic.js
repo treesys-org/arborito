@@ -158,7 +158,7 @@ async function importBranchFromAnalysis(modal, analysis) {
             throw new Error(store.state.error || 'Could not open imported branch.');
         }
         store._curriculumLoadedAt = Date.now();
-        modal._sourcesMainTab = 'branches';
+        modal._sourcesMainTab = 'mine';
         modal.activeTab = 'branch';
         if (isSourcesWelcomeLoadClose()) {
             return;
@@ -192,7 +192,7 @@ async function importBranchFromAnalysis(modal, analysis) {
                 );
             }
         }
-        modal._sourcesMainTab = 'branches';
+        modal._sourcesMainTab = 'mine';
         modal.activeTab = 'branch';
     } catch (err) {
         store.update({ treeGrowingOverlay: false, treeHydrating: false });
@@ -274,26 +274,6 @@ export function importTreeFromFile(modal) {
             reader.readAsArrayBuffer(file);
         },
     });
-}
-
-export async function loadBranch(modal, id, name) {
-    await store.ensureCoreReady();
-    const hadCurriculumBeforeLoad = captureHadCurriculumBeforeLoad();
-    const ok = await store.loadData({
-        id,
-        name,
-        url: `branch://${id}`,
-        type: 'branch',
-        isTrusted: true,
-    });
-    if (!ok) {
-        if (modal?.isConnected && typeof modal.updateContent === 'function') {
-            modal.updateContent();
-        }
-        return false;
-    }
-    finishSourcesLoadSession(modal, { hadCurriculumBeforeLoad });
-    return true;
 }
 
 export async function exportBranch(id, name, { lang = '*', scope = 'current' } = {}) {

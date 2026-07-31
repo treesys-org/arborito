@@ -25,12 +25,14 @@ import {
     TREE_SWITCHER_PANEL_ID,
     TREE_SWITCHER_ITEM_CLASS,
     TREE_SWITCHER_MORE_ID,
+    TREE_SWITCHER_LIST_ID,
+    TREE_SWITCHER_SEARCH_ID,
 } from '../../api/logic/graph-mobile-shared.js';
 import {
     TREE_SWITCHER_SHEET_HTML_CLASS,
     syncPanelSheetFullbleedClass,
 } from '../../../../shared/ui/dock-sheet-chrome.js';
-import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
+import { CatalogRowEmoji } from '../../../sources/modals/components/CatalogRowEmoji.jsx';
 import { modalCtaConfirmFull } from '../../../../shared/ui/modal-action-chrome.js';
 
 function TreeSwitcherItem({ item, ui, showPill, onSelect }) {
@@ -52,7 +54,7 @@ function TreeSwitcherItem({ item, ui, showPill, onSelect }) {
             }}
         >
             <span className={avatarCls} aria-hidden="true">
-                <ChromeEmoji emoji={emoji} size={22} />
+                <CatalogRowEmoji emoji={emoji} size={22} />
             </span>
             <span className="arborito-tree-switcher-item-body">
                 <span className="arborito-tree-switcher-item-name" title={item.name}>
@@ -85,7 +87,7 @@ function TreeSwitcherList({ ui, query, kindFilter, onSelect }) {
     }
 
     return (
-        <div id="arborito-tree-switcher-list" className="arborito-tree-switcher-list" role="list">
+        <div id={TREE_SWITCHER_LIST_ID} className="arborito-tree-switcher-list" role="list">
             <div className="arborito-tree-switcher-list-stack" role="list">
                 {listData.grouped
                     ? listData.groups.map((group) => (
@@ -328,7 +330,7 @@ function CurriculumSwitcherSheet({ actionCtx, onClose }) {
                     <div className="arborito-tree-switcher-search-row">
                         <input
                             ref={searchRef}
-                            id="arborito-tree-switcher-search"
+                            id={TREE_SWITCHER_SEARCH_ID}
                             type="search"
                             autoComplete="off"
                             defaultValue={query}

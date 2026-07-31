@@ -3,61 +3,25 @@ import { useShallow } from 'zustand/react/shallow';
 import { useHookUi, useShellModalLang } from '../../../app/hooks/useHookShell.js';
 import { useShellUiSlice } from '../../../stores/shell-ui-store.js';
 import { useTreeGraphSlice } from '../../../stores/tree-graph-store.js';
-import { LoadingBrand, LoadingRow } from '../../../shared/ui/Loading.jsx';
-import { isBibliotecaUiOpen } from '../../sources/api/sources-session.js';
+import { LoadingBrand } from '../../../shared/ui/Loading.jsx';
+import {
+    endBibliotecaSoftMount,
+    isBibliotecaSoftMount,
+    shouldSuppressTreeGrowingBlock,
+} from '../../sources/api/sources-session.js';
 import { isBootLoaderDismissed } from '../../../boot-loader.js';
 
-const STYLE_ID = 'arborito-tree-growing-overlay-style';
+const STYLE_ID = 'arborito-tree-growing-overlay-style-v3';
 
 const overlaySliceSelector = (s) => ({
-    treeHydrating: s.treeHydrating,
     treeGrowingOverlay: s.treeGrowingOverlay,
     treeGrowingHint: s.treeGrowingHint,
-    activeSource: s.activeSource,
+    bibliotecaSoftMount: s.bibliotecaSoftMount,
     data: s.data,
     rawGraphData: s.rawGraphData,
 });
 
 const STYLE_CSS = `
-.arborito-tree-growing-toast {
-    position: fixed;
-    top: max(1rem, env(safe-area-inset-top, 0px));
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10000;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.55rem 0.9rem;
-    max-width: min(22rem, calc(100vw - 2rem));
-    border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.96);
-    color: rgb(22 101 52);
-    border: 1px solid rgba(34, 197, 94, 0.28);
-    box-shadow: 0 8px 22px rgb(15 23 42 / 0.18);
-    font-size: 0.78rem;
-    font-weight: 600;
-    line-height: 1.3;
-    pointer-events: none;
-    animation: arborito-tree-growing-toast-in 200ms ease-out both;
-}
-html.dark .arborito-tree-growing-toast {
-    background: rgba(6, 44, 34, 0.94);
-    color: rgb(187 247 208);
-    border-color: rgba(74, 222, 128, 0.32);
-    box-shadow: 0 8px 22px rgb(0 0 0 / 0.45);
-}
-.arborito-tree-growing-toast .arborito-loading-inline-row {
-    font-size: inherit;
-    font-weight: inherit;
-    color: inherit;
-    min-width: 0;
-}
-.arborito-tree-growing-toast .arborito-loading-inline-row > span:last-child {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
 .arborito-tree-growing-block {
     position: fixed;
     inset: 0;
@@ -111,16 +75,11 @@ html.dark .arborito-tree-growing-block__card {
     line-height: 1.35;
     opacity: 0.85;
 }
-@keyframes arborito-tree-growing-toast-in {
-    from { opacity: 0; transform: translate(-50%, -0.4rem); }
-    to   { opacity: 1; transform: translate(-50%, 0); }
-}
 @keyframes arborito-tree-growing-block-in {
     from { opacity: 0; }
     to   { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
-    .arborito-tree-growing-toast,
     .arborito-tree-growing-block { animation: none !important; opacity: 1; }
 }
 `;
@@ -134,48 +93,36 @@ function ensureStyleInjected() {
     document.head.appendChild(style);
 }
 
-function sourcesModalOpen(state) {
-    return isBibliotecaUiOpen({ state });
-}
-
 /** Publish hub shows its own LoadingBrand while the graph mounts — avoid a second overlay. */
 function constructionAboutOpen(state) {
     const m = state?.modal;
     return !!(m && typeof m === 'object' && m.type === 'construction-about');
 }
 
-function currentMode(state) {
+function hasGraphStructure(s) {
+    if (s?.data) return true;
+    const raw = s?.rawGraphData;
+    return !!(raw && (raw.languages || raw.nodes));
+}
+
+/** Block overlay only for publish / explicit growing; soft-mount waits use graph comic. */
+function shouldShowBlock(state) {
     const s = state || {};
-    const sourcesOpen = sourcesModalOpen(s);
+    if (!isBootLoaderDismissed() || s.bootChromeReady === false) return false;
+    if (s.sourceBootInProgress) return false;
+
     const publishHubOpen = constructionAboutOpen(s);
-    const graphMissing = !s.data && !s.rawGraphData;
+    if (publishHubOpen) return !!s.publishingTree;
+    if (s.publishingTree) return true;
 
-    /*
-     * While the HTML boot spinner is up (or source boot has not finished), never
-     * stack the green modal — that was the empty-sky flash after early dismiss.
-     */
-    if (!isBootLoaderDismissed() || s.bootChromeReady === false) return null;
-    if (s.sourceBootInProgress) return null;
+    if (s.bibliotecaSoftMount || isBibliotecaSoftMount()) return false;
 
-    if (publishHubOpen) {
-        if (s.publishingTree) return 'block';
-        return null;
-    }
-    if (sourcesOpen && !s.publishingTree && !s.treeGrowingOverlay) {
-        return null;
-    }
-
-    if (s.publishingTree) return 'block';
-
-    /*
-     * ONLY an explicit treeGrowingOverlay (import / plant / forced switcher) may
-     * show the green modal — and only while the canvas is empty.
-     * Never infer block/toast from treeHydrating: skeleton + background SWR used
-     * to set hydrating and briefly clear data, which re-showed “Cargando árbol…”.
-     */
-    if (s.treeGrowingOverlay && graphMissing) return 'block';
-
-    return null;
+    const graphMissing = !hasGraphStructure(s);
+    return !!(
+        s.treeGrowingOverlay &&
+        graphMissing &&
+        !shouldSuppressTreeGrowingBlock({ state: s })
+    );
 }
 
 function currentText(state, ui) {
@@ -196,7 +143,7 @@ export function TreeGrowingOverlay() {
             sourceBootInProgress: s.sourceBootInProgress,
         }))
     );
-    const { treeHydrating, treeGrowingOverlay, treeGrowingHint, activeSource, data, rawGraphData } =
+    const { treeGrowingOverlay, treeGrowingHint, bibliotecaSoftMount, data, rawGraphData } =
         useTreeGraphSlice(useShallow(overlaySliceSelector));
     const [bootChromeReady, setBootChromeReady] = useState(() => isBootLoaderDismissed());
 
@@ -208,15 +155,22 @@ export function TreeGrowingOverlay() {
         return () => window.removeEventListener('arborito-boot-dismiss', onDismiss);
     }, [bootChromeReady]);
 
+    /* Clear soft-mount once structure is on screen so the flag cannot stick over Arcade. */
+    useEffect(() => {
+        if (!bibliotecaSoftMount && !isBibliotecaSoftMount()) return;
+        if (hasGraphStructure({ data, rawGraphData })) {
+            endBibliotecaSoftMount();
+        }
+    }, [bibliotecaSoftMount, data, rawGraphData]);
+
     const overlayState = useMemo(
         () => ({
             modal,
             publishingTree,
             sourceBootInProgress,
-            treeHydrating,
             treeGrowingOverlay,
             treeGrowingHint,
-            activeSource,
+            bibliotecaSoftMount,
             data,
             rawGraphData,
             bootChromeReady,
@@ -225,58 +179,50 @@ export function TreeGrowingOverlay() {
             modal,
             publishingTree,
             sourceBootInProgress,
-            treeHydrating,
             treeGrowingOverlay,
             treeGrowingHint,
-            activeSource,
+            bibliotecaSoftMount,
             data,
             rawGraphData,
             bootChromeReady,
         ]
     );
-    const mode = useMemo(() => currentMode(overlayState), [overlayState]);
-    const text = useMemo(() => (mode ? currentText(overlayState, ui) : ''), [mode, overlayState, ui]);
+    const showBlock = useMemo(() => shouldShowBlock(overlayState), [overlayState]);
+    const text = useMemo(
+        () => (showBlock ? currentText(overlayState, ui) : ''),
+        [showBlock, overlayState, ui]
+    );
 
     useEffect(() => {
         ensureStyleInjected();
     }, []);
 
     useEffect(() => {
-        if (mode !== 'block') {
+        if (!showBlock) {
             document.body.style.removeProperty('overflow');
             return undefined;
         }
         document.body.style.overflow = 'hidden';
         return () => document.body.style.removeProperty('overflow');
-    }, [mode]);
+    }, [showBlock]);
 
-    if (!mode) return null;
+    if (!showBlock) return null;
 
-    if (mode === 'block') {
-        const title = ui.treeGrowingPleaseWait || 'Un momento, por favor';
-        return (
-            <div data-arborito-panel="tree-growing-overlay">
-                <div
-                    className="arborito-tree-growing-block"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-busy="true"
-                    aria-live="polite"
-                >
-                    <div className="arborito-tree-growing-block__card">
-                        <LoadingBrand label="" size="boot" />
-                        <p className="arborito-tree-growing-block__title">{title}</p>
-                        <p className="arborito-tree-growing-block__subtitle">{text}</p>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
+    const title = ui.treeGrowingPleaseWait || 'Un momento, por favor';
     return (
         <div data-arborito-panel="tree-growing-overlay">
-            <div className="arborito-tree-growing-toast" role="status" aria-live="polite" aria-busy="true">
-                <LoadingRow label={text} size="sm" tone="sage" />
+            <div
+                className="arborito-tree-growing-block"
+                role="dialog"
+                aria-modal="true"
+                aria-busy="true"
+                aria-live="polite"
+            >
+                <div className="arborito-tree-growing-block__card">
+                    <LoadingBrand label="" size="boot" />
+                    <p className="arborito-tree-growing-block__title">{title}</p>
+                    <p className="arborito-tree-growing-block__subtitle">{text}</p>
+                </div>
             </div>
         </div>
     );

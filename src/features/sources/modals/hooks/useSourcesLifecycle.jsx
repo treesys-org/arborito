@@ -35,6 +35,9 @@ function sourcesRefreshSig(v, catalog) {
 }
 
 function fireOnboardingSourcesTour() {
+    void import('../../../../shared/lib/lazy-stylesheet.js')
+        .then((m) => m.ensureDeferredProductTourStyles?.())
+        .catch(() => {});
     window.dispatchEvent(
         new CustomEvent('arborito-start-tour', {
             detail: {
@@ -49,27 +52,43 @@ function fireOnboardingSourcesTour() {
 /**
  * React lifecycle for the sources modal (hydration, store listener, onboarding tour).
  */
-export function useSourcesLifecycle({ embed, bump, setMainTab, setActiveTab, setOverlay, setTreeEditor }) {
+export function useSourcesLifecycle({
+    embed,
+    bump,
+    setMainTab,
+    setActiveTab,
+    setOverlay,
+    setTreeEditor,
+    setSourcesScope,
+    setTreesScope,
+}) {
     const store = useSourcesStore();
     useEffect(() => {
         setOverlay(null);
         setTreeEditor(null);
 
         const m = store.value.modal;
-        if (m && typeof m === 'object' && m.focusTab === 'branch') {
+        if (m && typeof m === 'object' && (m.focusTab === 'branch' || m.focusTab === 'mine' || m.focusTab === 'branches')) {
             setActiveTab('branch');
-            setMainTab('branches');
+            setMainTab('mine');
+            setSourcesScope?.('branch');
+        } else if (m && typeof m === 'object' && (m.focusTab === 'explore' || m.focusTab === 'internet')) {
+            setActiveTab('branch');
+            setMainTab('explore');
+            setSourcesScope?.('internet');
         } else if (m && typeof m === 'object' && (m.focusTab === 'trees' || m.focusTab === 'tree')) {
             setActiveTab('trees');
             setMainTab('trees');
+            setTreesScope?.('device');
         }
 
         bump();
 
         const fromOnboarding = !!(m && typeof m === 'object' && m.fromOnboarding);
         if (fromOnboarding) {
-            setMainTab('branches');
+            setMainTab('explore');
             setActiveTab('branch');
+            setSourcesScope?.('internet');
             void warmNostrRelayConnections(store, { probe: true }).catch((e) => {
                 console.warn('[Arborito] sources onboarding nostr prewarm', e);
             });
@@ -148,5 +167,5 @@ export function useSourcesLifecycle({ embed, bump, setMainTab, setActiveTab, set
             store.removeEventListener('state-change', storeListener);
             catalogUnsub();
         };
-    }, [embed, bump, setMainTab, setActiveTab, setOverlay, setTreeEditor]);
+    }, [embed, bump, setMainTab, setActiveTab, setOverlay, setTreeEditor, setSourcesScope, setTreesScope]);
 }

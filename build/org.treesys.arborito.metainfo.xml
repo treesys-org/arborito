@@ -99,6 +99,11 @@
  </keywords>
 
  <releases>
+ <release version="0.1.2-alpha" date="2026-08-01">
+ <description>
+ <p>Clearer Courses / playlist naming, more reliable default Nostr relays, and catalog UX polish. Removing a course never leaves an empty map; private drafts stay deleted across devices.</p>
+ </description>
+ </release>
  <release version="0.1.1-alpha" date="2026-07-27">
  <description>
  <p>Linux Flatpak install ref and remote so Software/Discover can update the desktop app. Modal dialog fixes. Windows and Android builds updated in the same release.</p>

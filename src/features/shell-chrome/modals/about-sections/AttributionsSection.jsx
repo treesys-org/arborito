@@ -80,7 +80,7 @@ export function AttributionsSection({ ui }) {
         'Arborito bundles the following third-party assets offline (no CDN at runtime):';
 
     return (
-        <div className="bg-slate-50 dark:bg-slate-950/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
+        <div className="arborito-surface-tile p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
             <h3 className="arborito-eyebrow arborito-eyebrow--md mb-2">{title}</h3>
             <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400 mb-3">{intro}</p>
             <ul className="list-none m-0 p-0 select-text">
@@ -102,7 +102,7 @@ export function AttributionsSection({ ui }) {
                                 href={it.licHref}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="shrink-0 text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:underline"
+                                className="shrink-0 text-[10px] font-mono px-2 py-0.5 rounded-full arborito-surface-tile text-slate-500 dark:text-slate-400 hover:underline"
                             >
                                 {it.lic}
                             </a>

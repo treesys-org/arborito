@@ -155,7 +155,7 @@ export function ModalHero({
     const closeTag = closeTagClass || tagClass;
     const backAlignTweak = align === 'start' ? ' mt-0.5' : '';
     const backDangerExtra = danger
-        ? ' w-10 h-10 flex items-center justify-center rounded-xl border border-red-200 dark:border-red-800/50 bg-white/80 dark:bg-slate-900/80 text-red-800 dark:text-red-200'
+        ? ' w-10 h-10 flex items-center justify-center rounded-xl border border-red-200 dark:border-red-800/50 arborito-surface-tile text-red-800 dark:text-red-200'
         : '';
     const backClasses = backClass || `arborito-mmenu-back shrink-0${backAlignTweak}${backDangerExtra}`;
 
@@ -262,11 +262,12 @@ export function ModalHero({
     );
 }
 
-/** Unified hub/sheet hero, same chrome as Search / More sub-panels (mobile + desktop). */
+/** Unified hub/sheet hero — desktop hub chrome, mobile sheet (More/Search family). */
 export function ModalHubHero(props) {
     const mob = props.mobile == null ? shouldShowMobileUI() : !!props.mobile;
     const { closeShowOnMobile: _drop, tone: toneOpt, ...rest } = props;
-    const tone = toneOpt != null ? toneOpt : 'plain';
+    /* Desktop: dock-hub-head (edge-to-edge). Mobile: plain sheet with grab. */
+    const tone = toneOpt != null ? toneOpt : mob ? 'plain' : 'hub';
     return (
         <ModalHero
             tone={tone}

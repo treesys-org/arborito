@@ -140,7 +140,7 @@ export const metricsMixin = {
 
     async countTreeVotesOnce({ ownerPub, universeId, max = 2500 } = {}) {
         /* The `#U` (uppercase, custom) tag is not indexed by stricter relays
-         * (primal.net, tchncs.de) and they answer with `bad req: unindexed
+         * (e.g. nos.lol / primal.net) and they answer with `bad req: unindexed
          * tag filter` while keeping the REQ open until eoseTimeout, which
          * snowballs into "too many concurrent REQs". The broad query (no
          * `#U`) returns the same data at slightly higher cost, so we just

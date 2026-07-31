@@ -8,6 +8,10 @@ import {
 } from '../shared/lib/connected-services/index.js';
 import { pickTitleForLang, resolveDirectoryRowTitle } from '../shared/lib/catalog-titles.js';
 import { notifyCommunityChanged, notifyIdentityChanged } from './store-notify.js';
+import {
+    isPrivateAccountDeleted,
+    prunePrivateAccountDeletedAgainstLive,
+} from '../core/user-store/private-account-delete-tombstones.js';
 
 function shell() {
     return getArboritoStore();
@@ -100,6 +104,10 @@ export async function loadPrivateTreesFromAccountAction(username, opts = {}) {
                     }
                     const id = String(body.id || treeId).trim();
                     if (!id || restoredIds.has(id)) continue;
+                    if (isPrivateAccountDeleted(id)) {
+                        restoredIds.add(id);
+                        continue;
+                    }
                     const isComposed =
                         body.kind === 'composed-tree' ||
                         (Array.isArray(body.branchRefs) && !body.data);
@@ -183,6 +191,20 @@ export async function loadPrivateTreesFromAccountAction(username, opts = {}) {
             }
             if (Array.isArray(list) && list.length) {
                 result = await ingestList(list);
+            }
+        }
+
+        const liveIds = (Array.isArray(list) ? list : [])
+            .map((row) => String(row?.treeId || '').trim())
+            .filter(Boolean);
+        prunePrivateAccountDeletedAgainstLive(liveIds);
+        /* Re-tombstone drafts the user deleted locally but relays still list as live. */
+        for (const id of liveIds) {
+            if (!isPrivateAccountDeleted(id)) continue;
+            try {
+                await store.unpublishPrivateBranch?.(id);
+            } catch (e) {
+                console.warn('[arborito] re-tombstone deleted private draft failed', id, e);
             }
         }
 

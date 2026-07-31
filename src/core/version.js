@@ -3,15 +3,15 @@
 export const ARBORITO_BUILD_ID = '2026-06-19d';
 
 /** App semver from package.json — bump together with package.json on each release tag. */
-export const ARBORITO_APP_VERSION = '0.1.1-alpha';
+export const ARBORITO_APP_VERSION = '0.1.2-alpha';
 
-/** Semver without prerelease suffix, e.g. `0.1.1-alpha` → `0.1.1`. */
+/** Semver without prerelease suffix, e.g. `0.1.2-alpha` → `0.1.2`. */
 export function arboritoVersionDisplayCore() {
     const raw = String(ARBORITO_APP_VERSION || '')
         .trim()
         .replace(/^v/i, '');
     const core = raw.replace(/-(alpha|beta|rc)(\.\d+)?$/i, '');
-    return core || raw || '0.1.1';
+    return core || raw || '0.1.2';
 }
 
 /**

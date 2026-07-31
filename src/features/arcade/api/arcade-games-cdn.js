@@ -55,11 +55,6 @@ export async function pinJsdelivrGitHubUrl(url) {
     }
 }
 
-/** Official catalog URL stored in user settings (always `@main`; pin runs at fetch time). */
-export function officialArboritoGamesCatalogUrl() {
-    return 'https://cdn.jsdelivr.net/gh/treesys-org/arborito-games@main/manifest.json';
-}
-
 /** @param {string} url */
 export function isOfficialArboritoGamesCatalogUrl(url) {
     return JSDELIVR_GH_REGEX.test(String(url || '')) &&

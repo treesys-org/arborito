@@ -7,7 +7,6 @@ import {
     detectSageGuideContext,
 } from '../../../api/logic/sage-guide-context.js';
 import {
-    SageGuideBreadcrumbs,
     SageGuideCard,
     SageGuideHero,
     SageGuideIntro,
@@ -647,5 +646,3 @@ export function SageGuideContent({ ui, learning, nav, ctxOpts }) {
         </div>
     );
 }
-
-export { defaultSageGuideNav, detectSageGuideContext };

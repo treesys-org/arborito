@@ -32,7 +32,7 @@ items:
     modes: recall,multiple
     traps:
       - Only in Arcade
-      - In the Forest
+      - In Courses
       - On the root map
   - question: Can one quiz hold several questions?
     answer: Yes, several in one quiz

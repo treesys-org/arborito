@@ -54,7 +54,3 @@ export function useNostr() {
         update,
     };
 }
-
-export function useNostrStore() {
-    return store;
-}

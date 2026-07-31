@@ -4,9 +4,6 @@ import { useTreeGraphStore } from './useTreeGraph.js';
 import { buildStateSig, diffStateSig } from '../api/logic/graph-state-sig.js';
 import { fileSystem } from '../../backup-export/api/filesystem.js';
 import {
-    regroundMobileTrunkScroll,
-} from '../api/logic/path-scroll.js';
-import {
     markTrunkGestureMove,
     markTrunkGestureScroll,
     markTrunkGestureEnd,
@@ -296,5 +293,3 @@ export function useGraphPanel(rootRef, opts = {}) {
         syncTreePresentationSlotApi(rootRef.current);
     }, [rootRef, dataId, constructionMode]);
 }
-
-export { regroundMobileTrunkScroll };

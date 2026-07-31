@@ -19,21 +19,21 @@ items:
     traps:
       - Classroom
       - Hacky Terminal
-      - Bosque
-  - question: ¿Cómo se llama un curso completo?
-    answer: Una Rama
+      - Solo Arcade
+  - question: ¿Qué es este demo?
+    answer: Un curso
     traps:
       - Arcade
       - Examen
       - Racha
-  - question: ¿Qué es un árbol en el Bosque?
-    answer: Varios cursos combinados en un recorrido
+  - question: ¿Qué es una playlist?
+    answer: Varios cursos juntos en un recorrido
     traps:
       - Una sola lección
       - Solo Arcade
       - Un archivo de voz
   - question: ¿Dónde importas un archivo .arborito de un curso?
-    answer: En el Bosque
+    answer: En Cursos
     traps:
       - En el mapa
       - En Sage
@@ -60,7 +60,7 @@ items:
     answer: Un juego tipo consola con las preguntas del curso
     traps:
       - Un editor de código
-      - El Bosque
+      - El panel Cursos
       - Solo el examen final
   - question: ¿Dónde se guarda tu progreso por defecto?
     answer: En este dispositivo
@@ -79,5 +79,5 @@ items:
     traps:
       - Editar directo
       - Solo examen
-      - Borrar Bosque
+      - Borrar Cursos
 @/quiz

@@ -101,6 +101,7 @@ export function TreePathChrome({ model, panelRef, hostRefs }) {
     const layout = useTreePathLayout({
         model,
         hostRefs,
+        panelRef,
         panelEl,
     });
 

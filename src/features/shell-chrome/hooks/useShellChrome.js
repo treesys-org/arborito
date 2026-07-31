@@ -151,8 +151,3 @@ export function useShellChrome() {
         markCreatorModerationAlertsRead,
     };
 }
-
-/** Singleton, solo en hooks internos del feature, no en `.jsx` de components. */
-export function useShellChromeStore() {
-    return store;
-}

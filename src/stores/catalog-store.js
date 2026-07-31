@@ -1,5 +1,4 @@
 import { createArboritoStore } from './create-store.js';
-import { useStore } from 'zustand';
 import { patchStoreSlice } from './sync-shallow.js';
 
 /**
@@ -20,13 +19,4 @@ export function syncCatalogStoreFromUserStore(userStore) {
         trees: Array.isArray(userStore.state.trees) ? userStore.state.trees : [],
         revision: userStore._catalogRevision || 0,
     });
-}
-
-export function useCatalogSlice(selector) {
-    return useStore(catalogStore, selector);
-}
-
-export function patchCatalogSlice(partial) {
-    if (!partial || typeof partial !== 'object') return;
-    catalogStore.setState(partial);
 }

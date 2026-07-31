@@ -203,10 +203,18 @@ export function measureTreePathLayout(refs) {
 
     const knotCentersY = wraps.map((wrap) => knotCenterY(wrap, col));
 
-    const { wrap: activeWrap, knot: activeKnot } = findActiveKnotEl(knotsContainer);
-    let activeIndex = activeKnot ? wraps.indexOf(activeWrap) : wraps.length - 1;
-    if (refs.activeIndex != null && refs.activeIndex >= 0) {
-        activeIndex = refs.activeIndex;
+    /* Prefer model activeIndex — DOM `.active` can lag one paint behind navigation. */
+    let activeIndex =
+        refs.activeIndex != null && refs.activeIndex >= 0
+            ? Math.min(refs.activeIndex, wraps.length - 1)
+            : wraps.length - 1;
+    let activeWrap = wraps[activeIndex] || null;
+    let activeKnot = activeWrap?.querySelector?.('.mobile-knot') || null;
+    if (!activeKnot) {
+        const found = findActiveKnotEl(knotsContainer);
+        activeWrap = found.wrap;
+        activeKnot = found.knot;
+        if (activeKnot) activeIndex = wraps.indexOf(activeWrap);
     }
 
     const { d: trunkD, dActive: trunkActiveD } = buildTrunkPaths({
@@ -216,16 +224,30 @@ export function measureTreePathLayout(refs) {
         topAnchorY,
     });
 
+    const panel =
+        panelEl && panelEl.isConnected
+            ? panelEl
+            : trunkBody?.querySelector?.('.mobile-children-panel') || null;
+
     let connectorD = '';
-    if (activeKnot && panelEl && trunkBody) {
+    if (activeKnot && panel && trunkBody) {
         const wrap = activeWrap || knotWrap(activeKnot);
         const knot = wrap.querySelector('.mobile-knot') || activeKnot;
         const knotTop = layoutOffsetTop(knot, sc);
         const y1 = knotTop + knot.offsetHeight / 2;
-        const x1 = layoutOffsetLeft(knot, sc) + knot.offsetWidth;
-        const x2 = layoutOffsetLeft(panelEl, sc);
-        const panelMidY = layoutOffsetTop(panelEl, sc) + panelEl.offsetHeight / 2;
-        const rootOnly = wraps.length === 1 && activeKnot.classList.contains('mobile-knot--svg');
+        const colLeft = layoutOffsetLeft(col, sc);
+        const x2 = layoutOffsetLeft(panel, sc);
+        const panelMidY = layoutOffsetTop(panel, sc) + panel.offsetHeight / 2;
+        const isRootSvg =
+            activeKnot.classList.contains('mobile-knot--svg') &&
+            activeKnot.classList.contains('mobile-knot-tone-root');
+        /*
+         * Always anchor under the trunk column center. Oversized root clover and
+         * scaled active knots both push knotRight toward/past the panel, which
+         * collapses the L-arm (manito) after opening a child node.
+         */
+        const x1 = colLeft + colW / 2;
+        const rootOnly = wraps.length === 1 && isRootSvg;
         connectorD = buildConnectorPath({ x1, y1, x2, panelMidY, rootOnly });
     }
 
@@ -238,8 +260,8 @@ export function measureTreePathLayout(refs) {
     } catch {
         insetLeft = 0;
     }
-    const connectorRight = panelEl
-        ? layoutOffsetLeft(panelEl, sc) + panelEl.offsetWidth + 12
+    const connectorRight = panel
+        ? layoutOffsetLeft(panel, sc) + panel.offsetWidth + 12
         : insetLeft + colW + 12;
     const trunkSvgWidth = Math.max(colW, 1);
     const svgWidth = Math.max(bodyW, connectorRight, insetLeft + colW, 1);

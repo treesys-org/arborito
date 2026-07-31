@@ -80,7 +80,7 @@ export function SourcesBranchRow({
 
     return (
         <div
-            className={`p-4 bg-white dark:bg-slate-900 border ${borderCls}${pinCls}${activeCls} rounded-2xl shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors`}
+            className={`p-4 arborito-surface-tile border ${borderCls}${pinCls}${activeCls} rounded-2xl shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors`}
             {...(tourTarget ? { 'data-arbor-tour': tourTarget } : {})}
         >
             <div className="arborito-sources-row-layout flex items-start justify-between gap-3">
@@ -119,7 +119,7 @@ export function SourcesBranchRow({
                             </SourcesPill>
                         ) : null}
                         {isActive && !pinned && !shareCode ? (
-                            <SourcesPill className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700">
+                            <SourcesPill className="arborito-surface-tile text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700">
                                 {ui.sourceActive || 'Active'}
                             </SourcesPill>
                         ) : null}
@@ -150,7 +150,7 @@ export function SourcesBranchRow({
                     <div className="arborito-sources-primary-stack arborito-sources-primary-stack--load">
                         <div className="arborito-sources-cta-row">
                             {isActive && !pinned ? (
-                                <SourcesPill className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700">
+                                <SourcesPill className="arborito-surface-tile text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700">
                                     {ui.sourceActive || 'Active'}
                                 </SourcesPill>
                             ) : (

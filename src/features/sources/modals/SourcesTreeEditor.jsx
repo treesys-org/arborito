@@ -13,7 +13,7 @@ function BranchPickRow({ branch, ui, mode, onClick }) {
             className={
                 isRemove
                     ? 'arborito-tree-editor-selected-row min-h-11 w-full flex items-center gap-2 px-3 py-2 rounded-xl border border-violet-300/70 dark:border-violet-700/50 bg-violet-50/80 dark:bg-violet-950/30 text-left'
-                    : 'arborito-tree-editor-add-row min-h-11 w-full flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-left hover:border-violet-400 dark:hover:border-violet-600'
+                    : 'arborito-tree-editor-add-row min-h-11 w-full flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 arborito-surface-tile text-left hover:border-violet-400 dark:hover:border-violet-600'
             }
             onClick={onClick}
         >
@@ -76,7 +76,7 @@ export function SourcesTreeEditor({ treeEditor, setTreeEditor, ui, mobile, onClo
                 ui={ui}
                 mobile={mobile}
                 title={title}
-                leadingIcon={isEdit ? '🌳' : '✨'}
+                leadingIcon={isEdit ? '🌳' : '📚'}
                 showClose={!mobile}
                 tagClass="btn-tree-editor-cancel"
                 onClose={onClose}

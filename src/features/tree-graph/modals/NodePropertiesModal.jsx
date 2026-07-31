@@ -237,13 +237,13 @@ export function ModalNodeProperties() {
                 <div className="relative group">
                     <button
                         type="button"
-                        className="w-12 h-12 text-2xl bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                        className="w-12 h-12 text-2xl arborito-surface-tile rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                         title={ui.nodePropertiesChangeIcon || 'Change icon'}
                         aria-label={ui.nodePropertiesChangeIcon || 'Change icon'}
                     >
                         <ChromeEmoji emoji={folderDisplayIcon(icon)} className="arborito-emoji-glyph" />
                     </button>
-                    <div className="hidden group-hover:flex absolute top-14 left-0 w-72 max-h-80 overflow-y-auto bg-white dark:bg-slate-800 shadow-xl rounded-xl border border-slate-200 dark:border-slate-700 p-2 z-50">
+                    <div className="hidden group-hover:flex absolute top-14 left-0 w-72 max-h-80 overflow-y-auto arborito-surface-tile shadow-xl rounded-xl border border-slate-200 dark:border-slate-700 p-2 z-50">
                         <NodeEmojiPickerGrid
                             ui={ui}
                             onPick={setIcon}
@@ -280,7 +280,7 @@ export function ModalNodeProperties() {
                 />
             </div>
             {showOptionalAchievement && (
-                <label className="flex items-start gap-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 px-4 py-3 cursor-pointer">
+                <label className="flex items-start gap-3 rounded-xl border border-slate-200 dark:border-slate-700 arborito-surface-tile px-4 py-3 cursor-pointer">
                     <input
                         type="checkbox"
                         className="mt-1 h-4 w-4 rounded border-slate-300 text-yellow-500 focus:ring-yellow-400"

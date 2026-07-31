@@ -255,6 +255,8 @@ html.dark .arborito-sources-action-chip--kind-active {
   line-height: 1.1;
   white-space: nowrap;
   box-sizing: border-box;
+  /* Labels come from arborito-cta-* — never inherit a muted parent color. */
+  -webkit-text-fill-color: currentColor;
 }
 
 /*
@@ -429,8 +431,8 @@ html.arborito-product-tour-sources-picker
     gap: 0;
     padding: 0;
     overflow: hidden;
-    border-bottom-color: rgb(209 213 219);
-    background: rgb(241 245 249);
+    border-bottom-color: var(--arborito-theme-tab-bar-border);
+    background: var(--arborito-theme-strip-bg);
     border-radius: 0.85rem 0.85rem 0 0;
 }
 .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab {
@@ -439,7 +441,7 @@ html.arborito-product-tour-sources-picker
     border-bottom: 2px solid transparent;
     margin: 0;
     box-shadow: none;
-    color: rgb(100 116 139);
+    color: var(--arborito-theme-tab-fg);
 }
 .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab:first-child {
     border-top-left-radius: 0.85rem;
@@ -451,43 +453,25 @@ html.arborito-product-tour-sources-picker
     opacity: 0.7;
 }
 .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab:hover:not(:disabled):not(.arborito-tab--active):not([aria-selected='true']) {
-    background: rgb(255 255 255 / 0.55);
-    color: rgb(51 65 85);
+    background: var(--arborito-theme-hover-surface);
+    color: var(--arborito-theme-tab-hover-fg);
 }
 .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab--active,
 .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab[aria-selected='true'] {
-    color: rgb(4 120 87);
-    background: rgb(255 255 255);
-    border-bottom-color: rgb(16 185 129);
+    color: var(--arborito-theme-tab-active-fg);
+    background: var(--arborito-theme-card-bg);
+    border-bottom-color: var(--arborito-theme-tab-active-indicator);
     position: relative;
     z-index: 1;
 }
 .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab--active .arborito-tab__caption,
 .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab[aria-selected='true'] .arborito-tab__caption {
     opacity: 0.9;
-    color: rgb(6 95 70);
+    color: var(--arborito-theme-tab-active-fg);
 }
 
-html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab-bar {
-    border-bottom-color: rgb(71 85 105);
-    background: rgb(15 23 42);
-}
-html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab {
-    color: rgb(148 163 184);
-}
 html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab .arborito-tab__caption {
     opacity: 0.65;
-}
-html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab:hover:not(:disabled):not(.arborito-tab--active):not([aria-selected='true']) {
-    background: rgb(30 41 59 / 0.85);
-    color: rgb(203 213 225);
-}
-html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab--active,
-html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab[aria-selected='true'] {
-    color: rgb(167 243 208);
-    background: rgb(30 41 59);
-    border-bottom-color: rgb(52 211 153);
-    z-index: 1;
 }
 html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab--active .arborito-tab__caption,
 html.dark .arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab[aria-selected='true'] .arborito-tab__caption {
@@ -647,18 +631,6 @@ html.dark .arborito-sources-tab-foot {
     border-radius: 1rem;
 }
 
-/* Full list body cover while network/skeleton curriculum mounts. */
-.arborito-sources-list-cover {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: min(22rem, 55vh);
-    margin: 0;
-    padding: 1.5rem 1rem;
-    border-radius: 1rem;
-    background: var(--arborito-theme-sources-loading-slot-bg);
-}
-
 .arborito-sources-overlay-panel {
     background: var(--arborito-theme-surface-bg);
 }
@@ -721,11 +693,13 @@ html.dark .arborito-sources-tab-foot {
     line-height: 1.3;
     font-weight: 800;
     letter-spacing: -0.02em;
-    color: rgb(30 41 59);
+    color: var(--arborito-theme-text-strong, rgb(30 41 59));
+    -webkit-text-fill-color: currentColor;
 }
 
 html.dark .arborito-sources-row-title {
-    color: rgb(241 245 249);
+    color: var(--arborito-theme-text-strong, rgb(250 250 250));
+    -webkit-text-fill-color: currentColor;
 }
 
 /* Catalog glyphs — beat foundation `img { max-width:100%; height:auto }` and
@@ -846,4 +820,20 @@ button.arborito-sources-row-title--button {
     box-shadow: none !important;
     background: var(--arborito-theme-modal-dock-panel-background, var(--arborito-theme-surface-bg)) !important;
     box-sizing: border-box !important;
+}
+
+.arborito-sources-mine-empty {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: max(12rem, 42vh);
+    padding: 1.75rem 1.25rem;
+}
+
+.arborito-sources-mine-empty .arborito-empty__title {
+    font-size: 1.05rem;
+}
+
+.arborito-sources-mine-empty .arborito-empty__body {
+    font-size: 0.875rem;
+    max-width: 22rem;
 }

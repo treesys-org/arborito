@@ -85,7 +85,3 @@ export function useEditor() {
         userStore: getUserStoreAction(),
     };
 }
-
-export function useEditorStore() {
-    return editorActions;
-}

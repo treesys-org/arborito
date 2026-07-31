@@ -58,43 +58,161 @@ html.arborito-desktop:not(.dark) .arborito-mobile-path.mobile-tree-ui .mobile-ch
   border-color: var(--arborito-moss-border) !important;
 }
 
-/* --- 07: light-mode modal mint surfaces (not pure white) --- */
+/* --- 07: modal mint/ink surfaces (Tailwind white/slate rebels → theme tokens) --- */
+
+:is(
+    #modal-backdrop,
+    #browse-dock-hub-backdrop,
+    #progress-dock-backdrop,
+    #sage-lesson-backdrop,
+    #sage-settings-backdrop,
+    #sage-dock-backdrop,
+    #arborito-tree-switcher-backdrop,
+    #arborito-construction-rename-backdrop,
+    arborito-sage,
+    arborito-arcade,
+    arborito-profile
+)
+  :is(button, a, div, section, aside, article, header, footer, form, details, summary).bg-white,
+:is(
+    #modal-backdrop,
+    #browse-dock-hub-backdrop,
+    #progress-dock-backdrop,
+    #sage-lesson-backdrop,
+    #sage-settings-backdrop,
+    #sage-dock-backdrop,
+    #arborito-tree-switcher-backdrop,
+    arborito-sage,
+    arborito-arcade,
+    arborito-profile
+)
+  .bg-white {
+  background-color: var(--arborito-chrome-tile) !important;
+  border-color: var(--arborito-moss-border) !important;
+}
 
 html:not(.dark) #modal-backdrop button.bg-white,
 html:not(.dark) #modal-backdrop a.bg-white,
-html:not(.dark) #modal-backdrop .bg-white,
 html:not(.dark) arborito-sage button.bg-white,
 html:not(.dark) arborito-sage a.bg-white,
-html:not(.dark) arborito-sage .bg-white,
 html:not(.dark) arborito-arcade button.bg-white,
 html:not(.dark) arborito-arcade a.bg-white,
-html:not(.dark) arborito-arcade .bg-white,
 html:not(.dark) arborito-profile button.bg-white,
-html:not(.dark) arborito-profile a.bg-white,
-html:not(.dark) arborito-profile .bg-white {
-  background-color: var(--arborito-chrome-tile) !important;
-  border-color: var(--arborito-moss-border) !important;
+html:not(.dark) arborito-profile a.bg-white {
   color: var(--arborito-bark-ink) !important;
 }
 
-html:not(.dark) #modal-backdrop [class*="bg-white/"],
-html:not(.dark) arborito-arcade [class*="bg-white/"],
-html:not(.dark) arborito-sage [class*="bg-white/"],
-html:not(.dark) arborito-profile [class*="bg-white/"] {
+:is(
+    #modal-backdrop,
+    #browse-dock-hub-backdrop,
+    #progress-dock-backdrop,
+    #sage-lesson-backdrop,
+    #sage-settings-backdrop,
+    #sage-dock-backdrop,
+    #arborito-tree-switcher-backdrop,
+    arborito-sage,
+    arborito-arcade,
+    arborito-profile
+)
+  [class*='bg-white/'] {
   background-color: var(--arborito-canopy-mid) !important;
 }
 
-html:not(.dark) #modal-backdrop .bg-slate-50,
-html:not(.dark) arborito-arcade .bg-slate-50,
-html:not(.dark) arborito-profile .bg-slate-50 {
+:is(
+    #modal-backdrop,
+    #browse-dock-hub-backdrop,
+    #progress-dock-backdrop,
+    #sage-lesson-backdrop,
+    #sage-settings-backdrop,
+    #sage-dock-backdrop,
+    #arborito-tree-switcher-backdrop,
+    arborito-sage,
+    arborito-arcade,
+    arborito-profile
+)
+  :is(.bg-slate-50, .bg-slate-100) {
   background-color: var(--arborito-canopy-deep) !important;
 }
 
-arborito-arcade #main-tabs,
-#modal-backdrop #main-tabs.arborito-tab-strip,
-[data-arborito-panel="modal-arcade"] #main-tabs.arborito-tab-strip {
-  background: var(--arborito-theme-arcade-tabs-background) !important;
-  border-color: var(--arborito-theme-arcade-tabs-border) !important;
+/* Dark: Tailwind dark:bg-slate-* bypassed light remapper — map to ink tokens. */
+html.dark
+  :is(
+    #modal-backdrop,
+    #browse-dock-hub-backdrop,
+    #progress-dock-backdrop,
+    #sage-lesson-backdrop,
+    #sage-settings-backdrop,
+    #sage-dock-backdrop,
+    #arborito-tree-switcher-backdrop,
+    arborito-sage,
+    arborito-arcade,
+    arborito-profile
+  )
+  :is(
+    .bg-white,
+    .dark\:bg-slate-900,
+    .dark\:bg-slate-900\/80,
+    .dark\:bg-slate-900\/60,
+    .dark\:bg-slate-900\/50,
+    .dark\:bg-slate-900\/40,
+    .dark\:bg-slate-900\/30,
+    .dark\:bg-slate-800,
+    .dark\:bg-slate-800\/90,
+    .dark\:bg-slate-800\/80,
+    .dark\:bg-slate-800\/60,
+    .dark\:bg-slate-800\/50
+  ) {
+  /* Panel fills only — leave bare bg-slate-8/9 (CTAs, immersive game chrome). */
+  background-color: var(--arborito-theme-card-bg) !important;
+  border-color: var(--arborito-theme-card-border) !important;
+}
+
+html.dark
+  :is(
+    #modal-backdrop,
+    #browse-dock-hub-backdrop,
+    #progress-dock-backdrop,
+    #sage-lesson-backdrop,
+    #sage-settings-backdrop,
+    #sage-dock-backdrop,
+    #arborito-tree-switcher-backdrop,
+    arborito-sage,
+    arborito-arcade,
+    arborito-profile
+  )
+  :is(
+    .bg-slate-50,
+    .bg-slate-100,
+    .dark\:bg-slate-950,
+    .dark\:bg-slate-950\/60,
+    .dark\:bg-slate-950\/50,
+    .dark\:bg-slate-950\/40,
+    .dark\:bg-slate-950\/30,
+    .dark\:bg-slate-950\/20,
+    .bg-slate-950,
+    .dark\:bg-slate-900\/40,
+    .dark\:hover\:bg-slate-800,
+    .dark\:hover\:bg-slate-800\/50,
+    .dark\:hover\:bg-slate-700
+  ) {
+  background-color: var(--arborito-theme-strip-bg) !important;
+}
+
+html.dark
+  :is(
+    #modal-backdrop,
+    #browse-dock-hub-backdrop,
+    #progress-dock-backdrop,
+    #sage-lesson-backdrop,
+    #sage-settings-backdrop,
+    #sage-dock-backdrop,
+    #arborito-tree-switcher-backdrop,
+    arborito-sage,
+    arborito-arcade,
+    arborito-profile
+  )
+  :is(.dark\:bg-slate-800\/50, .bg-slate-100\/90, .dark\:bg-slate-800\/50) {
+  background-color: var(--arborito-theme-hover-surface) !important;
 }
 
 html:not(.dark) #modal-backdrop input.bg-white,
@@ -103,6 +221,55 @@ html:not(.dark) #modal-backdrop select.bg-white {
   background-color: var(--arborito-canopy-light) !important;
   border-color: var(--arborito-moss-border) !important;
   color: var(--arborito-bark-ink) !important;
+}
+
+html.dark #modal-backdrop input.bg-white,
+html.dark #modal-backdrop textarea.bg-white,
+html.dark #modal-backdrop select.bg-white,
+html.dark #modal-backdrop input.dark\:bg-slate-900,
+html.dark #modal-backdrop textarea.dark\:bg-slate-900,
+html.dark #modal-backdrop select.dark\:bg-slate-900 {
+  background-color: var(--arborito-theme-form-bg) !important;
+  border-color: var(--arborito-theme-form-border) !important;
+  color: var(--arborito-theme-form-fg) !important;
+}
+
+arborito-arcade #main-tabs,
+#modal-backdrop #main-tabs.arborito-tab-strip,
+[data-arborito-panel='modal-arcade'] #main-tabs.arborito-tab-strip {
+  background: var(--arborito-theme-arcade-tabs-background) !important;
+  border-color: var(--arborito-theme-arcade-tabs-border) !important;
+}
+
+/* Panel roots that still hardcode slate — force theme surface. */
+:is(#modal-backdrop, #browse-dock-hub-backdrop, #progress-dock-backdrop)
+  :is(
+    .arborito-hub-stack-overlay,
+    .arborito-profile-embed-root,
+    .arborito-certs-embed-root
+  ) {
+  background: var(--arborito-theme-surface-bg) !important;
+}
+
+:is(#modal-backdrop, #browse-dock-hub-backdrop)
+  :is(.forum-body-canvas, .forum-master-detail-root, .forum-posts-feed, .forum-thread-view) {
+  background: var(--arborito-theme-strip-bg) !important;
+}
+
+:is(#modal-backdrop, #browse-dock-hub-backdrop)
+  :is(
+    .forum-aside,
+    .forum-threads-head,
+    .forum-mob-nav-panel,
+    .forum-mob-zone-root,
+    #forum-compose-panel
+  ) {
+  background: var(--arborito-theme-card-bg) !important;
+}
+
+:is(#modal-backdrop, #browse-dock-hub-backdrop) .forum-msg-card {
+  background: var(--arborito-theme-tile-bg) !important;
+  border-color: var(--arborito-theme-tile-border) !important;
 }
 
 /* --- 11: frozen tree snow overlay --- */

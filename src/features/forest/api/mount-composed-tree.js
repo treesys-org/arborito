@@ -23,6 +23,7 @@ import {
     putTreeBundleCache,
     TREE_BUNDLE_CACHE_FRESH_MS,
 } from '../../sources/api/tree-bundle-cache.js';
+import { shouldSuppressTreeGrowingBlock, isBibliotecaUiOpen, isBibliotecaSoftMount } from '../../sources/api/sources-session.js';
 
 /**
  * Normalize branch curriculum JSON from local store or Nostr bundle.
@@ -280,23 +281,30 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
     const prevSourceId = store.state?.activeSource?.id != null ? String(store.state.activeSource.id) : '';
     const switchedSource = !!prevSourceId && prevSourceId !== treeId;
     if (switchedSource) resetSageChatForSourceChange(store);
-    const sourcesPickerOpen = (() => {
-        const m = store.state?.modal;
-        return !!(m && (m === 'sources' || (typeof m === 'object' && m.type === 'sources')));
-    })();
+    const sourcesPickerOpen = shouldSuppressTreeGrowingBlock(store);
 
-    /* Reopen with local/cache: keep the painted graph; never blank a warm canvas. */
+    /* Reopen with local/cache: keep the painted graph; never blank a warm canvas.
+     * Soft-mount onto a different tree with no offline copy: clear so trunk/comic
+     * cover until the first structure paints. */
     const clearGraph =
-        !sameTreeAlreadyOpen && !allOffline && !allOfflineFull && !!forceRefresh;
+        !sameTreeAlreadyOpen &&
+        !allOfflineFull &&
+        (!!forceRefresh || (switchedSource && !isBibliotecaUiOpen(store) && !allOffline));
     const softOpen = !forceRefresh;
     const showOverlay = !softOpen && clearGraph && !sourcesPickerOpen;
     /*
      * Soft open (boot / reopen): do not raise treeHydrating before the first
      * paint — with an empty canvas that used to become the fullscreen green modal.
+     * Soft-mount onto another tree: keep hydrating so Graph shows trunk/comic.
      */
 
     store.update({
-        treeHydrating: softOpen ? false : !allOfflineFull,
+        treeHydrating:
+            softOpen && switchedSource && clearGraph
+                ? true
+                : softOpen
+                  ? false
+                  : !allOfflineFull,
         treeGrowingOverlay: showOverlay,
         error: null,
         activeSource: { ...source, treeId, type: 'composed-tree', name: treeEntry.name },
@@ -312,8 +320,8 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
               }
             : {}),
     });
-    /* Local reopen: skip paint yield so mount matches branch:// sync feel. */
-    if (!allOfflineFull && !softOpen) await yieldToPaint();
+    /* Soft-mount / soft open already painted chrome — skip paint yield. */
+    if (!allOfflineFull && !softOpen && !isBibliotecaSoftMount()) await yieldToPaint();
 
     void runThrottledBackgroundTask(
         `tree-maintain:${treeId}`,

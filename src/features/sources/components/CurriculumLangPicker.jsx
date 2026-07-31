@@ -7,7 +7,7 @@ function langPillClass(active, compact) {
     } ${
         active
             ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-900 dark:text-emerald-100 ring-2 ring-emerald-500/50'
-            : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100'
+            : 'arborito-surface-tile text-slate-800 dark:text-slate-100'
     }`;
 }
 

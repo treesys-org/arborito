@@ -34,7 +34,7 @@ function SearchBody({
     const inputClass = `arborito-input arborito-input--search h-11 py-0 font-semibold ${inputRadius} pr-4 shadow-sm transition-all`;
     const listShell = dockChrome
         ? 'flex-1 overflow-y-auto custom-scrollbar min-h-0 border-0 shadow-none bg-transparent rounded-none arborito-search-results-list arborito-search-results-list--dock-light pt-1'
-        : 'flex-1 overflow-y-auto custom-scrollbar min-h-0 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 shadow-inner arborito-search-results-list arborito-search-results-list--dock-light';
+        : 'flex-1 overflow-y-auto custom-scrollbar min-h-0 rounded-xl border border-slate-200 dark:border-slate-600 arborito-surface-tile shadow-inner arborito-search-results-list arborito-search-results-list--dock-light';
 
     const { isSearching } = searchState;
     const panel = (

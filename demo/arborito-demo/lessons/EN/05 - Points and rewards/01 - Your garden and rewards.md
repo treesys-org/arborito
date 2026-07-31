@@ -40,14 +40,14 @@ items:
     modes: recall,multiple
     traps:
       - Number of exams
-      - Imported branches
+      - Imported courses
       - Arcade points only
   - question: What is the umbrella for?
     answer: Protects your streak if you miss a day
     modes: multiple,recall
     traps:
       - Raises volume
-      - Opens the Forest
+      - Opens Courses
       - Deletes progress
 @/quiz
 
@@ -58,25 +58,25 @@ title: Trophies
 
 In **Achievements** (backpack):
 
-1. **Branch:** finish a whole course.
-2. **Tree:** finish every branch in a tree (combined courses).
+1. **Course:** finish a whole course.
+2. **Playlist:** finish every course in a playlist.
 3. **Extra achievement:** the author puts it on a folder (construction mode).
 
 @quiz
 concept: Main trophies
 items:
   - question: Which trophy do you get for finishing this whole demo?
-    answer: The Branch trophy
+    answer: The Course trophy
     modes: multiple,recall
     traps:
       - Just an exam
       - A folder achievement
       - Arcade points only
-  - question: Which trophy needs every branch in a tree?
-    answer: The Tree trophy
+  - question: Which trophy needs every course in a playlist?
+    answer: The Playlist trophy
     modes: multiple,recall
     traps:
-      - Branch trophy
+      - Course trophy
       - Streak only
       - Classroom only
   - question: Are trophies for competing with other people?

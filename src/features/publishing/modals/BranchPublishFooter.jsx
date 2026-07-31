@@ -155,7 +155,7 @@ export function BranchPublishFooter({
     return (
         <div className="arborito-modal-footer arborito-modal-footer--blend flex flex-col gap-3">
             {showPublishOptions ? (
-                <div className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/40 px-3 py-3 space-y-3">
+                <div className="w-full rounded-xl border border-slate-200 dark:border-slate-800 arborito-surface-tile px-3 py-3 space-y-3">
                     {canPublish ? (
                         <p className="m-0 text-xs leading-snug text-slate-600 dark:text-slate-300 whitespace-pre-line">
                             {confirmCopy.body}

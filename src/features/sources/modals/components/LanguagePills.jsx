@@ -43,7 +43,7 @@ export function LanguagePills({ langCodes }) {
                 const isActive = code === active;
                 const cls = isActive
                     ? 'arborito-pill arborito-pill--xs arborito-pill--emerald arborito-pill--bordered inline-flex items-center gap-1'
-                    : 'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold border bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700';
+                    : 'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold border arborito-surface-tile text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700';
                 return (
                     <span key={code} className={cls} title={m.label}>
                         <ChromeEmoji emoji={m.flag} size={12} className="shrink-0" />

@@ -11,6 +11,7 @@ import {
 import { ForumThreadRow } from './components/ForumThreadRow.jsx';
 import { ForumReplyForm } from './components/ForumReplyForm.jsx';
 import { FormNestedSheet } from '../../../shared/ui/FormNestedSheet.jsx';
+import { ListRowEnter } from '../../../shared/ui/ListRowEnter.jsx';
 
 const FORUM_THREADS_PAGE = 40;
 
@@ -25,10 +26,10 @@ function ForumMessageCard({ m, replyIndex, ui, mod, lang, isOpening, showReply, 
 
     return (
         <article
-            className={`forum-msg-card${isOpening ? ' forum-msg-card--op' : ''} rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm overflow-hidden`}
+            className={`forum-msg-card${isOpening ? ' forum-msg-card--op' : ''} rounded-xl border border-slate-200 dark:border-slate-600 arborito-surface-tile text-slate-900 dark:text-slate-100 shadow-sm overflow-hidden`}
         >
             <div className="flex items-start gap-3 px-4 py-3.5 sm:px-5 sm:py-4">
-                <div className="shrink-0 w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex items-center justify-center text-xl">
+                <div className="shrink-0 w-11 h-11 rounded-xl arborito-surface-tile border border-slate-200 dark:border-slate-600 flex items-center justify-center text-xl">
                     {(m.author && m.author.avatar) || '💬'}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -209,7 +210,7 @@ function ForumPosts({ messages, ui, mod, lang, threadId, justCreatedThreadId, ma
     return (
         <>
             {clipped ? (
-                <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 px-3 py-2 text-[11px] text-slate-600 dark:text-slate-300">
+                <div className="rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 text-[11px] text-slate-600 dark:text-slate-300">
                     {(ui.forumThreadClipped ||
                         'Showing the most recent {n} posts in this topic. Older posts are hidden to keep the forum fast.'
                     ).replace('{n}', String(sorted.length))}
@@ -236,7 +237,7 @@ function ForumSearchResults({ ui, lang, searching, searchQ, searchResults, onHit
     }
     const fmt = (iso) => timeAgo(iso, lang) || iso;
     return (
-        <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900 shadow-sm">
+        <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
             {rows.slice(0, 40).map((r) => (
                 <button
                     key={`${r.threadId}-${r.weekKey}-${r.createdAt}`}
@@ -517,9 +518,9 @@ export function ForumThreads({
     return (
         <>
             <aside
-                className={`forum-aside forum-aside--threads forum-master-topics w-full min-h-0 flex-1 flex-col border-r-0 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 lg:flex-none lg:shrink-0 lg:w-[min(22rem,34vw)] lg:min-w-[17rem] xl:w-[23rem] lg:min-h-0 lg:border-r lg:border-l lg:border-l-slate-200/80 dark:lg:border-l-slate-700/80 ${mobilePanel === 'posts' ? 'hidden lg:flex' : 'flex'}`}
+                className={`forum-aside forum-aside--threads forum-master-topics w-full min-h-0 flex-1 flex-col border-r-0 border-slate-200 dark:border-slate-700 lg:flex-none lg:shrink-0 lg:w-[min(22rem,34vw)] lg:min-w-[17rem] xl:w-[23rem] lg:min-h-0 lg:border-r lg:border-l lg:border-l-slate-200/80 dark:lg:border-l-slate-700/80 ${mobilePanel === 'posts' ? 'hidden lg:flex' : 'flex'}`}
             >
-                <div className="forum-threads-head shrink-0 w-full border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 sticky top-0 z-30 lg:static lg:z-auto py-2.5 lg:py-2.5 px-2">
+                <div className="forum-threads-head shrink-0 w-full border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 lg:static lg:z-auto py-2.5 lg:py-2.5 px-2">
                     {threadColumnHead}
                     {isPublicForumTree ? (
                         <div className="mt-2">
@@ -537,7 +538,7 @@ export function ForumThreads({
                 <div
                     id="forum-threads-scroll"
                     ref={threadsScrollRef}
-                    className="flex-1 overflow-y-auto custom-scrollbar min-h-0 p-2 bg-slate-50 dark:bg-slate-950 flex flex-col"
+                    className="flex-1 overflow-y-auto custom-scrollbar min-h-0 p-2 flex flex-col"
                 >
                     {searchQ && isPublicForumTree ? (
                         <ForumSearchResults
@@ -549,19 +550,20 @@ export function ForumThreads({
                             onHit={onSearchHit}
                         />
                     ) : here.length ? (
-                        <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900 shadow-sm">
-                            {visibleThreads.map((t) => (
-                                <ForumThreadRow
-                                    key={t.id}
-                                    thread={t}
-                                    active={t.id === threadId}
-                                    allMessages={allMessages}
-                                    ui={ui}
-                                    lang={lang}
-                                    mod={mod}
-                                    onSelectThread={onSelectThread}
-                                    onMessageAction={onMessageAction}
-                                />
+                        <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+                            {visibleThreads.map((t, idx) => (
+                                <ListRowEnter key={t.id} index={idx}>
+                                    <ForumThreadRow
+                                        thread={t}
+                                        active={t.id === threadId}
+                                        allMessages={allMessages}
+                                        ui={ui}
+                                        lang={lang}
+                                        mod={mod}
+                                        onSelectThread={onSelectThread}
+                                        onMessageAction={onMessageAction}
+                                    />
+                                </ListRowEnter>
                             ))}
                             {hasMoreThreads ? (
                                 <button
@@ -583,17 +585,17 @@ export function ForumThreads({
             </aside>
 
             <section
-                className={`forum-thread-view forum-master-content flex-1 flex flex-col min-h-0 min-w-0 bg-slate-50 dark:bg-slate-950 ${mobilePanel === 'threads' ? 'hidden lg:flex' : 'flex'}`}
+                className={`forum-thread-view forum-master-content flex-1 flex flex-col min-h-0 min-w-0 ${mobilePanel === 'threads' ? 'hidden lg:flex' : 'flex'}`}
             >
                 <div
-                    className={`shrink-0 px-4 py-3 md:px-5 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 sticky top-0 z-30 lg:static lg:z-auto ${threadId ? 'hidden lg:block' : ''}`}
+                    className={`shrink-0 px-4 py-3 md:px-5 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 lg:static lg:z-auto ${threadId ? 'hidden lg:block' : ''}`}
                 >
                     {threadHead}
                 </div>
                 <div
                     id="forum-posts-scroll"
                     ref={postsScrollRef}
-                    className="flex-1 overflow-y-auto custom-scrollbar min-h-0 p-3 md:p-4 space-y-3 forum-posts-feed bg-slate-50 dark:bg-slate-950"
+                    className="flex-1 overflow-y-auto custom-scrollbar min-h-0 p-3 md:p-4 space-y-3 forum-posts-feed"
                     tabIndex={-1}
                     role="region"
                     aria-label={
@@ -619,14 +621,14 @@ export function ForumThreads({
                     )}
                 </div>
                 {isPublicForumTree && threadId ? (
-                    <div className="shrink-0 px-4 py-2 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex items-center justify-between gap-2">
+                    <div className="shrink-0 px-4 py-2 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2">
                         <span className="text-xs text-slate-500 dark:text-slate-400">
                             {ui.forumWeeksLoadedLabel || 'Loaded pages'}:{' '}
                             {getLoadedForumThreadWeeks(threadId).sort().join(', ') || ': '}
                         </span>
                         <button
                             type="button"
-                            className="forum-load-older min-h-10 px-3 py-2 rounded-lg text-xs font-bold border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100"
+                            className="forum-load-older min-h-10 px-3 py-2 rounded-lg text-xs font-bold border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-100"
                             onClick={onLoadOlder}
                         >
                             {ui.forumLoadOlderWeek || 'Load older'}
@@ -635,7 +637,7 @@ export function ForumThreads({
                 ) : null}
                 {isPublicForumTree ? (
                     <div className="shrink-0 px-3 py-2 border-t border-slate-200 dark:border-slate-700">
-                        <details className="forum-account-details group rounded-xl border border-amber-200/90 dark:border-amber-800/80 bg-white/60 dark:bg-slate-900/40 px-3 py-2">
+                        <details className="forum-account-details group rounded-xl border border-amber-200/90 dark:border-amber-800/80 px-3 py-2">
                             <summary className="cursor-pointer list-none flex items-center justify-between gap-2 text-xs font-bold text-amber-950 dark:text-amber-100 select-none [&::-webkit-details-marker]:hidden">
                                 <span>{ui.forumAccountDangerSummary || 'Account options'}</span>
                                 <span className="text-amber-600 dark:text-amber-400 shrink-0 transition-transform group-open:rotate-180" aria-hidden="true">
@@ -660,7 +662,6 @@ export function ForumThreads({
                         ui={ui}
                         threadId={threadId}
                         isAuthed={isAuthed}
-                        msgs={msgs}
                         replyTarget={replyTarget}
                         composeLabel={composeLabel}
                         composePlaceholder={composePlaceholder}

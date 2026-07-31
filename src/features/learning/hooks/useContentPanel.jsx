@@ -13,7 +13,7 @@ import {
     persistLessonReadingPosition,
     hasExamAttemptInProgress,
 } from '../api/content-panel-quiz.js';
-import { useLessonEditor } from '../../editor/index.js';
+import { useLessonEditor } from '../../editor/hooks/useLessonEditor.jsx';
 import {
     saveLessonDraft,
     lessonContentFingerprint,
@@ -77,11 +77,14 @@ export function useContentPanel({ rootRef, contentAreaRef, editorRef, tocNavRef,
     }, []);
 
     const patchPanel = useCallback((partial) => {
+        /* Keep live ref in sync in the same tick — leave/save dialogs read dirty
+         * before React re-renders with the patched panel. */
+        panelLiveRef.current = { ...panelLiveRef.current, ...partial };
         setPanel((prev) => ({ ...prev, ...partial }));
     }, []);
 
     const isLessonConstructEdit = useCallback(() => {
-        const n = panel.currentNode;
+        const n = panelLiveRef.current?.currentNode ?? panel.currentNode;
         return (
             !!store.value.constructionMode &&
             fileSystem.features.canWrite &&
@@ -139,11 +142,19 @@ export function useContentPanel({ rootRef, contentAreaRef, editorRef, tocNavRef,
     }, [cancelDraftAutosave]);
 
     const isLessonDirty = useCallback(() => {
-        if (!panel.currentNode || !isLessonConstructEdit()) return false;
-        if (panel.lessonUserHasEdited) return true;
+        if (!isLessonConstructEdit()) return false;
+        /* Construct API clears `_lessonUserHasEdited` synchronously on save;
+         * React `panel.lessonUserHasEdited` can lag one frame and would block close. */
+        const api = constructApiRef.current;
+        if (api && typeof api._isLessonDirty === 'function') {
+            return !!api._isLessonDirty();
+        }
+        const live = panelLiveRef.current;
+        if (!live?.currentNode) return false;
+        if (live.lessonUserHasEdited) return true;
         const ed = lessonEditor.getEditorEl?.();
         return !!(ed && ed.dataset?.arboritoEditorDirty === '1');
-    }, [panel.currentNode, panel.lessonUserHasEdited, isLessonConstructEdit, lessonEditor]);
+    }, [isLessonConstructEdit, lessonEditor]);
 
     const abandonActiveQuizProgress = useCallback(
         ({ abandonExam = false } = {}) => {

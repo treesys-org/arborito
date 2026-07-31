@@ -4,7 +4,7 @@
 /* Backdrop fill is owned by system-root-variants.css (`--arborito-modal-overlay`). */
 
 @media (max-width: 767px) {
-#modal-backdrop:not(.arborito-modal--immersive):not(.arborito-modal--onboarding):not(.arborito-modal--sources):not(.arborito-modal--mobile-fullbleed) {  
+#modal-backdrop:not(.arborito-modal--immersive):not(.arborito-modal--onboarding):not(.arborito-modal--mobile-fullbleed) {  
         padding: 0 !important;
         padding-top: 0 !important;
         align-items: stretch !important;
@@ -62,7 +62,7 @@
         width: 100% !important;
     }
 }
-:is(html.arborito-shell-mobile, html.force-mobile) #modal-backdrop:not(.arborito-modal--immersive):not(.arborito-modal--onboarding):not(.arborito-modal--sources):not(.arborito-modal--mobile-fullbleed) {
+:is(html.arborito-shell-mobile, html.force-mobile) #modal-backdrop:not(.arborito-modal--immersive):not(.arborito-modal--onboarding):not(.arborito-modal--mobile-fullbleed) {
     padding: 0 !important;
     padding-top: 0 !important;
     align-items: stretch !important;

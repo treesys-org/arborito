@@ -77,7 +77,3 @@ export function useGardenProgress() {
         store: singleton,
     };
 }
-
-export function useGardenProgressStore() {
-    return gardenProgressActions;
-}

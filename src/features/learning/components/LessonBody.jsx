@@ -2,7 +2,7 @@ import { useLayoutEffect } from 'react';
 import { isMediaSrcBlocked } from '../../privacy-gdpr/api/third-party-media.js';
 import { ContentBlock } from './ContentBlock.jsx';
 import { InlineQuizBlock } from './InlineQuizBlock.jsx';
-import { applyEditorSectionMarkdown } from '../../editor/index.js';
+import { applyEditorSectionMarkdown } from '../../editor/api/logic/lesson-editor-dom.js';
 import {
     formatConstructEditorSeed,
     parseConstructEditorSeed,

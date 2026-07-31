@@ -8,7 +8,7 @@
   "dialogInputTitle": "Entrada",
   "dialogNoticeTitle": "Aviso",
   "dialogOkButton": "Entendido",
-  "exportArchiveGuideTxt": "Exportación Arborito (.arborito) Es un ZIP: al descomprimirlo, las carpetas son el curso. Dos reglas: 1. lessons/ES/… y lessons/EN/… en paralelo, misma posición (01/02) = misma lección. 2. El texto tras \"NN -\" en cada archivo es el título de la lección. Formato completo del autor: files/AUTORIA.md Reimportar: Arborito → Catálogo → Importar archivo.",
+  "exportArchiveGuideTxt": "Exportación Arborito (.arborito) Es un ZIP: al descomprimirlo, las carpetas son el curso. Dos reglas: 1. lessons/ES/… y lessons/EN/… en paralelo, misma posición (01/02) = misma lección. 2. El texto tras \"NN -\" en cada archivo es el título de la lección. Formato completo del autor: files/AUTORIA.md Reimportar: Arborito → Cursos → Importar archivo.",
   "exportDesc": "Elige qué quieres descargar.",
   "exportLesson": "Lección Actual",
   "exportLessonDesc": "Solo este tema.",

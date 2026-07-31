@@ -39,7 +39,7 @@ function ItemTabs({ items, activeItemIndex, ui, onSelect, onAdd, onRemove, isIte
                             className={`quiz-wizard-item-tab px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${
                                 active
                                     ? 'arborito-quiz-chip--active shadow-sm'
-                                    : 'bg-white/80 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-900'
+                                    : 'arborito-surface-tile text-slate-600 dark:text-slate-300'
                             }`}
                             onClick={() => onSelect(idx)}
                         >
@@ -363,7 +363,7 @@ export function QuizWizardModal({ blockEl, initialChallenge, onRemove }) {
                     </div>
 
                     {showSteps ? (
-                        <div className="quiz-wizard-steps-block rounded-lg border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/40 dark:bg-slate-900/30 p-2.5">
+                        <div className="quiz-wizard-steps-block rounded-lg border border-slate-200/80 dark:border-slate-700/80 arborito-surface-tile p-2.5">
                             <p className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-2">
                                 {ui.quizWizardStepsFold || 'Order the steps'}
                             </p>

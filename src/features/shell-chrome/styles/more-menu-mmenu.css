@@ -110,7 +110,11 @@ html.arborito-desktop .mobile-version-fixed-slot .arborito-mobile-version-root {
     font-size: 1.0625rem;
     font-weight: 900;
     letter-spacing: -0.02em;
-    color: var(--arborito-theme-learning-arborito-mmenu-subtitle-color);
+    color: var(
+        --arborito-theme-learning-arborito-mmenu-subtitle-color,
+        var(--arborito-theme-text-strong, #0f172a)
+    );
+    -webkit-text-fill-color: currentColor;
     margin: 0;
     flex: 1;
     min-width: 0;

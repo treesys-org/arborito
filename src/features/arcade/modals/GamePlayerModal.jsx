@@ -10,7 +10,7 @@ import {
 import { GamePlayerCanvas } from './GamePlayerCanvas.jsx';
 
 export function ModalGamePlayer({ embed }) {
-    const g = useGamePlayerModal(embed);
+    const g = useGamePlayerModal();
 
     if (!g.url) {
         return null;

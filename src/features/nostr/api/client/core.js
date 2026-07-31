@@ -667,6 +667,26 @@ export const coreMixin = {
         }
     },
 
+    /**
+     * Query an explicit relay subset (same merge / slot rules as `_queryFast`).
+     * Used when pagination must keep a per-relay `until` cursor — a global
+     * cursor jumps past dense relays when a sparse peer returns a wide time span.
+     * @param {string[]} relayUrls
+     * @param {import('nostr-tools').Filter} filter
+     * @param {number} [ms]
+     */
+    async _queryRelays(relayUrls, filter, ms = QUERY_MS) {
+        this._assertNetworkConsent('query');
+        const ordered = normalizeNostrRelayUrls(relayUrls).filter(Boolean);
+        if (!ordered.length) return [];
+        await this._acquireQuerySlot();
+        try {
+            return (await relayQueryMerge(this._pool, ordered, filter, ms)) || [];
+        } finally {
+            this._releaseQuerySlot();
+        }
+    },
+
     async _query(filter, ms = QUERY_MS) {
         return this._queryFast(filter, ms);
     },

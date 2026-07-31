@@ -13,6 +13,7 @@ import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
 import { MobileInlineTools } from './MobileInlineTools.jsx';
 import { useBindMobileTapRef } from '../../../../shared/ui/useBindMobileTap.js';
 import { useViewportShell } from '../../../../shared/ui/breakpoints.js';
+import { listRowEnterProps } from '../../../../shared/ui/ListRowEnter.jsx';
 
 function knotStateClass(node, harvested, tree) {
     const isHarvested = harvested.find((h) => String(h.id) === String(node.id));
@@ -55,6 +56,7 @@ export const MobileKnotRow = memo(function MobileKnotRow({
     pulseGrowth,
     tree,
     leadsToOpened = false,
+    revealVisible = true,
 }) {
     const { ui, userStore, graphUi, constructionMode } = tree;
     const knotRef = useRef(null);
@@ -68,7 +70,7 @@ export const MobileKnotRow = memo(function MobileKnotRow({
         fileSystem.isLocalComposedTree();
 
     useEffect(() => {
-        if (!pulseGrowth || !knotRef.current) return undefined;
+        if (!revealVisible || !pulseGrowth || !knotRef.current) return undefined;
         let shellTourPending = false;
         try {
             shellTourPending = localStorage.getItem('arborito-ui-tour-shell-pending-v1') === 'true';
@@ -90,7 +92,7 @@ export const MobileKnotRow = memo(function MobileKnotRow({
             if (innerRaf) cancelAnimationFrame(innerRaf);
             if (timer) clearTimeout(timer);
         };
-    }, [pulseGrowth]);
+    }, [pulseGrowth, revealVisible]);
 
     const stateClass = !isActive ? knotStateClass(node, harvested, tree) : '';
 
@@ -108,18 +110,24 @@ export const MobileKnotRow = memo(function MobileKnotRow({
         }
     };
 
-    useBindMobileTapRef(wrapperRef, onKnotClick, mobile && isRootClover, { slopPx: 12, clickOnly: true });
-    useBindMobileTapRef(knotRef, onKnotClick, mobile && !isRootClover, { slopPx: 12, clickOnly: true });
+    useBindMobileTapRef(wrapperRef, onKnotClick, mobile && isRootClover && revealVisible, { slopPx: 12, clickOnly: true });
+    useBindMobileTapRef(knotRef, onKnotClick, mobile && !isRootClover && revealVisible, { slopPx: 12, clickOnly: true });
+
+    const enter = revealVisible ? listRowEnterProps(index, { fadeOnly: true }) : { className: '', style: undefined };
 
     return (
         <div
             ref={wrapperRef}
-            className={`mobile-knot-wrapper${isRootClover ? ' mobile-knot-wrapper--construction-root-pick' : ''}`}
-            onClick={mobile || !isRootClover ? undefined : onKnotClick}
-            role={isRootClover ? 'button' : undefined}
-            tabIndex={isRootClover ? 0 : undefined}
+            className={`mobile-knot-wrapper${isRootClover ? ' mobile-knot-wrapper--construction-root-pick' : ''}${
+                revealVisible ? '' : ' mobile-knot-wrapper--awaiting-reveal'
+            }${enter.className ? ` ${enter.className}` : ''}`}
+            style={enter.style}
+            onClick={mobile || !isRootClover || !revealVisible ? undefined : onKnotClick}
+            role={isRootClover && revealVisible ? 'button' : undefined}
+            tabIndex={isRootClover && revealVisible ? 0 : undefined}
+            aria-hidden={revealVisible ? undefined : true}
             onKeyDown={
-                isRootClover
+                isRootClover && revealVisible
                     ? (e) => {
                           if (e.key === 'Enter' || e.key === ' ') {
                               e.preventDefault();
@@ -135,11 +143,11 @@ export const MobileKnotRow = memo(function MobileKnotRow({
                     isRoot ? ' mobile-knot--svg' : ''
                 }${leadsToOpened && !isRoot ? ' mobile-knot--opened' : ''}`}
                 {...(isRoot ? { 'data-arbor-tour': 'graph-root' } : {})}
-                onClick={mobile || isRootClover ? undefined : onKnotClick}
-                role={!isRootClover ? 'button' : undefined}
-                tabIndex={!isRootClover ? 0 : undefined}
+                onClick={mobile || isRootClover || !revealVisible ? undefined : onKnotClick}
+                role={!isRootClover && revealVisible ? 'button' : undefined}
+                tabIndex={!isRootClover && revealVisible ? 0 : undefined}
                 onKeyDown={
-                    !isRootClover
+                    !isRootClover && revealVisible
                         ? (e) => {
                               if (e.key === 'Enter' || e.key === ' ') {
                                   e.preventDefault();
@@ -181,6 +189,7 @@ export const MobileKnotRow = memo(function MobileKnotRow({
     prev.tone === next.tone &&
     prev.index === next.index &&
     prev.leadsToOpened === next.leadsToOpened &&
+    prev.revealVisible === next.revealVisible &&
     prev.tree === next.tree
 );
 

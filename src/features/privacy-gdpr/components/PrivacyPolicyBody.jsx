@@ -37,7 +37,7 @@ export function PrivacyPolicyBody({ ui, impressumVariant = 'inline', onOpenImpre
 
     const impressumBlock =
         impressumVariant === 'legal-tab-link' ? (
-            <div className="mb-4 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
+            <div className="mb-4 p-3 arborito-surface-tile rounded-xl border border-slate-100 dark:border-slate-800">
                 <button
                     type="button"
                     className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-bold inline-flex items-center gap-2 transition-colors"
@@ -51,7 +51,7 @@ export function PrivacyPolicyBody({ ui, impressumVariant = 'inline', onOpenImpre
                 </button>
             </div>
         ) : (
-            <div className="mb-4 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
+            <div className="mb-4 p-3 arborito-surface-tile rounded-xl border border-slate-100 dark:border-slate-800">
                 <LocaleRichText
                     as="p"
                     className="text-sm text-slate-600 dark:text-slate-300 mb-2 font-medium"
@@ -143,7 +143,7 @@ export function PrivacyPolicyBody({ ui, impressumVariant = 'inline', onOpenImpre
             <hr className="my-6 border-slate-200 dark:border-slate-700" />
 
             <h3>{ui.privacyAiThirdPartiesHeading}</h3>
-            <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-xl text-xs space-y-2">
+            <div className="arborito-surface-tile p-4 rounded-xl text-xs space-y-2">
                 <LocaleRichText as="p" html={aiDisclosure} />
                 {aiLicenseLine ? (
                     <p className="m-0 text-slate-600 dark:text-slate-400">{aiLicenseLine}</p>
@@ -153,7 +153,7 @@ export function PrivacyPolicyBody({ ui, impressumVariant = 'inline', onOpenImpre
             <hr className="my-6 border-slate-200 dark:border-slate-700" />
 
             <h3>{ui.privacyTechStackHeading}</h3>
-            <ul className="text-xs font-mono bg-slate-100 dark:bg-slate-800 p-4 rounded-lg list-none space-y-2">
+            <ul className="text-xs font-mono arborito-surface-tile p-4 rounded-lg list-none space-y-2">
                 <li>
                     <LocaleRichText html={ui.privacyTechHosting || ''} />
                 </li>

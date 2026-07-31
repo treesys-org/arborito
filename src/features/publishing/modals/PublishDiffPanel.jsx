@@ -64,7 +64,7 @@ export function PublishDiffPanel({ ui, modal, activeSource, rawGraphData, userSt
             <p className="arborito-eyebrow arborito-eyebrow--strong m-0 mb-3">
                 {ui.publishDiffTitle || 'Changes vs published'}
             </p>
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-50/50 dark:bg-slate-900/30">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden arborito-surface-tile">
                 <div className="p-3 sm:p-4 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex flex-wrap gap-2 items-center">
                         <DiffBadge

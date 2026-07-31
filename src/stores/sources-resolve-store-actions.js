@@ -1,4 +1,5 @@
 import { getArboritoStore } from '../core/store-singleton.js';
+import { getPanelRef } from '../app/panel-refs.js';
 import { parseNostrTreeUrl } from '../features/nostr/api/nostr-refs.js';
 import { clearSearchIndexForTreeId } from '../features/search/api/search-index-service.js';
 import { clearLessonCacheForSource } from '../features/learning/api/lesson-content-cache.js';
@@ -349,32 +350,39 @@ export function maybeScheduleShellProductTourAfterTreeAction() {
                 } catch {
                     return;
                 }
+                /* Tour already painting — stop the retry loop. */
+                try {
+                    if (getPanelRef('product-tour')?._active) return;
+                } catch {
+                    /* ignore */
+                }
+                /*
+                 * Do not wait on treeHydrating once structure exists: soft-mount keeps
+                 * hydrating true while the trunk comic shows, which delayed the first
+                 * shell step after Cursos. Heavy growing overlay still blocks.
+                 */
                 const blocked =
                     !!(store.state.modal || store.state.modalOverlay || store.state.previewNode) ||
-                    !!(store.state.treeHydrating || store.state.treeGrowingOverlay) ||
+                    !!store.state.treeGrowingOverlay ||
                     !store.state.data ||
                     !store.state.rawGraphData;
                 if (blocked) {
-                    if (tries < 60) {
-                        shellTourAfterTreeTimer = setTimeout(attempt, 120);
+                    if (tries < 80) {
+                        shellTourAfterTreeTimer = setTimeout(attempt, 50);
                     }
                     return;
                 }
-                /* Keep shellPending until tryStart clears it when the tour paints.
-                 * Clearing earlier made first-run shell tours vanish on slow hydrate. */
                 window.dispatchEvent(
                     new CustomEvent('arborito-start-tour', {
                         detail: { source: 'shell-after-tree', force: true },
                     })
                 );
-                if (tries < 60) {
-                    shellTourAfterTreeTimer = setTimeout(attempt, 250);
+                if (tries < 40) {
+                    shellTourAfterTreeTimer = setTimeout(attempt, 120);
                 }
             };
             requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    shellTourAfterTreeTimer = setTimeout(attempt, 0);
-                });
+                shellTourAfterTreeTimer = setTimeout(attempt, 0);
             });
 
 }
@@ -418,9 +426,9 @@ export function maybePromptNoTreeAction(opts = {}) {
             if (t === 'onboarding') return;
             if (t === 'load-warning') return;
             if (t === 'dialog') return;
-            if (!store._shouldAutoOpenSourcesOnBoot()) return;
-            store.setModal({ type: 'sources' });
-            store._maybeStartSourcesPickerTour();
+            /* Never leave a blank graph: remount Arborito demo instead of relying
+             * on auto-opening Bosque (disabled on cold start). */
+            void store.ensureMinimumDemoMounted?.();
 
 }
 

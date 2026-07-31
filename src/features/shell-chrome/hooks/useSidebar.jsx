@@ -3,7 +3,7 @@ import { useShellChrome } from './useShellChrome.js';
 import { useShellMobileChromeSync } from './useShellMobileChromeSync.js';
 import { useRegisterPanel } from '../../../app/hooks/useRegisterPanel.js';
 import { getPanelRef } from '../../../app/panel-refs.js';
-import { curriculumBaseName } from '../../version-updates/api/version-switch-logic.js';
+import { curriculumTreeDisplayName } from '../../version-updates/api/version-switch-logic.js';
 import {
     initMobileDetection,
     useDockModalChrome,
@@ -255,8 +255,14 @@ export function useSidebar() {
     mobileMenuGoBackRef.current = mobileMenuGoBack;
 
     const pushMmenuPane = useCallback(async (pane) => {
+        /* Cursos lives in the header — same dock sheet, never the Más embed shell. */
         if (pane === 'sources') {
             closeProgressWidgetIfOpenOnStore(getArboritoStore());
+            prefetchModal('sources');
+            setMobileMenuOpen(false);
+            setMobileMenuStack([]);
+            setModal({ type: 'sources', dockUi: true });
+            return;
         }
         setMmenuPaneDir('forward');
         if (pane === 'arborito-support') {
@@ -279,13 +285,12 @@ export function useSidebar() {
         if (pane === 'forum') prefetchModal('forum');
         if (pane === 'celebration') prefetchModal('celebration-prefs');
         if (pane === 'a11y') prefetchModal('accessibility-prefs');
-        if (pane === 'sources') prefetchModal('sources');
         if (pane === 'language') {
             setMobileMenuStack((s) => normalizeMenuStack([...s, 'language']));
         } else {
             setMobileMenuStack([pane]);
         }
-    }, []);
+    }, [setModal]);
     pushMmenuPaneRef.current = pushMmenuPane;
 
     const drillMobileMoreAbout = useCallback((tab = 'manifesto') => {
@@ -448,6 +453,7 @@ export function useSidebar() {
             ? desktopSearchOpen
             : state.modal === 'search' || modalType === 'search',
         sageActive: state.modal === 'sage' || modalType === 'sage',
+        sourcesActive: state.modal === 'sources' || modalType === 'sources',
         arcadeActive: state.modal === 'arcade' || modalType === 'arcade',
         homeActive:
             state.viewMode === 'explore' && !state.modal && !lessonOpen && !isMobileMenuOpen,
@@ -457,7 +463,7 @@ export function useSidebar() {
         lang: state.lang,
         theme: state.theme,
         showWebDownload: shouldShowWebDownloadUi(),
-        treeName: curriculumBaseName(ui) || ui.sourcesActiveTreeFallback || 'Tree',
+        treeName: curriculumTreeDisplayName(ui) || ui.sourcesActiveTreeFallback || 'Tree',
         forumNavEnabled: shell.forumNavEnabled !== false,
     };
 

@@ -15,6 +15,7 @@ export function modalCtaConfirm(tone = 'emerald') {
         indigo: 'arborito-cta-indigo',
         sky: 'arborito-cta-sky',
         amber: 'arborito-cta-amber',
+        brown: 'arborito-cta-brown',
         rose: 'arborito-cta-rose',
         red: 'arborito-cta-red',
         slate: 'arborito-cta-slate',

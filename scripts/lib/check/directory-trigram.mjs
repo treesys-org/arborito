@@ -49,6 +49,7 @@ check('trigram search does not AND #app on relay', !/'#app':\s*\[TAG_APP_VALUE\]
 check('trigram search checks app tag client-side', /eventHasArboritoAppTag/.test(directoryJs));
 check('search falls back to crawl when thin', /_traverseGlobalDirectoryEntries/.test(directoryJs));
 check('live crawl pages with until', /until/.test(directoryJs) && /DIRECTORY_CLIENT_CRAWL_MAX_EVENTS/.test(directoryJs));
+check('live crawl uses per-relay until', /untilByRelay/.test(directoryJs) && /_queryRelays/.test(directoryJs));
 check('on-demand search (no live subscribe stub)', !/startDirectoryLiveSubscribe/.test(directoryJs));
 
 check('shard files removed', !readFileSync(join(root, 'package.json'), 'utf8').includes('directory-catalog:build'));

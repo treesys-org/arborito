@@ -20,7 +20,7 @@ import { QuizSessionSummary } from './QuizChallenge.jsx';
 import { LessonHeader } from './LessonHeader.jsx';
 import { LessonMediaConsent } from './LessonMediaConsent.jsx';
 import { LessonSyncHintBanner } from './LessonSyncHintBanner.jsx';
-import { buildConstructEditorSeed } from '../../editor/index.js';
+import { buildConstructEditorSeed } from '../../editor/api/logic/lesson-editor-dom.js';
 import { isElectronDesktop } from '../api/electron-bridge.js';
 import {
     dismissLessonSyncHint,
@@ -55,8 +55,7 @@ const ASIDE_CLASSES = [
     'max-h-[100dvh]',
     'min-h-0',
     'rounded-none',
-    'bg-[#f8fafc]',
-    'dark:bg-[#0c1222]',
+    'arborito-surface-panel',
 ].join(' ');
 
 function getBookmarkMeta(getBookmark, node, activeSectionIndex, toc, ui) {

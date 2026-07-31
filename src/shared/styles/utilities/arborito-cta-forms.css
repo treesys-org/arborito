@@ -111,12 +111,12 @@
  * Desktop falls back to `fade-fast` (zoom/fade) like sources/search/centered modals.
  */
 .arborito-dock-modal-enter {
-    animation: arboritoDockModalFade 0.22s ease-out both;
+    animation: arboritoDockModalFade 0.2s ease-out both;
     will-change: opacity;
 }
 @media (max-width: 767px) {
     .arborito-dock-modal-enter {
-        animation: arboritoDockModalIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+        animation: arboritoDockModalIn 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
         will-change: transform, opacity;
     }
 }
@@ -247,10 +247,28 @@
  *   - rose   : danger / delete-with-confirm
  */
 
+/*
+ * Consolidated CTAs — beat foundation `button { color: inherit }` and any
+ * -webkit-text-fill from parents so labels (Añadir, etc.) stay readable.
+ */
+.arborito-cta-emerald,
+.arborito-cta-slate,
+.arborito-cta-amber,
+.arborito-cta-brown,
+.arborito-cta-rose,
+.arborito-cta-purple,
+.arborito-cta-blue,
+.arborito-cta-green,
+.arborito-cta-red,
+.arborito-cta-sky,
+.arborito-cta-indigo {
+    transition: background-color 150ms;
+    -webkit-text-fill-color: currentColor;
+}
+
 .arborito-cta-emerald {
     background-color: var(--arborito-cta-emerald-bg);
-    color: var(--arborito-cta-emerald-fg);
-    transition: background-color 150ms;
+    color: var(--arborito-cta-emerald-fg, #fff);
 }
 .arborito-cta-emerald:hover:not(:disabled) {
     background-color: var(--arborito-cta-emerald-bg-hover);
@@ -262,8 +280,7 @@
 
 .arborito-cta-slate {
     background-color: var(--arborito-cta-slate-bg);
-    color: var(--arborito-cta-slate-fg);
-    transition: background-color 150ms;
+    color: var(--arborito-cta-slate-fg, #fff);
 }
 .arborito-cta-slate:hover:not(:disabled) {
     background-color: var(--arborito-cta-slate-bg-hover);
@@ -275,8 +292,7 @@
 
 .arborito-cta-amber {
     background-color: var(--arborito-cta-amber-bg);
-    color: var(--arborito-cta-amber-fg);
-    transition: background-color 150ms;
+    color: var(--arborito-cta-amber-fg, #fff);
 }
 .arborito-cta-amber:hover:not(:disabled) {
     background-color: var(--arborito-cta-amber-bg-hover);
@@ -286,10 +302,21 @@
     cursor: not-allowed;
 }
 
+.arborito-cta-brown {
+    background-color: var(--arborito-cta-brown-bg);
+    color: var(--arborito-cta-brown-fg, #fff);
+}
+.arborito-cta-brown:hover:not(:disabled) {
+    background-color: var(--arborito-cta-brown-bg-hover);
+}
+.arborito-cta-brown:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 .arborito-cta-rose {
     background-color: var(--arborito-cta-rose-bg);
-    color: var(--arborito-cta-rose-fg);
-    transition: background-color 150ms;
+    color: var(--arborito-cta-rose-fg, #fff);
 }
 .arborito-cta-rose:hover:not(:disabled) {
     background-color: var(--arborito-cta-rose-bg-hover);
@@ -301,8 +328,7 @@
 
 .arborito-cta-purple {
     background-color: var(--arborito-cta-purple-bg);
-    color: var(--arborito-cta-purple-fg);
-    transition: background-color 150ms;
+    color: var(--arborito-cta-purple-fg, #fff);
 }
 .arborito-cta-purple:hover:not(:disabled) {
     background-color: var(--arborito-cta-purple-bg-hover);
@@ -314,8 +340,7 @@
 
 .arborito-cta-blue {
     background-color: var(--arborito-cta-blue-bg);
-    color: var(--arborito-cta-blue-fg);
-    transition: background-color 150ms;
+    color: var(--arborito-cta-blue-fg, #fff);
 }
 .arborito-cta-blue:hover:not(:disabled) {
     background-color: var(--arborito-cta-blue-bg-hover);
@@ -327,8 +352,7 @@
 
 .arborito-cta-green {
     background-color: var(--arborito-cta-green-bg);
-    color: var(--arborito-cta-green-fg);
-    transition: background-color 150ms;
+    color: var(--arborito-cta-green-fg, #fff);
 }
 .arborito-cta-green:hover:not(:disabled) {
     background-color: var(--arborito-cta-green-bg-hover);
@@ -340,8 +364,7 @@
 
 .arborito-cta-red {
     background-color: var(--arborito-cta-red-bg);
-    color: var(--arborito-cta-red-fg);
-    transition: background-color 150ms;
+    color: var(--arborito-cta-red-fg, #fff);
 }
 .arborito-cta-red:hover:not(:disabled) {
     background-color: var(--arborito-cta-red-bg-hover);
@@ -353,8 +376,7 @@
 
 .arborito-cta-sky {
     background-color: var(--arborito-cta-sky-bg);
-    color: var(--arborito-cta-sky-fg);
-    transition: background-color 150ms;
+    color: var(--arborito-cta-sky-fg, #fff);
 }
 .arborito-cta-sky:hover:not(:disabled) {
     background-color: var(--arborito-cta-sky-bg-hover);
@@ -366,8 +388,7 @@
 
 .arborito-cta-indigo {
     background-color: var(--arborito-cta-indigo-bg);
-    color: var(--arborito-cta-indigo-fg);
-    transition: background-color 150ms;
+    color: var(--arborito-cta-indigo-fg, #fff);
 }
 .arborito-cta-indigo:hover:not(:disabled) {
     background-color: var(--arborito-cta-indigo-bg-hover);
@@ -380,7 +401,8 @@
 /** Quiz editor/player — selected chip / cloze word / step dot active state. */
 .arborito-quiz-chip--active {
     background-color: var(--arborito-cta-indigo-bg);
-    color: var(--arborito-cta-indigo-fg);
+    color: var(--arborito-cta-indigo-fg, #fff);
+    -webkit-text-fill-color: currentColor;
 }
 
 /**

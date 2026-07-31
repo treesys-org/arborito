@@ -298,9 +298,14 @@ export const directoryMixin = {
         }
     },
 
-    _publishedBundleKeysFromHeaderEvents(evs) {
-        /** @type {Set<string>} */
-        const keys = new Set();
+    /**
+     * Newest bundle header per universe wins across lagging relays.
+     * An older live header must not keep a revoked playlist/course “published”.
+     * @returns {{ live: Set<string>, known: Set<string> }}
+     */
+    _publishedBundleStateFromHeaderEvents(evs) {
+        /** @type {Map<string, { rank: string, live: boolean }>} */
+        const best = new Map();
         for (const ev of evs || []) {
             const arb = (ev.tags || []).find((t) => t && t[0] === 'arb' && t[1] === 'root' && t.length >= 4);
             if (!arb) continue;
@@ -310,49 +315,109 @@ export const directoryMixin = {
             } catch {
                 continue;
             }
-            if (!meta || typeof meta !== 'object' || meta.revoked) continue;
-            if (!(Math.max(0, Number(meta.chunkCount) || 0) > 0)) continue;
+            if (!meta || typeof meta !== 'object') continue;
             const ownerPub = String(arb[2] || '').trim();
             const universeId = String(arb[3] || '').trim();
-            if (ownerPub && universeId) keys.add(`${ownerPub}/${universeId}`);
+            if (!ownerPub || !universeId) continue;
+            const key = `${ownerPub}/${universeId}`;
+            const updated = String(meta.updatedAt || '').trim();
+            const created = String(Math.max(0, Number(ev.created_at) || 0)).padStart(16, '0');
+            const rank = `${updated}\0${created}\0${String(ev.id || '')}`;
+            const prev = best.get(key);
+            if (prev && rank <= prev.rank) continue;
+            const live =
+                !meta.revoked && Math.max(0, Number(meta.chunkCount) || 0) > 0;
+            best.set(key, { rank, live });
         }
-        return keys;
+        /** @type {Set<string>} */
+        const live = new Set();
+        /** @type {Set<string>} */
+        const known = new Set();
+        for (const [key, state] of best) {
+            known.add(key);
+            if (state.live) live.add(key);
+        }
+        return { live, known };
+    },
+
+    _publishedBundleKeysFromHeaderEvents(evs) {
+        return this._publishedBundleStateFromHeaderEvents(evs).live;
     },
 
     async _filterDirectoryRowsWithPublishedBundle(rows) {
         if (!Array.isArray(rows) || !rows.length) return [];
-        const published = await this._publishedBundleKeysCached();
-        if (!published.size) return rows;
-        const filtered = rows.filter((r) =>
-            published.has(`${String(r.ownerPub || '')}/${String(r.universeId || '')}`)
-        );
-        /* Incomplete relay index must not hide the whole catalog, keep rows when
-         * the filter would remove most listings (common on slow / partial relays). */
-        if (!filtered.length) return rows;
-        if (filtered.length < rows.length * 0.35) return rows;
-        return filtered;
+        const { live, known } = await this._publishedBundleStateCached();
+        /* No header intel → keep catalog (slow / empty relays). At scale the
+         * header sample is tiny vs millions of listings — unknown must stay. */
+        if (!known.size) return rows;
+        return rows.filter((r) => {
+            const k = `${String(r.ownerPub || '')}/${String(r.universeId || '')}`;
+            if (!known.has(k)) return true;
+            /* Newest header is revoked / empty → drop (dead playlist or course). */
+            return live.has(k);
+        });
+    },
+
+    async _publishedBundleStateCached() {
+        const now = Date.now();
+        const ttl = 10 * 60 * 1000;
+        if (
+            this._bundleStateCache?.live instanceof Set &&
+            this._bundleStateCache?.known instanceof Set &&
+            now - (this._bundleKeysCacheAt || 0) < ttl
+        ) {
+            return this._bundleStateCache;
+        }
+        const hdrEvs = await this._query({ kinds: [KIND_BUNDLE_HEADER], limit: 400 }, QUERY_MS_LONG);
+        this._bundleStateCache = this._publishedBundleStateFromHeaderEvents(hdrEvs);
+        this._bundleKeysCache = this._bundleStateCache.live;
+        this._bundleKeysCacheAt = now;
+        return this._bundleStateCache;
     },
 
     async _publishedBundleKeysCached() {
-        const now = Date.now();
-        const ttl = 10 * 60 * 1000;
-        if (this._bundleKeysCache instanceof Set && now - (this._bundleKeysCacheAt || 0) < ttl) {
-            return this._bundleKeysCache;
-        }
-        const hdrEvs = await this._query({ kinds: [KIND_BUNDLE_HEADER], limit: 400 }, QUERY_MS_LONG);
-        this._bundleKeysCache = this._publishedBundleKeysFromHeaderEvents(hdrEvs);
-        this._bundleKeysCacheAt = now;
-        return this._bundleKeysCache;
+        const state = await this._publishedBundleStateCached();
+        return state.live;
+    },
+
+    /** True when the newest known bundle header for this listing is revoked/empty. */
+    _isKnownDeadDirectoryKey(ownerPub, universeId) {
+        const key = `${String(ownerPub || '').trim()}/${String(universeId || '').trim()}`;
+        if (!key || key === '/') return false;
+        const cache = this._bundleStateCache;
+        if (!(cache?.known instanceof Set) || !cache.known.size) return false;
+        return cache.known.has(key) && !(cache.live instanceof Set && cache.live.has(key));
     },
 
     async listGlobalTreeDirectoryEntriesOnce(opts = {}) {
         const limit = Math.max(1, Math.min(800, Number(opts.limit) || 120));
         const q = String(opts.query || '').trim();
         const qLower = q.toLowerCase();
+        /* Warm header intel before crawl/partial paint so revoked ghosts never flash. */
+        try {
+            await this._publishedBundleStateCached();
+        } catch {
+            /* incomplete relays — crawl still runs */
+        }
+        const onPartial = typeof opts.onPartial === 'function' ? opts.onPartial : null;
+        const emitPartial = (rows) => {
+            if (!onPartial || !rows.length) return;
+            try {
+                onPartial(rows.slice(0, limit));
+            } catch {
+                /* UI partial paint must not abort the listing. */
+            }
+        };
         const indexed = await this._mergeDirectoryRowsFromSnapshots(limit, qLower);
+        let merged = indexed.filter(
+            (r) => !this._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId)
+        );
         /** @type {Set<string>} */
-        const seen = new Set(indexed.map((r) => directoryRowKey(r.ownerPub, r.universeId)));
-        let merged = [...indexed];
+        const seen = new Set(
+            merged.map((r) => directoryRowKey(r.ownerPub, r.universeId)).filter(Boolean)
+        );
+        /* Snapshot index is the fast path — paint Discover before crawl/trigram. */
+        emitPartial(merged);
 
         if (q.length >= 3) {
             const tagRows = await this.searchGlobalDirectoryByTrigrams({
@@ -361,12 +426,14 @@ export const directoryMixin = {
                 excludeKeys: seen,
             });
             for (const r of tagRows) {
+                if (this._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId)) continue;
                 const k = directoryRowKey(r.ownerPub, r.universeId);
                 if (!seen.has(k)) {
                     seen.add(k);
                     merged.push(r);
                 }
             }
+            emitPartial(merged);
             /* Some relays ignore or fail multi-tag filters (`#t` + `#app`).
              * When trigram search is thin, fall back to the bounded crawl and
              * match titles client-side so listings do not vanish on search. */
@@ -376,18 +443,53 @@ export const directoryMixin = {
                     limit: need,
                     query: q,
                     excludeKeys: seen,
+                    onPartial: (pageRows) => {
+                        for (const r of pageRows) {
+                            if (this._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId)) continue;
+                            const k = directoryRowKey(r.ownerPub, r.universeId);
+                            if (seen.has(k)) continue;
+                            seen.add(k);
+                            merged.push(r);
+                        }
+                        emitPartial(merged);
+                    },
                 });
                 for (const r of rest) {
+                    if (this._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId)) continue;
                     const k = directoryRowKey(r.ownerPub, r.universeId);
                     if (seen.has(k)) continue;
                     seen.add(k);
                     merged.push(r);
                 }
+                emitPartial(merged);
             }
         } else if (merged.length < limit) {
             const need = limit - merged.length;
-            const rest = await this._traverseGlobalDirectoryEntries({ limit: need, query: qLower, excludeKeys: seen });
-            merged = [...merged, ...rest];
+            const rest = await this._traverseGlobalDirectoryEntries({
+                limit: need,
+                query: qLower,
+                excludeKeys: seen,
+                onPartial: (pageRows) => {
+                    const batch = [...merged];
+                    for (const r of pageRows) {
+                        if (this._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId)) continue;
+                        const k = directoryRowKey(r.ownerPub, r.universeId);
+                        if (seen.has(k)) continue;
+                        seen.add(k);
+                        batch.push(r);
+                    }
+                    merged = batch;
+                    emitPartial(merged);
+                },
+            });
+            for (const r of rest) {
+                if (this._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId)) continue;
+                const k = directoryRowKey(r.ownerPub, r.universeId);
+                if (seen.has(k)) continue;
+                seen.add(k);
+                merged.push(r);
+            }
+            emitPartial(merged);
         }
 
         return merged.slice(0, limit);
@@ -559,7 +661,8 @@ export const directoryMixin = {
                 : '';
             const description = String(meta.description || '').trim();
             const authorName = String(meta.authorName || '').trim();
-            const hay = `${title}\n${titlesBlob}\n${description}\n${authorName}`.toLowerCase();
+            const shareCode = String(meta.shareCode || '').trim();
+            const hay = `${title}\n${titlesBlob}\n${description}\n${authorName}\n${shareCode}`.toLowerCase();
             return hay.includes(q);
         };
         const seen = new Set();
@@ -669,63 +772,184 @@ export const directoryMixin = {
      * Cursor-paginated live crawl (same idea as `directory-index-aggregator`).
      * Relays apply `limit` to *events*, not unique courses: delist/republish
      * churn on kind 30100 would otherwise hide live rows within days.
+     *
+     * Scale invariant (millions of listings): never per-row relay revoke checks.
+     * Budget is `DIRECTORY_CLIENT_CRAWL_MAX_EVENTS` + age cap. Deep catalog is
+     * snapshot index + `#t` / share-code search — not an unbounded client crawl.
+     * Known-dead (newest header revoked) is an O(1) set lookup from a small
+     * header sample; unknown rows stay eligible (incomplete intel must not
+     * empty Discover).
+     *
+     * Pagination is **per relay**: a shared `until` advances to the oldest event
+     * across peers, and a sparse relay (wide time span in one page) would skip
+     * denser peers' mid-window rows (live course only mirrored on one relay).
      */
     async _traverseGlobalDirectoryEntries(opts) {
         const limit = Math.max(1, Math.min(800, Number(opts.limit) || 120));
         const q = String(opts.query || '').trim().toLowerCase();
         const excludeKeys = opts.excludeKeys instanceof Set ? opts.excludeKeys : new Set();
+        const onPartial = typeof opts.onPartial === 'function' ? opts.onPartial : null;
         const pageSize = Math.max(50, Math.min(500, Number(DIRECTORY_CLIENT_CRAWL_PAGE_SIZE) || 200));
         const maxEvents = Math.max(pageSize, Math.min(20000, Number(DIRECTORY_CLIENT_CRAWL_MAX_EVENTS) || 3000));
         const maxAgeSec = Math.max(86400, Number(DIRECTORY_CLIENT_CRAWL_MAX_AGE_SEC) || 180 * 86400);
         const oldestAllowed = Math.floor(Date.now() / 1000) - maxAgeSec;
+        const nowUntil = Math.floor(Date.now() / 1000) + 60;
+
+        const relays =
+            typeof this._relaysFastFirst === 'function'
+                ? this._relaysFastFirst()
+                : typeof this._relays === 'function'
+                  ? this._relays()
+                  : [];
+        if (!relays.length) return [];
+
+        /** @type {Map<string, number>} */
+        const untilByRelay = new Map(relays.map((r) => [r, nowUntil]));
+        /** @type {Set<string>} */
+        const exhausted = new Set();
 
         /** @type {Map<string, { ev: import('core.js').Event, body: object }>} */
         const best = new Map();
-        let until = Math.floor(Date.now() / 1000) + 60;
+        /** @type {Set<string>} */
+        const emittedKeys = new Set();
         let fetched = 0;
         let pages = 0;
         let stagnantLivePages = 0;
         let prevLiveUnique = 0;
         const maxPages = Math.ceil(maxEvents / pageSize) + 2;
 
-        while (fetched < maxEvents && pages < maxPages) {
-            pages += 1;
-            const evs = await this._query(
-                {
-                    kinds: [KIND_TREE_DIRECTORY],
-                    until,
-                    limit: Math.min(pageSize, maxEvents - fetched),
-                },
-                QUERY_MS_LONG
+        const emitNewRows = async () => {
+            if (!onPartial) return;
+            const fresh = [];
+            const rows = [...best.values()].sort(
+                (a, b) => (Number(b.ev.created_at) || 0) - (Number(a.ev.created_at) || 0)
             );
-            if (!Array.isArray(evs) || !evs.length) break;
-            fetched += evs.length;
-            let oldest = until;
-            for (const ev of evs) {
-                const ca = Number(ev.created_at) || 0;
-                if (ca && ca < oldest) oldest = ca;
+            for (const { ev, body } of rows) {
+                if (fresh.length + emittedKeys.size >= limit) break;
+                const key = directoryRowKey(String(body?.ownerPub || ''), String(body?.universeId || ''));
+                if (!key || excludeKeys.has(key) || emittedKeys.has(key)) continue;
+                if (this._isKnownDeadDirectoryKey(body?.ownerPub, body?.universeId)) continue;
+                const row = await this._directoryRowFromVerifiedEvent(ev, body);
+                if (!row) continue;
+                const rk = directoryRowKey(row.ownerPub, row.universeId);
+                if (excludeKeys.has(rk) || emittedKeys.has(rk)) continue;
+                if (q && !catalogRowMatchesQuery(q, row)) continue;
+                emittedKeys.add(rk);
+                fresh.push(row);
             }
-            for (const item of this._latestTreeDirectoryRowsFromEvents(evs)) {
-                const key = `${String(item.body.ownerPub || '')}/${String(item.body.universeId || '')}`;
-                const prev = best.get(key);
-                const ca = Number(item.ev.created_at) || 0;
-                if (!prev || ca > (Number(prev.ev.created_at) || 0)) best.set(key, item);
+            if (fresh.length) {
+                try {
+                    onPartial(fresh);
+                } catch {
+                    /* UI partial paint must not abort the crawl. */
+                }
             }
+        };
+
+        const countLive = () => {
             let liveUnique = 0;
+            let knownDeadUnique = 0;
             for (const { body } of best.values()) {
-                if (body && body.delisted !== true) liveUnique += 1;
+                if (!body || body.delisted === true) continue;
+                if (this._isKnownDeadDirectoryKey(body.ownerPub, body.universeId)) {
+                    knownDeadUnique += 1;
+                    continue;
+                }
+                liveUnique += 1;
             }
-            /* Enough unique live candidates for this request — stop paging. */
-            if (!q && liveUnique >= limit) break;
-            /* Catalog is small: further pages are mostly delist tombstones. */
-            if (liveUnique <= prevLiveUnique) stagnantLivePages += 1;
-            else stagnantLivePages = 0;
+            return { liveUnique, knownDeadUnique };
+        };
+
+        while (fetched < maxEvents && pages < maxPages && exhausted.size < relays.length) {
+            pages += 1;
+            const active = relays.filter((r) => !exhausted.has(r));
+            if (!active.length) break;
+
+            const budget = Math.min(pageSize, maxEvents - fetched);
+            if (budget <= 0) break;
+
+            const pageResults = await Promise.all(
+                active.map(async (relay) => {
+                    const until = untilByRelay.get(relay) || nowUntil;
+                    let evs = [];
+                    try {
+                        if (typeof this._queryRelays === 'function') {
+                            evs = await this._queryRelays(
+                                [relay],
+                                { kinds: [KIND_TREE_DIRECTORY], until, limit: budget },
+                                QUERY_MS_LONG
+                            );
+                        } else {
+                            evs = await this._query(
+                                { kinds: [KIND_TREE_DIRECTORY], until, limit: budget },
+                                QUERY_MS_LONG
+                            );
+                        }
+                    } catch {
+                        evs = [];
+                    }
+                    return { relay, until, evs: Array.isArray(evs) ? evs : [] };
+                })
+            );
+
+            /** @type {Set<string>} */
+            const pageIds = new Set();
+            for (const { relay, until, evs } of pageResults) {
+                if (!evs.length || evs.length < budget) exhausted.add(relay);
+                let oldest = until;
+                for (const ev of evs) {
+                    const ca = Number(ev.created_at) || 0;
+                    if (ca && ca < oldest) oldest = ca;
+                    const id = String(ev?.id || '');
+                    if (id && !pageIds.has(id)) {
+                        pageIds.add(id);
+                        fetched += 1;
+                    }
+                }
+                if (oldest <= oldestAllowed) exhausted.add(relay);
+                if (evs.length) untilByRelay.set(relay, Math.max(oldestAllowed, oldest - 1));
+                for (const item of this._latestTreeDirectoryRowsFromEvents(evs)) {
+                    const key = `${String(item.body.ownerPub || '')}/${String(item.body.universeId || '')}`;
+                    const prev = best.get(key);
+                    const ca = Number(item.ev.created_at) || 0;
+                    if (!prev || ca > (Number(prev.ev.created_at) || 0)) best.set(key, item);
+                }
+            }
+
+            const { liveUnique, knownDeadUnique } = countLive();
+            await emitNewRows();
+
+            /* Top-N filled: stop only when no relay can still return something
+             * newer than the Nth row (per-relay until past that cutoff). */
+            if (!q && liveUnique >= limit) {
+                const acceptedCas = [...best.values()]
+                    .filter(({ body }) => {
+                        if (!body || body.delisted === true) return false;
+                        return !this._isKnownDeadDirectoryKey(body.ownerPub, body.universeId);
+                    })
+                    .map(({ ev }) => Number(ev.created_at) || 0)
+                    .sort((a, b) => b - a);
+                const cutoff = acceptedCas[Math.min(limit, acceptedCas.length) - 1] || 0;
+                let anyCanImprove = false;
+                for (const relay of relays) {
+                    if (exhausted.has(relay)) continue;
+                    if ((untilByRelay.get(relay) || 0) >= cutoff) {
+                        anyCanImprove = true;
+                        break;
+                    }
+                }
+                if (!anyCanImprove) break;
+            }
+
+            if (liveUnique <= prevLiveUnique) {
+                const chewingGhosts = knownDeadUnique > 0 && liveUnique < limit;
+                if (!chewingGhosts) stagnantLivePages += 1;
+                else stagnantLivePages = 0;
+            } else {
+                stagnantLivePages = 0;
+            }
             prevLiveUnique = liveUnique;
             if (pages >= 2 && stagnantLivePages >= 2) break;
-            if (oldest >= until) break;
-            if (oldest <= oldestAllowed) break;
-            if (evs.length < pageSize) break;
-            until = oldest - 1;
         }
 
         const out = [];
@@ -735,6 +959,7 @@ export const directoryMixin = {
         );
         for (const { ev, body } of rows) {
             if (out.length >= limit) break;
+            if (this._isKnownDeadDirectoryKey(body?.ownerPub, body?.universeId)) continue;
             const row = await this._directoryRowFromVerifiedEvent(ev, body);
             if (!row) continue;
             const key = directoryRowKey(row.ownerPub, row.universeId);

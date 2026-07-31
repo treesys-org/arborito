@@ -1,7 +1,7 @@
 import { useArcade } from '../hooks/useArcade.js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Callout } from '../../../shared/ui/Callout.jsx';
-import { LoadingBrand } from '../../../shared/ui/Loading.jsx';
+import { ListRowEnter, ListRowSkeleton } from '../../../shared/ui/ListRowEnter.jsx';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import {
     collectStaticArcadePickerIds,
@@ -234,12 +234,13 @@ export function ArcadeSetup({
     if (isPreparingContext) {
         return (
             <div
-                className="flex flex-1 flex-col items-center justify-center gap-3 min-h-0"
+                className="flex flex-1 flex-col min-h-0 px-1 py-2"
                 role="status"
                 aria-live="polite"
                 aria-busy="true"
+                aria-label={ui.loading || 'Loading…'}
             >
-                <LoadingBrand label="" size="boot" tone="sage" extraClass="arborito-loading-brand--compact" />
+                <ListRowSkeleton count={4} variant="compact" />
             </div>
         );
     }
@@ -308,7 +309,7 @@ export function ArcadeSetup({
     };
 
     const renderPickerRows = () =>
-        visibleNodes.map((n) => {
+        visibleNodes.map((n, idx) => {
             const isSelected = String(selectedNodeId || '') === String(n.id);
             const isLeaf = n.type === 'leaf';
             const isExam = n.type === 'exam';
@@ -333,8 +334,8 @@ export function ArcadeSetup({
             const rowClass = ['arborito-picker-row', isSelected ? 'is-selected' : ''].filter(Boolean).join(' ');
 
             return (
+                <ListRowEnter key={n.id} index={idx}>
                 <div
-                    key={n.id}
                     className="arborito-arcade-setup__row"
                     style={{ paddingLeft: `${Math.min(n.depth, 12) * 0.85 + 0.35}rem` }}
                     ref={isSelected ? selectedRowRef : undefined}
@@ -379,6 +380,7 @@ export function ArcadeSetup({
                         {isSelected ? <span className="ml-auto font-bold">✔</span> : null}
                     </button>
                 </div>
+                </ListRowEnter>
             );
         });
 
@@ -483,17 +485,16 @@ export function ArcadeSetup({
                         <div className="arborito-picker-panel arborito-arcade-setup__picker custom-scrollbar">
                             {staticPickerBusy && visibleNodes.length === 0 ? (
                                 <div
-                                    className="flex flex-col items-center justify-center gap-2 p-6"
+                                    className="flex flex-col gap-2 p-3"
                                     role="status"
                                     aria-live="polite"
                                     aria-busy="true"
+                                    aria-label={
+                                        ui.arcadeStaticPickerLoading ||
+                                        'Looking for lessons with questionnaires…'
+                                    }
                                 >
-                                    <LoadingBrand
-                                        label=""
-                                        size="boot"
-                                        tone="sage"
-                                        extraClass="arborito-loading-brand--compact"
-                                    />
+                                    <ListRowSkeleton count={3} variant="compact" />
                                     <p className="text-xs arborito-text-muted text-center m-0">
                                         {ui.arcadeStaticPickerLoading ||
                                             'Looking for lessons with questionnaires…'}

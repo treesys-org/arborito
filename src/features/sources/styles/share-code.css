@@ -32,18 +32,13 @@ button.arborito-share-code {
     margin-top: 0.4rem;
     padding: 0.3rem 0.5rem;
     border-radius: 0.5rem;
-    border: 1px dashed rgb(148 163 184);
-    background: rgb(248 250 252);
+    border: 1px dashed var(--arborito-theme-tile-border);
+    background: var(--arborito-theme-tile-bg);
     font-size: 0.6875rem;
     line-height: 1.2;
     text-align: left;
     cursor: pointer;
     transition: border-color 0.15s ease, background-color 0.15s ease;
-}
-
-html.dark .arborito-share-code {
-    border-color: rgb(71 85 105);
-    background: rgb(15 23 42 / 0.45);
 }
 
 .arborito-share-code--loading {

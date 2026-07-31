@@ -10,7 +10,6 @@ import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import { SageModeToggle, SageMobPanel, SageDeskChatShell } from './components/SageLayout.jsx';
 import { SageChatOverlay, SageVoiceConsentOverlay } from './SageScreens.jsx';
-import { sageHideDismissButton } from '../api/modals/logic/sage-ui-helpers.js';
 import { SageMessageBubble } from './components/sage/SageMessageBubble.jsx';
 import { SageInputBar, SageSendIcon, SageStopIcon } from './components/sage/SageInputBar.jsx';
 import { fillSageAiConsentTokens } from '../api/ai-models.js';
@@ -70,7 +69,6 @@ export function SageChat({
     sageEnterAnim,
     isAi,
     constructionMode = false,
-    sageLessonContext = false,
     onSwitchMode,
     onClose,
     onOpenSettings,
@@ -82,11 +80,8 @@ export function SageChat({
     const learning = useLearning();
     const sageAi = useSageAi();
     const {
-        dismissModal,
         setModal,
-        notify,
         update,
-        setViewMode,
         selectedNode,
         previewNode,
         modal: learningModal,
@@ -96,7 +91,6 @@ export function SageChat({
     } = learning;
 
     const mob = shouldShowMobileUI();
-    const hideDismiss = sageHideDismissButton();
     const chatAreaRef = useRef(null);
     const internalInputRef = useRef(null);
     const localInputRef = inputRef ?? internalInputRef;
@@ -304,8 +298,8 @@ export function SageChat({
                     </button>
                 </div>
             }
-            showBack={!hideDismiss}
-            showClose={!hideDismiss}
+            showBack
+            showClose
             backTagClass="btn-close"
             tagClass="btn-close"
             onClose={onClose}

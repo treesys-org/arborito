@@ -4,14 +4,14 @@
   "tourNext": "Siguiente",
   "tourPrev": "Atrás",
   "tourSkip": "Saltar recorrido",
-  "tourSourcesPickerBody": "Toca Arborito demo para abrir el curso de ejemplo. El recorrido sigue en el mapa.",
-  "tourSourcesPickerTitle": "Abre un curso",
+  "tourSourcesPickerBody": "Abre el tutorial de ejemplo en Explorar. El recorrido sigue en el mapa.",
+  "tourSourcesPickerTitle": "Elige un curso",
   "tourStepIndicator": "Paso {n} de {total}",
   "uiTourSteps": [
     {
       "target": "graph-root",
       "title": "La raíz del árbol",
-      "body": "Aquí empieza tu rama 🌳 — el trébol abajo es la raíz. Las carpetas 🗂️, lecciones 📄 y exámenes ⚔️ crecen hacia arriba: tocá una para entrar."
+      "body": "Abajo está la raíz 🌳 de tu curso. Carpetas, lecciones y exámenes crecen hacia arriba: toca una para entrar."
     },
     {
       "target": "home",
@@ -20,8 +20,8 @@
     },
     {
       "target": "sources",
-      "title": "Catálogo de cursos",
-      "body": "Vuelve aquí para abrir otro curso o un árbol combinado cuando quieras estudiar otro tema."
+      "title": "Cursos",
+      "body": "Mis cursos es tu lista; Explorar es el catálogo. También puedes crear o importar."
     },
     {
       "target": "arcade",
@@ -31,7 +31,7 @@
     {
       "target": "construct",
       "title": "Modo Construcción",
-      "body": "Actívalo para crear carpetas y lecciones, o reorganizar el árbol en árboles editables."
+      "body": "Actívalo para crear carpetas y lecciones, o reorganizar el árbol en cursos que puedas editar."
     },
     {
       "target": "search",
@@ -54,6 +54,11 @@
       "target": "construct",
       "title": "Modo construcción",
       "body": "El casco ⛑️ está activo: puedes editar el curso. Toca una carpeta o lección del mapa para abrir su panel. Pulsa otra vez el casco para volver al modo estudio."
+    },
+    {
+      "target": "graph-root",
+      "title": "Toca un nodo del mapa",
+      "body": "Elige un módulo (carpeta) para añadir lecciones dentro, o una hoja para abrir el editor. Clic derecho o mantén pulsado para propiedades, mover y borrar."
     },
     {
       "target": "con-undo",
@@ -103,6 +108,11 @@
       "body": "Estás editando el curso. La flecha ← del dock te devuelve al modo estudio. Toca una carpeta o lección del mapa para editarla."
     },
     {
+      "target": "graph-root",
+      "title": "Toca un nodo del mapa",
+      "body": "Elige un módulo para añadir lecciones dentro, o una hoja para abrir el editor. Mantén pulsado para propiedades, mover y borrar."
+    },
+    {
       "target": "con-undo",
       "title": "Deshacer cambios",
       "body": "El reloj 🕒 abre el historial: puedes volver atrás o adelante en los cambios del mapa."
@@ -137,7 +147,7 @@
     {
       "target": "graph-root",
       "title": "La raíz del árbol",
-      "body": "Este círculo con el logo es la raíz 🌳 de tu rama (abajo en el tronco). Las carpetas y lecciones están arriba: tocá una para entrar."
+      "body": "Abajo está la raíz 🌳 de tu curso. Carpetas y lecciones crecen hacia arriba: toca una para entrar."
     },
     {
       "target": "mob-home",
@@ -147,12 +157,12 @@
     {
       "target": "mob-search",
       "title": "Buscar",
-      "body": "Encuentra lecciones por nombre sin recorrer todo el bosque."
+      "body": "Encuentra lecciones por nombre dentro del curso que tienes abierto."
     },
     {
       "target": "mob-sage",
       "title": "Sage, tu guía",
-      "body": "El búho abre atajos y la guía «¿Qué es Arborito?». Sin IA obligatoria: solo lo escrito en tu curso."
+      "body": "El búho abre atajos y la guía «¿Qué es Arborito?». Listo para ayuda e IA."
     },
     {
       "target": "mob-arcade",
@@ -162,7 +172,7 @@
     {
       "target": "mob-more",
       "title": "Más",
-      "body": "Guía, árboles, logros, idioma y herramientas. Perfil y tema van arriba a la derecha."
+      "body": "Logros, idioma, construcción y ajustes. Cursos está arriba a la izquierda."
     }
   ],
   "uiTourStepsLessonEdit": [
@@ -200,13 +210,13 @@
   "uiTourStepsSourcesPicker": [
     {
       "target": "sources-demo-branch",
-      "title": "Elige un curso",
-      "body": "Este es el tutorial de ejemplo."
+      "title": "Tutorial de ejemplo",
+      "body": "Estás en Explorar. Abre este tutorial para seguir en el mapa."
     },
     {
       "target": "sources-trees-footer",
-      "title": "Añadir un curso",
-      "body": "Importar archivo abre un archivo desde el disco. Crear curso empieza uno nuevo en tu jardín."
+      "title": "Crear",
+      "body": "Crea un curso o playlist. Para importar un archivo, ve a Mis cursos."
     }
   ]
 }

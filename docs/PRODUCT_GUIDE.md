@@ -6,7 +6,7 @@ For code contributors: [`DEVELOPMENT.md`](DEVELOPMENT.md). For course authors: [
 
 | Metaphor (EN / ES) | Nav label today | What it is |
 |--------------------|-----------------|------------|
-| **Forest** / **Bosque** | **Courses** / **Cursos** | Your library: saved courses, import, publish, Discover |
+| **Forest** / **Bosque** | **Courses** / **Cursos** | Your library: **My courses**, **Explore** (Discover), import, publish |
 | **Backpack** / **Mochila** | same | Your progress: trophies, seeds, Care, lumens |
 | **Map** | same | The visual lesson tree you are studying |
 

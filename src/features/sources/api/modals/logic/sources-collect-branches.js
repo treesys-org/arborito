@@ -8,7 +8,6 @@ import {
     computeDirectoryRowState,
     directoryRowRankingPenalty,
     getRowMetricsFromMap,
-    rowKeyFromDirectory,
     shouldHideRowFromDirectory,
 } from './sources-directory-row-state.js';
 import { DEMO_BRANCH_UNIVERSE } from '../../../../../core/demo/arborito-demo-ids.js';
@@ -50,21 +49,14 @@ export function collectBranchesTabItems(ctx, ui, state, activeSource, { scope, q
     const seenPublishedTreeUrls = new Set();
     const ownPublishedTreeUrls = new Set();
     const branchesAll = store.userStore?.state?.branches || [];
+    const localBranchIds = new Set(branchesAll.map((b) => String(b?.id || '')).filter(Boolean));
     const ownPublishedCanonUrls = new Set();
-    for (const t of branchesAll) {
-        const c = canonicalNetworkTreeUrlString(String(t?.publishedNetworkUrl || '').trim());
-        if (c) ownPublishedCanonUrls.add(c);
-    }
-    const publishedBranchUrls = branchesAll
-        .map((t) => String(t?.publishedNetworkUrl || '').trim())
-        .filter(Boolean);
-    if (publishedBranchUrls.length) void ctx._ensurePublishedTreeMetrics?.(publishedBranchUrls);
-
     const localPublished = new Map();
     for (const t of branchesAll) {
         const pubUrlRaw = String(t?.publishedNetworkUrl || '').trim();
         if (!pubUrlRaw) continue;
         const canon = canonicalNetworkTreeUrlString(pubUrlRaw) || pubUrlRaw;
+        if (canon) ownPublishedCanonUrls.add(canon);
         if (!localPublished.has(canon)) {
             localPublished.set(canon, {
                 id: String(t?.id || ''),
@@ -73,6 +65,7 @@ export function collectBranchesTabItems(ctx, ui, state, activeSource, { scope, q
             });
         }
     }
+
     if (scope !== 'saved') {
         for (const t of branchesAll) {
             if (isPinnedActive(t?.id, t?.publishedNetworkUrl)) continue;
@@ -108,110 +101,116 @@ export function collectBranchesTabItems(ctx, ui, state, activeSource, { scope, q
     }
 
     const communityAll = state.communitySources || [];
+    const communityCanonUrls = new Set();
     const hasLocalDemo = branchesAll.some((b) => isBundledDemoBranchId(b?.id));
     /* Mis cursos + Explorar: incluir cursos online que el usuario añadió (saved). */
-    void ctx._ensureSavedSourcesMetrics?.(communityAll);
     for (const s0 of communityAll) {
-            if (String(s0?.contentKind || '').trim() === 'composed-tree') continue;
-            const savedBranchId = String(s0?.url || '').startsWith('branch://')
-                ? String(s0.url).slice('branch://'.length).split('/')[0]
-                : '';
-            if (savedBranchId && branchesAll.some((b) => String(b?.id) === savedBranchId)) continue;
-            /* Bundled demo is the local garden — do not also list a saved/network demo row. */
-            if (hasLocalDemo) {
-                if (isBundledDemoBranchId(savedBranchId) || isBundledDemoBranchId(s0?.id)) continue;
-                try {
-                    const ref = parseNostrTreeUrl(String(s0?.url || '').trim());
-                    if (ref && String(ref.universeId) === DEMO_BRANCH_UNIVERSE) continue;
-                } catch {
-                    /* ignore */
-                }
-            }
-            if (isPinnedActive(s0?.id, s0?.url)) continue;
+        if (String(s0?.contentKind || '').trim() === 'composed-tree') continue;
+        const savedUrl = String(s0?.url || '').trim();
+        const savedCanon = savedUrl ? canonicalNetworkTreeUrlString(savedUrl) : '';
+        if (savedCanon) communityCanonUrls.add(savedCanon);
+        const savedBranchId = savedUrl.startsWith('branch://')
+            ? savedUrl.slice('branch://'.length).split('/')[0]
+            : '';
+        if (savedBranchId && localBranchIds.has(savedBranchId)) continue;
+        /* Bundled demo is the local garden — do not also list a saved/network demo row. */
+        if (hasLocalDemo) {
+            if (isBundledDemoBranchId(savedBranchId) || isBundledDemoBranchId(s0?.id)) continue;
             try {
-                const u = String(s0?.url || '').trim();
-                const uCanon = canonicalNetworkTreeUrlString(u);
-                if (uCanon && ownPublishedCanonUrls.has(uCanon)) continue;
-                if (u && (seenPublishedTreeUrls.has(u) || (uCanon && seenPublishedTreeUrls.has(uCanon)))) {
-                    continue;
-                }
+                const ref = parseNostrTreeUrl(savedUrl);
+                if (ref && String(ref.universeId) === DEMO_BRANCH_UNIVERSE) continue;
             } catch {
                 /* ignore */
             }
-            const s = scoreSourcesMatch(q2, s0?.name, s0?.url, String(s0?.id || ''));
-            if (q2 && s <= 0) continue;
-            const savedLangKeys = Array.isArray(s0?.languages) ? s0.languages : null;
-            items.push({
-                score: 30 + s + langMatchBoost(uiLang, savedLangKeys),
-                kind: 'saved',
-                data: {
-                    source: s0,
-                    isActive: !!(
-                        curriculumMounted &&
-                        activeSource &&
-                        activeSource.id === s0.id
-                    ),
-                },
-            });
-            try {
-                const u = String(s0?.url || '').trim();
-                const uCanon = canonicalNetworkTreeUrlString(u);
-                if (u) seenPublishedTreeUrls.add(u);
-                if (uCanon) seenPublishedTreeUrls.add(uCanon);
-            } catch {
-                /* ignore */
+        }
+        if (isPinnedActive(s0?.id, s0?.url)) continue;
+        try {
+            if (savedCanon && ownPublishedCanonUrls.has(savedCanon)) continue;
+            if (
+                savedUrl &&
+                (seenPublishedTreeUrls.has(savedUrl) ||
+                    (savedCanon && seenPublishedTreeUrls.has(savedCanon)))
+            ) {
+                continue;
             }
+        } catch {
+            /* ignore */
+        }
+        const s = scoreSourcesMatch(q2, s0?.name, s0?.url, String(s0?.id || ''));
+        if (q2 && s <= 0) continue;
+        const savedLangKeys = Array.isArray(s0?.languages) ? s0.languages : null;
+        items.push({
+            score: 30 + s + langMatchBoost(uiLang, savedLangKeys),
+            kind: 'saved',
+            data: {
+                source: s0,
+                isActive: !!(curriculumMounted && activeSource && activeSource.id === s0.id),
+            },
+        });
+        try {
+            if (savedUrl) seenPublishedTreeUrls.add(savedUrl);
+            if (savedCanon) seenPublishedTreeUrls.add(savedCanon);
+        } catch {
+            /* ignore */
+        }
     }
 
     let rows = scope === 'branch' ? [] : Array.isArray(ctx._globalDirRows) ? ctx._globalDirRows : [];
     if (scope === 'internet' && localPublished.size) {
-        const existing = new Set(rows.map((r) => formatNostrTreeUrl(r?.ownerPub, r?.universeId)));
+        const existing = new Set();
+        for (const r of rows) {
+            try {
+                const u = formatNostrTreeUrl(r?.ownerPub, r?.universeId);
+                if (u) existing.add(u);
+            } catch {
+                /* ignore */
+            }
+        }
+        const extras = [];
         for (const [u, lt] of localPublished.entries()) {
             if (existing.has(u)) continue;
             const ref = parseNostrTreeUrl(u);
             if (!ref?.pub || !ref?.universeId) continue;
-            rows = [
-                {
-                    ownerPub: String(ref.pub),
-                    universeId: String(ref.universeId),
-                    title: lt.name || 'Published tree',
-                    shareCode: '',
-                    updatedAt: '',
-                    ...(lt.icon ? { icon: lt.icon } : {}),
-                },
-                ...rows,
-            ];
+            extras.push({
+                ownerPub: String(ref.pub),
+                universeId: String(ref.universeId),
+                title: lt.name || 'Published tree',
+                shareCode: '',
+                updatedAt: '',
+                ...(lt.icon ? { icon: lt.icon } : {}),
+            });
         }
+        if (extras.length) rows = extras.concat(rows);
     }
 
     const metricsMap = ctx._globalDirMetrics;
+    const hideInstalledNetwork = scope === 'all' || scope === 'internet';
     if (scope !== 'branch' && scope !== 'saved') {
-        for (let ri = 0; ri < rows.length; ri++) {
+        const rowCount = rows.length;
+        for (let ri = 0; ri < rowCount; ri++) {
             const r = rows[ri];
             if (listingKind(r?.contentKind, r?.universeId) === 'composed-tree') continue;
             /* Bundled demo lives as the local branch only — never a second Discover row. */
             if (String(r?.universeId || '').trim() === DEMO_BRANCH_UNIVERSE) continue;
+            let publicTreeUrl = '';
             try {
-                const u = formatNostrTreeUrl(r?.ownerPub, r?.universeId);
-                const uCanon = canonicalNetworkTreeUrlString(String(u || '').trim());
-                const installedInCommunity = (state.communitySources || []).some((cs) => {
-                    const c = canonicalNetworkTreeUrlString(String(cs?.url || '').trim());
-                    return !!c && !!uCanon && c === uCanon;
-                });
-                if (installedInCommunity && (scope === 'all' || scope === 'internet')) continue;
-                if ((scope === 'all' || scope === 'internet') && uCanon && ownPublishedCanonUrls.has(uCanon)) continue;
-                if (u && seenPublishedTreeUrls.has(String(u)) && !ownPublishedTreeUrls.has(String(u))) continue;
+                publicTreeUrl = formatNostrTreeUrl(r?.ownerPub, r?.universeId) || '';
             } catch {
-                /* ignore */
+                publicTreeUrl = '';
+            }
+            const uCanon = publicTreeUrl
+                ? canonicalNetworkTreeUrlString(String(publicTreeUrl).trim())
+                : '';
+            if (hideInstalledNetwork && uCanon && communityCanonUrls.has(uCanon)) continue;
+            if (hideInstalledNetwork && uCanon && ownPublishedCanonUrls.has(uCanon)) continue;
+            if (
+                publicTreeUrl &&
+                seenPublishedTreeUrls.has(publicTreeUrl) &&
+                !ownPublishedTreeUrls.has(publicTreeUrl)
+            ) {
+                continue;
             }
             if (store.isNostrTreeMaintainerBlocked(r?.ownerPub, r?.universeId)) continue;
-            const publicTreeUrl = (() => {
-                try {
-                    return formatNostrTreeUrl(r?.ownerPub, r?.universeId);
-                } catch {
-                    return '';
-                }
-            })();
             if (isPinnedActive(null, publicTreeUrl)) continue;
             const stRow = computeDirectoryRowState(r, metricsMap);
             if (shouldHideRowFromDirectory(r, metricsMap)) continue;
@@ -231,7 +230,7 @@ export function collectBranchesTabItems(ctx, ui, state, activeSource, { scope, q
                 publicTreeUrl && localPublished.has(publicTreeUrl)
                     ? localPublished.get(publicTreeUrl)
                     : null;
-            const orderPreserve = (rows.length - ri) * 0.09;
+            const orderPreserve = (rowCount - ri) * 0.09;
             items.push({
                 score: 10 + orderPreserve + s + hiddenPenalty + langMatchBoost(uiLang, dirLangKeys),
                 kind: 'internet',

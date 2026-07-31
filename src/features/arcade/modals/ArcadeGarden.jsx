@@ -1,6 +1,7 @@
 import { useArcade } from '../hooks/useArcade.js';
 import { useEffect, useMemo, useState } from 'react';
 import { Callout } from '../../../shared/ui/Callout.jsx';
+import { ListRowEnter } from '../../../shared/ui/ListRowEnter.jsx';
 import {
     GardenVitalityBanner,
     GardenPlot,
@@ -99,7 +100,7 @@ export function ArcadeGarden({ ui }) {
                             body={ui.arcadeWitheredMsg || ''}
                         />
                         <div className="space-y-2 mb-4">
-                            {dueIds.map((id) => {
+                            {dueIds.map((id, idx) => {
                                 const node = findNode(id);
                                 const mem = memoryData[id];
                                 const daysOverdue = Math.ceil((now - mem.dueDate) / (1000 * 60 * 60 * 24));
@@ -116,29 +117,28 @@ export function ArcadeGarden({ ui }) {
                                 );
 
                                 return (
-                                    <div
-                                        key={id}
-                                        className="arborito-surface-card flex items-center justify-between gap-2 p-3 rounded-xl hover:border-red-400 transition-colors"
-                                    >
-                                        <div className="flex items-center gap-3 min-w-0">
-                                            <div className="arborito-icon-tile w-10 h-10 text-xl">{icon}</div>
-                                            <div className="min-w-0">
-                                                <h4 className="font-bold text-sm arborito-text-strong truncate m-0">
-                                                    {nameRaw}
-                                                </h4>
-                                                <p className="text-[10px] text-red-500 font-bold m-0 mt-0.5">
-                                                    {daysText}
-                                                </p>
+                                    <ListRowEnter key={id} index={idx}>
+                                        <div className="arborito-surface-card flex items-center justify-between gap-2 p-3 rounded-xl hover:border-red-400 transition-colors">
+                                            <div className="flex items-center gap-3 min-w-0">
+                                                <div className="arborito-icon-tile w-10 h-10 text-xl">{icon}</div>
+                                                <div className="min-w-0">
+                                                    <h4 className="font-bold text-sm arborito-text-strong truncate m-0">
+                                                        {nameRaw}
+                                                    </h4>
+                                                    <p className="text-[10px] text-red-500 font-bold m-0 mt-0.5">
+                                                        {daysText}
+                                                    </p>
+                                                </div>
                                             </div>
+                                            <button
+                                                type="button"
+                                                data-id={id}
+                                                className="arborito-cta-blue px-3 py-2 text-xs font-bold rounded-lg shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 shrink-0 js-arcade-water-node"
+                                            >
+                                                <span aria-hidden="true">💧</span> {ui.arcadeWaterBtn || 'Water'}
+                                            </button>
                                         </div>
-                                        <button
-                                            type="button"
-                                            data-id={id}
-                                            className="arborito-cta-blue px-3 py-2 text-xs font-bold rounded-lg shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 shrink-0 js-arcade-water-node"
-                                        >
-                                            <span aria-hidden="true">💧</span> {ui.arcadeWaterBtn || 'Water'}
-                                        </button>
-                                    </div>
+                                    </ListRowEnter>
                                 );
                             })}
                         </div>
@@ -160,7 +160,7 @@ export function ArcadeGarden({ ui }) {
                             {ui.arcadeThrivingTitle || ''} ({healthyIds.length})
                         </h5>
                         <div className="space-y-2">
-                            {healthyIds.map((item) => {
+                            {healthyIds.map((item, idx) => {
                                 const node = findNode(item.id);
                                 const daysLeft = Math.ceil(
                                     (item.dueDate - now) / (1000 * 60 * 60 * 24)
@@ -182,27 +182,26 @@ export function ArcadeGarden({ ui }) {
                                 else if (item.interval > 7) strength = ui.arcadeStagePlant || strength;
 
                                 return (
-                                    <div
-                                        key={item.id}
-                                        className="arborito-surface-card flex items-center justify-between gap-2 p-3 rounded-xl"
-                                    >
-                                        <div className="flex items-center gap-3 min-w-0">
-                                            <div className="w-8 h-8 rounded-lg arborito-garden-thumb-icon flex items-center justify-center text-lg shrink-0">
-                                                {icon}
+                                    <ListRowEnter key={item.id} index={idx}>
+                                        <div className="arborito-surface-card flex items-center justify-between gap-2 p-3 rounded-xl">
+                                            <div className="flex items-center gap-3 min-w-0">
+                                                <div className="w-8 h-8 rounded-lg arborito-garden-thumb-icon flex items-center justify-center text-lg shrink-0">
+                                                    {icon}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <h4 className="font-bold text-sm arborito-text-strong truncate m-0">
+                                                        {nameRaw}
+                                                    </h4>
+                                                    <p className="text-[10px] arborito-text-muted m-0 mt-0.5">
+                                                        {rainText}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="min-w-0">
-                                                <h4 className="font-bold text-sm arborito-text-strong truncate m-0">
-                                                    {nameRaw}
-                                                </h4>
-                                                <p className="text-[10px] arborito-text-muted m-0 mt-0.5">
-                                                    {rainText}
-                                                </p>
-                                            </div>
+                                            <span className="arborito-pill arborito-pill--xs arborito-pill--slate shrink-0">
+                                                {strength}
+                                            </span>
                                         </div>
-                                        <span className="arborito-pill arborito-pill--xs arborito-pill--slate shrink-0">
-                                            {strength}
-                                        </span>
-                                    </div>
+                                    </ListRowEnter>
                                 );
                             })}
                         </div>

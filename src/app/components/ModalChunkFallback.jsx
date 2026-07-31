@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { shouldShowMobileUI } from '../../shared/ui/breakpoints.js';
-import { LoadingBrand, LoadingBrandRing } from '../../shared/ui/Loading.jsx';
+import { FloatingLoadScrim } from '../../shared/ui/FloatingLoadScrim.jsx';
+import { ListRowSkeleton } from '../../shared/ui/ListRowEnter.jsx';
 import { DockModalShell, ModalCenteredShell } from './ModalShell.jsx';
 import { ModalHubHero } from './ModalHero.jsx';
 import { ContributorHubShell } from '../../features/nostr/modals/ContributorHubShell.jsx';
@@ -15,43 +16,25 @@ import { nostrActions } from '../../stores/nostr-store.js';
 import { resolveContributorHubViewFromSource } from '../../features/nostr/api/contributor-hub-view.js';
 import { useShellModalActions } from '../hooks/useShell.js';
 
-function LoadingPanel({ label, tone = 'sky' }) {
-    const toneCls =
-        tone === 'sky'
-            ? ' arborito-loading-panel--sky'
-            : tone === 'slate'
-              ? ' arborito-loading-panel--slate'
-              : ' arborito-loading-panel--sage';
+function LoadingPanel({ label }) {
     return (
         <div
-            className={`arborito-loading-panel${toneCls}`}
+            className="px-4 pt-2 pb-4 flex-1 min-h-0 overflow-hidden"
             role="status"
             aria-live="polite"
             aria-busy="true"
+            aria-label={label || 'Loading…'}
         >
-            <LoadingBrand
-                label={label}
-                size="lg"
-                tone={tone === 'slate' ? 'slate' : 'sage'}
-                extraClass="arborito-loading-brand--panel"
-            />
+            <ListRowSkeleton count={4} variant="card" />
         </div>
     );
 }
 
 function GenericChunkFallback() {
-    /** Minimal shell while lazy modal chunk loads, full DockModalShell not required (see MODAL_STANDARDS §4). */
+    /** Minimal shell while lazy modal chunk loads — dimmed float until the hub paints. */
     return (
-        <div
-            id="modal-backdrop"
-            className="arborito-modal-root arborito-modal-root--chunk-pending fixed inset-0 z-[200] flex items-center justify-center"
-            role="status"
-            aria-live="polite"
-            aria-busy="true"
-        >
-            <div className="arborito-modal-chunk-spinner" aria-hidden="true">
-                <LoadingBrandRing size="md" />
-            </div>
+        <div data-arborito-panel="modal-chunk-pending">
+            <FloatingLoadScrim label="" size="md" dim />
         </div>
     );
 }
@@ -75,8 +58,10 @@ function ArcadeChunkFallback({ ui, mobile }) {
             skipBodyWrap
             shellOpts={{ rootFlags: 'arborito-modal--arcade' }}
         >
-            <div id="modal-content" className="flex flex-col min-h-0 flex-1 overflow-y-auto custom-scrollbar">
-                <LoadingPanel label={ui.loading} tone="sky" />
+            <div id="modal-content" className="flex flex-col min-h-0 flex-1 overflow-y-auto custom-scrollbar px-4 pt-2">
+                <div role="status" aria-live="polite" aria-busy="true" aria-label={ui.loading || 'Loading…'}>
+                    <ListRowSkeleton count={3} variant="card" />
+                </div>
             </div>
         </DockModalShell>
     );
@@ -357,7 +342,6 @@ function SourcesChunkFallback({ ui, mobile }) {
                 <ModalHubHero
                     mobile={mobile}
                     title={ui.sourceManagerTitle || ui.navSources || 'Library'}
-                    subtitle={ui.sourceManagerDesc}
                     leadingIcon="📚"
                 />
             }

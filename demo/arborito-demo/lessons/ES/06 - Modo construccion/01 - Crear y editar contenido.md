@@ -10,7 +10,7 @@ title: Modo construcción
 
 Para **escribir** un curso usa el modo construcción (martillo / llave en el mapa). Ahí creas carpetas, lecciones, texto y preguntas.
 
-Si aún no tienes rama propia: en el **Bosque**, **Crear rama**.
+Si aún no tienes curso propio: en **Cursos**, pulsa **Crear → Curso**.
 
 @image
 url: ./media/12-construccion-es.png
@@ -57,10 +57,10 @@ index: 3
 title: Exportar
 @/section
 
-**Exportar** crea un `.arborito` para compartir. Quien lo importe lo abre en el **Bosque**. No hace falta programar.
+**Exportar** crea un `.arborito` para compartir. Quien lo importe lo abre en **Cursos**. No hace falta programar.
 
 @quiz
-concept: Exportar rama
+concept: Exportar curso
 items:
   - question: ¿Qué archivo compartes al exportar un curso?
     answer: Un archivo .arborito
@@ -70,7 +70,7 @@ items:
       - .mp4
       - Un enlace de Arcade
   - question: ¿Dónde se importa ese archivo .arborito?
-    answer: En el Bosque
+    answer: En Cursos
     modes: multiple,recall
     traps:
       - Arcade

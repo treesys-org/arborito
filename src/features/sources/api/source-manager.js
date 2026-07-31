@@ -23,7 +23,10 @@ import {
     clearActiveSourcePointer,
     localActiveSourceStillExists,
 } from './active-source-pointer.js';
-import { bundledDemoBootSource } from '../../../core/demo/seed-arborito-demo.js';
+import {
+    bundledDemoBootSource,
+    maybeSeedArboritoDemo,
+} from '../../../core/demo/seed-arborito-demo.js';
 import {
     isPlaceholderCommunitySourceName,
     resolveLoadedBundleDisplayTitle,
@@ -36,9 +39,9 @@ import {
     canonicalCommunityUrl,
     tryLoadIpfsSourceJson,
 } from './source-url-helpers.js';
+import { checkLocalBootSource, isLoopbackLocalBoot } from './source-manager-local-boot.js';
 
 export { stripShareTreeParams } from './share-tree-url.js';
-
 
 export class SourceManager {
     constructor(updateStateCallback, uiCallback) {
@@ -66,8 +69,8 @@ export class SourceManager {
         let activeSource = this._loadActiveSourceMeta(localSources);
 
         if (!activeSource) {
-            if (this._isLoopback()) {
-                const local = await this._checkLocalBoot();
+            if (isLoopbackLocalBoot()) {
+                const local = await checkLocalBootSource();
                 if (local) return local;
             }
             const demo = bundledDemoBootSource(store.userStore);
@@ -78,35 +81,18 @@ export class SourceManager {
     }
 
     async getDefaultSource() {
-        if (this._isLoopback()) {
-            const local = await this._checkLocalBoot();
+        if (isLoopbackLocalBoot()) {
+            const local = await checkLocalBootSource();
             if (local) return local;
+        }
+        try {
+            maybeSeedArboritoDemo(store.userStore);
+        } catch {
+            /* ignore */
         }
         const demo = bundledDemoBootSource(store.userStore);
         if (demo) return demo;
         return DEFAULT_BOOT_SOURCE;
-    }
-
-    _isLoopback() {
-        const h = window.location.hostname;
-        if (h !== 'localhost' && h !== '127.0.0.1') return false;
-        try {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('localBoot') === '1') return true;
-            return localStorage.getItem('arborito-local-boot') === 'true';
-        } catch {
-            return false;
-        }
-    }
-
-    async _checkLocalBoot() {
-        try {
-            const check = await fetch('./data/data.json', { method: 'HEAD' });
-            if (check.ok) {
-                return { id: 'local-boot', name: 'Local Workspace', url: './data/data.json', isTrusted: true, type: 'rolling' };
-            }
-        } catch { /* no local data */ }
-        return null;
     }
 
     // --- Share param (?source= or ?code= from publish short link) ---

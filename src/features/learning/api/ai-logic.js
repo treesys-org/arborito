@@ -718,7 +718,7 @@ export class AILogic {
 
             if (chatSession !== this._sageChatGen) return;
             if (responseObj.sources && responseObj.sources.length > 0) {
-                const sourcesLabel = lang === 'ES' ? 'Fuentes' : 'Sources';
+                const sourcesLabel = lang === 'ES' ? 'Cursos' : 'Courses';
                 finalText +=
                     `\n\n**${sourcesLabel}:**\n` +
                     responseObj.sources.map((s) => `• [${s.title}](${s.url})`).join('\n');

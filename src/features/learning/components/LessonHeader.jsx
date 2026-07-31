@@ -449,7 +449,7 @@ export function LessonHeader({
                     <div className="arborito-lesson-read-bar">
                         {showTocChrome ? <TocPillButton isTocVisible={isTocVisible} ui={ui} onToggleToc={onToggleToc} /> : null}
                         <div className="arborito-lesson-toolbar-scroll js-lesson-toolbar-scroll min-w-0 box-border">
-                            <div className="arborito-lesson-read-tools-cluster flex flex-nowrap items-center gap-0.28rem px-1 py-0.5 rounded-xl bg-slate-100/90 dark:bg-slate-800/50 box-border shrink-0">
+                            <div className="arborito-lesson-read-tools-cluster flex flex-nowrap items-center gap-0.28rem px-1 py-0.5 rounded-xl arborito-surface-tile box-border shrink-0">
                                 {readTools}
                             </div>
                         </div>

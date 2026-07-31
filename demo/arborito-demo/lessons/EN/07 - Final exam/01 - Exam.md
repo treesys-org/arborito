@@ -19,21 +19,21 @@ items:
     traps:
       - Classroom
       - Hacky Terminal
-      - Forest
-  - question: What do we call a full course?
-    answer: A Branch
+      - Arcade only
+  - question: What is this demo?
+    answer: A course
     traps:
       - Arcade
       - Exam
       - Streak
-  - question: What is a tree in the Forest?
-    answer: Several courses combined into one path
+  - question: What is a playlist?
+    answer: Several courses together in one path
     traps:
       - A single lesson
       - Arcade only
       - A voice file
   - question: Where do you import a .arborito course file?
-    answer: In the Forest
+    answer: In Courses
     traps:
       - On the map
       - In Sage
@@ -60,7 +60,7 @@ items:
     answer: A console-style game with your course questions
     traps:
       - A code editor
-      - The Forest
+      - The Courses panel
       - The final exam only
   - question: Where is your progress saved by default?
     answer: On this device
@@ -79,5 +79,5 @@ items:
     traps:
       - Edit directly
       - Exam only
-      - Delete Forest
+      - Delete Courses
 @/quiz

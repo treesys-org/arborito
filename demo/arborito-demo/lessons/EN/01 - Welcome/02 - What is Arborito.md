@@ -25,14 +25,14 @@ title: Folders and lessons
 - Tap the leaf to open the lesson.
 
 @quiz
-concept: Map and branches
+concept: Map and lessons
 items:
   - question: What opens when you tap a leaf on the map?
     answer: A lesson
     modes: multiple,recall
     traps:
       - Only Arcade
-      - The whole Forest
+      - The whole Courses panel
       - A trophy
   - question: What is a folder on the map?
     answer: A topic with lessons inside
@@ -51,7 +51,7 @@ title: Your progress
 Progress stays **on this device**. The `.arborito` file is the **course**, not your progress.
 
 @quiz
-concept: Forest and data
+concept: Progress and data
 items:
   - question: Where is your progress saved by default?
     answer: On this device

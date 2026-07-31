@@ -19,7 +19,7 @@
     margin: 0 0 0.85rem;
     font-size: 0.875rem;
     line-height: 1.55;
-    color: var(--arborito-theme-dialog-intro-color, rgb(100 116 139));
+    color: var(--arborito-theme-dialog-intro-color, var(--arborito-theme-text-muted));
 }
 
 .arborito-dialog-duplicate-note {
@@ -44,8 +44,8 @@ html.dark .arborito-dialog-duplicate-note {
     margin: 0;
     padding: 0.85rem 0.9rem;
     border-radius: 0.85rem;
-    border: 1px solid var(--arborito-theme-dialog-summary-border, rgb(226 232 240));
-    background: var(--arborito-theme-dialog-summary-background, rgb(248 250 252 / 0.95));
+    border: 1px solid var(--arborito-theme-dialog-summary-border, var(--arborito-theme-card-border));
+    background: var(--arborito-theme-dialog-summary-background, var(--arborito-theme-card-bg));
     font-size: 0.8125rem;
     line-height: 1.55;
     color: var(--arborito-theme-dialog-summary-color, rgb(51 65 85));
@@ -55,7 +55,7 @@ html.dark .arborito-dialog-duplicate-note {
 
 html.dark .arborito-dialog-summary-card {
     --arborito-theme-dialog-summary-border: rgb(51 65 85);
-    --arborito-theme-dialog-summary-background: rgb(15 23 42 / 0.72);
+    --arborito-theme-dialog-summary-background: var(--arborito-theme-card-bg);
     --arborito-theme-dialog-summary-color: rgb(226 232 240);
 }
 

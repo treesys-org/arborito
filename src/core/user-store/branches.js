@@ -18,6 +18,8 @@ import {
 
 import { isCurriculumPresetCode } from '../../features/sources/api/curriculum-locale-presets.js';
 import { getArboritoStore } from '../store-singleton.js';
+import { rememberPrivateAccountDeleted } from './private-account-delete-tombstones.js';
+import { DEMO_BRANCH_ID } from '../demo/arborito-demo-ids.js';
 
 /** Curriculum language folder key from app UI locale (EN / ES / …). Never i18n labels. */
 function curriculumLangKeyFromStore(storeLike) {
@@ -389,6 +391,8 @@ export const branchesMixin = {
         this.state.branches = this.state.branches.filter((t) => String(t.id) !== bid);
         this._branchesDirty?.delete(bid);
         this._rememberCatalogTombstone('branches', bid);
+        /* Block account pull from resurrecting this id (even if Nostr clear lags). */
+        if (bid !== DEMO_BRANCH_ID) rememberPrivateAccountDeleted(bid);
         this.notifyCatalogChanged?.();
         this.persist();
         clearSearchIndexForTreeId(bid);

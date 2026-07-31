@@ -27,6 +27,7 @@ const TREE_GRAPH_KEYS = [
     'treeHydrating',
     'treeGrowingOverlay',
     'treeGrowingHint',
+    'bibliotecaSoftMount',
     'treeContext',
     'nostrLiveSeeds',
     'webtorrentSeeder',

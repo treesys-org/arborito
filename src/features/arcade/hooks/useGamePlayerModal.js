@@ -43,10 +43,9 @@ async function waitForGameFrame(iframeRef, timeoutMs = 5000) {
     return true;
 }
 /** Game player modal, session prep, AI consent, iframe bridge (jr entry for ModalGamePlayer). */
-export function useGamePlayerModal(embed) {
+export function useGamePlayerModal() {
     const {
         ui,
-        dismissModal,
         setModal,
         notify,
         update,
@@ -664,7 +663,6 @@ export function useGamePlayerModal(embed) {
 
     return {
         ui,
-        embed,
         url,
         title,
         close,

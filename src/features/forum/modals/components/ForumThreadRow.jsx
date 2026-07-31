@@ -15,7 +15,7 @@ export function ForumThreadRow({ thread, active, allMessages, ui, lang, mod, onS
         <div className="flex items-stretch gap-0 border-b border-slate-200 dark:border-slate-700 last:border-b-0">
             <button
                 type="button"
-                className={`forum-thread flex-1 min-w-0 text-left px-3 py-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-400 dark:focus-visible:ring-slate-500 ${active ? 'bg-slate-100 dark:bg-slate-800/90 border-l-[3px] border-l-slate-800 dark:border-l-slate-200' : 'bg-white dark:bg-slate-900 border-l-[3px] border-l-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
+                className={`forum-thread flex-1 min-w-0 text-left px-3 py-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-400 dark:focus-visible:ring-slate-500 ${active ? 'arborito-surface-tile border-l-[3px] border-l-slate-800 dark:border-l-slate-200' : 'arborito-surface-tile border-l-[3px] border-l-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
                 data-id={thread.id}
                 aria-label={tAria}
                 aria-current={active ? 'true' : undefined}
@@ -33,7 +33,7 @@ export function ForumThreadRow({ thread, active, allMessages, ui, lang, mod, onS
             {mod ? (
                 <button
                     type="button"
-                    className="forum-act shrink-0 min-w-12 min-h-[3.25rem] flex items-center justify-center rounded-xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-800/60 text-slate-400 hover:text-red-600 hover:border-red-300 dark:hover:text-red-400 dark:hover:border-red-800"
+                    className="forum-act shrink-0 min-w-12 min-h-[3.25rem] flex items-center justify-center rounded-xl border border-slate-200/80 dark:border-slate-700 arborito-surface-tile text-slate-400 hover:text-red-600 hover:border-red-300 dark:hover:text-red-400 dark:hover:border-red-800"
                     data-act="del-thread"
                     data-id={thread.id}
                     title={ui.forumModDeleteThread || 'Delete'}

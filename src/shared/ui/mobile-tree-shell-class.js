@@ -91,6 +91,6 @@ export function syncMobileTreeShellClass(store, opts = {}) {
             hubFromMap ||
             constructionDockHub ||
             dockGapSheet ||
-            ((mt === 'search' || mt === 'arcade') && modalObj && modalObj.dockUi));
+            ((mt === 'search' || mt === 'arcade' || mt === 'sources') && modalObj && modalObj.dockUi));
     document.documentElement.classList.toggle('arborito-mob-dock-modal-open', !!isDockModal);
 }

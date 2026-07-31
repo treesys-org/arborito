@@ -1,49 +1,50 @@
 @info
 icon: 📚
-description: Abrir e importar cursos en el catálogo (tu bosque)
+title: Cursos
+description: Abrir, crear e importar cursos (y playlists)
 @/info
 
 @section
 index: 1
-title: El Bosque
+title: Cursos
 @/section
 
-En la barra, **Cursos** abre el **Catálogo de cursos**: ahí guardas lo que abres, importas o creas. Ese catálogo es tu **bosque** de estudio.
+En la barra, **Cursos** abre el panel donde guardas lo que abres, importas o creas.
 
 Hay dos pestañas:
 
-- **Cursos individuales** (ramas): cada tarjeta es **un curso completo**.
-- **Cursos combinados** (árboles): un **árbol** junta **varios cursos** en un solo recorrido.
+- **Mis cursos:** lo tuyo en este dispositivo (y lo sincronizado con tu cuenta).
+- **Explorar:** cursos públicos de la red (Discover).
 
 @image
 url: ./media/04-bosque-es.png
-caption: Catálogo de cursos: tus ramas.
+caption: Panel Cursos: Mis cursos y Explorar.
 @/image
 
 @section
 index: 2
-title: Crear tu curso
+title: Crear o importar
 @/section
 
-Para crear un curso: **Crear curso**. Empiezas con una carpeta y una lección de ejemplo, y las editas.
+Abajo, **Crear** te deja elegir:
 
-También puedes:
+- **Curso:** un curso completo nuevo en tu jardín.
+- **Playlist:** varios cursos juntos en un solo recorrido.
 
-- **Abrir** un curso que ya tienes.
-- **Importar archivo** (un `.arborito` que te hayan compartido).
+También puedes **Importar archivo** (un `.arborito` que te hayan compartido).
 
 @quiz
-concept: Operaciones del catálogo
+concept: Operaciones de Cursos
 items:
   - question: ¿Dónde importas un archivo .arborito de un curso?
-    answer: En el catálogo de cursos
+    answer: En Cursos
     modes: recall,multiple
     traps:
       - En Arcade
       - En el mapa
       - En Sage
   - question: ¿Cómo creas un curso nuevo?
-    answer: Crear curso en el catálogo
+    answer: Crear → Curso
     modes: multiple,recall
     traps:
       - Solo desde Classroom
@@ -53,34 +54,34 @@ items:
 
 @section
 index: 3
-title: Cursos combinados (árboles)
+title: Playlist
 @/section
 
-Un **árbol** no es un curso suelto: es **varios cursos (ramas) combinados** en un mismo recorrido.
+Una **playlist** no es un curso suelto: junta **varios cursos** en un mismo recorrido.
 
-Úsalo cuando quieras estudiar o compartir **más de un curso juntos** (por ejemplo idioma + gramática, o varios módulos de un programa).
+Úsala cuando quieras estudiar o compartir **más de un curso juntos** (por ejemplo idioma + gramática).
 
-En el catálogo abre la pestaña **Cursos combinados** (Árboles) para crear, abrir o importar un árbol.
+Desde **Crear → Playlist**, o abriendo **Playlists** en Cursos, puedes armar, abrir o importar una.
 
 @quiz
-concept: Rama y árbol
+concept: Curso y playlist
 items:
-  - question: ¿Qué es una rama en el catálogo?
-    answer: Un curso completo
+  - question: ¿Qué es un curso en Arborito?
+    answer: Un recorrido completo de lecciones
     modes: multiple,recall
     traps:
       - Varios cursos juntos
       - Solo un juego
       - Solo Sage
-  - question: ¿Qué es un árbol en el catálogo?
-    answer: Varios cursos combinados en un recorrido
+  - question: ¿Qué es una playlist?
+    answer: Varios cursos juntos en un recorrido
     modes: multiple,recall
     traps:
       - Una sola lección
       - Solo el Arcade
       - Un archivo de voz
-  - question: ¿Dónde gestionas los árboles?
-    answer: Catálogo → Cursos combinados
+  - question: ¿Dónde gestionas las playlists?
+    answer: En Cursos → Playlists
     modes: recall,multiple
     traps:
       - Solo en Arcade
@@ -93,7 +94,7 @@ index: 4
 title: Copia editable
 @/section
 
-Algunas ramas no se editan directamente. En **modo construcción** puedes crear una copia con un nombre y editar la tuya.
+Algunos cursos (como este demo) no se editan directamente. En **modo construcción** puedes crear una copia con un nombre y editar la tuya.
 
 @quiz
 concept: Solo lectura y copia

@@ -24,17 +24,6 @@ export function getVoteUiOverride(ownerPub, universeId) {
     return overrides.get(voteUiKey(ownerPub, universeId)) || null;
 }
 
-/** Apply displayed like/count for a row (absolute). */
-export function setVoteUiOverride(ownerPub, universeId, liked, votes) {
-    const key = voteUiKey(ownerPub, universeId);
-    if (!key || key === '/') return;
-    overrides.set(key, {
-        liked: !!liked,
-        votes: Math.max(0, Number(votes) || 0),
-    });
-    emit(key);
-}
-
 /** Toggle from current override or from prop baselines. Returns next state. */
 export function toggleVoteUiOverride(ownerPub, universeId, baseLiked, baseVotes) {
     const key = voteUiKey(ownerPub, universeId);

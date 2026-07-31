@@ -1,5 +1,5 @@
 import { useArcade } from '../hooks/useArcade.js';
-import { LoadingBrand } from '../../../shared/ui/Loading.jsx';
+import { ListRowEnter, ListRowSkeleton } from '../../../shared/ui/ListRowEnter.jsx';
 import { ArcadeCard } from './ArcadeCard.jsx';
 import { sortArcadeGamesForDiscovery } from '../api/arcade-game-discovery.js';
 import { readArcadeGameLiked } from '../api/arcade-local-storage.js';
@@ -23,24 +23,6 @@ export function ArcadeGrid({
     const { userStore, arcadeActions, lang } = useArcade();
     const { findNode, getNetworkUserPair } = arcadeActions;
 
-    if (isLoading) {
-        return (
-            <div
-                className="arborito-loading-panel arborito-loading-panel--sky"
-                role="status"
-                aria-live="polite"
-                aria-busy="true"
-            >
-                <LoadingBrand
-                    label={ui.loading}
-                    size="lg"
-                    tone="sage"
-                    extraClass="arborito-loading-brand--panel"
-                />
-            </div>
-        );
-    }
-
     const manualGames = (userStore.state.installedGames || []).map((g) => ({
         ...g,
         repoName: ui.arcadeManualInstall,
@@ -50,6 +32,7 @@ export function ArcadeGrid({
     const allGames = sortArcadeGamesForDiscovery([...discoveredGames, ...manualGames], gameMetrics);
     const wateringTarget = wateringTargetId ? findNode(wateringTargetId) : null;
     const targetName = wateringTarget ? wateringTarget.name : ui.arcadeUnknownLesson;
+    const waitingFirst = !!isLoading && allGames.length === 0 && !catalogError;
 
     return (
         <div className="relative flex flex-col flex-1 min-h-0">
@@ -77,7 +60,11 @@ export function ArcadeGrid({
                 </div>
             ) : null}
 
-            {allGames.length === 0 ? (
+            {waitingFirst ? (
+                <div role="status" aria-live="polite" aria-busy="true" aria-label={ui.loading || 'Loading…'}>
+                    <ListRowSkeleton count={3} variant="card" />
+                </div>
+            ) : allGames.length === 0 ? (
                 <div className="arborito-empty p-8 flex flex-col items-center gap-3 text-center">
                     <p>{catalogError ? ui.arcadeCatalogLoadFailed || ui.noResults : ui.noResults}</p>
                     {catalogError && typeof onRetryCatalog === 'function' ? (
@@ -95,26 +82,33 @@ export function ArcadeGrid({
                     const gId = String(g.id != null ? g.id : '');
                     const metrics = gameMetrics[gId] || {};
                     return (
-                        <ArcadeCard
-                            key={gId || idx}
-                            game={g}
-                            index={idx}
-                            ui={ui}
-                            lang={lang}
-                            wateringTargetId={wateringTargetId}
-                            offlineOn={userStore.isGameOffline(gId)}
-                            cacheReady={!!offlineCacheReady[gId]}
-                            downloading={!!offlineDownloading[gId]}
-                            liked={readArcadeGameLiked(getNetworkUserPair, gId)}
-                            votes={metrics.votes ?? 0}
-                            onPrepare={onPrepare}
-                            onToggleOffline={onToggleOffline}
-                            onRemove={onRemoveGame}
-                            onAction={onAction}
-                        />
+                        <ListRowEnter key={gId || idx} index={idx}>
+                            <ArcadeCard
+                                game={g}
+                                index={idx}
+                                ui={ui}
+                                lang={lang}
+                                wateringTargetId={wateringTargetId}
+                                offlineOn={userStore.isGameOffline(gId)}
+                                cacheReady={!!offlineCacheReady[gId]}
+                                downloading={!!offlineDownloading[gId]}
+                                liked={readArcadeGameLiked(getNetworkUserPair, gId)}
+                                votes={metrics.votes ?? 0}
+                                onPrepare={onPrepare}
+                                onToggleOffline={onToggleOffline}
+                                onRemove={onRemoveGame}
+                                onAction={onAction}
+                            />
+                        </ListRowEnter>
                     );
                 })
             )}
+
+            {isLoading && allGames.length > 0 ? (
+                <div className="mt-1 mb-3" role="status" aria-live="polite" aria-busy="true">
+                    <ListRowSkeleton count={1} variant="card" />
+                </div>
+            ) : null}
 
             <div className="mt-6 pt-4 arborito-section-divider">
                 <button

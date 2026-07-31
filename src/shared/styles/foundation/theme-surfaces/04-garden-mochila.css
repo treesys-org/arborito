@@ -159,42 +159,42 @@ html.dark {
         --arborito-theme-trunk-fade-background: linear-gradient(to right, rgb(15 24 20 / 0.55) 0%, transparent 100%);
         --arborito-theme-trunk-fade-opacity: 0.7;
         --arborito-theme-path-children-panel-box-shadow:
-    0 8px 24px rgb(15 23 42 / 0.14),
+    0 8px 24px rgb(14 17 24 / 0.14),
     0 3px 0 rgb(52 211 153 / 0.35);
         --arborito-theme-garden-arborito-garden-bg__particle-filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.35));
         --arborito-theme-garden-arborito-garden-bg__particle-opacity: 0.8;
-        --arborito-theme-garden-arborito-mochila-actions-border-top-color: rgb(51 65 85 / 0.55);
-        --arborito-theme-garden-arborito-mochila-btn--primary-background: rgb(51 65 85);
-        --arborito-theme-garden-arborito-mochila-btn--primary-border-color: rgb(71 85 105);
-        --arborito-theme-garden-arborito-mochila-btn-background: rgb(30 41 59 / 0.75);
-        --arborito-theme-garden-arborito-mochila-btn-border: 1px solid rgb(51 65 85 / 0.85);
-        --arborito-theme-garden-arborito-mochila-btn-color: rgb(226 232 240);
-        --arborito-theme-garden-arborito-mochila-course__bar-background: rgb(51 65 85 / 0.75);
+        --arborito-theme-garden-arborito-mochila-actions-border-top-color: rgb(63 63 70 / 0.55);
+        --arborito-theme-garden-arborito-mochila-btn--primary-background: rgb(63 63 70);
+        --arborito-theme-garden-arborito-mochila-btn--primary-border-color: rgb(82 82 91);
+        --arborito-theme-garden-arborito-mochila-btn-background: rgb(28 33 44 / 0.75);
+        --arborito-theme-garden-arborito-mochila-btn-border: 1px solid rgb(63 63 70 / 0.85);
+        --arborito-theme-garden-arborito-mochila-btn-color: rgb(212 212 216);
+        --arborito-theme-garden-arborito-mochila-course__bar-background: rgb(63 63 70 / 0.75);
         --arborito-theme-garden-arborito-mochila-course__bar-fill-background: linear-gradient(90deg, rgb(34 197 94), rgb(45 212 191));
-        --arborito-theme-garden-arborito-mochila-course__meta-color: rgb(148 163 184);
+        --arborito-theme-garden-arborito-mochila-course__meta-color: rgb(161 161 170);
         --arborito-theme-garden-arborito-mochila-course__pct-color: rgb(74 222 128);
-        --arborito-theme-garden-arborito-mochila-course__title-color: rgb(148 163 184);
-        --arborito-theme-garden-arborito-mochila-empty-color: rgb(148 163 184);
-        --arborito-theme-garden-arborito-mochila-ico-background: rgb(15 23 42 / 0.6);
-        --arborito-theme-garden-arborito-mochila-ico-border: 1px solid rgb(51 65 85 / 0.85);
+        --arborito-theme-garden-arborito-mochila-course__title-color: rgb(161 161 170);
+        --arborito-theme-garden-arborito-mochila-empty-color: rgb(161 161 170);
+        --arborito-theme-garden-arborito-mochila-ico-background: rgb(14 17 24 / 0.6);
+        --arborito-theme-garden-arborito-mochila-ico-border: 1px solid rgb(63 63 70 / 0.85);
         --arborito-theme-garden-arborito-mochila-stat--amber-background: rgb(120 53 15 / 0.35);
         --arborito-theme-garden-arborito-mochila-stat--amber-border-color: rgb(245 158 11 / 0.35);
         --arborito-theme-garden-arborito-mochila-stat--blue-background: rgb(30 58 138 / 0.35);
         --arborito-theme-garden-arborito-mochila-stat--blue-border-color: rgb(59 130 246 / 0.35);
-        --arborito-theme-garden-arborito-mochila-stat__lb-color: rgb(148 163 184);
-        --arborito-theme-garden-arborito-mochila-stat__val-color: rgb(248 250 252);
+        --arborito-theme-garden-arborito-mochila-stat__lb-color: rgb(161 161 170);
+        --arborito-theme-garden-arborito-mochila-stat__val-color: rgb(250 250 250);
         --arborito-theme-garden-arborito-mochila-stat__fill-background: rgb(245 158 11 / 0.28);
-        --arborito-theme-garden-arborito-mochila-block__badge-background: rgb(30 41 59);
-        --arborito-theme-garden-arborito-mochila-block__badge-color: rgb(203 213 225);
-        --arborito-theme-garden-arborito-mochila-card__title-color: rgb(248 250 252);
-        --arborito-theme-garden-arborito-mochila-card__sub-color: rgb(148 163 184);
-        --arborito-theme-garden-arborito-mochila-card__head-border-color: rgb(51 65 85 / 0.85);
+        --arborito-theme-garden-arborito-mochila-block__badge-background: rgb(28 33 44);
+        --arborito-theme-garden-arborito-mochila-block__badge-color: rgb(212 212 216);
+        --arborito-theme-garden-arborito-mochila-card__title-color: rgb(250 250 250);
+        --arborito-theme-garden-arborito-mochila-card__sub-color: rgb(161 161 170);
+        --arborito-theme-garden-arborito-mochila-card__head-border-color: rgb(63 63 70 / 0.85);
         --arborito-theme-garden-arborito-mochila-trophy-hover-shadow: 0 4px 12px rgb(245 158 11 / 0.18);
         --arborito-theme-garden-arborito-mochila-strip--trophies-background: rgb(69 26 3 / 0.35);
         --arborito-theme-garden-arborito-mochila-strip--trophies-border-color: rgb(180 83 9 / 0.35);
-        --arborito-theme-garden-arborito-mochila-strip-background: rgb(30 41 59 / 0.55);
-        --arborito-theme-garden-arborito-mochila-strip-border: 1px solid rgb(51 65 85 / 0.75);
-        --arborito-theme-garden-arborito-mochila-trophy-background: rgb(30 41 59 / 0.85);
+        --arborito-theme-garden-arborito-mochila-strip-background: rgb(28 33 44 / 0.55);
+        --arborito-theme-garden-arborito-mochila-strip-border: 1px solid rgb(63 63 70 / 0.75);
+        --arborito-theme-garden-arborito-mochila-trophy-background: rgb(28 33 44 / 0.85);
         --arborito-theme-garden-arborito-mochila-trophy-border: 1px solid rgb(245 158 11 / 0.4);
         --arborito-theme-garden-garden-care-panel__badge-background: rgb(120 53 15 / 0.55);
         --arborito-theme-garden-garden-care-panel__badge-color: rgb(253 230 138);
@@ -202,21 +202,21 @@ html.dark {
         --arborito-theme-garden-garden-howto-background: rgb(34 197 94 / 0.08);
         --arborito-theme-garden-garden-howto-border: 1px solid rgb(74 222 128 / 0.25);
         --arborito-theme-garden-garden-howto__head-color: rgb(134 239 172);
-        --arborito-theme-garden-garden-howto__list-color: rgb(203 213 225);
+        --arborito-theme-garden-garden-howto__list-color: rgb(212 212 216);
         --arborito-theme-garden-garden-plot__cell--overflow-border-color: rgb(74 222 128 / 0.45);
         --arborito-theme-garden-garden-plot__cell--overflow-color: rgb(134 239 172);
-        --arborito-theme-garden-garden-plot__cell-background: rgb(15 23 42 / 0.45);
+        --arborito-theme-garden-garden-plot__cell-background: rgb(14 17 24 / 0.45);
         --arborito-theme-garden-garden-plot__cell-border: 1px solid rgb(74 222 128 / 0.18);
         --arborito-theme-garden-garden-ranking__join--on-background: rgb(6 78 59 / 0.45);
         --arborito-theme-garden-garden-ranking__join--on-color: rgb(187 247 208);
         --arborito-theme-garden-garden-ranking__join-background: rgb(30 58 138 / 0.35);
         --arborito-theme-garden-garden-ranking__join-border: 1px solid rgb(59 130 246 / 0.4);
         --arborito-theme-garden-garden-ranking__join-color: rgb(191 219 254);
-        --arborito-theme-garden-garden-ranking__row-background: rgb(15 23 42 / 0.45);
+        --arborito-theme-garden-garden-ranking__row-background: rgb(14 17 24 / 0.45);
         --arborito-theme-garden-garden-shop__btn-background: rgb(6 78 59 / 0.35);
         --arborito-theme-garden-garden-shop__btn-color: rgb(187 247 208);
-        --arborito-theme-garden-garden-shop__item-background: rgb(15 23 42 / 0.5);
-        --arborito-theme-garden-garden-shop__item-border: 1px solid rgb(71 85 105 / 0.5);
+        --arborito-theme-garden-garden-shop__item-background: rgb(14 17 24 / 0.5);
+        --arborito-theme-garden-garden-shop__item-border: 1px solid rgb(82 82 91 / 0.5);
         --arborito-theme-garden-garden-vitality__state-color: rgb(134 239 172);
         --arborito-theme-garden-garden-vitality__track-background: rgb(74 222 128 / 0.12);
         --arborito-theme-garden-mochila-v2--mobile-background: var(--arborito-modal-surface-gradient-dark);
@@ -235,15 +235,15 @@ html.dark {
         --arborito-theme-garden-mochila-v2__btn-background: var(--arborito-surface-tile-dark);
         --arborito-theme-garden-mochila-v2__btn-border: 2px solid rgb(34 197 94 / 0.35);
         --arborito-theme-garden-mochila-v2__btn-color: rgb(220 252 231);
-        --arborito-theme-garden-mochila-v2__card--care-background-2: linear-gradient(145deg, rgb(120 53 15 / 0.28), rgb(15 23 42 / 0.55));
+        --arborito-theme-garden-mochila-v2__card--care-background-2: linear-gradient(145deg, rgb(120 53 15 / 0.28), rgb(14 17 24 / 0.55));
         --arborito-theme-garden-mochila-v2__card--care-background: linear-gradient(145deg, rgb(8 47 73 / 0.35), rgb(6 44 34 / 0.55));
         --arborito-theme-garden-mochila-v2__card--care-border-color: rgb(56 189 248 / 0.2);
         --arborito-theme-garden-mochila-v2__card--care-border: 1px solid rgb(180 83 9 / 0.35);
         --arborito-theme-garden-mochila-v2__card-background: rgb(8 32 26 / 0.55);
         --arborito-theme-garden-mochila-v2__card-count--due-background: rgb(120 53 15 / 0.45);
         --arborito-theme-garden-mochila-v2__card-count--due-color: rgb(253 230 138);
-        --arborito-theme-garden-mochila-v2__care-stat-background: rgb(30 41 59 / 0.75);
-        --arborito-theme-garden-mochila-v2__care-stat-color: rgb(226 232 240);
+        --arborito-theme-garden-mochila-v2__care-stat-background: rgb(28 33 44 / 0.75);
+        --arborito-theme-garden-mochila-v2__care-stat-color: rgb(212 212 216);
         --arborito-theme-garden-mochila-v2__daily-goal-background: rgb(34 197 94 / 0.12);
         --arborito-theme-garden-mochila-v2__daily-goal-border: 1px solid rgb(74 222 128 / 0.25);
         --arborito-theme-garden-mochila-v2__daily-goal-color: rgb(187 247 208);
@@ -255,7 +255,7 @@ html.dark {
         --arborito-theme-garden-mochila-v2__ring-inner-highlight: inset 0 1px 0 rgb(255 255 255 / 0.08);
         --arborito-theme-garden-mochila-v2-desktop-card-border: 1px solid var(--arborito-surface-panel-border-dark);
         --arborito-theme-garden-mochila-v2-desktop-card-background:
-            linear-gradient(165deg, rgb(6 44 34 / 0.92), rgb(15 23 42 / 0.88)),
+            linear-gradient(165deg, rgb(6 44 34 / 0.92), rgb(14 17 24 / 0.88)),
             var(--arborito-surface-tile-dark);
         --arborito-theme-garden-mochila-v2-desktop-card-shadow:
             0 16px 40px rgb(0 0 0 / 0.35),
@@ -278,8 +278,8 @@ html.dark {
         --arborito-theme-garden-mochila-v2__trail-mark-background: rgb(120 53 15);
         --arborito-theme-garden-mochila-v2__trail-mark-box-shadow: 0 0 0 1px rgb(251 191 36 / 0.4);
         --arborito-theme-garden-mochila-v2__trophy-background: rgb(120 53 15 / 0.35);
-        --arborito-theme-garden-arborito-desktop-menu-item-hover-background: rgb(148 163 184 / 0.14);
+        --arborito-theme-garden-arborito-desktop-menu-item-hover-background: rgb(161 161 170 / 0.14);
         --arborito-theme-garden-arborito-desktop-header-brand-hover-background: rgb(52 211 153 / 0.1);
-        --arborito-theme-garden-arborito-desktop-search-inline-input-moz-placeholder-color: rgb(148 163 184);
-        --arborito-theme-garden-arborito-desktop-search-inline-input-placeholder-color: rgb(148 163 184);
+        --arborito-theme-garden-arborito-desktop-search-inline-input-moz-placeholder-color: rgb(161 161 170);
+        --arborito-theme-garden-arborito-desktop-search-inline-input-placeholder-color: rgb(161 161 170);
 }

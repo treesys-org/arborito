@@ -2,7 +2,6 @@ import { useHookUi, useShellModalActions, useShellModalLang } from '../../../app
 import { privacyGdprActions } from '../../../stores/privacy-gdpr-store-actions.js';
 import { identityActions } from '../../../stores/identity-store-actions.js';
 import { cancelPendingAccountSyncTimersAction } from '../../../stores/identity-account-restore-store-actions.js';
-import { getArboritoStore as store } from '../../../core/store-singleton.js';
 
 /** GDPR, consentimiento red, privacidad. */
 export function usePrivacyGdpr() {
@@ -24,8 +23,4 @@ export function usePrivacyGdpr() {
         setModal,
         notify,
     };
-}
-
-export function usePrivacyGdprStore() {
-    return store;
 }

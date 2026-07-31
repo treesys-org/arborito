@@ -1,6 +1,6 @@
 import { getArboritoStore } from '../core/store-singleton.js';
 import { mountCurriculum } from '../features/sources/api/mount-curriculum.js';
-import { isBibliotecaUiOpen, isSourcesWelcomeLoadClose } from '../features/sources/api/sources-session.js';
+import { isBibliotecaUiOpen, isBibliotecaSoftMount, isSourcesWelcomeLoadClose } from '../features/sources/api/sources-session.js';
 import { DataProcessor } from '../features/tree-graph/api/data-processor.js';
 import { normalizeLoadedTreeJson } from '../features/tree-graph/api/tree-load-pipeline.js';
 import { repairTreeViewFromRawAction } from './tree-graph-store-actions.js';
@@ -8,6 +8,11 @@ import { mergeRemoteGamification } from '../core/user-store/gamification-merge.j
 import { dismissModalAction, notifyAction } from './shell-ui-store-actions.js';
 import { isSameActiveNetworkSource } from '../features/sources/api/modals/logic/sources-helpers.js';
 import { stripShareTreeParams } from '../features/sources/api/share-tree-url.js';
+import {
+    maybeSeedArboritoDemo,
+    bundledDemoBootSource,
+} from '../core/demo/seed-arborito-demo.js';
+import { DEMO_BRANCH_ID } from '../core/demo/arborito-demo-ids.js';
 
 function shell() {
     return getArboritoStore();
@@ -25,14 +30,71 @@ export async function loadDataAction(source, forceRefresh = true, opts = {}) {
     return mountCurriculum(store, source, forceRefresh, opts);
 }
 
+function isActiveBundledDemo(store) {
+    const src = store?.state?.activeSource;
+    if (!src) return false;
+    const id = String(src.id || '').trim();
+    const url = String(src.url || '').trim();
+    return (
+        id === DEMO_BRANCH_ID ||
+        url === `branch://${DEMO_BRANCH_ID}` ||
+        (src.type === 'branch' && id === DEMO_BRANCH_ID)
+    );
+}
+
+/**
+ * Never leave an empty sky graph. Seed + mount the bundled Arborito demo.
+ * @param {{ force?: boolean }} [opts] force: remount even when another tree is painted
+ * @returns {Promise<boolean>} true when a curriculum source was mounted
+ */
+export async function ensureMinimumDemoMountedAction(opts = {}) {
+    const store = shell();
+    if (!store) return false;
+    const force = !!opts.force;
+    if (!force) {
+        if (store.state.treeHydrating) return true;
+        if (store.state.data && isActiveBundledDemo(store)) return true;
+        if (store.state.data) return true;
+    }
+    store.update({ constructionMode: false, curriculumEditLang: null });
+    try {
+        await store.userStore?.ensureBranchesHydrated?.();
+    } catch {
+        /* ignore */
+    }
+    try {
+        maybeSeedArboritoDemo(store.userStore);
+        let src = bundledDemoBootSource(store.userStore);
+        if (!src) src = await store.sourceManager?.getDefaultSource?.();
+        if (!src) return false;
+        if (
+            !force &&
+            isActiveBundledDemo(store) &&
+            String(store.state.activeSource?.id || '') === String(src.id || '') &&
+            (store.state.data || store.state.treeHydrating)
+        ) {
+            return true;
+        }
+        await loadDataAction(src, true, { skipConstructionLoadConfirm: true });
+        return true;
+    } catch (e) {
+        console.warn('[Arborito] ensure minimum demo failed', e);
+        return false;
+    }
+}
+
+/**
+ * After removing the active course: remount Arborito demo (never a blank graph).
+ */
 export async function clearCanvasAndShowLoadTreeWelcomeAction() {
     const store = shell();
     if (!store) return;
-    await loadDataAction(null);
     store.update({ constructionMode: false, curriculumEditLang: null });
-    /* Reopen Biblioteca directly, dismissModal would return to onboarding when
-     * sources was opened with `fromOnboarding` (signed-in users included). */
-    store.setModal?.({ type: 'sources' });
+    const ok = await ensureMinimumDemoMountedAction({ force: true });
+    if (!ok) {
+        await loadDataAction(null);
+        store.setModal?.({ type: 'sources' });
+    }
 }
 
 function activeLocalBranchHasStoredData(store) {
@@ -47,6 +109,8 @@ function activeLocalBranchHasStoredData(store) {
 export function isSourcesDismissBlockedAction() {
     const store = shell();
     if (!store) return false;
+    /* Soft-mount already left Biblioteca for trunk/comic on the graph — not trapped. */
+    if (isBibliotecaSoftMount()) return false;
     if (store.state.treeHydrating && !store.state.data) return true;
     const sourcesOpen = isBibliotecaUiOpen(store);
     if (sourcesOpen && (!store.state.data || store.state.treeHydrating)) {
@@ -66,8 +130,9 @@ export async function maybeAutoLoadCommunityAfterAddAction(addResult) {
     if (!store || !addResult || addResult.ok !== true) return;
     const added = addResult.source;
     if (!added?.id) return;
-    /* Desktop uses modal `sources`; mobile library is an embed panel. */
-    if (!isBibliotecaUiOpen(store)) return;
+    /* Desktop uses modal `sources`; mobile library is an embed panel.
+     * Soft mount keeps this true after we close Biblioteca for progressive graph paint. */
+    if (!isBibliotecaUiOpen(store) && !isBibliotecaSoftMount()) return;
     /* Already viewing this network tree — bookmark only, skip remount. */
     if (isSameActiveNetworkSource(store.state.activeSource, added)) {
         if (isSourcesWelcomeLoadClose()) {
@@ -240,6 +305,7 @@ export function applyCurriculumPresetLanguageAction(code) {
 /** Store.prototype, source loading and bundle merge. */
 export const mountBundleMethods = {
     loadData: loadDataAction,
+    ensureMinimumDemoMounted: ensureMinimumDemoMountedAction,
     clearCanvasAndShowLoadTreeWelcome: clearCanvasAndShowLoadTreeWelcomeAction,
     isSourcesDismissBlocked: isSourcesDismissBlockedAction,
     maybeAutoLoadCommunityAfterAdd: maybeAutoLoadCommunityAfterAddAction,
@@ -253,6 +319,7 @@ export const mountBundleMethods = {
 
 export const sourcesActions = {
     loadData: loadDataAction,
+    ensureMinimumDemoMounted: ensureMinimumDemoMountedAction,
     clearCanvasAndShowLoadTreeWelcome: clearCanvasAndShowLoadTreeWelcomeAction,
     isSourcesDismissBlocked: isSourcesDismissBlockedAction,
     maybeAutoLoadCommunityAfterAdd: maybeAutoLoadCommunityAfterAddAction,

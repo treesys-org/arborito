@@ -104,18 +104,21 @@ function lessonDefinitionBlock(parsed, rawContent, maxChars, lang, topicKey = ''
     if (!body) return '';
     const header = lang === 'ES' ? '[Definición de la función]' : '[Feature definition]';
     const fact =
-        topicKey === 'bosque' || topicKey === 'forest'
+        topicKey === 'bosque' ||
+        topicKey === 'forest' ||
+        topicKey === 'cursos' ||
+        topicKey === 'courses'
             ? lang === 'ES'
-                ? 'Hecho clave: El Bosque es el archivador de tus ramas (abrir, importar un .arborito, o plantar rama nueva). No es el mapa de lecciones ni el progreso.'
-                : 'Key fact: The Forest is the filing cabinet for your branches (open, import a .arborito, or plant a new branch). It is not the lesson map or progress view.'
+                ? 'Hecho clave: Cursos es donde abres y gestionas contenido. Mis cursos es tu lista; Explorar es el catálogo en la red. También puedes importar un .arborito o crear uno nuevo. No es el mapa de lecciones ni el progreso.'
+                : 'Key fact: Courses is where you open and manage content. My courses is your list; Explore is the network catalog. You can also import an .arborito or create a new one. It is not the lesson map or progress view.'
             : topicKey === 'arcade'
               ? lang === 'ES'
                   ? 'Hecho clave: Arcade son minijuegos dentro de Arborito que usan las preguntas de tus lecciones (no son apps aparte).'
                   : 'Key fact: Arcade is mini-games inside Arborito that use your lesson questions (not separate apps).'
               : topicKey === 'file'
                 ? lang === 'ES'
-                    ? 'Hecho clave: Un archivo .arborito es un curso empaquetado para compartir/importar en el Bosque (no es el nombre de la app).'
-                    : 'Key fact: A .arborito file is a packaged course you share/import in the Forest (not the app name itself).'
+                    ? 'Hecho clave: Un archivo .arborito es un curso empaquetado para compartir o importar en Cursos (no es el nombre de la app).'
+                    : 'Key fact: A .arborito file is a packaged course you share or import in Courses (not the app name itself).'
                 : topicKey === 'arborito'
                   ? lang === 'ES'
                       ? 'Hecho clave: Arborito es la app de Treesys para aprender con mapa, práctica y juegos.'
@@ -432,20 +435,23 @@ export async function collectArboritoDemoRagBlock(lang = 'EN', query = '', prese
                 demoRoot,
                 lang,
                 focusedAnchorBudget,
-                /\b(bosque|forest|exportar|importar|construcci|construction)\b/i,
+                /\b(bosque|forest|cursos|courses|exportar|importar|construcci|construction)\b/i,
                 'file'
             );
             focusedTopic = true;
         } else if (/\barcade\b/i.test(q) || /\barcade\b/i.test(hitBlob)) {
             body = buildDemoAnchorSnippet(demoRoot, lang, focusedAnchorBudget, /\barcade\b/i, 'arcade');
             focusedTopic = true;
-        } else if (/\b(bosque|forest)\b/i.test(q) || /\b(bosque|forest)\b/i.test(hitBlob)) {
+        } else if (
+            /\b(bosque|forest|cursos|courses)\b/i.test(q) ||
+            /\b(bosque|forest|cursos|courses)\b/i.test(hitBlob)
+        ) {
             body = buildDemoAnchorSnippet(
                 demoRoot,
                 lang,
                 focusedAnchorBudget,
-                /\b(bosque|forest)\b/i,
-                'bosque'
+                /\b(bosque|forest|cursos|courses)\b/i,
+                'cursos'
             );
             focusedTopic = true;
         } else if (/\b(construcci[oó]n|construction)\b/i.test(q) || /construcc/i.test(hitBlob)) {

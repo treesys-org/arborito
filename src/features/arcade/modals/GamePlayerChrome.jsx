@@ -36,7 +36,7 @@ export function GamePlayerCloseButton({ ui, className = '', onClick }) {
     );
 }
 
-function MobToolbar({ ui, title, tone = 'default', onBack, onClose, showCloseX }) {
+function MobToolbar({ ui, title, tone = 'default', onBack }) {
     const danger = tone === 'danger';
     return (
         <div
@@ -55,7 +55,6 @@ function MobToolbar({ ui, title, tone = 'default', onBack, onClose, showCloseX }
             >
                 {title}
             </h3>
-            {showCloseX ? <GamePlayerCloseButton ui={ui} onClick={onClose} showOnMobile /> : null}
         </div>
     );
 }
@@ -88,7 +87,6 @@ function GamePlayerImmersiveScreen({
     panelSize = 'compact auto-h',
     topAccent = null,
     onClose,
-    showCloseX = false,
     children,
 }) {
     const mob = shouldShowMobileUI();
@@ -99,8 +97,6 @@ function GamePlayerImmersiveScreen({
             title={title}
             tone={tone}
             onBack={onClose}
-            onClose={onClose}
-            showCloseX={showCloseX}
         />
     ) : null;
 
@@ -277,7 +273,6 @@ export function GamePlayerAiErrorScreen({ ui, aiError, onRetry, onClose }) {
             panelClass={`text-center ${mob ? 'p-4 sm:p-8' : 'p-8'} overflow-x-hidden overflow-y-auto`}
             panelSize="standard auto-h"
             onClose={onClose}
-            showCloseX
             topAccent={<div className="absolute top-0 left-0 w-full h-1 bg-red-500" />}
         >
             <div
@@ -324,7 +319,6 @@ export function GamePlayerCrashScreen({ ui, error, onClose }) {
             tone="danger"
             panelClass={`text-center ${mob ? 'p-4 sm:p-8' : 'p-8'} overflow-x-hidden overflow-y-auto`}
             onClose={onClose}
-            showCloseX
         >
             <div className="text-4xl mb-3 opacity-90" aria-hidden="true">
                 🎮

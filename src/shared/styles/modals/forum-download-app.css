@@ -1,12 +1,18 @@
-/* --- download-app-panel --- */
-.arborito-download-app-modal-shell.arborito-float-modal-card {
-    max-width: min(28rem, calc(100vw - 1.5rem));
-    overflow: hidden;
+/* --- download-app: same shell family as Language --- */
+
+#modal-backdrop.arborito-modal--download-app > #modal-panel {
+    background: var(--arborito-theme-surface-bg) !important;
+    overflow: hidden !important;
+    padding: 0 !important;
 }
 
-.arborito-download-app-modal-shell .arborito-dock-modal-hero {
-    background: var(--arborito-theme-download-hero-bg);
-    border-bottom: 1px solid var(--arborito-theme-download-hero-border);
+#modal-backdrop.arborito-modal--download-app .arborito-dock-hub-shell,
+#modal-backdrop.arborito-modal--download-app .arborito-dock-hub-body {
+    width: 100%;
+    max-width: none;
+    background: transparent;
+    margin: 0;
+    padding: 0;
 }
 
 .arborito-download-modal__hero-icon {
@@ -17,22 +23,17 @@
     align-items: center;
     justify-content: center;
     border-radius: 0.85rem;
-    background: var(--arborito-theme-download-hero-icon-bg);
-    border: 1px solid var(--arborito-theme-download-hero-icon-border);
-    box-shadow: var(--arborito-theme-download-hero-icon-shadow);
-}
-
-/* Extra inset on content only — keep DockHubShell scroll pad untouched. */
-.arborito-download-modal__body {
-    padding-inline: 0.4rem;
+    background: var(--arborito-theme-tile-bg);
+    border: 1px solid var(--arborito-theme-tile-border);
+    box-shadow: none;
 }
 
 .arborito-download-app-lead {
-    margin: 0 0 1rem;
+    margin: 0;
     font-size: 0.8rem;
     line-height: 1.55;
     font-weight: 500;
-    color: var(--arborito-theme-auth-body-fg);
+    color: var(--arborito-theme-modal-prose);
     text-align: left;
 }
 
@@ -40,15 +41,13 @@
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0.4rem;
-    margin: 0 0 1rem;
 }
 
 .arborito-download-shots__item {
     display: block;
     border-radius: 0.55rem;
     overflow: hidden;
-    border: 1px solid var(--arborito-theme-download-compare-border, rgba(127, 127, 127, 0.28));
-    background: #0f172a;
+    border: 1px solid var(--arborito-theme-tile-border);
     aspect-ratio: 16 / 10;
     pointer-events: none;
     cursor: default;
@@ -62,11 +61,10 @@
 }
 
 .arborito-download-compare {
-    margin: 0 0 1.1rem;
+    margin: 0;
     padding: 0.75rem 0.8rem;
     border-radius: 1rem;
-    background: var(--arborito-theme-download-compare-bg);
-    border: 1px solid var(--arborito-theme-download-compare-border);
+    border: 1px solid var(--arborito-theme-tile-border);
 }
 
 .arborito-download-compare__head {
@@ -101,7 +99,7 @@
     text-align: left;
     color: var(--arborito-theme-eyebrow-strong-fg);
     line-height: 1.4;
-    border-top: 1px solid var(--arborito-theme-download-compare-feature-border);
+    border-top: 1px solid var(--arborito-theme-divider-border);
 }
 
 .arborito-download-compare__table tbody tr:first-child .arborito-download-compare__feature {
@@ -113,7 +111,7 @@
     text-align: center;
     font-weight: 800;
     color: var(--arborito-theme-eyebrow-fg);
-    border-top: 1px solid var(--arborito-theme-download-compare-feature-border);
+    border-top: 1px solid var(--arborito-theme-divider-border);
     width: 2.75rem;
 }
 
@@ -122,11 +120,11 @@
 }
 
 .arborito-download-compare__cell--app {
-    color: var(--arborito-theme-accent-emerald-fg);
+    color: var(--arborito-theme-tab-active-fg);
 }
 
 .arborito-download-modal__platforms-label {
-    margin: 0 0 0.55rem;
+    margin: 0;
     font-size: 0.65rem;
     font-weight: 800;
     letter-spacing: 0.06em;
@@ -134,25 +132,19 @@
     color: var(--arborito-theme-eyebrow-fg);
 }
 
+/* Layout only — no nested plate; shell surface fills to the card border. */
 .arborito-download-app-panel {
-    padding: 0.65rem 0.7rem 0.75rem;
-    border-radius: 1rem;
-    border: 1px solid var(--arborito-theme-download-panel-border);
-    background: var(--arborito-theme-download-panel-bg);
-    box-shadow: var(--arborito-theme-download-panel-inset);
-}
-
-.arborito-download-app-panel--modal {
-    border: 1px solid var(--arborito-theme-download-panel-border);
-    padding: 0.75rem;
-    background: var(--arborito-theme-download-panel-modal-bg);
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
 }
 
 .arborito-download-app-panel__hint {
     margin: 0 0 0.65rem;
     font-size: 0.68rem;
     line-height: 1.45;
-    color: var(--arborito-theme-auth-body-fg);
+    color: var(--arborito-theme-modal-prose);
 }
 
 .arborito-download-app-panel__grid {
@@ -176,19 +168,18 @@
     min-height: 5.25rem;
     padding: 0.65rem 0.5rem;
     border-radius: 0.85rem;
-    border: 1px solid var(--arborito-theme-download-platform-border);
-    background: var(--arborito-theme-download-platform-bg);
+    border: 1px solid var(--arborito-theme-tile-border);
     text-decoration: none;
     color: inherit;
     text-align: center;
-    transition: background 0.14s ease, border-color 0.14s ease, transform 0.14s ease, box-shadow 0.14s ease;
+    transition: background 0.14s ease, border-color 0.14s ease, transform 0.14s ease;
 }
 
 .arborito-download-app-panel__platform:hover {
-    transform: translateY(-2px);
-    border-color: rgb(52 211 153 / 0.55);
-    background: var(--arborito-theme-download-platform-hover-bg);
-    box-shadow: var(--arborito-theme-download-platform-hover-shadow);
+    transform: translateY(-1px);
+    border-color: var(--arborito-theme-tab-active-indicator);
+    background: var(--arborito-theme-tab-active-bg);
+    box-shadow: none;
 }
 
 .arborito-download-app-panel__platform-ic {
@@ -198,7 +189,7 @@
     width: 2.2rem;
     height: 2.2rem;
     border-radius: 0.65rem;
-    background: var(--arborito-theme-download-platform-ic-bg);
+    background: var(--arborito-theme-hover-surface-opaque);
 }
 
 .arborito-download-app-panel__platform[data-brand='windows'] .arborito-brand-icon {
@@ -242,10 +233,10 @@
     border-radius: 0.65rem;
     font-size: 0.68rem;
     font-weight: 700;
-    color: var(--arborito-theme-download-all-fg);
+    color: var(--arborito-theme-tab-active-fg);
     text-decoration: none;
-    background: var(--arborito-theme-download-all-bg);
-    border: 1px solid var(--arborito-theme-download-all-border);
+    background: var(--arborito-theme-tab-active-bg);
+    border: 1px solid var(--arborito-theme-tile-border);
 }
 
 .arborito-download-app-panel__all:hover {

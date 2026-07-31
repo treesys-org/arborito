@@ -66,7 +66,7 @@ export function ModalPickCurriculumLang() {
                             <button
                                 key={p.code}
                                 type="button"
-                                className="pick-lang-btn flex flex-col items-center gap-1 p-3 rounded-2xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors text-center min-h-[5.5rem] justify-center"
+                                className="pick-lang-btn flex flex-col items-center gap-1 p-3 rounded-2xl border border-slate-200 dark:border-slate-600 arborito-surface-tile/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors text-center min-h-[5.5rem] justify-center"
                                 onClick={(ev) => {
                                     ev.stopPropagation();
                                     pick(p.code);

@@ -59,7 +59,7 @@ export function SourcesComposedTreeRow({
 
     return (
         <div
-            className={`p-4 bg-white dark:bg-slate-900 border ${borderCls}${pinCls} rounded-2xl shadow-sm hover:border-violet-300 dark:hover:border-violet-700 transition-colors mb-2`}
+            className={`p-4 arborito-surface-tile border ${borderCls}${pinCls} rounded-2xl shadow-sm hover:border-violet-300 dark:hover:border-violet-700 transition-colors mb-2`}
         >
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
@@ -80,7 +80,7 @@ export function SourcesComposedTreeRow({
                                 {ui.sourcesPillPublished || 'Published'}
                             </SourcesPill>
                         ) : (
-                            <SourcesPill className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700">
+                            <SourcesPill className="arborito-surface-tile text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700">
                                 {ui.sourcesPillLocal || 'On device'}
                             </SourcesPill>
                         )}
@@ -90,7 +90,7 @@ export function SourcesComposedTreeRow({
                             </SourcesPill>
                         ) : null}
                         {isActive && !pinned && !shareCode ? (
-                            <SourcesPill className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700">
+                            <SourcesPill className="arborito-surface-tile text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700">
                                 {ui.sourceActive || 'Active'}
                             </SourcesPill>
                         ) : null}
@@ -126,7 +126,7 @@ export function SourcesComposedTreeRow({
                             <div className="arborito-sources-cta-row">
                                 <button
                                     type="button"
-                                    className="arborito-sources-row-cta bg-violet-800 dark:bg-violet-500 text-white shadow-sm hover:opacity-90 transition-opacity"
+                                    className="arborito-sources-row-cta arborito-cta-purple shadow-sm"
                                     onClick={() => onAction?.('open-composed-tree', { id: tree.id })}
                                 >
                                     {ui.sourceLoad || 'Open'}

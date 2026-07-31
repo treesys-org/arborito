@@ -41,9 +41,9 @@ export const SAGE_CONSTRUCT_TOOLS = [
         describeEN: 'Create a new module (folder / course branch) on the map.',
         describeES: 'Crear un módulo nuevo (carpeta en el mapa) bajo la selección.',
         useWhenEN:
-            'Use when the author wants a new container for lessons: a module/folder on the map (not a whole Forest branch). Any request whose result should be a folder node.',
+            'Use when the author wants a new container for lessons: a module/folder on the map (not a whole Courses entry). Any request whose result should be a folder node.',
         useWhenES:
-            'Usá cuando el autor quiere un contenedor nuevo para lecciones: un módulo/carpeta en el mapa (no una rama entera del Bosque). Cualquier pedido cuyo resultado deba ser un nodo carpeta.',
+            'Usa cuando el autor quiere un contenedor nuevo para lecciones: un módulo/carpeta en el mapa (no un curso entero en Cursos). Cualquier pedido cuyo resultado deba ser un nodo carpeta.',
     },
     {
         id: 'create_lesson',

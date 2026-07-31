@@ -9,10 +9,10 @@ import { modalCtaConfirmFull } from '../../../../shared/ui/modal-action-chrome.j
 export function UrlBlock({ ui, url }) {
     const { summary, full } = urlSummaryForUser(url || '');
     return (
-        <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-50/80 dark:bg-slate-900/30">
+        <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden arborito-surface-tile">
             <p className="arborito-eyebrow arborito-eyebrow--md px-3 pt-2">{ui.secUrlSummaryLabel || 'Link'}</p>
             <p className="px-3 pb-2 text-sm text-slate-800 dark:text-slate-100 break-words">{summary}</p>
-            <details className="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950/50">
+            <details className="border-t border-slate-200 dark:border-slate-700 arborito-surface-tile">
                 <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold text-sky-700 dark:text-sky-300 hover:underline">
                     {ui.secUrlDetailsToggle || 'Show full link'}
                 </summary>

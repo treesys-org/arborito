@@ -1,6 +1,6 @@
 {
  "name": "arborito",
- "version": "0.1.1-alpha",
+ "version": "0.1.2-alpha",
  "description": "Visual Knowledge Explorer, Vite + React + Tailwind CSS v3.",
  "main": "electron-main.js",
  "scripts": {

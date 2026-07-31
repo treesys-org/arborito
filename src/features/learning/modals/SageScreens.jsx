@@ -7,11 +7,9 @@ import { DOCK_SHEET_SCROLL_PAD } from '../../../shared/ui/dock-sheet-chrome.js';
 import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import { SageModeToggle, SageMobPanel, SageDeskGuideShell } from './components/SageLayout.jsx';
-import { sageHideDismissButton } from '../api/modals/logic/sage-ui-helpers.js';
 import { SAGE_OPEN } from '../api/modals/logic/sage-ui-helpers.js';
 
 function SageScreenHero({ ui, mob, title, subtitle, trailing, leadingIcon, onClose, backAsClose }) {
-    const hideDismiss = sageHideDismissButton();
     return (
         <ModalHubHero
             ui={ui}
@@ -20,8 +18,8 @@ function SageScreenHero({ ui, mob, title, subtitle, trailing, leadingIcon, onClo
             subtitle={subtitle}
             leadingIcon={leadingIcon ?? '🦉'}
             trailingHtml={trailing}
-            showBack={!hideDismiss}
-            showClose={!hideDismiss}
+            showBack
+            showClose
             backTagClass={backAsClose ? 'btn-close' : undefined}
             tagClass="btn-close"
             onClose={onClose}
@@ -193,7 +191,6 @@ export function SageLoadingScreen({ ui, progress, onCancel, onClose, embedded = 
     const loadDesc = isDesktop
         ? ui.sageLoadingBrainDescDesktop || ui.sageLoadingBrainDesc || ''
         : ui.sageLoadingBrainDescExpert || ui.sageLoadingBrainDescBrowser || ui.sageLoadingBrainDesc || '';
-    const hideDismiss = sageHideDismissButton();
     let parsed = null;
     if (progress) {
         const match = String(progress).match(/(\d+)%/);
@@ -216,16 +213,14 @@ export function SageLoadingScreen({ ui, progress, onCancel, onClose, embedded = 
                 <div className={`js-progress-bar ${barClass} h-full min-w-0 transition-[width] duration-300 ease-out`} style={{ width: `${percent}%` }} />
             </div>
             <p className={`js-progress-text text-xs font-mono font-bold ${textClass}`}>{progress || starting}</p>
-            {!hideDismiss ? (
-                <button type="button" id="btn-sage-loading-cancel" className="arborito-sage-loading-cancel arborito-btn-ghost arborito-cta-slate py-2 px-4 rounded-xl font-semibold text-sm active:scale-95" onClick={onCancel}>
-                    {ui.cancel || 'Cancel'}
-                </button>
-            ) : null}
+            <button type="button" id="btn-sage-loading-cancel" className="arborito-sage-loading-cancel arborito-btn-ghost arborito-cta-slate py-2 px-4 rounded-xl font-semibold text-sm active:scale-95" onClick={onCancel}>
+                {ui.cancel || 'Cancel'}
+            </button>
         </div>
     );
 
     if (mob) {
-        const head = hideDismiss ? null : (
+        const head = (
             <SageScreenHero ui={ui} mob onClose={onClose} backAsClose />
         );
         const body = (

@@ -27,8 +27,8 @@
         --arborito-theme-dock-hub-head-icon-bg-hover: rgb(255 255 255 / 0.08);
         --arborito-theme-dock-hub-head-icon-border: transparent;
         --arborito-theme-dock-hub-head-icon-shadow: none;
-        /* Forest consolidación — light dim only; hubs float over the tree. */
-        --arborito-theme-modal-scrim: rgb(15 23 42 / 0.30);
+        /* Forest consolidación — soft dim; hubs float over the tree (no blur). */
+        --arborito-theme-modal-scrim: rgb(15 23 42 / 0.42);
         --arborito-theme-float-card-shadow:
     0 28px 64px -14px rgb(15 23 42 / 0.22),
     0 4px 12px -2px rgb(15 23 42 / 0.07),
@@ -161,102 +161,102 @@ html.dark {
         --arborito-theme-surface-border: var(--arborito-surface-panel-border-dark);
         --arborito-theme-tile-bg: var(--arborito-surface-tile-dark);
         --arborito-theme-tile-border: var(--arborito-surface-tile-border-dark);
-        --arborito-theme-modal-text: rgb(241 245 249);
-        --arborito-theme-modal-text-strong: rgb(248 250 252);
-        --arborito-theme-modal-prose: rgb(226 232 240);
-        --arborito-theme-modal-prose-strong: rgb(248 250 252);
+        --arborito-theme-modal-text: rgb(228 228 231);
+        --arborito-theme-modal-text-strong: rgb(250 250 250);
+        --arborito-theme-modal-prose: rgb(212 212 216);
+        --arborito-theme-modal-prose-strong: rgb(250 250 250);
         --arborito-theme-modal-inner-shadow: var(--arborito-modal-shadow);
         --arborito-theme-modal-inner-border: var(--arborito-surface-panel-border-dark);
-        --arborito-theme-modal-head-border: rgb(51 65 85 / 0.55);
+        --arborito-theme-modal-head-border: rgb(255 255 255 / 0.08);
         --arborito-theme-sheet-hero-bg: linear-gradient(
             180deg,
-            rgb(45 212 191 / 0.07) 0%,
+            rgb(52 211 153 / 0.08) 0%,
             transparent 100%
         );
-        --arborito-theme-sheet-hero-border: rgb(51 65 85 / 0.55);
+        --arborito-theme-sheet-hero-border: rgb(255 255 255 / 0.08);
         --arborito-theme-dock-hub-head-bg: var(--arborito-theme-sheet-hero-bg);
         --arborito-theme-dock-hub-head-border: var(--arborito-theme-sheet-hero-border);
         --arborito-theme-dock-hub-head-shadow: none;
-        --arborito-theme-dock-hub-head-title: var(--arborito-theme-learning-arborito-mmenu-subtitle-color, rgb(241 245 249));
+        --arborito-theme-dock-hub-head-title: var(--arborito-theme-learning-arborito-mmenu-subtitle-color, rgb(250 250 250));
         --arborito-theme-dock-hub-head-subtitle: var(--arborito-theme-text-muted);
         --arborito-theme-dock-hub-head-icon-bg: transparent;
         --arborito-theme-dock-hub-head-icon-bg-hover: rgb(255 255 255 / 0.06);
         --arborito-theme-dock-hub-head-icon-border: transparent;
         --arborito-theme-dock-hub-head-icon-shadow: none;
-        /* Forest consolidación — light dim only; hubs float over the tree. */
-        --arborito-theme-modal-scrim: rgb(2 6 23 / 0.34);
+        /* Deep ink scrim — focus the open surface. */
+        --arborito-theme-modal-scrim: rgb(0 0 0 / 0.62);
         --arborito-theme-float-card-shadow:
-    0 30px 72px -16px rgb(0 0 0 / 0.62),
-    0 4px 12px -2px rgb(0 0 0 / 0.32),
-    0 0 0 1px rgb(255 255 255 / 0.08);
-        --arborito-theme-float-card-lift-soft:
-    0 28px 72px -18px rgb(0 0 0 / 0.55),
-    0 2px 8px -2px rgb(0 0 0 / 0.25),
+    0 28px 64px -14px rgb(0 0 0 / 0.55),
+    0 4px 12px -2px rgb(0 0 0 / 0.28),
     0 0 0 1px rgb(255 255 255 / 0.06);
+        --arborito-theme-float-card-lift-soft:
+    0 24px 56px -16px rgb(0 0 0 / 0.45),
+    0 2px 8px -2px rgb(0 0 0 / 0.2),
+    0 0 0 1px rgb(255 255 255 / 0.05);
         --arborito-theme-float-card-lift-strong:
-    0 32px 120px -20px rgb(0 0 0 / 0.75),
-    0 4px 16px -4px rgb(0 0 0 / 0.35),
-    0 0 0 1px rgb(255 255 255 / 0.10);
+    0 32px 96px -20px rgb(0 0 0 / 0.62),
+    0 4px 16px -4px rgb(0 0 0 / 0.28),
+    0 0 0 1px rgb(255 255 255 / 0.07);
         --arborito-theme-scrim-sage: var(--arborito-theme-modal-scrim);
         --arborito-theme-scrim-game: rgb(0 0 0);
-        --arborito-theme-tab-bar-border: rgb(51 65 85);
-        --arborito-theme-tab-hover-fg: rgb(203 213 225);
+        --arborito-theme-tab-bar-border: rgb(255 255 255 / 0.08);
+        --arborito-theme-tab-hover-fg: rgb(228 228 231);
         --arborito-theme-tab-active-fg: rgb(167 243 208);
         --arborito-theme-tab-active-indicator: rgb(52 211 153);
-        --arborito-theme-tab-active-bg: rgb(6 78 59 / 0.35);
-        --arborito-theme-eyebrow-fg: rgb(148 163 184);
-        --arborito-theme-eyebrow-sky-fg: rgb(224 242 254);
-        --arborito-theme-eyebrow-strong-fg: rgb(226 232 240);
+        --arborito-theme-tab-active-bg: rgb(16 185 129 / 0.12);
+        --arborito-theme-eyebrow-fg: rgb(161 161 170);
+        --arborito-theme-eyebrow-sky-fg: rgb(186 230 253);
+        --arborito-theme-eyebrow-strong-fg: rgb(228 228 231);
         --arborito-theme-danger-bg: rgb(69 10 10 / 0.55);
         --arborito-theme-danger-border: rgb(239 68 68 / 0.45);
         --arborito-theme-danger-fg: rgb(252 165 165);
         --arborito-theme-danger-border-subtle: rgb(127 29 29 / 0.55);
-        --arborito-theme-hover-surface: rgb(30 41 59 / 0.92);
-        --arborito-theme-hover-surface-opaque: rgb(51 65 85);
-        --arborito-theme-border-muted: rgb(100 116 139);
-        --arborito-theme-border-muted-hover: rgb(100 116 139);
-        --arborito-theme-form-bg: rgb(30 41 59);
-        --arborito-theme-form-border: rgb(51 65 85);
-        --arborito-theme-form-fg: rgb(241 245 249);
-        --arborito-theme-form-placeholder: rgb(100 116 139);
+        --arborito-theme-hover-surface: rgb(30 36 48 / 0.92);
+        --arborito-theme-hover-surface-opaque: rgb(36 42 56);
+        --arborito-theme-border-muted: rgb(113 113 122);
+        --arborito-theme-border-muted-hover: rgb(161 161 170);
+        --arborito-theme-form-bg: rgb(24 29 38);
+        --arborito-theme-form-border: rgb(255 255 255 / 0.1);
+        --arborito-theme-form-fg: rgb(250 250 250);
+        --arborito-theme-form-placeholder: rgb(113 113 122);
         --arborito-theme-form-focus-border: rgb(52 211 153);
-        --arborito-theme-form-focus-ring: 0 0 0 2px rgb(52 211 153 / 0.30);
-        --arborito-theme-form-search-icon: rgb(100 116 139);
+        --arborito-theme-form-focus-ring: 0 0 0 2px rgb(52 211 153 / 0.28);
+        --arborito-theme-form-search-icon: rgb(113 113 122);
         --arborito-theme-form-color-scheme: dark;
-        --arborito-theme-busy-banner-border: rgb(34 197 94 / 0.35);
-        --arborito-theme-busy-banner-bg: rgb(6 44 34 / 0.55);
-        --arborito-theme-busy-banner-fg: rgb(187 247 208);
-        --arborito-theme-busy-spinner-track: rgb(74 222 128 / 0.25);
-        --arborito-theme-busy-spinner-head: rgb(74 222 128);
-        --arborito-theme-icon-btn-bg: rgb(30 41 59 / 0.95);
-        --arborito-theme-icon-btn-fg: rgb(226 232 240);
-        --arborito-theme-icon-btn-hover-bg: rgb(51 65 85 / 0.95);
+        --arborito-theme-busy-banner-border: rgb(52 211 153 / 0.28);
+        --arborito-theme-busy-banner-bg: rgb(16 185 129 / 0.1);
+        --arborito-theme-busy-banner-fg: rgb(167 243 208);
+        --arborito-theme-busy-spinner-track: rgb(52 211 153 / 0.22);
+        --arborito-theme-busy-spinner-head: rgb(52 211 153);
+        --arborito-theme-icon-btn-bg: rgb(28 33 44 / 0.95);
+        --arborito-theme-icon-btn-fg: rgb(228 228 231);
+        --arborito-theme-icon-btn-hover-bg: rgb(36 42 56 / 0.95);
         --arborito-theme-icon-btn-danger-bg: rgb(127 29 29 / 0.40);
         --arborito-theme-icon-btn-danger-fg: rgb(252 165 165);
         --arborito-theme-icon-btn-danger-hover-bg: rgb(127 29 29 / 0.60);
-        --arborito-theme-mmenu-back-bg: rgb(30 41 59 / 0.95);
-        --arborito-theme-mmenu-back-fg: var(--slate-200);
-        --arborito-theme-mmenu-back-active-bg: rgb(51 65 85 / 0.9);
-        --arborito-theme-btn-ghost-bg: rgb(30 41 59);
-        --arborito-theme-btn-ghost-fg: rgb(203 213 225);
-        --arborito-theme-btn-ghost-hover-bg: rgb(51 65 85);
-        --arborito-theme-seg-track-bg: rgb(30 41 59 / 0.9);
-        --arborito-theme-seg-track-border: rgb(51 65 85 / 0.8);
-        --arborito-theme-seg-btn-fg: rgb(148 163 184);
-        --arborito-theme-seg-btn-hover-fg: rgb(203 213 225);
-        --arborito-theme-seg-btn-active-bg: rgb(51 65 85);
-        --arborito-theme-seg-btn-active-fg: rgb(241 245 249);
-        --arborito-theme-seg-btn-active-ring: rgb(71 85 105);
+        --arborito-theme-mmenu-back-bg: rgb(28 33 44 / 0.95);
+        --arborito-theme-mmenu-back-fg: rgb(228 228 231);
+        --arborito-theme-mmenu-back-active-bg: rgb(36 42 56 / 0.9);
+        --arborito-theme-btn-ghost-bg: rgb(28 33 44);
+        --arborito-theme-btn-ghost-fg: rgb(212 212 216);
+        --arborito-theme-btn-ghost-hover-bg: rgb(36 42 56);
+        --arborito-theme-seg-track-bg: rgb(14 17 24 / 0.9);
+        --arborito-theme-seg-track-border: rgb(255 255 255 / 0.08);
+        --arborito-theme-seg-btn-fg: rgb(161 161 170);
+        --arborito-theme-seg-btn-hover-fg: rgb(228 228 231);
+        --arborito-theme-seg-btn-active-bg: rgb(36 42 56);
+        --arborito-theme-seg-btn-active-fg: rgb(250 250 250);
+        --arborito-theme-seg-btn-active-ring: rgb(255 255 255 / 0.12);
         --arborito-theme-seg-btn-active-accent-bg: rgb(147 51 234);
         --arborito-theme-seg-btn-active-accent-fg: rgb(255 255 255);
         --arborito-theme-seg-btn-active-accent-ring: rgb(168 85 247 / 0.5);
         --arborito-theme-seg-btn-active-warn-bg: rgb(124 45 18 / 0.55);
         --arborito-theme-seg-btn-active-warn-fg: rgb(254 215 170);
         --arborito-theme-seg-btn-active-warn-ring: rgb(249 115 22 / 0.45);
-        --arborito-theme-meter-track-bg: rgb(51 65 85);
-        --arborito-theme-picker-panel-bg: rgb(2 6 23 / 0.9);
-        --arborito-theme-picker-panel-border: rgb(51 65 85);
-        --arborito-theme-picker-row-hover-bg: rgb(30 41 59);
+        --arborito-theme-meter-track-bg: rgb(36 42 56);
+        --arborito-theme-picker-panel-bg: rgb(10 12 18 / 0.95);
+        --arborito-theme-picker-panel-border: rgb(255 255 255 / 0.1);
+        --arborito-theme-picker-row-hover-bg: rgb(28 33 44);
         --arborito-theme-picker-row-selected-bg: rgb(124 45 18 / 0.45);
         --arborito-theme-picker-row-selected-fg: rgb(254 215 170);
         --arborito-theme-picker-row-selected-ring: rgb(249 115 22);
@@ -265,49 +265,49 @@ html.dark {
         --arborito-theme-loading-slot-fg: rgb(254 215 170);
         --arborito-theme-loading-spinner-track: rgb(124 45 18);
         --arborito-theme-loading-spinner-head: rgb(251 146 60);
-        --arborito-theme-empty-fg: rgb(148 163 184);
-        --arborito-theme-empty-dashed-border: rgb(71 85 105);
-        --arborito-theme-empty-card-bg: rgb(15 23 42 / 0.5);
-        --arborito-theme-empty-card-border: rgb(51 65 85);
-        --arborito-theme-empty-title-fg: rgb(226 232 240);
-        --arborito-theme-empty-body-fg: rgb(148 163 184);
-        --arborito-theme-modal-footer-bg: rgb(15 23 42 / 0.92);
-        --arborito-theme-modal-footer-border: rgb(51 65 85);
-        --arborito-theme-modal-footer-flat-bg: rgb(15 23 42);
-        --arborito-theme-modal-nav-border: rgb(51 65 85 / 0.55);
-        --arborito-theme-modal-nav-btn-bg: rgb(15 23 42 / 0.7);
-        --arborito-theme-modal-nav-btn-border: rgb(51 65 85);
-        --arborito-theme-modal-nav-btn-fg: rgb(241 245 249);
-        --arborito-theme-modal-nav-btn-hover-border: rgb(100 116 139);
-        --arborito-theme-modal-nav-btn-hover-bg: rgb(30 41 59 / 0.7);
-        --arborito-theme-sheet-text: rgb(241 245 249);
-        --arborito-theme-placeholder-fg: rgb(203 213 225);
-        --arborito-theme-modal-close-hover-bg: rgb(51 65 85 / 0.95);
-        --arborito-theme-modal-close-hover-border: rgb(100 116 139 / 0.75);
-        --arborito-theme-modal-close-hover-fg: rgb(248 250 252);
+        --arborito-theme-empty-fg: rgb(161 161 170);
+        --arborito-theme-empty-dashed-border: rgb(63 63 70);
+        --arborito-theme-empty-card-bg: rgb(14 17 24 / 0.65);
+        --arborito-theme-empty-card-border: rgb(255 255 255 / 0.08);
+        --arborito-theme-empty-title-fg: rgb(228 228 231);
+        --arborito-theme-empty-body-fg: rgb(161 161 170);
+        --arborito-theme-modal-footer-bg: rgb(10 12 18 / 0.94);
+        --arborito-theme-modal-footer-border: rgb(255 255 255 / 0.08);
+        --arborito-theme-modal-footer-flat-bg: rgb(10 12 18);
+        --arborito-theme-modal-nav-border: rgb(255 255 255 / 0.08);
+        --arborito-theme-modal-nav-btn-bg: rgb(20 24 32 / 0.8);
+        --arborito-theme-modal-nav-btn-border: rgb(255 255 255 / 0.1);
+        --arborito-theme-modal-nav-btn-fg: rgb(250 250 250);
+        --arborito-theme-modal-nav-btn-hover-border: rgb(255 255 255 / 0.18);
+        --arborito-theme-modal-nav-btn-hover-bg: rgb(28 33 44 / 0.85);
+        --arborito-theme-sheet-text: rgb(250 250 250);
+        --arborito-theme-placeholder-fg: rgb(212 212 216);
+        --arborito-theme-modal-close-hover-bg: rgb(36 42 56 / 0.95);
+        --arborito-theme-modal-close-hover-border: rgb(255 255 255 / 0.16);
+        --arborito-theme-modal-close-hover-fg: rgb(250 250 250);
         --arborito-theme-sheet-elevate: 0 18px 44px -8px rgb(0 0 0 / 0.35);
         --arborito-theme-modal-dock-panel-background: var(--arborito-modal-surface-gradient-dark);
-        --arborito-theme-modal-head-border-light: rgb(51 65 85 / 0.85);
-        --arborito-theme-modal-head-border-slate: rgb(148 163 184 / 0.2);
-        --arborito-theme-modal-window-x-border: rgb(71 85 105 / 0.65);
-        --arborito-theme-modal-window-x-background: rgb(30 41 59 / 0.92);
-        --arborito-theme-modal-window-x-color: rgb(226 232 240);
-        --arborito-theme-inline-spinner-border-color: rgb(148 163 184 / 0.25);
+        --arborito-theme-modal-head-border-light: rgb(255 255 255 / 0.1);
+        --arborito-theme-modal-head-border-slate: rgb(255 255 255 / 0.08);
+        --arborito-theme-modal-window-x-border: rgb(255 255 255 / 0.12);
+        --arborito-theme-modal-window-x-background: rgb(24 29 38 / 0.95);
+        --arborito-theme-modal-window-x-color: rgb(228 228 231);
+        --arborito-theme-inline-spinner-border-color: rgb(63 63 70 / 0.65);
         --arborito-theme-inline-spinner-border-top-color: rgb(52 211 153);
-        --arborito-theme-scrollbar-color: rgb(71 85 105 / 0.65) transparent;
-        --arborito-theme-tip-after-color: rgb(248 250 252);
-        --arborito-theme-tip-after-background: rgb(15 23 42 / 0.98);
-        --arborito-theme-tip-after-border-color: rgb(51 65 85 / 0.9);
-        --arborito-theme-card-bg: rgb(30 41 59);
-        --arborito-theme-card-border: rgb(51 65 85);
-        --arborito-theme-card-border-emphasis: rgb(51 65 85);
-        --arborito-theme-card-fg: rgb(241 245 249);
-        --arborito-theme-text-muted: rgb(148 163 184);
-        --arborito-theme-text-strong: rgb(248 250 252);
-        --arborito-theme-divider-border: rgb(51 65 85);
-        --arborito-theme-strip-bg: rgb(2 6 23 / 0.9);
+        --arborito-theme-scrollbar-color: rgb(63 63 70 / 0.75) transparent;
+        --arborito-theme-tip-after-color: rgb(250 250 250);
+        --arborito-theme-tip-after-background: rgb(14 17 24 / 0.98);
+        --arborito-theme-tip-after-border-color: rgb(255 255 255 / 0.1);
+        --arborito-theme-card-bg: rgb(24 29 38);
+        --arborito-theme-card-border: rgb(255 255 255 / 0.08);
+        --arborito-theme-card-border-emphasis: rgb(255 255 255 / 0.12);
+        --arborito-theme-card-fg: rgb(228 228 231);
+        --arborito-theme-text-muted: rgb(161 161 170);
+        --arborito-theme-text-strong: rgb(250 250 250);
+        --arborito-theme-divider-border: rgb(255 255 255 / 0.08);
+        --arborito-theme-strip-bg: rgb(10 12 18 / 0.92);
         --arborito-theme-icon-tile-bg: rgb(124 45 18 / 0.35);
         --arborito-theme-icon-tile-border: rgb(249 115 22 / 0.45);
         --arborito-theme-icon-tile-fg: rgb(254 215 170);
-        --arborito-theme-tab-fg: rgb(148 163 184);
+        --arborito-theme-tab-fg: rgb(161 161 170);
 }

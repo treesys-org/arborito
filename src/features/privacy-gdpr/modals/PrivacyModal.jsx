@@ -183,7 +183,7 @@ export function ModalPrivacy() {
                                     </Callout>
                                 </>
                             ) : null}
-                            <div className="not-prose mt-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/80 p-4">
+                            <div className="not-prose mt-4 rounded-2xl border border-slate-200 dark:border-slate-700 arborito-surface-tile p-4">
                                 <h3 className="arborito-eyebrow arborito-eyebrow--md arborito-eyebrow--strong m-0">
                                     {ui.profileNetworkRelaysHeading || ui.privacyNostrRelaysHeading || 'Public network'}
                                 </h3>
@@ -204,7 +204,7 @@ export function ModalPrivacy() {
                                 <ProfileNetworkRelays previewPending={onboardingNetworkPreview} />
                             </div>
                             {!onboardingNetworkPreview ? (
-                                <div className="not-prose mt-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950/60 p-4">
+                                <div className="not-prose mt-6 rounded-2xl border border-slate-200 dark:border-slate-700 arborito-surface-tile p-4">
                                     <h3 className="arborito-eyebrow arborito-eyebrow--md arborito-eyebrow--strong m-0">
                                         {ui.privacyDeviceDataHeading || 'This device'}
                                     </h3>

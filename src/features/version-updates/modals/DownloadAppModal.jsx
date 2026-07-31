@@ -25,7 +25,7 @@ function DownloadScreenshotStrip({ lang }) {
     return (
         <div className="arborito-download-shots" aria-hidden="true">
             {files.map((file) => (
-                <div key={file} className="arborito-download-shots__item">
+                <div key={file} className="arborito-download-shots__item arborito-surface-tile">
                     <img src={productScreenshotSrc(file, lang)} alt="" loading="lazy" decoding="async" />
                 </div>
             ))}
@@ -45,7 +45,7 @@ function DownloadAppCompare({ ui }) {
     const caption = ui.downloadCompareCaption || 'Web vs app';
 
     return (
-        <div className="arborito-download-compare" role="table" aria-label={caption}>
+        <div className="arborito-download-compare arborito-surface-tile" role="table" aria-label={caption}>
             <div className="arborito-download-compare__head" role="row">
                 <span role="columnheader" />
                 <span role="columnheader" className="arborito-download-compare__col">{webTitle}</span>
@@ -81,7 +81,7 @@ function DownloadAppPanel({ ui, state }) {
     const allLabel = ui.downloadVignetteAll || 'All releases';
 
     return (
-        <div className="arborito-download-app-panel arborito-download-app-panel--modal" role="region" aria-label={title}>
+        <div className="arborito-download-app-panel" role="region" aria-label={title}>
             {hint ? <p className="arborito-download-app-panel__hint">{hint}</p> : null}
             <div className="arborito-download-app-panel__grid">
                 {platforms.map((p) => {
@@ -90,7 +90,7 @@ function DownloadAppPanel({ ui, state }) {
                     return (
                         <a
                             key={p.url}
-                            className="arborito-download-app-panel__platform"
+                            className="arborito-download-app-panel__platform arborito-surface-tile"
                             data-brand={p.brand}
                             href={p.url}
                             target="_blank"
@@ -135,12 +135,10 @@ export function ModalDownloadApp() {
         <ModalHubHero
             ui={ui}
             mobile={mobile}
-            trailingSpacer={false}
             title={title}
             subtitle={badge || undefined}
             leadingIcon="🌳"
-            backTagClass="btn-close"
-            closeTagClass="btn-close"
+            tagClass="btn-close"
             showClose={!mobile}
             showBack={mobile}
             onClose={close}
@@ -148,8 +146,9 @@ export function ModalDownloadApp() {
         />
     );
 
+    /* Same body chrome as Language — no nested shell / no double inset. */
     const body = (
-        <div className="arborito-download-modal__body px-4 pb-4 pt-2 flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+        <div className="arborito-download-modal__body px-4 pb-6 pt-2 flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto custom-scrollbar">
             {lead ? <p className="arborito-download-app-lead">{lead}</p> : null}
             <DownloadScreenshotStrip lang={lang || 'EN'} />
             <DownloadAppCompare ui={ui} />
@@ -179,10 +178,10 @@ export function ModalDownloadApp() {
                     onBackdropClick={close}
                     shellOpts={{
                         rootFlags: 'arborito-modal--download-app',
-                        panelRadius: '2xl',
+                        panelRadius: 'none',
                         scrim: 'translucent',
                     }}
-                    panelClass="arborito-download-app-modal-shell arborito-modal-dock-panel w-full max-h-full"
+                    panelClass="arborito-modal-dock-panel w-full max-h-full"
                     hero={hero}
                     footer={footer}
                 >
@@ -201,7 +200,6 @@ export function ModalDownloadApp() {
                 hero={hero}
                 footer={footer}
                 panelRadius="2xl"
-                panelClass="arborito-download-app-modal-shell"
                 shellOpts={{
                     rootFlags: 'arborito-modal--download-app',
                     enter: 'fade-fast',

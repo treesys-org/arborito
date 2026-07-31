@@ -167,7 +167,7 @@ export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
         : ui.sourcesPillBranch || 'Branch';
 
     return (
-        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 px-3 py-3 text-left mb-4">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-700 arborito-surface-tile px-3 py-3 text-left mb-4">
             <p className="arborito-eyebrow m-0 mb-2">{ui.treeInfoCatalogHeading || 'Summary'}</p>
             {isNetworkOpen ? (
                 <div className="mb-3">

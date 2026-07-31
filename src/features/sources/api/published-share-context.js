@@ -49,7 +49,6 @@ export function shareOptsForPublishedBranch(entry, { rawGraphData, activeSource 
     const url = String(entry?.publishedNetworkUrl || '').trim();
     const code =
         branchShareCode(entry) ||
-        shareCodeFromActiveSource(ctx.activeSource, ctx.rawGraphData) ||
         (entry?.id ? String(getArboritoStore()?.userStore?.getBranchPublishedShareCode?.(entry.id) || '').trim() : '');
     if (!url && !code) return null;
     const ref = url ? parseNostrTreeUrl(url) : null;
@@ -69,7 +68,6 @@ export function shareOptsForPublishedComposedTree(entry, { rawGraphData, activeS
     const url = String(entry?.publishedNetworkUrl || '').trim();
     const code =
         composedTreeShareCode(entry) ||
-        shareCodeFromActiveSource(ctx.activeSource, ctx.rawGraphData) ||
         (entry?.id ? String(getArboritoStore()?.userStore?.getTreePublishedShareCode?.(entry.id) || '').trim() : '');
     if (!url && !code) return null;
     const ref = url ? parseNostrTreeUrl(url) : null;

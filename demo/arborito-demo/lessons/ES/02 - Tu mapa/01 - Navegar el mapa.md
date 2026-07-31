@@ -45,9 +45,9 @@ items:
     answer: Se abre la lección
     modes: multiple,recall
     traps:
-      - Se borra la rama
+      - Se borra el curso
       - Solo suena música
-      - Abre el Bosque
+      - Abre Cursos
   - question: ¿Cómo vuelves atrás en el mapa?
     answer: La flecha o la ruta de arriba
     modes: multiple,recall

@@ -28,9 +28,12 @@ function mergeManualGames(catalogGames, userStore) {
 
 /**
  * Load arcade catalog from repos + manually installed games.
+ * @param {object} userStore
+ * @param {{ onPartial?: (games: object[]) => void }} [opts] — paint as each repo lands
  * @returns {Promise<{ games: object[], catalogError: string|null }>}
  */
-export async function loadArcadeGamesCatalog(userStore) {
+export async function loadArcadeGamesCatalog(userStore, opts = {}) {
+    const onPartial = typeof opts.onPartial === 'function' ? opts.onPartial : null;
     const repos = [...(userStore?.state?.gameRepos || [])].sort((a, b) => {
         if (a.isOfficial && !b.isOfficial) return -1;
         if (!a.isOfficial && b.isOfficial) return 1;
@@ -40,6 +43,15 @@ export async function loadArcadeGamesCatalog(userStore) {
     const byId = new Map();
     let lastError = null;
     let anyOk = false;
+
+    const emitPartial = () => {
+        if (!onPartial || !byId.size) return;
+        try {
+            onPartial(mergeManualGames([...byId.values()], userStore));
+        } catch {
+            /* partial paint must not abort catalog load */
+        }
+    };
 
     await Promise.all(
         repos.map(async (repo) => {
@@ -71,6 +83,7 @@ export async function loadArcadeGamesCatalog(userStore) {
                     });
                 });
                 anyOk = true;
+                emitPartial();
             } catch (e) {
                 lastError = e?.message || 'catalog_load_failed';
                 console.warn(`[Arborito] Failed to load game repo ${repo.name}`, e);

@@ -12,7 +12,7 @@ import {
 } from './sage-app-stems.js';
 
 export const ARBORITO_APP_QUERY_RE =
-    /\b(arborito|sage|arcade|memory\s*garden|jard[ií]n|construcci[oó]n|construction|bosque|forest|backpack|mochila|flatpak|aplicaci[oó]n)\b/i;
+    /\b(arborito|sage|arcade|memory\s*garden|jard[ií]n|construcci[oó]n|construction|bosque|forest|cursos|courses|backpack|mochila|flatpak|aplicaci[oó]n)\b/i;
 
 /** “What is this / this app?” without naming Arborito — still product help. */
 const META_APP_QUESTION_RES = [
@@ -73,7 +73,7 @@ export function isPrimarilyArboritoAppQuery(query) {
         || /\b(cu[eé]ntame|cuentame|hablame|h[aá]blame|tell me)\s+(de|sobre|about)\b/i.test(q);
     const namesApp =
         vocabHits.length > 0
-        || /\b(arcade|arborito|sage|mochila|backpack|memory\s*garden|flatpak|construcci[oó]n|bosque|forest|aplicaci[oó]n)\b/i.test(q);
+        || /\b(arcade|arborito|sage|mochila|backpack|memory\s*garden|flatpak|construcci[oó]n|bosque|forest|cursos|courses|aplicaci[oó]n)\b/i.test(q);
 
     if (appDefQuestion && namesApp) return true;
     if (/me refiero a (arborito\s+)?(arcade|sage|arborito|mochila|backpack)\b/i.test(q)) return true;
@@ -98,7 +98,7 @@ export function isCasualSageGreeting(text) {
     /* Product / “qué es X” are not greetings. */
     if (
         /\b(qu[eé]|que)\s+(es|son|sabes|sabe)\b/i.test(n)
-        || /\b(what\s+is|explain|arcade|bosque|arbor|sage|construc|mochil)\b/i.test(n)
+        || /\b(what\s+is|explain|arcade|bosque|forest|cursos|courses|arbor|sage|construc|mochil)\b/i.test(n)
     ) {
         return false;
     }
@@ -438,8 +438,10 @@ export function resolveSageIntentQuery(lastMsg, messages = []) {
         q += ' arborito aplicacion';
     }
 
-    if (/\bbosque\b/i.test(q)) q += ' forest arborito';
-    else if (/\bforest\b/i.test(q)) q += ' bosque arborito';
+    if (/\bbosque\b/i.test(q)) q += ' forest cursos courses arborito';
+    else if (/\bforest\b/i.test(q)) q += ' bosque cursos courses arborito';
+    else if (/\bcursos\b/i.test(q)) q += ' courses bosque forest arborito';
+    else if (/\bcourses\b/i.test(q)) q += ' cursos forest bosque arborito';
 
     if (SHORT_APP_FOLLOWUP_RE.test(q) && (ARBORITO_APP_QUERY_RE.test(q) || matchVocabByQueryPrefix(q).length)) {
         q += ' arborito app';
@@ -463,7 +465,7 @@ export function resolveSageIntentQuery(lastMsg, messages = []) {
             .map((m) => (m?.role === 'user' || m?.role === 'assistant' ? String(m.content || '') : ''))
             .join(' ');
         const appHits = recent.match(
-            /\b(arborito|arcade|bosque|forest|sage|construcci[oó]n|construction|mochila|backpack|memory\s*garden|jard[ií]n)\b/gi
+            /\b(arborito|arcade|bosque|forest|cursos|courses|sage|construcci[oó]n|construction|mochila|backpack|memory\s*garden|jard[ií]n)\b/gi
         );
         if (appHits?.length) {
             q += ` ${[...new Set(appHits.map((w) => w.toLowerCase()))].join(' ')}`;
@@ -488,8 +490,10 @@ export function expandSageRagQuery(lastMsg, messages = []) {
         if (recentUser.length) merged = [last, ...recentUser].filter(Boolean).join(' ');
     }
     merged = expandQueryByProductVocab(merged);
-    if (/\bbosque\b/i.test(merged)) merged += ' forest arborito';
-    else if (/\bforest\b/i.test(merged)) merged += ' bosque arborito';
+    if (/\bbosque\b/i.test(merged)) merged += ' forest cursos courses arborito';
+    else if (/\bforest\b/i.test(merged)) merged += ' bosque cursos courses arborito';
+    else if (/\bcursos\b/i.test(merged)) merged += ' courses bosque forest arborito';
+    else if (/\bcourses\b/i.test(merged)) merged += ' cursos forest bosque arborito';
     return merged.trim();
 }
 

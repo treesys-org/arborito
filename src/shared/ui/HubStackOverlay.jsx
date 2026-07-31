@@ -5,7 +5,7 @@
 export function HubStackOverlay({ children, className = '', ariaLabel, ariaLabelledBy }) {
     return (
         <div
-            className={`arborito-hub-stack-overlay absolute inset-0 flex flex-col min-h-0 w-full bg-white dark:bg-slate-900 ${className}`.trim()}
+            className={`arborito-hub-stack-overlay arborito-surface-panel absolute inset-0 flex flex-col min-h-0 w-full ${className}`.trim()}
             role="dialog"
             aria-modal="true"
             aria-label={ariaLabel || undefined}

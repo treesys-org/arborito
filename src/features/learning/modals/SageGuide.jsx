@@ -5,7 +5,6 @@ import { buildTreeBreadcrumb } from '../api/ai-context.js';
 import { defaultSageGuideNav } from '../api/logic/sage-guide-context.js';
 import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
 import { SageModeToggle, SageMobPanel, SageDeskGuideShell } from './components/SageLayout.jsx';
-import { sageHideDismissButton } from '../api/modals/logic/sage-ui-helpers.js';
 import { SageGuideContent } from './components/sage/SageGuideContent.jsx';
 
 function lessonGuideSubtitle(node, ui, learning) {
@@ -40,10 +39,9 @@ export function SageGuide({
     embedded = false,
 }) {
     const learning = useLearning();
-    const { setModal, toggleConstructionMode } = learning;
+    const { toggleConstructionMode } = learning;
 
     const mob = shouldShowMobileUI();
-    const hideDismiss = sageHideDismissButton();
     const lessonNode = sageLessonContext ? learning.selectedNode : null;
     const ctxOpts = { lessonNode };
     const nav = guideNav || defaultSageGuideNav();
@@ -128,7 +126,6 @@ export function SageGuide({
             leadingIcon="🦉"
             trailingHtml={<SageModeToggle ui={ui} isAi={isAi} onChange={onSwitchMode} />}
             showBack={showBackBtn}
-            showClose={!hideDismiss}
             onBack={onBack}
             onClose={onClose}
         />

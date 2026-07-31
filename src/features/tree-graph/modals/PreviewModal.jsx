@@ -31,7 +31,7 @@ export function ModalPreview() {
 
     const body = (
         <div className="arborito-dialog-body-block p-6 sm:p-8 text-center">
-            <div className="w-24 h-24 mx-auto bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center text-5xl mb-6 shadow-inner border border-slate-100 dark:border-slate-700/50 transform rotate-3">
+            <div className="w-24 h-24 mx-auto arborito-surface-tile rounded-3xl flex items-center justify-center text-5xl mb-6 shadow-inner border border-slate-100 dark:border-slate-700/50 transform rotate-3">
                 <ChromeEmoji
                     emoji={folderDisplayIcon(rawIcon)}
                     size={48}

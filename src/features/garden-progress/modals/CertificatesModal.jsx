@@ -9,7 +9,7 @@ import { DockHubPanelEmbed } from '../../../shared/ui/DockHubPanelEmbed.jsx';
 import { useDockHubEmbedClose } from '../../../shared/ui/DockHubEmbedContext.jsx';
 import { ModalHtml } from '../../../app/components/ModalShell.jsx';
 import { chromeEmojiHtml } from '../../../shared/lib/emoji-display.js';
-import { LoadingBrand } from '../../../shared/ui/Loading.jsx';
+import { ListRowEnter, ListRowSkeleton } from '../../../shared/ui/ListRowEnter.jsx';
 import {
     ACHIEVEMENT_TROPHY_EMOJI,
     achievementTrophyToneClass,
@@ -50,12 +50,12 @@ function CompletionRow({ item, ui, onView }) {
     const tone = item.scope === 'tree' ? 'emerald' : 'green';
     const rowCls = done
         ? `arborito-callout arborito-callout--${tone} arborito-callout--sm items-center gap-3 transition-colors`
-        : 'flex items-center gap-3 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/40 transition-colors';
+        : 'flex items-center gap-3 px-3 py-2.5 rounded-xl border border-slate-200 arborito-surface-tile dark:border-slate-700 transition-colors';
 
     return (
         <div className={`${rowCls} arborito-achievement-row`}>
             <span
-                className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-xl border bg-white dark:bg-slate-800 ${done ? 'border-yellow-300/70' : 'border-slate-300 dark:border-slate-600'}`}
+                className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center text-xl border arborito-surface-tile ${done ? 'border-yellow-300/70' : 'border-slate-300 dark:border-slate-600'}`}
             >
                 <AchievementTrophy earned={done} size={22} />
             </span>
@@ -100,7 +100,7 @@ function CertCard({ module: m, mob, ui, onView }) {
 
     return (
         <div
-            className={`border-2 ${isLocked ? 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/50' : 'border-yellow-400/30 bg-yellow-50 dark:bg-yellow-900/10'} ${cardPad} rounded-2xl flex ${mob ? 'flex-row items-center' : 'flex-col'} ${cardGap} relative overflow-hidden group transition-all ${mob ? '' : 'hover:scale-[1.02] hover:shadow-lg'} h-full arborito-achievement-row`}
+            className={`border-2 ${isLocked ? 'border-slate-200 arborito-surface-tile dark:border-slate-700' : 'border-yellow-400/30 bg-yellow-50 dark:bg-yellow-900/10'} ${cardPad} rounded-2xl flex ${mob ? 'flex-row items-center' : 'flex-col'} ${cardGap} relative overflow-hidden group transition-all ${mob ? '' : 'hover:scale-[1.02] hover:shadow-lg'} h-full arborito-achievement-row`}
         >
             <div
                 className={`absolute -right-6 -bottom-6 text-9xl opacity-5 rotate-12 pointer-events-none select-none ${isLocked ? 'grayscale' : ''}`}
@@ -111,7 +111,7 @@ function CertCard({ module: m, mob, ui, onView }) {
                 className={`flex ${mob ? 'flex-row items-center gap-3 flex-1 min-w-0' : 'items-start justify-between'} relative z-10 w-full`}
             >
                 <div
-                    className={`${iconBox} bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-sm border shrink-0 ${isLocked ? 'border-slate-300 dark:border-slate-600' : 'border-yellow-200 dark:border-yellow-700/50'}`}
+                    className={`${iconBox} arborito-surface-tile rounded-2xl flex items-center justify-center shadow-sm border shrink-0 ${isLocked ? 'border-slate-300 dark:border-slate-600' : 'border-yellow-200 dark:border-yellow-700/50'}`}
                 >
                     <AchievementTrophy earned={!isLocked} size={mob ? 28 : 32} className="text-3xl" />
                 </div>
@@ -133,7 +133,7 @@ function CertCard({ module: m, mob, ui, onView }) {
                             {isLocked ? (
                                 <button
                                     type="button"
-                                    className="w-full text-xs font-bold text-slate-400 bg-slate-200 dark:bg-slate-800 py-2.5 rounded-xl cursor-not-allowed opacity-70"
+                                    className="w-full text-xs font-bold text-slate-400 arborito-surface-tile py-2.5 rounded-xl cursor-not-allowed opacity-70"
                                 >
                                     {ui.viewCert || 'Ver'}
                                 </button>
@@ -156,7 +156,7 @@ function CertCard({ module: m, mob, ui, onView }) {
                         {isLocked ? (
                             <button
                                 type="button"
-                                className="w-full text-xs font-bold text-slate-400 bg-slate-200 dark:bg-slate-800 py-2 rounded-xl cursor-not-allowed opacity-70"
+                                className="w-full text-xs font-bold text-slate-400 arborito-surface-tile py-2 rounded-xl cursor-not-allowed opacity-70"
                             >
                                 {ui.viewCert || 'Ver'}
                             </button>
@@ -214,8 +214,10 @@ function AchievementsBody({ tab, sections, earnedOnly, query, mob, ui, onView })
                         <SectionHeading>{ui.achievementsSectionTrees || 'Árboles completados'}</SectionHeading>
                     )}
                     <div className="flex flex-col gap-2">
-                        {trees.map((item) => (
-                            <CompletionRow key={item.id} item={item} ui={ui} onView={onView} />
+                        {trees.map((item, idx) => (
+                            <ListRowEnter key={item.id} index={idx}>
+                                <CompletionRow item={item} ui={ui} onView={onView} />
+                            </ListRowEnter>
                         ))}
                     </div>
                 </section>
@@ -229,8 +231,10 @@ function AchievementsBody({ tab, sections, earnedOnly, query, mob, ui, onView })
                         </SectionHeading>
                     )}
                     <div className="flex flex-col gap-2">
-                        {branches.map((item) => (
-                            <CompletionRow key={item.id} item={item} ui={ui} onView={onView} />
+                        {branches.map((item, idx) => (
+                            <ListRowEnter key={item.id} index={idx}>
+                                <CompletionRow item={item} ui={ui} onView={onView} />
+                            </ListRowEnter>
                         ))}
                     </div>
                 </section>
@@ -244,8 +248,10 @@ function AchievementsBody({ tab, sections, earnedOnly, query, mob, ui, onView })
                     <div
                         className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${mob ? 'gap-3' : 'gap-4'}`}
                     >
-                        {diplomas.map((m) => (
-                            <CertCard key={m.id} module={m} mob={mob} ui={ui} onView={onView} />
+                        {diplomas.map((m, idx) => (
+                            <ListRowEnter key={m.id} index={idx}>
+                                <CertCard module={m} mob={mob} ui={ui} onView={onView} />
+                            </ListRowEnter>
                         ))}
                     </div>
                 </section>
@@ -366,19 +372,13 @@ export function ModalCertificates({ embed = false, dockEmbed = false, dockEmbedA
         />
     ) : (
         <div
-            className="flex flex-col flex-1 items-center justify-center min-h-[12rem] py-10"
+            className="flex flex-col flex-1 min-h-[12rem] py-4 px-1"
             role="status"
             aria-live="polite"
             aria-busy="true"
+            aria-label={ui.loading || 'Loading…'}
         >
-            <div className="arborito-loading-panel arborito-loading-panel--sky">
-                <LoadingBrand
-                    label={ui.loading || 'Loading…'}
-                    size="lg"
-                    tone="sky"
-                    extraClass="arborito-loading-brand--panel"
-                />
-            </div>
+            <ListRowSkeleton count={4} variant="card" />
         </div>
     );
 
@@ -442,7 +442,7 @@ export function ModalCertificates({ embed = false, dockEmbed = false, dockEmbedA
             <div
                 data-arborito-panel="modal-certificates"
                 data-embed="1"
-                className="arborito-certs-embed-root flex flex-col flex-1 min-h-0 w-full h-full min-w-0 overflow-hidden bg-white dark:bg-slate-900"
+                className="arborito-certs-embed-root arborito-surface-panel flex flex-col flex-1 min-h-0 w-full h-full min-w-0 overflow-hidden"
             >
                 <div className="shrink-0 flex flex-col">
                     <h2 id="modal-title-text" className="hidden">

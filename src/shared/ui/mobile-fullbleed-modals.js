@@ -73,7 +73,7 @@ export function isMobileConstructionDockHubOpen(state, mobUi) {
 
 /** `rootFlags` on dock hub sheets, mobile uses `layout="dock-bottom"`. */
 export const MOBILE_DOCK_SHEET_ROOT_FLAG_RE =
-    /\barborito-modal--(?:arcade|forum|certificates-hub|search|tree-info|node-properties|construction-dock-hub|profile|backup|about|language|download-app|preview|celebration-prefs|accessibility-prefs)\b|\barborito-search-dock\b/u;
+    /\barborito-modal--(?:arcade|forum|certificates-hub|search|tree-info|node-properties|construction-dock-hub|profile|backup|about|language|download-app|preview|celebration-prefs|accessibility-prefs)\b|\barborito-search-dock\b|\barborito-sources-dock\b/u;
 
 export function isMobileDockSheetRootFlags(rootFlags) {
     return MOBILE_DOCK_SHEET_ROOT_FLAG_RE.test(String(rootFlags || ''));
@@ -116,6 +116,8 @@ export function isFromOnboardingDockGapTakeover(modal) {
 
 /**
  * Biblioteca, onboarding…, hides dock (`arborito-fullbleed-sheet-open` on `<html>`).
+ * Exception: `{ type: 'sources', dockUi: true }` from the dock tab keeps the dock
+ * (same sheet pattern as Search / Arcade).
  *
  * @param {{ modal: unknown, viewMode?: string }} state
  * @param {boolean} mobUi
@@ -128,6 +130,9 @@ export function isMobileDockTakeover(state, mobUi) {
         return true;
     }
     const t = modalType(state);
+    if (t === 'sources' && typeof m === 'object' && m.dockUi) {
+        return false;
+    }
     const root = document.documentElement;
     const constructionMobile =
         root.classList.contains('arborito-construction-mobile') &&

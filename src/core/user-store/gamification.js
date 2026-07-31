@@ -10,9 +10,6 @@ const SEED_TYPES = ['🌲', '🌰', '🌾', '🍁', '🥥', '🥜', '🌰', '�
  */
 export const DAILY_ARCADE_LUMEN_CAP = 80;
 
-/** @deprecated Use DAILY_ARCADE_LUMEN_CAP — kept for any external imports. */
-export const DAILY_ARCADE_XP_CAP = DAILY_ARCADE_LUMEN_CAP;
-
 function streakXpMultiplier(streak) {
     if (streak >= 14) return 1.15;
     if (streak >= 7) return 1.1;
