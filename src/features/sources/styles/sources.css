@@ -751,6 +751,15 @@ img.arborito-sources-row-title__emoji-img {
     font-weight: 700;
 }
 
+/* Playlist member courses — same brown as Crear playlist / switcher summary. */
+.arborito-tree-branch-summary {
+    color: var(--arborito-theme-playlist-chip-fg);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 button.arborito-sources-row-title--button {
     padding: 0;
     margin: 0;

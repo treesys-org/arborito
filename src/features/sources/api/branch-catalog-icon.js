@@ -124,6 +124,17 @@ export function resolveDirectoryIconForPublish(bundle, extra = null) {
     return '';
 }
 
+/** Catalog emoji for a local composed tree (playlist) row / chip / switcher. */
+export function resolveComposedTreeCatalogIcon(tree) {
+    const fromPublish = resolveDirectoryIconForPublish(
+        tree?.data ? { tree: tree.data, meta: tree.data?.meta } : null,
+        tree
+    );
+    if (fromPublish) return fromPublish;
+    const direct = normalizeDirectoryCatalogIcon(tree?.icon);
+    return direct || kindEmoji('composed-tree');
+}
+
 /**
  * Forest emoji for Discover / Saved online rows (directory meta may omit `icon`).
  * Prefer wire icon → local twin / loaded tree → sticky → kind glyph.

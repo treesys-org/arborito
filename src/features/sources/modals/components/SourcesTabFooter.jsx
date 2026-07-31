@@ -19,7 +19,7 @@ export function SourcesTabFooter({ ui, mainTab, onAction }) {
                     </button>
                     <button
                         type="button"
-                        className="arborito-cta-purple arborito-sources-cta-bar__btn arborito-sources-cta-bar__btn--create"
+                        className="arborito-cta-brown arborito-sources-cta-bar__btn arborito-sources-cta-bar__btn--create"
                         onClick={() => onAction('create-composed-tree')}
                     >
                         {ui.sourcesCreateKindPlaylist || 'Playlist'}

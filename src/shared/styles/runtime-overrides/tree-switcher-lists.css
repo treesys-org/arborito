@@ -72,11 +72,18 @@
 }
 
 .arborito-tree-switcher-avatar .arborito-sources-row-title__emoji,
-.arborito-tree-switcher-avatar .arborito-emoji-img {
+.arborito-tree-switcher-avatar .arborito-emoji-img,
+.arborito-tree-switcher-avatar .arborito-emoji-glyph,
+.arborito-tree-switcher-avatar .arborito-emoji-glyph .arborito-emoji-img {
     width: 1.35rem !important;
     height: 1.35rem !important;
     max-width: 1.35rem !important;
     max-height: 1.35rem !important;
+    font-size: 1.35rem !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
 }
 
 .arborito-tree-switcher-avatar--local {
@@ -85,8 +92,8 @@
 }
 
 .arborito-tree-switcher-avatar--composed {
-    background: rgba(139, 92, 246, 0.14);
-    border-color: rgba(139, 92, 246, 0.35);
+    background: color-mix(in srgb, var(--arborito-cta-brown-bg) 16%, transparent);
+    border-color: color-mix(in srgb, var(--arborito-cta-brown-bg) 42%, transparent);
 }
 
 .arborito-tree-switcher-avatar--installed {
@@ -97,10 +104,22 @@
 .arborito-tree-switcher-item-body {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.35rem;
+  align-items: stretch;
+  gap: 0.2rem;
   min-width: 0;
   flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.arborito-tree-switcher-item-name,
+.arborito-tree-switcher-item-branches {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .arborito-tree-switcher-item-check {
@@ -115,10 +134,6 @@
     font-size: 0.9rem;
     font-weight: 900;
     color: var(--arborito-theme-switcher-arborito-tree-switcher-item-name-color);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width: 100%;
 }
 
 .arborito-tree-switcher-pill {
@@ -137,16 +152,9 @@
 }
 
 .arborito-tree-switcher-pill--by-arborito {
-  border-color: rgba(245, 158, 11, 0.45);
-  color: rgb(146, 64, 14);
-  background: rgba(254, 243, 199, 0.85);
-}
-
-html.dark .arborito-tree-switcher-pill--by-arborito,
-:root.dark .arborito-tree-switcher-pill--by-arborito {
-  color: rgb(253, 230, 138);
-  background: rgba(120, 53, 15, 0.45);
-  border-color: rgba(245, 158, 11, 0.4);
+  border-color: var(--arborito-theme-switcher-pill-by-arborito-border);
+  color: var(--arborito-theme-switcher-pill-by-arborito-fg);
+  background: var(--arborito-theme-switcher-pill-by-arborito-bg);
 }
 
 .arborito-tree-switcher-pill--installed {

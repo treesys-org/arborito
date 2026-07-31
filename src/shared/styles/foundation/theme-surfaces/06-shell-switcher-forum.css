@@ -31,6 +31,10 @@
         --arborito-theme-branch-chip-bg: rgb(236 253 245 / 0.96);
         --arborito-theme-branch-chip-border: rgb(52 211 153 / 0.45);
         --arborito-theme-branch-chip-fg: rgb(4 120 87);
+        /* Soft surface from Crear playlist CTA (`--arborito-cta-brown-*`). */
+        --arborito-theme-playlist-chip-bg: color-mix(in srgb, var(--arborito-cta-brown-bg) 14%, white);
+        --arborito-theme-playlist-chip-border: color-mix(in srgb, var(--arborito-cta-brown-bg) 55%, transparent);
+        --arborito-theme-playlist-chip-fg: var(--arborito-cta-brown-bg);
         --arborito-theme-forum-option-bg: #ffffff;
         --arborito-theme-forum-option-fg: #0f172a;
         --arborito-theme-forum-op-text: #0f172a;
@@ -135,7 +139,10 @@
         --arborito-theme-switcher-arborito-tree-switcher-item-background: var(--arborito-surface-tile-light);
         --arborito-theme-switcher-arborito-tree-switcher-item-border: 1px solid var(--arborito-surface-tile-border-light);
         --arborito-theme-switcher-arborito-tree-switcher-item-box-shadow: 0 10px 30px rgba(2, 6, 23, 0.04);
-        --arborito-theme-switcher-arborito-tree-switcher-item-branches-color: rgb(109 40 217);
+        --arborito-theme-switcher-arborito-tree-switcher-item-branches-color: rgb(146 64 14);
+        --arborito-theme-switcher-pill-by-arborito-bg: var(--arborito-pill-by-arborito-bg);
+        --arborito-theme-switcher-pill-by-arborito-fg: var(--arborito-pill-by-arborito-fg);
+        --arborito-theme-switcher-pill-by-arborito-border: rgb(168 137 110 / 0.55);
         --arborito-theme-switcher-arborito-tree-switcher-item-check-color: rgb(5 150 105);
         --arborito-theme-switcher-arborito-tree-switcher-item-name-color: rgba(15, 23, 42, 0.92);
         --arborito-theme-switcher-arborito-tree-switcher-kind-filter-background: rgb(255 255 255);
@@ -204,6 +211,9 @@ html.dark {
         --arborito-theme-branch-chip-bg: rgb(6 78 59 / 0.55);
         --arborito-theme-branch-chip-border: rgb(52 211 153 / 0.35);
         --arborito-theme-branch-chip-fg: rgb(167 243 208);
+        --arborito-theme-playlist-chip-bg: color-mix(in srgb, var(--arborito-cta-brown-bg) 28%, transparent);
+        --arborito-theme-playlist-chip-border: color-mix(in srgb, var(--arborito-cta-brown-bg) 45%, transparent);
+        --arborito-theme-playlist-chip-fg: var(--arborito-cta-brown-fg);
         --arborito-theme-forum-option-bg: var(--arborito-theme-tile-bg);
         --arborito-theme-forum-option-fg: #f1f5f9;
         --arborito-theme-forum-op-text: #f1f5f9;
@@ -307,7 +317,10 @@ html.dark {
         --arborito-theme-switcher-arborito-tree-switcher-item-background: var(--arborito-surface-tile-dark);
         --arborito-theme-switcher-arborito-tree-switcher-item-border: 1px solid var(--arborito-surface-tile-border-dark);
         --arborito-theme-switcher-arborito-tree-switcher-item-box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
-        --arborito-theme-switcher-arborito-tree-switcher-item-branches-color: rgb(196 181 253);
+        --arborito-theme-switcher-arborito-tree-switcher-item-branches-color: rgb(253 186 116);
+        --arborito-theme-switcher-pill-by-arborito-bg: var(--arborito-pill-by-arborito-bg);
+        --arborito-theme-switcher-pill-by-arborito-fg: var(--arborito-pill-by-arborito-fg);
+        --arborito-theme-switcher-pill-by-arborito-border: rgb(168 137 110 / 0.45);
         --arborito-theme-switcher-arborito-tree-switcher-item-check-color: rgb(52 211 153);
         --arborito-theme-switcher-arborito-tree-switcher-item-name-color: rgba(212, 212, 216, 0.95);
         --arborito-theme-switcher-arborito-tree-switcher-kind-filter-background: rgb(14 17 24);

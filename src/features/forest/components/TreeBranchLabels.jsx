@@ -11,7 +11,7 @@ export function TreeBranchSummaryLine({ branchRefs, ui, max = 4 }) {
         );
     }
     return (
-        <p className="m-0 mt-1 text-[11px] font-semibold leading-snug text-violet-800 dark:text-violet-200">
+        <p className="arborito-tree-branch-summary m-0 mt-1 text-[11px] font-semibold leading-snug">
             {formatBranchNamesSummary(names, ui, { max })}
         </p>
     );

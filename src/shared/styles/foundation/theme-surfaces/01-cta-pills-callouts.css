@@ -82,6 +82,9 @@
         --arborito-pill-emerald-fg: rgb(6 95 70);
         --arborito-pill-amber-bg: rgb(254 243 199);
         --arborito-pill-amber-fg: rgb(146 64 14);
+        /* Demo / “by Arborito” — cocoa sepia, distinct from playlist cta-brown. */
+        --arborito-pill-by-arborito-bg: rgb(245 238 230);
+        --arborito-pill-by-arborito-fg: rgb(87 65 47);
         --arborito-pill-yellow-bg: rgb(254 240 138);
         --arborito-pill-yellow-fg: rgb(133 77 14);
         --arborito-pill-red-bg: rgb(254 226 226);
@@ -186,6 +189,8 @@ html.dark {
         --arborito-pill-emerald-fg: rgb(167 243 208);
         --arborito-pill-amber-bg: rgba(120, 53, 15, .40);
         --arborito-pill-amber-fg: rgb(253 230 138);
+        --arborito-pill-by-arborito-bg: rgba(87, 65, 47, 0.48);
+        --arborito-pill-by-arborito-fg: rgb(222 204 186);
         --arborito-pill-yellow-bg: rgba(113, 63, 18, .50);
         --arborito-pill-yellow-fg: rgb(250 204 21);
         --arborito-pill-red-bg: rgba(127, 29, 29, .40);

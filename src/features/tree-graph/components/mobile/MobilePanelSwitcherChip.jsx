@@ -8,6 +8,13 @@ import {
     resolveActiveSourceVersionLabel,
 } from '../../../version-updates/api/version-switch-logic.js';
 import { resolveBranchPanelIcon } from '../../api/logic/graph-mobile-panel-helpers.js';
+import {
+    resolveBranchCatalogIcon,
+    resolveComposedTreeCatalogIcon,
+} from '../../../sources/api/branch-catalog-icon.js';
+import { resolveActiveBranchId } from '../../../sources/api/modals/logic/sources-helpers.js';
+import { resolveActiveComposedTreeId } from '../../api/logic/curriculum-switcher-list.js';
+
 function resolvePanelVersionLabel(ui, current, tree) {
     const branchId = current?._composedBranchId ? String(current._composedBranchId) : '';
     return resolveActiveSourceVersionLabel(ui, tree, branchId ? { branchId } : {});
@@ -17,25 +24,38 @@ function isBranchSwitcherChip(current) {
     return current?.type === 'branch' && !current?._composedVirtualRoot;
 }
 
-function PanelSwitcherIcon({ current, skipIcon, resolvePanelTreeIcon }) {
-    if (skipIcon) return null;
+/** Catalog emoji for the open course/playlist at curriculum root; folder glyph deeper in. */
+function resolveSwitcherChipEmoji(current, tree) {
     if (isBranchSwitcherChip(current)) {
-        const ic = resolveBranchPanelIcon(current);
-        return (
-            <span className="arborito-switcher-chip-icon text-xl leading-none shrink-0 mt-0.5" aria-hidden="true">
-                <ChromeEmoji emoji={ic} className="arborito-emoji-glyph" />
-            </span>
-        );
+        return resolveBranchPanelIcon(current);
     }
     if (current?.type === 'root' || current?._composedVirtualRoot) {
-        const ic = resolvePanelTreeIcon();
-        return (
-            <span className="arborito-switcher-chip-icon text-xl leading-none shrink-0 mt-0.5" aria-hidden="true">
-                <ChromeEmoji emoji={ic} className="arborito-emoji-glyph" />
-            </span>
-        );
+        const src = tree?.activeSource;
+        const userStore = tree?.userStore;
+        if (src?.type === 'composed-tree' || current?._composedVirtualRoot) {
+            const id = resolveActiveComposedTreeId(src);
+            const entry = (userStore?.state?.trees || []).find((t) => String(t?.id || '') === id);
+            if (entry) return resolveComposedTreeCatalogIcon(entry);
+        }
+        const branchId = resolveActiveBranchId(src);
+        if (branchId) {
+            const entry = (userStore?.state?.branches || []).find((b) => String(b?.id || '') === branchId);
+            if (entry) return resolveBranchCatalogIcon(entry);
+        }
+        return tree?.resolvePanelTreeIcon?.() || '';
     }
-    return null;
+    return '';
+}
+
+function PanelSwitcherIcon({ current, skipIcon, tree }) {
+    if (skipIcon) return null;
+    const ic = resolveSwitcherChipEmoji(current, tree);
+    if (!ic) return null;
+    return (
+        <span className="arborito-switcher-chip-icon text-xl leading-none shrink-0 mt-0.5" aria-hidden="true">
+            <ChromeEmoji emoji={ic} className="arborito-emoji-glyph" />
+        </span>
+    );
 }
 
 function PanelSwitcherChipInner({
@@ -137,11 +157,16 @@ export function MobilePanelSwitcherChip({ current, ui: uiProp, intent = 'version
               'Switch course or playlist'
             : `${treeName}${ver ? `, ${ver}` : ''}. ${ui.treeSwitcherTapHint || 'Change'}`;
     const branchChip = isBranchSwitcherChip(current);
-    const kindClass = branchChip
-        ? ' arborito-branch-curriculum-chip'
-        : intent === 'explore'
-          ? ' arborito-explore-curriculum-chip'
-          : '';
+    const isPlaylistSource =
+        src?.type === 'composed-tree' || !!current?._composedVirtualRoot;
+    /* Playlist → brown shell (cta-brown); course root / branch folder → emerald. */
+    const kindClass = isPlaylistSource
+        ? ' arborito-playlist-curriculum-chip'
+        : branchChip
+          ? ' arborito-branch-curriculum-chip'
+          : intent === 'explore'
+            ? ' arborito-explore-curriculum-chip'
+            : '';
     const chipClass = `arborito-branch-panel-version-chip arborito-branch-panel-version-chip--unit arborito-timeline-chip arborito-timeline-chip--btn w-full min-w-0${kindClass}`;
 
     const onChipClick = (e) => {
@@ -158,12 +183,13 @@ export function MobilePanelSwitcherChip({ current, ui: uiProp, intent = 'version
                 type="button"
                 className={chipClass}
                 data-arborito-version-kind={vp.versionKind || 'rolling'}
+                data-arborito-catalog-kind={isPlaylistSource ? 'composed-tree' : 'branch'}
                 aria-label={openLbl}
                 title={openLbl}
                 aria-haspopup="dialog"
                 onClick={onChipClick}
             >
-                <PanelSwitcherIcon current={current} skipIcon={skipIcon} resolvePanelTreeIcon={tree.resolvePanelTreeIcon} />
+                <PanelSwitcherIcon current={current} skipIcon={skipIcon} tree={tree} />
                 <PanelSwitcherChipInner
                     ui={ui}
                     current={current}

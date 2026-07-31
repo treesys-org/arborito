@@ -88,7 +88,7 @@ export function SourcesInternetRow({
     const rowKind = listingKind(row?.contentKind, row?.universeId);
     const kindBorder =
         rowKind === 'composed-tree'
-            ? 'border-violet-200/60 dark:border-violet-900/50'
+            ? 'border-amber-200/70 dark:border-amber-900/45'
             : 'border-emerald-200/60 dark:border-emerald-900/40';
     const author = String(row?.authorName || '').trim();
     const desc = resolveCatalogDescription(row, shell.lang, ui);
@@ -208,7 +208,7 @@ export function SourcesInternetRow({
                         <SourcesPill
                             className={
                                 rowKind === 'composed-tree'
-                                    ? 'arborito-pill--violet arborito-pill--bordered'
+                                    ? 'arborito-pill--amber arborito-pill--bordered'
                                     : 'arborito-pill--emerald arborito-pill--bordered'
                             }
                         >

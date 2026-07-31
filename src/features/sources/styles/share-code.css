@@ -1,21 +1,29 @@
 /* Share code — compact row (Biblioteca rows + mobile curriculum chip). Eager bundle. */
 
 :root {
-    --arborito-theme-share-code-violet-value-color: rgb(109 40 217);
-    --arborito-theme-share-code-violet-action-color: rgb(109 40 217);
+    --arborito-theme-share-code-violet-value-color: rgb(146 64 14);
+    --arborito-theme-share-code-violet-action-color: rgb(146 64 14);
     --arborito-theme-share-code-emerald-hover-border: rgb(52 211 153);
     --arborito-theme-share-code-emerald-hover-bg: rgb(236 253 245);
-    --arborito-theme-share-code-violet-hover-border: rgb(167 139 250);
-    --arborito-theme-share-code-violet-hover-bg: rgb(245 243 255);
+    --arborito-theme-share-code-violet-hover-border: rgb(180 83 9);
+    --arborito-theme-share-code-violet-hover-bg: rgb(255 247 237);
+    --arborito-theme-share-code-brown-value-color: rgb(146 64 14);
+    --arborito-theme-share-code-brown-action-color: rgb(146 64 14);
+    --arborito-theme-share-code-brown-hover-border: rgb(180 83 9);
+    --arborito-theme-share-code-brown-hover-bg: rgb(255 247 237);
 }
 
 html.dark {
-    --arborito-theme-share-code-violet-value-color: rgb(196 181 253);
-    --arborito-theme-share-code-violet-action-color: rgb(167 139 250);
+    --arborito-theme-share-code-violet-value-color: rgb(253 186 116);
+    --arborito-theme-share-code-violet-action-color: rgb(251 146 60);
     --arborito-theme-share-code-emerald-hover-border: rgb(16 185 129);
     --arborito-theme-share-code-emerald-hover-bg: rgb(6 78 59 / 0.3);
-    --arborito-theme-share-code-violet-hover-border: rgb(139 92 246);
-    --arborito-theme-share-code-violet-hover-bg: rgb(76 29 149 / 0.25);
+    --arborito-theme-share-code-violet-hover-border: rgb(180 83 9);
+    --arborito-theme-share-code-violet-hover-bg: rgb(120 53 15 / 0.35);
+    --arborito-theme-share-code-brown-value-color: rgb(253 186 116);
+    --arborito-theme-share-code-brown-action-color: rgb(251 146 60);
+    --arborito-theme-share-code-brown-hover-border: rgb(180 83 9);
+    --arborito-theme-share-code-brown-hover-bg: rgb(120 53 15 / 0.35);
 }
 
 button.arborito-share-code {
@@ -71,8 +79,9 @@ html.dark .arborito-share-code__value {
     color: rgb(110 231 183);
 }
 
-.arborito-share-code--violet .arborito-share-code__value {
-    color: var(--arborito-theme-share-code-violet-value-color);
+.arborito-share-code--violet .arborito-share-code__value,
+.arborito-share-code--brown .arborito-share-code__value {
+    color: var(--arborito-theme-share-code-brown-value-color);
 }
 
 .arborito-share-code__action {
@@ -87,8 +96,9 @@ html.dark .arborito-share-code__action {
     color: rgb(52 211 153);
 }
 
-.arborito-share-code--violet .arborito-share-code__action {
-    color: var(--arborito-theme-share-code-violet-action-color);
+.arborito-share-code--violet .arborito-share-code__action,
+.arborito-share-code--brown .arborito-share-code__action {
+    color: var(--arborito-theme-share-code-brown-action-color);
 }
 
 .arborito-share-code--emerald:hover {
@@ -96,7 +106,8 @@ html.dark .arborito-share-code__action {
     background: var(--arborito-theme-share-code-emerald-hover-bg);
 }
 
-.arborito-share-code--violet:hover {
-    border-color: var(--arborito-theme-share-code-violet-hover-border);
-    background: var(--arborito-theme-share-code-violet-hover-bg);
+.arborito-share-code--violet:hover,
+.arborito-share-code--brown:hover {
+    border-color: var(--arborito-theme-share-code-brown-hover-border);
+    background: var(--arborito-theme-share-code-brown-hover-bg);
 }

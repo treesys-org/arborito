@@ -139,7 +139,7 @@ export function composeTreeGraph({ treeEntry, branchPayloads, lang }) {
                 id: virtualRootId,
                 name: treeName,
                 type: 'root',
-                icon: '🌳',
+                icon: String(treeEntry?.icon || '').trim() || '🌳',
                 expanded: true,
                 path: treeName,
                 description: '',

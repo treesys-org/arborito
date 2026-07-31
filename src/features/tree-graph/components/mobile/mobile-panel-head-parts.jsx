@@ -7,6 +7,8 @@ import {
     resolvePanelTreeIcon,
 } from '../../api/logic/graph-mobile-panel-helpers.js';
 import { isFolderAchievementEarned } from '../../../garden-progress/api/achievement-folder-status.js';
+import { resolveComposedTreeCatalogIcon } from '../../../sources/api/branch-catalog-icon.js';
+import { resolveActiveComposedTreeId } from '../../api/logic/curriculum-switcher-list.js';
 
 export function PanelBackButton({ ui, showBack, onBack }) {
     /* Use click (not touchend): navigating (path remount + scrollTop)
@@ -28,8 +30,23 @@ export function PanelBackButton({ ui, showBack, onBack }) {
 }
 
 export function PanelHeadEmoji({ current, ui, isConstruct, canWrite, onEmojiPick }) {
-    if (!isConstruct || !canWrite || current?._composedWrapper || current?._composedVirtualRoot) {
+    const tree = useTreeGraph();
+    if (!isConstruct || !canWrite || current?._composedWrapper) {
         return null;
+    }
+    /* Playlist root: show catalog emoji (read-only). Construction picker stays
+     * on member branches; skipping here used to leave the head with no glyph. */
+    if (current?._composedVirtualRoot) {
+        const id = resolveActiveComposedTreeId(tree.activeSource);
+        const entry = (tree.userStore?.state?.trees || []).find((t) => String(t?.id || '') === id);
+        const ic = entry
+            ? resolveComposedTreeCatalogIcon(entry)
+            : String(current.icon || '').trim() || '🌳';
+        return (
+            <span className="mobile-panel-head-emoji mobile-panel-head-emoji--readonly" aria-hidden="true">
+                <ChromeEmoji emoji={ic} className="mobile-panel-head-emoji__ic arborito-emoji-glyph" />
+            </span>
+        );
     }
     if (current?.type !== 'branch' && current?.type !== 'root') return null;
     const ic =

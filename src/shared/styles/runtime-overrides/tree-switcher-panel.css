@@ -586,14 +586,11 @@ button.arborito-switcher-chip-action,
 
 .arborito-tree-switcher-item-branches {
     display: block;
-    margin-top: 0.15rem;
+    margin-top: 0;
     font-size: 10px;
     font-weight: 600;
     line-height: 1.35;
     color: var(--arborito-theme-switcher-arborito-tree-switcher-item-branches-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .arborito-curriculum-switcher-tabs {

@@ -15,7 +15,10 @@ export function SourcesShareCodeField({
     const action = ui.sourcesShareCodeAction || 'Copy';
     const hint = ui.sourcesShareCodeTap || 'Tap to copy or share';
     const loadingLbl = ui.sourcesShareCodeLoading || ui.loading || '…';
-    const toneCls = tone === 'violet' ? 'arborito-share-code--violet' : 'arborito-share-code--emerald';
+    const toneCls =
+        tone === 'brown' || tone === 'violet'
+            ? 'arborito-share-code--brown'
+            : 'arborito-share-code--emerald';
     const code = String(shareCode || shareOpts?.shareCode || '').trim();
 
     if (loading && !code) {

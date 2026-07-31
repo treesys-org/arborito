@@ -96,7 +96,7 @@ export function SourcesBranchRow({
                     ) : null}
                     <div className="arborito-sources-row-meta">
                         {isDemoBranch ? (
-                            <SourcesPill className="arborito-pill--amber arborito-pill--bordered">
+                            <SourcesPill className="arborito-pill--by-arborito arborito-pill--bordered">
                                 {ui.sourcesPillByArborito || 'Arborito'}
                             </SourcesPill>
                         ) : null}

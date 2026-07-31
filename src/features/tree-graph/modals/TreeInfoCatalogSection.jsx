@@ -211,7 +211,7 @@ export function TreeInfoCatalogSection({ isBranch, isComposedTree }) {
                     shareOpts={shareOpts}
                     loading={shareLoading}
                     published
-                    tone={isComposedTree ? 'violet' : 'emerald'}
+                    tone={isComposedTree ? 'brown' : 'emerald'}
                     className="mb-2"
                     onShare={(opts) => void shareTreeLink(opts)}
                 />

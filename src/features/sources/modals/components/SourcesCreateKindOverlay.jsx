@@ -6,7 +6,7 @@ import { modalCtaConfirm } from '../../../../shared/ui/modal-action-chrome.js';
 import { shouldShowMobileUI } from '../../../../shared/ui/breakpoints.js';
 
 /**
- * Create sheet: name field + consolidated 2 CTAs (Playlist dark green / Course purple on the right).
+ * Create sheet: name field + consolidated 2 CTAs (Playlist brown / Course emerald).
  */
 export function SourcesCreateKindOverlay({ ui, onCancel, onCourse, onPlaylist }) {
     const mobile = shouldShowMobileUI();
@@ -65,7 +65,7 @@ export function SourcesCreateKindOverlay({ ui, onCancel, onCourse, onPlaylist })
                     <div className="arborito-action-row w-full">
                         <button
                             type="button"
-                            className={modalCtaConfirm('emerald')}
+                            className={modalCtaConfirm('brown')}
                             disabled={!canSubmit}
                             onClick={() => onPlaylist?.(trimmed)}
                         >
@@ -73,7 +73,7 @@ export function SourcesCreateKindOverlay({ ui, onCancel, onCourse, onPlaylist })
                         </button>
                         <button
                             type="button"
-                            className={modalCtaConfirm('purple')}
+                            className={modalCtaConfirm('emerald')}
                             disabled={!canSubmit}
                             onClick={() => onCourse?.(trimmed)}
                         >

@@ -1,5 +1,4 @@
 import { TreeBranchSummaryLine } from '../../../forest/components/TreeBranchLabels.jsx';
-import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
 import { metricsForPublishedUrl } from '../../api/modals/logic/sources-directory-fetch.js';
 import { SourcesShareCodeField } from './SourcesShareCodeField.jsx';
 import { usePublishedShareCode } from '../../hooks/usePublishedShareCode.js';
@@ -10,6 +9,8 @@ import { SourcesMenuPrefs } from './SourcesMenuPrefs.jsx';
 import { SwitchRow } from '../../../../shared/ui/SwitchRow.jsx';
 import { useSourcesStore } from '../../hooks/useSources.js';
 import { hasGdprNetworkConsent } from '../../../../shared/lib/connected-services/index.js';
+import { CatalogRowEmoji } from './CatalogRowEmoji.jsx';
+import { resolveComposedTreeCatalogIcon } from '../../api/branch-catalog-icon.js';
 
 export function composedTreeRowKey(treeId) {
     return `tree:${String(treeId || '')}`;
@@ -48,8 +49,8 @@ export function SourcesComposedTreeRow({
     const pinCls = pinned ? ' arborito-sources-row--pinned-active' : '';
     const borderCls =
         isActive && !pinned
-            ? 'border-violet-500/70 dark:border-violet-400/40 dark:ring-1 dark:ring-violet-400/15'
-            : 'border-violet-200/60 dark:border-violet-900/50';
+            ? 'border-amber-600/70 dark:border-amber-400/40 dark:ring-1 dark:ring-amber-400/15'
+            : 'border-amber-200/70 dark:border-amber-900/45';
     const pubMetrics = tree.publishedNetworkUrl
         ? metricsForPublishedUrl(tree.publishedNetworkUrl, globalDirMetrics)
         : {};
@@ -59,20 +60,16 @@ export function SourcesComposedTreeRow({
 
     return (
         <div
-            className={`p-4 arborito-surface-tile border ${borderCls}${pinCls} rounded-2xl shadow-sm hover:border-violet-300 dark:hover:border-violet-700 transition-colors mb-2`}
+            className={`p-4 arborito-surface-tile border ${borderCls}${pinCls} rounded-2xl shadow-sm hover:border-amber-400 dark:hover:border-amber-700 transition-colors mb-2`}
         >
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                     <p className="arborito-sources-row-title truncate min-w-0 inline-flex items-center gap-2">
-                        <ChromeEmoji
-                            emoji="🌳"
-                            size={22}
-                            className="arborito-sources-row-title__emoji arborito-emoji-glyph shrink-0"
-                        />
+                        <CatalogRowEmoji emoji={resolveComposedTreeCatalogIcon(tree)} size={22} />
                         <span className="truncate">{tree.name}</span>
                     </p>
                     <div className="arborito-sources-row-meta">
-                        <SourcesPill className="bg-violet-50 dark:bg-violet-950/25 text-violet-900 dark:text-violet-200 border-violet-200/70 dark:border-violet-800/60">
+                        <SourcesPill className="arborito-pill--amber arborito-pill--bordered">
                             {ui.sourcesPillComposedTree || 'Tree'}
                         </SourcesPill>
                         {tree.publishedNetworkUrl ? (
@@ -101,7 +98,7 @@ export function SourcesComposedTreeRow({
                         shareOpts={shareOpts}
                         loading={shareCodeLoading}
                         published={!!tree.publishedNetworkUrl}
-                        tone="violet"
+                        tone="brown"
                         onShare={(opts) =>
                             onAction?.('share-tree-row', {
                                 shareName: opts.name,
@@ -126,7 +123,7 @@ export function SourcesComposedTreeRow({
                             <div className="arborito-sources-cta-row">
                                 <button
                                     type="button"
-                                    className="arborito-sources-row-cta arborito-cta-purple shadow-sm"
+                                    className="arborito-sources-row-cta arborito-cta-brown shadow-sm"
                                     onClick={() => onAction?.('open-composed-tree', { id: tree.id })}
                                 >
                                     {ui.sourceLoad || 'Open'}

@@ -4,7 +4,7 @@ import { canonicalNetworkTreeUrlString, resolveActiveBranchId } from '../../../s
 import { isBundledArboritoDemoBranch } from '../../../../core/demo/arborito-demo-ids.js';
 import {
     resolveBranchCatalogIcon,
-    resolveDirectoryIconForPublish,
+    resolveComposedTreeCatalogIcon,
     resolveOnlineListingIcon,
 } from '../../../sources/api/branch-catalog-icon.js';
 import { kindEmoji } from '../../../sources/api/sources-kind-ui.js';
@@ -17,16 +17,6 @@ export const TREE_SWITCHER_LIST_CAP = 80;
 function branchIdFromUrl(url) {
     const u = String(url || '');
     return u.startsWith('branch://') ? u.slice('branch://'.length).split('/')[0] : '';
-}
-
-function composedTreeSwitcherIcon(tree) {
-    const fromPublish = resolveDirectoryIconForPublish(
-        tree?.data ? { tree: tree.data, meta: tree.data?.meta } : null,
-        tree
-    );
-    if (fromPublish) return fromPublish;
-    const direct = String(tree?.icon || '').trim();
-    return direct || kindEmoji('composed-tree');
 }
 
 export function resolveActiveComposedTreeId(active) {
@@ -93,8 +83,8 @@ export function collectTreeSwitcherSources() {
             name,
             url: `tree://${id}`,
             isActive: isTreeSwitcherItemActive({ kind: 'composed-tree', id, url: `tree://${id}` }, active),
-            branchSummary: formatBranchNamesSummary(names, store.ui, { max: 3 }),
-            icon: composedTreeSwitcherIcon(t),
+            branchSummary: formatBranchNamesSummary(names, store.ui, { max: 2 }),
+            icon: resolveComposedTreeCatalogIcon(t),
         });
     }
 
@@ -121,6 +111,11 @@ export function collectTreeSwitcherSources() {
         } catch {
             /* ignore */
         }
+        const localTwin =
+            locals.find((b) => {
+                const pub = canonicalNetworkTreeUrlString(String(b?.publishedNetworkUrl || '').trim());
+                return pub && canon && pub === canon;
+            }) || null;
         out.push({
             kind,
             id,
@@ -133,6 +128,7 @@ export function collectTreeSwitcherSources() {
                 contentKind: s.contentKind || (kind === 'composed-tree' ? 'composed-tree' : 'branch'),
                 ownerPub,
                 universeId,
+                localBranch: localTwin,
             }),
         });
     }

@@ -61,6 +61,7 @@
 .arborito-pill--green   { background: var(--arborito-pill-green-bg);   color: var(--arborito-pill-green-fg); }
 .arborito-pill--emerald { background: var(--arborito-pill-emerald-bg); color: var(--arborito-pill-emerald-fg); }
 .arborito-pill--amber   { background: var(--arborito-pill-amber-bg);   color: var(--arborito-pill-amber-fg); }
+.arborito-pill--by-arborito { background: var(--arborito-pill-by-arborito-bg); color: var(--arborito-pill-by-arborito-fg); }
 .arborito-pill--yellow  { background: var(--arborito-pill-yellow-bg);  color: var(--arborito-pill-yellow-fg); }
 .arborito-pill--red     { background: var(--arborito-pill-red-bg);     color: var(--arborito-pill-red-fg); }
 .arborito-pill--purple  { background: var(--arborito-pill-purple-bg);  color: var(--arborito-pill-purple-fg); }

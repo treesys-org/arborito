@@ -183,7 +183,7 @@ export function SourcesSavedRow({
                             </SourcesPill>
                         ) : null}
                         {rowKind === 'composed-tree' ? (
-                            <SourcesPill className="arborito-pill--violet arborito-pill--bordered">
+                            <SourcesPill className="arborito-pill--amber arborito-pill--bordered">
                                 {ui.sourcesPillComposedTree || 'Tree'}
                             </SourcesPill>
                         ) : (
@@ -204,7 +204,7 @@ export function SourcesSavedRow({
                             shareCode={shareCode}
                             shareOpts={shareOpts}
                             published
-                            tone={rowKind === 'composed-tree' ? 'violet' : 'emerald'}
+                            tone={rowKind === 'composed-tree' ? 'brown' : 'emerald'}
                             onShare={(opts) =>
                                 onAction?.('share-tree-row', {
                                     shareName: opts.name,
