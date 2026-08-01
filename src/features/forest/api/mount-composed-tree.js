@@ -617,7 +617,12 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
             carryOverSelection: skeleton || (!forceRefresh && !switchedSource) || sameTreeAlreadyOpen,
         });
         if (epoch !== store._curriculumMountEpoch) return false;
-        if (!skeleton && fingerprint) store._composedMountFingerprint = fingerprint;
+        if (skeleton) {
+            /* Invalidate so finishFull cannot skip while a provisional graph is up. */
+            store._composedMountFingerprint = '';
+        } else if (fingerprint) {
+            store._composedMountFingerprint = fingerprint;
+        }
         store.update({
             treeContext,
             treeGrowingOverlay: false,
@@ -757,10 +762,18 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
                 if (epoch !== store._curriculumMountEpoch) return;
                 if (structurePainted) return;
                 structurePainted = true;
-                await paintGraph(
-                    slots.map((s) => ({ ref: s.ref, data: s.data })),
-                    { skeleton: slots.some((s) => s.skeleton) }
-                );
+                const payloads = slots.map((s) => ({
+                    ref: s.ref,
+                    data: s.data,
+                    skeleton: !!s.skeleton,
+                }));
+                const isSkel = payloads.some((p) => p.skeleton);
+                /* Pass fingerprint on full structure paint so finishFull can skip a
+                 * second DataProcessor.process when every member was already final. */
+                const fp = !isSkel
+                    ? buildComposedGraphFingerprint(store, treeEntry, store.state.lang, payloads)
+                    : '';
+                await paintGraph(payloads, { skeleton: isSkel, fingerprint: fp });
             });
         };
 
@@ -819,15 +832,34 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
             const okPayloads = [];
             for (let i = 0; i < settled.length; i++) {
                 if (settled[i].status === 'fulfilled' && settled[i].value?.data) {
-                    okPayloads.push({ ref: settled[i].value.ref, data: settled[i].value.data });
+                    okPayloads.push({
+                        ref: settled[i].value.ref,
+                        data: settled[i].value.data,
+                        skeleton: false,
+                    });
                 } else if (slots[i]?.data) {
-                    okPayloads.push({ ref: slots[i].ref, data: slots[i].data });
+                    okPayloads.push({
+                        ref: slots[i].ref,
+                        data: slots[i].data,
+                        skeleton: !!slots[i].skeleton,
+                    });
                 }
             }
             if (!okPayloads.length) {
                 throw new Error(store.ui.emptyTreeNoBranches || 'Could not load tree branches.');
             }
             const fp = buildComposedGraphFingerprint(store, treeEntry, store.state.lang, okPayloads);
+            /* Structure paint already mounted this exact full graph — avoid a second
+             * remount that feels like the tree/branches loaded twice. */
+            if (
+                fp &&
+                store._composedMountFingerprint === fp &&
+                store.state.data &&
+                !store.state.rawGraphData?.meta?.skeleton &&
+                okPayloads.every((p) => p && !p.skeleton)
+            ) {
+                return finishOk(true);
+            }
             const ok = await paintGraph(okPayloads, { skeleton: false, fingerprint: fp });
             return finishOk(ok);
         };

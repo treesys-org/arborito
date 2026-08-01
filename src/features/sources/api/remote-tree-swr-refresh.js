@@ -39,6 +39,9 @@ export function treeBundleRoughStamp(json) {
     ].join('|');
 }
 
+/** @type {Map<string, Promise<void>>} */
+const remoteSwrInFlight = new Map();
+
 /**
  * @param {import('../../../core/store.js').Store} store
  * @param {object} source
@@ -49,6 +52,35 @@ export async function refreshRemoteTreeBundleInBackground(store, source, opts) {
     const sourceId = String(source?.id || '');
     if (!sourceId || !store) return;
 
+    /* Coalesce duplicate SWR for the same mount epoch — never block a newer mount. */
+    const flightKey = `${sourceId}@${epoch}`;
+    const existing = remoteSwrInFlight.get(flightKey);
+    if (existing) {
+        await existing;
+        return;
+    }
+
+    const run = (async () => {
+        try {
+            await refreshRemoteTreeBundleInBackgroundBody(store, source, opts, epoch, sourceId);
+        } finally {
+            if (remoteSwrInFlight.get(flightKey) === run) {
+                remoteSwrInFlight.delete(flightKey);
+            }
+        }
+    })();
+    remoteSwrInFlight.set(flightKey, run);
+    await run;
+}
+
+/**
+ * @param {import('../../../core/store.js').Store} store
+ * @param {object} source
+ * @param {{ epoch: number, connectPromise?: Promise<unknown>|null }} opts
+ * @param {number} epoch
+ * @param {string} sourceId
+ */
+async function refreshRemoteTreeBundleInBackgroundBody(store, source, opts, epoch, sourceId) {
     try {
         if (opts?.connectPromise) {
             await opts.connectPromise;

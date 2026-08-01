@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { fileSystem } from '../../../backup-export/api/filesystem.js';
 import { useTreeGraph } from '../../hooks/useTreeGraph.js';
 import { getMobileTone, nodeLeadsToLessonId, resolveLastMapFocusId } from '../../api/mobile-tree-presentation-utils.js';
@@ -11,6 +11,9 @@ import {
     hasGrowRevealVisit,
     markGrowRevealVisit,
 } from '../../api/grow-reveal-visit-memory.js';
+
+/** Keep growth-burst armed long enough for grow-reveal to show the tip knot. */
+const GROWTH_BURST_LATCH_MS = 1300;
 
 function MobileMovePickBanner() {
     const tree = useTreeGraph();
@@ -56,8 +59,42 @@ function MobileMovePickBanner() {
 
 function graphMountKey(tree) {
     const src = tree.activeSource;
-    const data = tree.data;
-    return `${String(src?.id || src?.url || '')}:${String(data?.id || '')}`;
+    /* Source-only: skeleton→full / placeholder→members keep the same key so
+     * grow-reveal does not restart when the root node id is rewritten. */
+    return String(src?.id || src?.url || '');
+}
+
+/**
+ * Model pulse is true for one plan frame (depth patch clears it). Latch so the
+ * tip knot still blooms after grow-reveal makes it visible.
+ */
+function useLatchedGrowthPulse(pulseKnotIndex) {
+    const tokenRef = useRef(0);
+    const mountedRef = useRef(true);
+    const [latched, setLatched] = useState(-1);
+    const idx = typeof pulseKnotIndex === 'number' ? pulseKnotIndex : -1;
+
+    useEffect(() => {
+        mountedRef.current = true;
+        return () => {
+            mountedRef.current = false;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (idx < 0) return;
+        const token = ++tokenRef.current;
+        setLatched(idx);
+        window.setTimeout(() => {
+            if (!mountedRef.current || tokenRef.current !== token) return;
+            setLatched(-1);
+        }, GROWTH_BURST_LATCH_MS);
+        /* Intentionally no clearTimeout when idx flips to -1 — that patch must
+         * not cancel the burst before grow-reveal shows the tip knot. */
+    }, [idx]);
+
+    if (idx >= 0) return idx;
+    return latched >= 0 ? latched : -1;
 }
 
 /** Knot column content, inline in Graph.jsx. */
@@ -75,10 +112,11 @@ export function MobileKnotsColumn({ model }) {
     const pathNodes = model?.pathNodes;
     const pathLen = pathNodes?.length || 0;
     const pathShown = useGrowReveal(graphMountKey(tree), pathLen, 90);
+    const latchedPulseIndex = useLatchedGrowthPulse(model?.pulseKnotIndex ?? -1);
 
     if (!pathLen) return null;
 
-    const { harvested, activeIndex, pulseKnotIndex } = model;
+    const { harvested, activeIndex } = model;
     const lastOpenedId = !constructionMode ? resolveLastMapFocusId(tree) : '';
 
     return pathNodes.map((node, index) => (
@@ -91,7 +129,7 @@ export function MobileKnotsColumn({ model }) {
             harvested={harvested}
             isActive={index === activeIndex}
             tone={getMobileTone(node)}
-            pulseGrowth={index === pulseKnotIndex}
+            pulseGrowth={index === latchedPulseIndex}
             revealVisible={index < pathShown}
             leadsToOpened={
                 !!lastOpenedId && nodeLeadsToLessonId(node, lastOpenedId, (id) => tree.findNode?.(id))

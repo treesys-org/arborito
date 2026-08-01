@@ -98,7 +98,10 @@ export function planMobileTreeModelFromState(graphUi, root) {
     const trunkSig = buildTrunkSig(graphLike, root, current, pathNodes, harvested, completedSet);
     const childrenSig = buildChildrenSig(current);
 
-    const trunkPathGrew = prevPathDepthForGrowth != null && pathNodes.length > prevPathDepthForGrowth;
+    const trunkPathGrew =
+        !growthSourceChanged &&
+        prevPathDepthForGrowth != null &&
+        pathNodes.length > prevPathDepthForGrowth;
     const tailNodeForGrowth = pathNodes[pathNodes.length - 1];
     const branchChildCount = (tailNodeForGrowth?.children || []).length;
     const branchChildrenGrew =
@@ -109,6 +112,7 @@ export function planMobileTreeModelFromState(graphUi, root) {
         branchChildCount > graphUi.lastMobileBranchChildCount &&
         prevPathDepthForGrowth != null &&
         pathNodes.length === prevPathDepthForGrowth;
+    /* Pulse only on deepen / new child — never on curriculum switch (depth seed below). */
     const shouldPulseGrowthKnot = trunkPathGrew || branchChildrenGrew;
 
     const pathBeforeRebuild = JSON.stringify(normalizedPath);
@@ -125,6 +129,8 @@ export function planMobileTreeModelFromState(graphUi, root) {
     if (growthSourceChanged) {
         graphUiPatches.growthPulseSourceId = growthSrc;
         graphUiPatches.lastMobileBranchChildCount = undefined;
+        /* Seed depth so the first restored path after a switch is not a false deepen. */
+        graphUiPatches.prevMobilePathDepth = pathNodes.length;
     }
     if (graphUi.lastTrunkSig !== trunkSig) graphUiPatches.lastTrunkSig = trunkSig;
     if (graphUi.lastChildrenSig !== childrenSig) graphUiPatches.lastChildrenSig = childrenSig;
