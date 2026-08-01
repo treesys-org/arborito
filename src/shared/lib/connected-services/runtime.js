@@ -143,9 +143,16 @@ export async function ensureConnectedAI(storeRef = defaultStore()) {
     return storeRef.ensureAILogic?.() ?? null;
 }
 
-/** Warm relays in the background, then run work (do not block first fetch on warm). */
+/**
+ * Ensure the Nostr client module is loaded, warm relays in the background, then run work.
+ * Must await client init: otherwise Explore / install paths read `store.nostr` while the
+ * dynamic import is still in flight (common on GitHub Pages cold loads) and surface
+ * `nostrNotLoadedHint` even though WebSocket and consent are fine.
+ * Relay handshake stays non-blocking so the first REQ is not delayed by warm.
+ */
 export async function runConnectedNetworkLoad(work, storeRef = defaultStore(), { timeoutMs = 0 } = {}) {
     const ms = timeoutMs || 12000;
+    await ensureConnectedNostr(storeRef, { timeoutMs: ms });
     void warmNostrRelayConnections(storeRef, {
         timeoutMs: ms,
         perRelayMs: Math.min(4500, Math.max(1500, Math.floor(ms * 0.6))),
@@ -156,7 +163,7 @@ export async function runConnectedNetworkLoad(work, storeRef = defaultStore(), {
     return work();
 }
 
-/** Biblioteca network loads (warm relays in background, then work). */
+/** Courses network loads: await Nostr client, warm relays in background, then work. */
 export async function runBibliotecaNetworkLoad(work, { timeoutMs = 0 } = {}) {
     return runConnectedNetworkLoad(work, defaultStore(), { timeoutMs });
 }

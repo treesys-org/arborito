@@ -3,6 +3,8 @@ import {
     loadUserNostrRelays,
     backfillSuggestedRelaysIfNeeded,
     migrateStockSuggestedRelaysIfNeeded,
+    ensureOptInRelaysAfterNetworkGrant,
+    resolveDefaultOptInNostrRelays,
 } from '../features/nostr/api/nostr-relays-runtime.js';
 import { hasGdprNetworkConsent } from '../features/privacy-gdpr/api/network-consent.js';
 import { ensureAppCoreReady } from './store-lazy-modules.js';
@@ -29,6 +31,14 @@ export const storeConnectedServiceMethods = {
             service.setPeers(fromPage);
             return;
         }
+        /* Consent with no relays stored (race / cleared list): Online needs a peer set. */
+        if (hasGdprNetworkConsent()) {
+            const restored = ensureOptInRelaysAfterNetworkGrant() || resolveDefaultOptInNostrRelays();
+            if (restored?.length) {
+                service.setPeers(restored);
+                return;
+            }
+        }
         service.setPeers([]);
     },
 
@@ -40,14 +50,18 @@ export const storeConnectedServiceMethods = {
             return this._nostr;
         }
         if (!this._nostrInitPromise) {
-            this._nostrInitPromise = import('../features/nostr/api/client/index.js').then(
-                ({ NostrUniverseService }) => {
+            this._nostrInitPromise = import('../features/nostr/api/client/index.js')
+                .then(({ NostrUniverseService }) => {
                     const service = new NostrUniverseService();
                     this._applyNostrPeerConfig(service);
                     this._nostr = service;
                     return service;
-                }
-            );
+                })
+                .catch((err) => {
+                    /* Allow retry after a failed chunk load (deploy race / flaky Pages CDN). */
+                    this._nostrInitPromise = null;
+                    throw err;
+                });
         }
         return this._nostrInitPromise;
     },

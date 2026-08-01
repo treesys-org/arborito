@@ -11,7 +11,10 @@ import {
 } from '../../../../p2p-webtorrent/api/global-directory-torrent.js';
 import { searchGlobalDirectoryViaHttpShards } from '../../../../p2p-webtorrent/api/directory-search-http.js';
 import { yieldToPaint } from '../../../../../shared/lib/yield-to-paint.js';
-import { runBibliotecaNetworkLoad } from '../../../../../shared/lib/connected-services/index.js';
+import {
+    ensureConnectedNostr,
+    runBibliotecaNetworkLoad,
+} from '../../../../../shared/lib/connected-services/index.js';
 import { refreshMaintainerNostrTreeBlocklist } from '../../../../nostr/api/maintainer-nostr-tree-blocklist.js';
 import { discoverListingScore } from './sources-search-utils.js';
 import { reporterCommunityReportWeight } from './sources-moderation-limits.js';
@@ -472,7 +475,9 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
             await refreshMaintainerNostrTreeBlocklist().catch(() => false);
             if (!stillCurrent()) return;
 
-            const net = store.nostr;
+            /* Prefer the service returned by init — `store.nostr` alone races the chunk load. */
+            const net =
+                (await ensureConnectedNostr(store, { timeoutMs: 12000 })) || store.nostr;
             const qNorm = q.replace(/^#/, '').trim();
             const shareCodeNorm = normalizeTreeShareCode(qNorm);
             let rows = [];
