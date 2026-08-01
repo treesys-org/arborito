@@ -192,8 +192,13 @@ export function ModalSources({ embed = false }) {
                     ui={ui}
                     title={sources.deleteOverlayTitle ?? ui.sourcesDeleteComposedTreeConfirm}
                     body={sources.deleteOverlayBody}
+                    showAlsoMembers={!!sources.deleteAlsoMembersOption}
+                    alsoMembersDefault={sources.deleteAlsoMembersDefault !== false}
+                    alsoMembersLabel={
+                        ui.sourcesDeleteComposedAlsoMembers || 'Also remove its courses'
+                    }
                     onCancel={() => onAction('cancel-overlay')}
-                    onConfirm={() => onAction('confirm-delete-composed-tree')}
+                    onConfirm={(opts) => onAction('confirm-delete-composed-tree', opts || {})}
                 />
             ) : null}
             {sources.overlay === 'stop-private-sync' ? (

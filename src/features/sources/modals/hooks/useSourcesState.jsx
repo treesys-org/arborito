@@ -59,6 +59,8 @@ export function useSourcesState({ embed }) {
     const [targetId, setTargetId] = useState(null);
     const [deleteOverlayTitle, setDeleteOverlayTitle] = useState(null);
     const [deleteOverlayBody, setDeleteOverlayBody] = useState(null);
+    const [deleteAlsoMembersOption, setDeleteAlsoMembersOption] = useState(false);
+    const [deleteAlsoMembersDefault, setDeleteAlsoMembersDefault] = useState(true);
     const [exportTarget, setExportTarget] = useState(null);
     const [exportBusy, setExportBusy] = useState(false);
     const [sourcesQ, setSourcesQ] = useState('');
@@ -270,8 +272,12 @@ export function useSourcesState({ embed }) {
         setTargetId,
         setDeleteOverlayTitle,
         setDeleteOverlayBody,
+        setDeleteAlsoMembersOption,
+        setDeleteAlsoMembersDefault,
         deleteOverlayTitle,
         deleteOverlayBody,
+        deleteAlsoMembersOption,
+        deleteAlsoMembersDefault,
         exportTarget,
         setExportTarget,
         exportBusy,
@@ -398,8 +404,12 @@ export function useSourcesState({ embed }) {
         setTargetId,
         deleteOverlayTitle,
         deleteOverlayBody,
+        deleteAlsoMembersOption,
+        deleteAlsoMembersDefault,
         setDeleteOverlayTitle,
         setDeleteOverlayBody,
+        setDeleteAlsoMembersOption,
+        setDeleteAlsoMembersDefault,
         exportTarget,
         setExportTarget,
         exportBusy,

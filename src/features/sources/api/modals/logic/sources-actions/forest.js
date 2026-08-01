@@ -2,8 +2,18 @@ import { getArboritoStore as store } from '../../../../../../core/store-singleto
 import { parseNostrTreeUrl } from '../../../../../nostr/api/nostr-refs.js';
 import { isPublishedResourceOwner } from '../../../../../publishing/api/published-owner.js';
 import { hasOtherTeamEditors } from '../../../../../publishing/api/published-team-editors.js';
+import { isBundledDemoBranchId } from '../../../../../publishing/api/demo-tree-guard.js';
 import { finishSourcesLoadSession, captureHadCurriculumBeforeLoad } from '../../../sources-session.js';
 import { importTreeFromFile, shareComposedTree } from '../sources-logic.js';
+import {
+    findCommunitySourceByUrl,
+    canonicalNetworkTreeUrlString,
+} from '../sources-helpers.js';
+import {
+    isUserInstalledNetworkCourse,
+    listRemovablePlaylistOrphanCourses,
+    playlistDeleteAlsoMembersDefault,
+} from '../sources-playlist-member-coverage.js';
 import {
     PICK_PAGE,
     withSourcesLoadingChrome,
@@ -12,6 +22,61 @@ import {
     saveTreeEditor,
     toggleTreeFreeze,
 } from '../sources-actions-support.js';
+
+async function purgePlaylistOrphanCourses(treeEntry) {
+    /* Playlist already removed from trees — orphans = former members not in others. */
+    const trees = store.userStore?.state?.trees || [];
+    const branches = store.userStore?.state?.branches || [];
+    const orphans = listRemovablePlaylistOrphanCourses(treeEntry, trees, {
+        branches,
+        skipBranchId: (id) => isBundledDemoBranchId(id),
+        skipBranch: (branch) =>
+            isPublishedResourceOwner(branch, store.getNostrPublisherPair.bind(store)),
+    });
+    for (const orphan of orphans) {
+        /* Keep courses the user installed on their own (Discover / share). */
+        if (isUserInstalledNetworkCourse(store.state.communitySources, orphan.networkUrl)) {
+            continue;
+        }
+        const bid = String(orphan.branchId || '').trim();
+        if (bid && !isBundledDemoBranchId(bid)) {
+            const local = (store.userStore?.state?.branches || []).find(
+                (b) => String(b?.id || '') === bid
+            );
+            if (local) {
+                if (store.isSignedIn?.()) {
+                    try {
+                        await store.unpublishPrivateBranch?.(bid);
+                    } catch {
+                        /* ignore */
+                    }
+                }
+                try {
+                    await store.userStore.deleteBranch(bid);
+                } catch (e) {
+                    console.warn('[Arborito] purge playlist member branch failed', bid, e);
+                }
+            }
+        }
+        const url = String(orphan.networkUrl || '').trim();
+        if (!url) continue;
+        const canon = canonicalNetworkTreeUrlString(url);
+        const saved =
+            findCommunitySourceByUrl(store.state.communitySources, url) ||
+            (store.state.communitySources || []).find((s) => {
+                if (String(s?.contentKind || '').trim() === 'composed-tree') return false;
+                const su = String(s?.url || '').trim();
+                return su === url || (!!canon && canonicalNetworkTreeUrlString(su) === canon);
+            });
+        if (saved?.id && String(saved.contentKind || '').trim() !== 'composed-tree') {
+            try {
+                store.removeCommunitySource?.(saved.id);
+            } catch (e) {
+                console.warn('[Arborito] purge playlist member source failed', saved.id, e);
+            }
+        }
+    }
+}
 
 /** @returns {Promise<boolean>} whether the action was handled */
 export async function runForestAction(ctx, action, fields = {}) {
@@ -144,8 +209,19 @@ export async function runForestAction(ctx, action, fields = {}) {
         const isOwner = published && isPublishedResourceOwner(entry, store.getNostrPublisherPair.bind(store));
         const ui = store.ui;
         const otherEditors = hasOtherTeamEditors(store);
+        const orphans = listRemovablePlaylistOrphanCourses(entry, store.userStore?.state?.trees, {
+            branches: store.userStore?.state?.branches || [],
+            skipBranchId: (bid) => isBundledDemoBranchId(bid),
+            skipBranch: (branch) =>
+                isPublishedResourceOwner(branch, store.getNostrPublisherPair.bind(store)),
+        });
+        const purgeable = orphans.filter(
+            (o) => !isUserInstalledNetworkCourse(store.state.communitySources, o.networkUrl)
+        );
         ctx.setDeleteOverlayTitle?.(
-            published ? ui.deletePublishedComposedTitle || ui.sourcesDeleteComposedTreeConfirm : ui.sourcesDeleteComposedTreeConfirm
+            published
+                ? ui.deletePublishedComposedTitle || ui.sourcesDeleteComposedTreeConfirm
+                : ui.sourcesDeleteComposedTreeConfirm
         );
         ctx.setDeleteOverlayBody?.(
             published
@@ -160,6 +236,10 @@ export async function runForestAction(ctx, action, fields = {}) {
                     : ui.deletePublishedComposedBody || ''
                 : null
         );
+        ctx.setDeleteAlsoMembersOption?.(purgeable.length > 0);
+        ctx.setDeleteAlsoMembersDefault?.(
+            playlistDeleteAlsoMembersDefault(orphans, store.state.communitySources)
+        );
         ctx.setOverlay('delete-composed-tree');
         ctx.setTargetId(treeId);
         ctx.bump();
@@ -170,6 +250,8 @@ export async function runForestAction(ctx, action, fields = {}) {
         const treeId = ctx.targetId;
         if (!treeId) return true;
         const entry = store.userStore.getTree?.(treeId);
+        /* Explicit checkbox value; default is computed at show time. */
+        const purgeMembers = !!ctx.deleteAlsoMembersOption && !!fields.alsoMembers;
         const publishedUrl = String(entry?.publishedNetworkUrl || '').trim();
         const isOwner =
             !!publishedUrl &&
@@ -200,11 +282,22 @@ export async function runForestAction(ctx, action, fields = {}) {
         const wasActive =
             store.state.activeSource?.type === 'composed-tree' &&
             store.state.activeSource.treeId === treeId;
+        /* Snapshot refs before deleteTree drops the playlist entry. */
+        const entrySnapshot = entry ? { ...entry, branchRefs: [...(entry.branchRefs || [])] } : null;
         await store.userStore.deleteTree(treeId);
+        if (purgeMembers && entrySnapshot) {
+            try {
+                await purgePlaylistOrphanCourses(entrySnapshot);
+            } catch (e) {
+                console.warn('[Arborito] purge playlist member courses failed', e);
+            }
+        }
         ctx.setOverlay(null);
         ctx.setTargetId(null);
         ctx.setDeleteOverlayTitle?.(null);
         ctx.setDeleteOverlayBody?.(null);
+        ctx.setDeleteAlsoMembersOption?.(false);
+        ctx.setDeleteAlsoMembersDefault?.(true);
         if (wasActive) {
             void store.clearCanvasAndShowLoadTreeWelcome();
         } else {

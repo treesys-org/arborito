@@ -37,6 +37,7 @@ export async function enrichBranchRefsForLoad(store, branchRefs) {
                                 : null;
                         await store.addCommunitySource(null, {
                             resolvedNostrTreeUrl: networkUrl,
+                            installOrigin: 'playlist-member',
                             ...(listMeta ? { listMeta } : {}),
                         });
                     } catch {

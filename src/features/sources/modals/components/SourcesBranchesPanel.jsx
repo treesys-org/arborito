@@ -142,6 +142,8 @@ export function SourcesBranchesPanel({
             ? collectBranchesTabItems(collectCtx, ui, state, activeSource, {
                   scope: listScope,
                   q,
+                  /* Mis cursos: playlist is the unit; hide network members unless Course filter. */
+                  hidePlaylistMembers: listMainTab === 'mine' && kindFilter !== 'branch',
               })
             : [];
         const forestScope = listMainTab === 'explore' ? 'internet' : 'device';

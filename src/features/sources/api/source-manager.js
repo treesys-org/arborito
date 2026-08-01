@@ -40,6 +40,11 @@ import {
     tryLoadIpfsSourceJson,
 } from './source-url-helpers.js';
 import { checkLocalBootSource, isLoopbackLocalBoot } from './source-manager-local-boot.js';
+import {
+    appendCommunitySource,
+    normalizeInstallOrigin,
+    promoteCommunitySourceInstallOrigin as promoteInstallOrigin,
+} from './community-sources-append.js';
 
 export { stripShareTreeParams } from './share-tree-url.js';
 
@@ -325,6 +330,7 @@ export class SourceManager {
             const relayHint = normalizeNostrRelayUrls(
                 Array.isArray(opts.recommendedRelays) ? opts.recommendedRelays : []
             );
+            const installOrigin = normalizeInstallOrigin(opts.installOrigin);
             const newSource = {
                 id: crypto.randomUUID(),
                 name:
@@ -337,6 +343,7 @@ export class SourceManager {
                 isOfficial: false,
                 type: 'community',
                 origin: 'nostr',
+                installOrigin,
                 shareCode: opts.codeLabel || null,
                 listAuthorName: authorFromList || '',
                 listDescription: descFromList || '',
@@ -409,6 +416,7 @@ export class SourceManager {
                 isOfficial: false,
                 type: 'community',
                 origin,
+                installOrigin: normalizeInstallOrigin(opts.installOrigin),
                 ...(lm2?.titles && typeof lm2.titles === 'object' ? { titles: lm2.titles } : {}),
                 ...nostrRelays
             },
@@ -416,29 +424,12 @@ export class SourceManager {
         );
     }
 
+    promoteCommunitySourceInstallOrigin(id, origin = 'user') {
+        return promoteInstallOrigin(this, id, origin);
+    }
+
     _appendSource(src, opts = {}) {
-        const canon = canonicalCommunityUrl(src.url);
-        const dup = this.state.communitySources.find((s) => canonicalCommunityUrl(s.url) === canon);
-        if (dup) {
-            return { ok: false, reason: 'duplicate', existing: dup };
-        }
-        const newSources = [...this.state.communitySources, src];
-        this.update({ communitySources: newSources });
-        this.state.communitySources = newSources;
-        this._persistCommunitySources();
-        /* Re-install clears a prior uninstall tombstone for this URL. */
-        try {
-            if (canon && store._installedSourcesRemoved?.size) {
-                store._installedSourcesRemoved.delete(canon);
-            }
-        } catch {
-            /* ignore */
-        }
-        /* Pull/restore paths pass skipAccountPublish to avoid N mid-loop publishes. */
-        if (!opts.skipAccountPublish) {
-            try { store.publishInstalledSourcesForAccount?.(); } catch { /* ignore */ }
-        }
-        return { ok: true, source: src };
+        return appendCommunitySource(this, src, opts);
     }
 
     removeCommunitySource(id) {

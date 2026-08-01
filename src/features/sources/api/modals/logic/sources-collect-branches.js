@@ -13,6 +13,10 @@ import {
 import { DEMO_BRANCH_UNIVERSE } from '../../../../../core/demo/arborito-demo-ids.js';
 import { isBundledDemoBranchId } from '../../../../publishing/api/demo-tree-guard.js';
 import { resolveBranchCatalogIcon } from '../../branch-catalog-icon.js';
+import {
+    collectPlaylistMemberCoverage,
+    isNetworkPlaylistMemberCourse,
+} from './sources-playlist-member-coverage.js';
 
 function langMatchBoost(uiLang, langKeys) {
     if (!uiLang) return 0;
@@ -24,11 +28,22 @@ function langMatchBoost(uiLang, langKeys) {
  * @param {object} ctx, sources controller (`this`)
  * @returns {{ score: number, kind: 'branch'|'saved'|'internet', data: object }[]}
  */
-export function collectBranchesTabItems(ctx, ui, state, activeSource, { scope, q }) {
+export function collectBranchesTabItems(
+    ctx,
+    ui,
+    state,
+    activeSource,
+    { scope, q, hidePlaylistMembers = false }
+) {
     ctx._globalDirUiTruncated = false;
     const q2 = String(q || '');
     const items = [];
     const uiLang = String(store.state?.lang || '').toUpperCase();
+    /* Search can still surface playlist members; empty Mis cursos list stays decluttered. */
+    const hideCoveredMembers = !!hidePlaylistMembers && !q2.trim();
+    const playlistCoverage = hideCoveredMembers
+        ? collectPlaylistMemberCoverage(store.userStore?.state?.trees)
+        : null;
 
     const activeBranchId = resolveActiveBranchId(activeSource);
     const curriculumMounted = !!(state?.data && state?.rawGraphData);
@@ -81,6 +96,15 @@ export function collectBranchesTabItems(ctx, ui, state, activeSource, { scope, q
                     /* ignore */
                 }
             }
+            if (
+                hideCoveredMembers &&
+                isNetworkPlaylistMemberCourse(playlistCoverage, {
+                    branchId: String(t?.id || ''),
+                    url: pubUrlRaw,
+                })
+            ) {
+                continue;
+            }
             const s = scoreSourcesMatch(q2, t?.name, String(t?.id || ''));
             if (q2 && s <= 0) continue;
             const localLangKeys = t?.data?.languages ? Object.keys(t.data.languages) : null;
@@ -124,6 +148,15 @@ export function collectBranchesTabItems(ctx, ui, state, activeSource, { scope, q
             }
         }
         if (isPinnedActive(s0?.id, s0?.url)) continue;
+        if (
+            hideCoveredMembers &&
+            isNetworkPlaylistMemberCourse(playlistCoverage, {
+                branchId: savedBranchId,
+                url: savedUrl,
+            })
+        ) {
+            continue;
+        }
         try {
             if (savedCanon && ownPublishedCanonUrls.has(savedCanon)) continue;
             if (

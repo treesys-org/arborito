@@ -2,11 +2,15 @@ import { useEffect, useState } from 'react';
 import { fileSystem } from '../../../backup-export/api/filesystem.js';
 import { useTreeGraph } from '../../hooks/useTreeGraph.js';
 import { getMobileTone, nodeLeadsToLessonId, resolveLastMapFocusId } from '../../api/mobile-tree-presentation-utils.js';
-import { getMobilePath, getSelectedNodeId } from '../../api/graph-ui-accessors.js';
+import { getSelectedNodeId } from '../../api/graph-ui-accessors.js';
 import { Callout } from '../../../../shared/ui/Callout.jsx';
 import { MobileKnotRow, MobilePathLabelRow } from './MobileKnotRow.jsx';
 import { MobileBranchPanel } from './MobileBranchPanel.jsx';
 import { useGrowReveal } from '../../hooks/useGrowReveal.js';
+import {
+    hasGrowRevealVisit,
+    markGrowRevealVisit,
+} from '../../api/grow-reveal-visit-memory.js';
 
 function MobileMovePickBanner() {
     const tree = useTreeGraph();
@@ -114,15 +118,28 @@ export function MobileRightColumn({ model, panelRef, scrollRootRef }) {
     const pathShown = useGrowReveal(mountKey, pathLen, 90);
 
     const current = model?.current;
+    const currentId = String(current?.id || '');
+    /*
+     * Mark on leave (cleanup), not enter — so the first forward paint can finish
+     * its stagger; back / re-enter hits an already-visited id and skips.
+     */
+    useEffect(() => {
+        return () => {
+            if (currentId) markGrowRevealVisit(mountKey, currentId);
+        };
+    }, [mountKey, currentId]);
+    const kidsInstant = !!(currentId && hasGrowRevealVisit(mountKey, currentId));
+
     const harvested = model?.harvested;
     const activeIndex = model?.activeIndex ?? 0;
     const children = Array.isArray(current?.children) ? current.children : [];
     /* Kids reveal once the active knot slot exists (active branch always mounts). */
     const kidsReady = pathLen > 0 && activeIndex >= 0;
     const kidsShown = useGrowReveal(
-        kidsReady ? `${mountKey}:${String(current?.id || '')}:kids` : `${mountKey}:kids-wait`,
+        kidsReady ? `${mountKey}:${currentId}:kids` : `${mountKey}:kids-wait`,
         kidsReady ? children.length : 0,
-        75
+        75,
+        { instant: kidsInstant }
     );
 
     if (!pathLen) return null;

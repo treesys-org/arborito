@@ -19,6 +19,7 @@ export function ConfirmNestedSheet({
     onConfirm,
     zIndex = 120,
     ariaLabel,
+    extra = null,
 }) {
     const titleClass = 'arborito-callout__title font-black m-0 dark:text-white';
 
@@ -65,6 +66,7 @@ export function ConfirmNestedSheet({
                 titleClass={titleClass}
                 bodyClass="arborito-callout__body text-sm text-slate-500 dark:text-slate-400 mt-1 mb-0 text-center leading-relaxed px-1"
             />
+            {extra}
             <ModalBinaryFooter
                 footerVariant="blend"
                 cancelLabel={cancelLabel}

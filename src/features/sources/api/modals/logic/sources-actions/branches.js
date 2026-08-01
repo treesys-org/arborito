@@ -49,6 +49,8 @@ export async function runBranchesAction(ctx, action, fields = {}) {
         ctx.setTargetId(null);
         ctx.setDeleteOverlayTitle?.(null);
         ctx.setDeleteOverlayBody?.(null);
+        ctx.setDeleteAlsoMembersOption?.(false);
+        ctx.setDeleteAlsoMembersDefault?.(true);
         ctx.setExportTarget?.(null);
         ctx.setExportBusy?.(false);
         ctx.bump();
