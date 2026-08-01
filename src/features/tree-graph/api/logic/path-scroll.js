@@ -209,9 +209,12 @@ export function resolveScrollHosts(hostRefs) {
  * Hard product rule: trunk scroll never past the ground line.
  * @param {object} hosts resolved DOM from resolveScrollHosts
  * @param {{ current: boolean }} lockRef
+ * @param {{ force?: boolean }} [opts] force=true enforces even mid finger-pan
+ *   (layout sync still skips while gesturing so pan does not fight recenter)
  */
-export function clampMobileTrunkScrollForVisibleRoot(hosts, lockRef = { current: false }) {
-    if (lockRef.current || isTrunkUserGesturing() || isLessonOverlayOpen()) return;
+export function clampMobileTrunkScrollForVisibleRoot(hosts, lockRef = { current: false }, opts = {}) {
+    const force = opts?.force === true;
+    if (lockRef.current || (!force && isTrunkUserGesturing()) || isLessonOverlayOpen()) return;
     const container = hosts.trunkContainer;
     const sc = hosts.scrollContent;
     const rootWrap = getMobileRootWrap(hosts);
@@ -229,6 +232,14 @@ export function clampMobileTrunkScrollForVisibleRoot(hosts, lockRef = { current:
         endProgrammaticTrunkScroll();
         lockRef.current = false;
     }
+}
+
+/**
+ * Live / post-gesture floor: resolve hosts from DOM and clamp past the ground
+ * line even while a finger pan is active (padding/overscroll must not lift root).
+ */
+export function enforceMobileTrunkGroundFloor(lockRef = { current: false }) {
+    clampMobileTrunkScrollForVisibleRoot(resolveScrollHostsFromDom(), lockRef, { force: true });
 }
 
 /**

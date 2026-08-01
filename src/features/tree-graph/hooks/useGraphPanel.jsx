@@ -7,7 +7,9 @@ import {
     markTrunkGestureMove,
     markTrunkGestureScroll,
     markTrunkGestureEnd,
+    setTrunkGestureSettledHandler,
 } from '../api/logic/trunk-scroll-gesture.js';
+import { enforceMobileTrunkGroundFloor } from '../api/logic/path-scroll.js';
 import { syncTreePresentationSlot as syncTreePresentationSlotApi, createGraphPanelRef } from '../api/graph-panel-api.js';
 import { linkPanelDom, registerPanelRef, unlinkPanelDom, unregisterPanelRef } from '../../../app/panel-refs.js';
 import {
@@ -233,11 +235,19 @@ export function useGraphPanel(rootRef, opts = {}) {
             document.getElementById('mobile-trunk-container');
         const trunkTouchOpts = { passive: true, capture: true };
         /* Momentum / drag only — never arm on touchstart (Back/row taps used to mark
-         * gesturing and skip path syncScroll, then the next pan felt dead). */
-        const onTrunkScroll = () => markTrunkGestureScroll();
+         * gesturing and skip path syncScroll, then the next pan felt dead).
+         * Floor clamp is forced on scroll + after settle: layout sync still skips
+         * while gesturing so recenter does not fight the finger, but padding must
+         * never lift the root off the ground line. */
+        const onTrunkScroll = () => {
+            markTrunkGestureScroll();
+            enforceMobileTrunkGroundFloor();
+        };
         const onTrunkTouchMove = () => markTrunkGestureMove();
         const onTrunkTouchEnd = () => markTrunkGestureEnd();
         const onTrunkTouchCancel = () => markTrunkGestureEnd();
+        const onTrunkScrollEnd = () => enforceMobileTrunkGroundFloor();
+        setTrunkGestureSettledHandler(enforceMobileTrunkGroundFloor);
 
         const onOrientation = () => {
             if (onOrientation._timer) clearTimeout(onOrientation._timer);
@@ -259,12 +269,14 @@ export function useGraphPanel(rootRef, opts = {}) {
         window.addEventListener('arborito-construction-scope-changed', onConstructionScopeChanged);
         if (trunkContainer) {
             trunkContainer.addEventListener('scroll', onTrunkScroll, { passive: true });
+            trunkContainer.addEventListener('scrollend', onTrunkScrollEnd, { passive: true });
             trunkContainer.addEventListener('touchmove', onTrunkTouchMove, trunkTouchOpts);
             trunkContainer.addEventListener('touchend', onTrunkTouchEnd, trunkTouchOpts);
             trunkContainer.addEventListener('touchcancel', onTrunkTouchCancel, trunkTouchOpts);
         }
 
         return () => {
+            setTrunkGestureSettledHandler(null);
             store.removeEventListener('state-change', onStateChange);
             store.removeEventListener('graph-update', onGraphUpdate);
             store.removeEventListener('arborito-set-mobile-path', onSetMobilePath);
@@ -279,6 +291,7 @@ export function useGraphPanel(rootRef, opts = {}) {
             window.removeEventListener('arborito-construction-scope-changed', onConstructionScopeChanged);
             if (trunkContainer) {
                 trunkContainer.removeEventListener('scroll', onTrunkScroll);
+                trunkContainer.removeEventListener('scrollend', onTrunkScrollEnd);
                 trunkContainer.removeEventListener('touchmove', onTrunkTouchMove, trunkTouchOpts);
                 trunkContainer.removeEventListener('touchend', onTrunkTouchEnd, trunkTouchOpts);
                 trunkContainer.removeEventListener('touchcancel', onTrunkTouchCancel, trunkTouchOpts);

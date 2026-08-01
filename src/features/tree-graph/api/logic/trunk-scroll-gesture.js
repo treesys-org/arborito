@@ -3,6 +3,8 @@ let userGesturing = false;
 let gestureEndTimer = 0;
 /** >0 while path sync / clamp writes scrollTop — those must not look like finger pans. */
 let programmaticScrollDepth = 0;
+/** Fires once when finger/momentum settle (cooldown cleared). */
+let gestureSettledHandler = null;
 
 /* Long enough to cover momentum on tall trunks (Linux-sized paths). */
 const GESTURE_COOLDOWN_MS = 320;
@@ -12,7 +14,17 @@ function armGestureCooldown() {
     gestureEndTimer = setTimeout(() => {
         userGesturing = false;
         gestureEndTimer = 0;
+        try {
+            gestureSettledHandler?.();
+        } catch {
+            /* floor enforce must never break gesture tracking */
+        }
     }, GESTURE_COOLDOWN_MS);
+}
+
+/** Register post-pan floor clamp (useGraphPanel). Pass null to clear. */
+export function setTrunkGestureSettledHandler(fn) {
+    gestureSettledHandler = typeof fn === 'function' ? fn : null;
 }
 
 export function isTrunkUserGesturing() {
