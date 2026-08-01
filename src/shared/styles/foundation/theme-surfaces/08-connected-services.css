@@ -11,11 +11,12 @@
         --arborito-theme-online-surface: rgb(250 245 255 / 0.85);
         --arborito-theme-online-surface-border: rgb(233 213 255 / 0.75);
 
-        --arborito-theme-trees-accent: rgb(109 40 217);
-        --arborito-theme-trees-accent-soft: rgb(237 233 254);
-        --arborito-theme-trees-fg: rgb(91 33 182);
-        --arborito-theme-trees-surface: rgb(245 243 255 / 0.85);
-        --arborito-theme-trees-surface-border: rgb(221 214 254 / 0.7);
+        /* Playlist / composed-tree chrome — same family as Crear playlist (cta-brown). */
+        --arborito-theme-trees-accent: var(--arborito-cta-brown-bg);
+        --arborito-theme-trees-accent-soft: rgb(255 247 237);
+        --arborito-theme-trees-fg: rgb(120 53 15);
+        --arborito-theme-trees-surface: rgb(255 247 237 / 0.92);
+        --arborito-theme-trees-surface-border: rgb(180 83 9 / 0.35);
 
         --arborito-theme-ai-accent: rgb(79 70 229);
         --arborito-theme-ai-accent-soft: rgb(238 242 255);
@@ -45,11 +46,11 @@ html.dark {
         --arborito-theme-online-surface: rgb(46 16 101 / 0.28);
         --arborito-theme-online-surface-border: rgb(88 28 135 / 0.35);
 
-        --arborito-theme-trees-accent: rgb(167 139 250);
-        --arborito-theme-trees-accent-soft: rgb(46 16 101 / 0.4);
-        --arborito-theme-trees-fg: rgb(221 214 254);
-        --arborito-theme-trees-surface: rgb(46 16 101 / 0.25);
-        --arborito-theme-trees-surface-border: rgb(91 33 182 / 0.35);
+        --arborito-theme-trees-accent: var(--arborito-cta-brown-bg);
+        --arborito-theme-trees-accent-soft: rgb(120 53 15 / 0.45);
+        --arborito-theme-trees-fg: rgb(254 243 199);
+        --arborito-theme-trees-surface: rgb(120 53 15 / 0.35);
+        --arborito-theme-trees-surface-border: rgb(251 146 60 / 0.4);
 
         --arborito-theme-ai-accent: rgb(129 140 248);
         --arborito-theme-ai-accent-soft: rgb(30 27 75 / 0.55);

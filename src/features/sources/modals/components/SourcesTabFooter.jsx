@@ -46,7 +46,7 @@ export function SourcesTabFooter({ ui, mainTab, onAction }) {
                 ) : null}
                 <button
                     type="button"
-                    className="arborito-cta-purple arborito-sources-cta-bar__btn arborito-sources-cta-bar__btn--create"
+                    className="arborito-cta-emerald arborito-sources-cta-bar__btn arborito-sources-cta-bar__btn--create"
                     onClick={() => onAction('show-create-kind')}
                 >
                     {ui.sourcesCreateShort || 'Create'}

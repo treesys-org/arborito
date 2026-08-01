@@ -58,6 +58,12 @@
   box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35);
 }
 
+.arborito-tree-switcher-item.is-active[data-tree-kind='composed-tree'] {
+  border-color: var(--arborito-theme-playlist-chip-border);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--arborito-cta-brown-bg) 28%, transparent);
+  background: var(--arborito-theme-playlist-chip-bg);
+}
+
 .arborito-tree-switcher-avatar {
     flex-shrink: 0;
     width: 2.4rem;
@@ -72,7 +78,7 @@
 }
 
 .arborito-tree-switcher-avatar .arborito-sources-row-title__emoji,
-.arborito-tree-switcher-avatar .arborito-emoji-glyph {
+.arborito-tree-switcher-avatar .arborito-emoji-glyph:not(img) {
     width: 1.35rem !important;
     height: 1.35rem !important;
     max-width: 1.35rem !important;
@@ -85,7 +91,9 @@
     flex-shrink: 0;
 }
 
+/* Twemoji <img> must stay inline-block — inline-flex collapses the glyph. */
 .arborito-tree-switcher-avatar .arborito-emoji-img,
+.arborito-tree-switcher-avatar img.arborito-emoji-glyph,
 .arborito-tree-switcher-avatar .arborito-emoji-glyph .arborito-emoji-img,
 .arborito-tree-switcher-avatar img.arborito-emoji-img {
     display: inline-block !important;
@@ -162,6 +170,12 @@
 
 .arborito-tree-switcher-pill--local {
   border-color: rgba(16, 185, 129, 0.35);
+}
+
+.arborito-tree-switcher-pill--composed {
+  border-color: var(--arborito-theme-playlist-chip-border);
+  color: var(--arborito-theme-playlist-chip-fg);
+  background: var(--arborito-theme-playlist-chip-bg);
 }
 
 .arborito-tree-switcher-pill--by-arborito {

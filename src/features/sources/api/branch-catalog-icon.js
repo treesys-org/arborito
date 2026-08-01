@@ -124,14 +124,57 @@ export function resolveDirectoryIconForPublish(bundle, extra = null) {
     return '';
 }
 
-/** Catalog emoji for a local composed tree (playlist) row / chip / switcher. */
-export function resolveComposedTreeCatalogIcon(tree) {
+/** Session sticky for composed trees (same idea as BRANCH_ICON_STICKY). */
+const COMPOSED_ICON_STICKY = new Map();
+
+/**
+ * Catalog emoji for a local composed tree (playlist) row / chip / switcher.
+ * @param {object | null | undefined} tree
+ * @param {{ communitySources?: object[] } | null | undefined} [opts]
+ */
+export function resolveComposedTreeCatalogIcon(tree, opts = null) {
+    const id = String(tree?.id || '').trim();
     const fromPublish = resolveDirectoryIconForPublish(
         tree?.data ? { tree: tree.data, meta: tree.data?.meta } : null,
         tree
     );
-    if (fromPublish) return fromPublish;
+    if (fromPublish && !isGenericCatalogIcon(fromPublish)) {
+        if (id) COMPOSED_ICON_STICKY.set(id, fromPublish);
+        return fromPublish;
+    }
     const direct = normalizeDirectoryCatalogIcon(tree?.icon);
+    if (direct && !isGenericCatalogIcon(direct)) {
+        if (id) COMPOSED_ICON_STICKY.set(id, direct);
+        return direct;
+    }
+
+    const community = Array.isArray(opts?.communitySources) ? opts.communitySources : [];
+    if (community.length) {
+        const share = String(
+            tree?.shareCode || tree?.publishedShareCode || tree?.data?.meta?.shareCode || ''
+        )
+            .trim()
+            .toUpperCase();
+        const pubUrl = String(tree?.publishedNetworkUrl || '').trim();
+        for (const s of community) {
+            if (!s) continue;
+            const sc = String(s.shareCode || '')
+                .trim()
+                .toUpperCase();
+            const su = String(s.url || '').trim();
+            const hit =
+                (share && sc && share === sc) ||
+                (pubUrl && su && (su === pubUrl || su.includes(String(tree?.id || ''))));
+            if (!hit) continue;
+            const ic = normalizeDirectoryCatalogIcon(s.icon);
+            if (ic && !isGenericCatalogIcon(ic)) {
+                if (id) COMPOSED_ICON_STICKY.set(id, ic);
+                return ic;
+            }
+        }
+    }
+
+    if (id && COMPOSED_ICON_STICKY.has(id)) return COMPOSED_ICON_STICKY.get(id);
     return direct || kindEmoji('composed-tree');
 }
 

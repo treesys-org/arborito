@@ -1,5 +1,6 @@
 import { getArboritoStore } from '../core/store-singleton.js';
 import { mountComposedTree } from '../features/forest/api/mount-composed-tree.js';
+import { getLatestComposedGraphCacheForTree } from '../features/forest/api/composed-graph-cache.js';
 import { importComposedTreeFromBundle, branchRefsFromIds } from '../features/forest/api/import-composed-tree-bundle.js';
 import { computeBranchSetHashSync } from '../features/forest/api/branch-set-hash.js';
 import { findLocalTreeWithSameHash, hasDuplicateBranchRefs } from '../features/forest/api/tree-dedup.js';
@@ -45,8 +46,16 @@ export async function loadComposedTreeAction(treeIdOrSource, forceRefresh = fals
                 }
             }
 
-            await store.userStore.ensureBranchesHydrated();
-            const entry = store.userStore.getTree(treeId);
+            /*
+             * Same-session reopen: if the composed graph is already in RAM, do not
+             * block on ensureBranchesHydrated (that wait is what shows the trunk comic).
+             */
+            const warmHit = !forceRefresh ? getLatestComposedGraphCacheForTree(treeId) : null;
+            let entry = store.userStore.getTree(treeId);
+            if (!entry || !warmHit) {
+                await store.userStore.ensureBranchesHydrated();
+                entry = store.userStore.getTree(treeId) || entry;
+            }
             if (!entry) return false;
             const ok = await mountComposedTree(
                 store,

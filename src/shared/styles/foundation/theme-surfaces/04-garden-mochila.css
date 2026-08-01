@@ -16,6 +16,14 @@
         --arborito-theme-path-bg-bottom: rgb(220 252 231);
         --arborito-theme-trunk-fade-background: linear-gradient(to right, rgb(167 243 208 / 0.32) 0%, transparent 100%);
         --arborito-theme-trunk-fade-opacity: 0.55;
+        /* Root comic “Estoy generando…” — verde manzana sólido en claro. */
+        --arborito-theme-root-comic-bubble-bg: rgb(187 247 208);
+        --arborito-theme-root-comic-bubble-fg: rgb(6 78 59);
+        --arborito-theme-root-comic-bubble-border: rgb(52 211 153);
+        --arborito-theme-root-comic-bubble-shadow: 0 10px 28px rgb(15 23 42 / 0.18);
+        --arborito-theme-root-comic-mark-color: rgb(22 163 74);
+        --arborito-theme-root-comic-spinner-border: 2.5px solid rgb(134 239 172);
+        --arborito-theme-root-comic-spinner-head: rgb(22 163 74);
         --arborito-theme-path-children-panel-box-shadow:
     0 8px 24px rgb(6 78 59 / 0.08),
     0 3px 0 var(--path-glass-border);
@@ -158,6 +166,13 @@ html.dark {
         --arborito-theme-path-bg-bottom: rgb(10 30 22);
         --arborito-theme-trunk-fade-background: linear-gradient(to right, rgb(15 24 20 / 0.55) 0%, transparent 100%);
         --arborito-theme-trunk-fade-opacity: 0.7;
+        --arborito-theme-root-comic-bubble-bg: rgb(6 78 59 / 0.92);
+        --arborito-theme-root-comic-bubble-fg: rgb(187 247 208);
+        --arborito-theme-root-comic-bubble-border: rgb(52 211 153 / 0.65);
+        --arborito-theme-root-comic-bubble-shadow: 0 10px 28px rgb(0 0 0 / 0.4);
+        --arborito-theme-root-comic-mark-color: rgb(134 239 172);
+        --arborito-theme-root-comic-spinner-border: 2.5px solid rgb(6 95 70);
+        --arborito-theme-root-comic-spinner-head: rgb(134 239 172);
         --arborito-theme-path-children-panel-box-shadow:
     0 8px 24px rgb(14 17 24 / 0.14),
     0 3px 0 rgb(52 211 153 / 0.35);

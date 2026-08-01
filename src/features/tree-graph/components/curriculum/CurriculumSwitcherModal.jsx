@@ -32,7 +32,7 @@ import {
     TREE_SWITCHER_SHEET_HTML_CLASS,
     syncPanelSheetFullbleedClass,
 } from '../../../../shared/ui/dock-sheet-chrome.js';
-import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
+import { CatalogRowEmoji } from '../../../sources/modals/components/CatalogRowEmoji.jsx';
 import { modalCtaConfirmFull } from '../../../../shared/ui/modal-action-chrome.js';
 
 function TreeSwitcherItem({ item, ui, showPill, onSelect }) {
@@ -55,7 +55,7 @@ function TreeSwitcherItem({ item, ui, showPill, onSelect }) {
             }}
         >
             <span className={avatarCls} aria-hidden="true">
-                <ChromeEmoji emoji={glyph} size={22} className="arborito-emoji-glyph" />
+                <CatalogRowEmoji emoji={glyph} size={22} />
             </span>
             <span className="arborito-tree-switcher-item-body">
                 <span className="arborito-tree-switcher-item-name" title={item.name}>

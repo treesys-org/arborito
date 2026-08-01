@@ -491,28 +491,26 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
     if (switchedSource) resetSageChatForSourceChange(store);
     const sourcesPickerOpen = shouldSuppressTreeGrowingBlock(store);
 
-    /* Reopen with local/cache: keep the painted graph; never blank a warm canvas.
-     * Soft-mount onto a different tree with no offline copy: clear so trunk/comic
-     * cover until the first structure paints. */
+    /* Soft open (switcher / reopen): never blank the canvas — keep the previous
+     * curriculum until the new graph paints. Hard refresh / empty offline may clear. */
     const clearGraph =
         !sameTreeAlreadyOpen &&
         !allOfflineFull &&
-        (!!forceRefresh || (switchedSource && !isBibliotecaUiOpen(store) && !allOffline));
+        !!forceRefresh &&
+        !(isBibliotecaUiOpen(store) && !isBibliotecaSoftMount());
     const softOpen = !forceRefresh;
     const showOverlay = !softOpen && clearGraph && !sourcesPickerOpen;
     /*
      * Soft open (boot / reopen): do not raise treeHydrating before the first
      * paint — with an empty canvas that used to become the fullscreen green modal.
-     * Soft-mount onto another tree: keep hydrating so Graph shows trunk/comic.
+     * Soft-mount from Biblioteca sets bibliotecaSoftMount for the trunk comic.
      */
 
     store.update({
         treeHydrating:
-            softOpen && switchedSource && clearGraph
-                ? true
-                : softOpen
-                  ? false
-                  : !allOfflineFull,
+            softOpen
+                ? false
+                : clearGraph || !allOfflineFull,
         treeGrowingOverlay: showOverlay,
         error: null,
         activeSource: { ...source, treeId, type: 'composed-tree', name: treeEntry.name },

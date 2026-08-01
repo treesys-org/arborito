@@ -46,10 +46,12 @@ export function SourcesComposedTreeRow({
     });
     const key = composedTreeRowKey(tree.id);
     const open = actionsOpen?.has(key);
-    const pinCls = pinned ? ' arborito-sources-row--pinned-active' : '';
+    const pinCls = pinned
+        ? ' arborito-sources-row--pinned-active arborito-sources-row--playlist'
+        : '';
     const borderCls =
         isActive && !pinned
-            ? 'border-amber-600/70 dark:border-amber-400/40 dark:ring-1 dark:ring-amber-400/15'
+            ? 'border-amber-700/70 dark:border-amber-500/45 dark:ring-1 dark:ring-amber-500/20'
             : 'border-amber-200/70 dark:border-amber-900/45';
     const pubMetrics = tree.publishedNetworkUrl
         ? metricsForPublishedUrl(tree.publishedNetworkUrl, globalDirMetrics)
@@ -65,7 +67,12 @@ export function SourcesComposedTreeRow({
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                     <p className="arborito-sources-row-title truncate min-w-0 inline-flex items-center gap-2">
-                        <CatalogRowEmoji emoji={resolveComposedTreeCatalogIcon(tree)} size={22} />
+                        <CatalogRowEmoji
+                            emoji={resolveComposedTreeCatalogIcon(tree, {
+                                communitySources: store?.state?.communitySources || [],
+                            })}
+                            size={22}
+                        />
                         <span className="truncate">{tree.name}</span>
                     </p>
                     <div className="arborito-sources-row-meta">

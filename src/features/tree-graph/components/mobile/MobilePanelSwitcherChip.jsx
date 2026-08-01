@@ -11,7 +11,9 @@ import { resolveBranchPanelIcon } from '../../api/logic/graph-mobile-panel-helpe
 import {
     resolveBranchCatalogIcon,
     resolveComposedTreeCatalogIcon,
+    resolveOnlineListingIcon,
 } from '../../../sources/api/branch-catalog-icon.js';
+import { kindEmoji } from '../../../sources/api/sources-kind-ui.js';
 import { resolveActiveBranchId } from '../../../sources/api/modals/logic/sources-helpers.js';
 import { resolveActiveComposedTreeId } from '../../api/logic/curriculum-switcher-list.js';
 
@@ -35,7 +37,29 @@ function resolveSwitcherChipEmoji(current, tree) {
         if (src?.type === 'composed-tree' || current?._composedVirtualRoot) {
             const id = resolveActiveComposedTreeId(src);
             const entry = (userStore?.state?.trees || []).find((t) => String(t?.id || '') === id);
-            if (entry) return resolveComposedTreeCatalogIcon(entry);
+            if (entry) {
+                return resolveComposedTreeCatalogIcon(entry, {
+                    communitySources: tree?.communitySources || tree?.state?.communitySources || [],
+                });
+            }
+            /* Network-only open: catalog emoji may live on the Saved/community row. */
+            const srcUrl = String(src?.url || '').trim();
+            const srcCode = String(src?.shareCode || '').trim().toUpperCase();
+            const community = tree?.communitySources || tree?.state?.communitySources || [];
+            for (const s of community) {
+                if (!s) continue;
+                const hit =
+                    (srcUrl && String(s.url || '') === srcUrl) ||
+                    (srcCode && String(s.shareCode || '').trim().toUpperCase() === srcCode) ||
+                    (id && String(s.id || '') === id);
+                if (!hit) continue;
+                return resolveOnlineListingIcon({
+                    icon: s.icon,
+                    contentKind: 'composed-tree',
+                    universeId: id,
+                });
+            }
+            return kindEmoji('composed-tree');
         }
         const branchId = resolveActiveBranchId(src);
         if (branchId) {

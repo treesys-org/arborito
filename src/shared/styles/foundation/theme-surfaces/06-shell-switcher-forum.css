@@ -169,8 +169,9 @@
         --arborito-theme-switcher-arborito-tree-switcher-section-color: rgb(100 116 139);
         --arborito-theme-switcher-arborito-tree-switcher-title-color: rgba(15, 23, 42, 0.92);
         --arborito-theme-switcher-is-active-background-2: rgba(255, 255, 255, 0.92);
-        --arborito-theme-switcher-is-active-background: rgb(109 40 217);
-        --arborito-theme-switcher-is-active-border-color: rgb(109 40 217);
+        /* Default active (kind filter “All”) — bark; playlist/course override below. */
+        --arborito-theme-switcher-is-active-background: rgb(30 41 59);
+        --arborito-theme-switcher-is-active-border-color: rgb(30 41 59);
         --arborito-theme-switcher-is-active-box-shadow: 0 8px 20px rgba(2, 6, 23, 0.08);
         --arborito-theme-switcher-is-active-color-2: rgba(15, 23, 42, 0.95);
         --arborito-theme-switcher-is-active-color: white;
@@ -349,8 +350,8 @@ html.dark {
         --arborito-theme-switcher-arborito-tree-switcher-section-color: rgb(161 161 170);
         --arborito-theme-switcher-arborito-tree-switcher-title-color: rgba(212, 212, 216, 0.95);
         --arborito-theme-switcher-is-active-background-2: rgba(10, 12, 18, 0.65);
-        --arborito-theme-switcher-is-active-background: rgb(167 139 250);
-        --arborito-theme-switcher-is-active-border-color: rgb(167 139 250);
+        --arborito-theme-switcher-is-active-background: rgb(212 212 216);
+        --arborito-theme-switcher-is-active-border-color: rgb(212 212 216);
         --arborito-theme-switcher-is-active-box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
         --arborito-theme-switcher-is-active-color-2: rgba(250, 250, 250, 0.98);
         --arborito-theme-switcher-is-active-color: rgb(14 17 24);

@@ -574,6 +574,18 @@ button.arborito-switcher-chip-action,
     color: var(--arborito-theme-switcher-is-active-color);
 }
 
+.arborito-tree-switcher-kind-filter button.is-active[data-switcher-kind='branch'] {
+    border-color: rgb(5 150 105);
+    background: rgb(5 150 105);
+    color: rgb(255 255 255);
+}
+
+.arborito-tree-switcher-kind-filter button.is-active[data-switcher-kind='composed-tree'] {
+    border-color: var(--arborito-cta-brown-bg);
+    background: var(--arborito-cta-brown-bg);
+    color: var(--arborito-cta-brown-fg, #fff);
+}
+
 .arborito-tree-switcher-section {
     margin: 0.35rem 0 0.25rem;
     padding: 0 0.15rem;

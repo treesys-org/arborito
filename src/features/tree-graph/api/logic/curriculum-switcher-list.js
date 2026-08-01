@@ -84,7 +84,9 @@ export function collectTreeSwitcherSources() {
             url: `tree://${id}`,
             isActive: isTreeSwitcherItemActive({ kind: 'composed-tree', id, url: `tree://${id}` }, active),
             branchSummary: formatBranchNamesSummary(names, store.ui, { max: 2 }),
-            icon: resolveComposedTreeCatalogIcon(t),
+            icon: resolveComposedTreeCatalogIcon(t, {
+                communitySources: store.value.communitySources || [],
+            }),
         });
     }
 

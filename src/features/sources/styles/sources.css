@@ -130,13 +130,37 @@
     color: rgb(255 255 255);
 }
 
+.arborito-sources-action-chip--kind-active[data-kind-filter='branch'] {
+    border-color: rgb(5 150 105);
+    background: rgb(5 150 105);
+}
+
+.arborito-sources-action-chip--kind-active[data-kind-filter='all'] {
+    border-color: rgb(30 41 59);
+    background: rgb(30 41 59);
+}
+
 .arborito-sources-action-chip--kind-active:hover {
     background: var(--arborito-theme-trees-accent);
     border-color: var(--arborito-theme-trees-accent);
     filter: brightness(1.05);
 }
 
+.arborito-sources-action-chip--kind-active[data-kind-filter='branch']:hover {
+    background: rgb(5 150 105);
+    border-color: rgb(5 150 105);
+}
+
+.arborito-sources-action-chip--kind-active[data-kind-filter='all']:hover {
+    background: rgb(30 41 59);
+    border-color: rgb(30 41 59);
+}
+
 html.dark .arborito-sources-action-chip--kind-active {
+    color: rgb(15 23 42);
+}
+
+html.dark .arborito-sources-action-chip--kind-active[data-kind-filter='all'] {
     color: rgb(15 23 42);
 }
 
@@ -358,6 +382,12 @@ html.arborito-product-tour-sources-picker
     border-color: var(--arborito-theme-sources-arborito-sources-row--pinned-active-border-color);
     background: var(--arborito-theme-sources-arborito-sources-row--pinned-active-background);
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+/* Active playlist pin — brown, not emerald course pin. */
+.arborito-sources-row--pinned-active.arborito-sources-row--playlist {
+    border-color: var(--arborito-theme-playlist-chip-border);
+    background: var(--arborito-theme-playlist-chip-bg);
 }.arborito-sources-list-divider {
     display: flex;
     align-items: center;

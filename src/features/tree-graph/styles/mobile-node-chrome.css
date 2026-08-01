@@ -322,16 +322,11 @@ html:not(.dark) .mobile-inline-tool--trophy-on {
     align-items: center;
     padding: 0.125rem 0.5rem;
     border-radius: 9999px;
-    border: 1px solid rgb(221 214 254 / 0.7);
-    background: rgb(245 243 255);
-    color: rgb(91 33 182);
+    border: 1px solid var(--arborito-theme-playlist-chip-border);
+    background: var(--arborito-theme-playlist-chip-bg);
+    color: var(--arborito-theme-playlist-chip-fg);
     font-size: 0.625rem;
     font-weight: 800;
-}
-.dark .mobile-child-composed-pill {
-    border-color: rgb(91 33 182 / 0.6);
-    background: rgb(46 16 101 / 0.3);
-    color: rgb(221 214 254);
 }
 .mobile-empty-branch-loading {
     display: flex;
