@@ -1,6 +1,10 @@
 import { getArboritoStore as store } from '../../../../core/store-singleton.js';
 import { formatBranchNamesSummary, resolveBranchRefDisplayNames } from '../../../forest/api/tree-branch-labels.js';
 import { canonicalNetworkTreeUrlString, resolveActiveBranchId } from '../../../sources/api/modals/logic/sources-helpers.js';
+import {
+    collectPlaylistMemberCoverage,
+    isNetworkPlaylistMemberCourse,
+} from '../../../sources/api/modals/logic/sources-playlist-member-coverage.js';
 import { isBundledArboritoDemoBranch } from '../../../../core/demo/arborito-demo-ids.js';
 import {
     resolveBranchCatalogIcon,
@@ -44,21 +48,39 @@ export function isTreeSwitcherItemActive(item, active = store.value.activeSource
     );
 }
 
-/** Collect installed branches, composed trees, and community sources for the switcher. */
-export function collectTreeSwitcherSources() {
+/**
+ * Collect installed branches, composed trees, and community sources for the switcher.
+ * @param {{ hidePlaylistMembers?: boolean, q?: string }} [opts]
+ *   When `hidePlaylistMembers` and search is empty: omit network courses that only
+ *   exist as members of a local playlist (same rule as Courses → My courses).
+ */
+export function collectTreeSwitcherSources({ hidePlaylistMembers = false, q = '' } = {}) {
     const out = [];
     const active = store.value.activeSource;
     const locals = store.userStore?.state?.branches || [];
+    const composed = store.userStore?.state?.trees || [];
     const localBranchIds = new Set();
     const localCanonUrls = new Set();
+    const hideCoveredMembers = !!hidePlaylistMembers && !String(q || '').trim();
+    const playlistCoverage = hideCoveredMembers ? collectPlaylistMemberCoverage(composed) : null;
 
     for (const t of locals) {
         if (!t) continue;
         const id = String(t.id || '');
         const name = String(t.name || '').trim() || id;
+        const pubUrlRaw = String(t.publishedNetworkUrl || '').trim();
+        if (
+            playlistCoverage &&
+            isNetworkPlaylistMemberCourse(playlistCoverage, {
+                branchId: id,
+                url: pubUrlRaw,
+            })
+        ) {
+            continue;
+        }
         localBranchIds.add(id);
         localCanonUrls.add(`branch://${id}`);
-        const pubCanon = canonicalNetworkTreeUrlString(String(t.publishedNetworkUrl || '').trim());
+        const pubCanon = canonicalNetworkTreeUrlString(pubUrlRaw);
         if (pubCanon) localCanonUrls.add(pubCanon);
         out.push({
             kind: 'branch',
@@ -71,7 +93,6 @@ export function collectTreeSwitcherSources() {
         });
     }
 
-    const composed = store.userStore?.state?.trees || [];
     for (const t of composed) {
         if (!t) continue;
         const id = String(t.id || '');
@@ -96,14 +117,23 @@ export function collectTreeSwitcherSources() {
         const id = String(s.id || '');
         const name = String(s.name || '').trim() || id;
         const url = String(s.url || '');
+        const contentKind = String(s.contentKind || '').trim();
         const branchDup = branchIdFromUrl(url);
         if (branchDup && localBranchIds.has(branchDup)) continue;
         if (localBranchIds.has(id)) continue;
         const canon = canonicalNetworkTreeUrlString(url);
         if (canon && localCanonUrls.has(canon)) continue;
-        const installedKind =
-            String(s.contentKind || '').trim() === 'composed-tree' ? 'composed-tree' : 'installed';
-        const kind = installedKind === 'composed-tree' ? 'composed-tree' : 'installed';
+        if (
+            playlistCoverage &&
+            contentKind !== 'composed-tree' &&
+            isNetworkPlaylistMemberCourse(playlistCoverage, {
+                branchId: branchDup || id,
+                url,
+            })
+        ) {
+            continue;
+        }
+        const kind = contentKind === 'composed-tree' ? 'composed-tree' : 'installed';
         let ownerPub = '';
         let universeId = '';
         try {
@@ -139,7 +169,7 @@ export function collectTreeSwitcherSources() {
 
 /** True when the user has at least one tree or branch other than the active one. */
 export function hasOtherTreeSwitcherSource() {
-    return collectTreeSwitcherSources().some((s) => !s.isActive);
+    return collectTreeSwitcherSources({ hidePlaylistMembers: true }).some((s) => !s.isActive);
 }
 
 /** @param {string} itemKind @param {'all'|'branch'|'composed-tree'} filter */
@@ -180,7 +210,10 @@ function sectionLabel(ui, key) {
 export function buildTreeSwitcherListData(qRaw, kindFilter = 'all', ui = store.ui) {
     const q = String(qRaw || '');
     const kf = String(kindFilter || 'all');
-    const ranked = collectTreeSwitcherSources()
+    /* Same as Courses → My courses: hide playlist-only course echoes unless
+     * the user filters to Course or is searching by name. */
+    const hidePlaylistMembers = kf !== 'branch';
+    const ranked = collectTreeSwitcherSources({ hidePlaylistMembers, q })
         .filter((s) => switcherKindMatches(s.kind, kf))
         .map((s) => ({
             item: s,
