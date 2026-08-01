@@ -149,24 +149,19 @@ export function SourcesBranchRow({
                 <aside className="arborito-sources-row-aside">
                     <div className="arborito-sources-primary-stack arborito-sources-primary-stack--load">
                         <div className="arborito-sources-cta-row">
-                            {isActive && !pinned ? (
-                                <SourcesPill className="arborito-surface-tile text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700">
-                                    {ui.sourceActive || 'Active'}
-                                </SourcesPill>
-                            ) : (
-                                <button
-                                    type="button"
-                                    className="arborito-sources-row-cta arborito-cta-emerald shadow-sm"
-                                    onClick={() =>
-                                        onAction?.('load-branch', {
-                                            id: branch?.id,
-                                            name: branch?.name,
-                                        })
-                                    }
-                                >
-                                    {ui.sourceLoad || 'Open'}
-                                </button>
-                            )}
+                            {/* Keep Open during active-but-not-pinned hydrate (onboarding demo race). */}
+                            <button
+                                type="button"
+                                className="arborito-sources-row-cta arborito-cta-emerald shadow-sm"
+                                onClick={() =>
+                                    onAction?.('load-branch', {
+                                        id: branch?.id,
+                                        name: branch?.name,
+                                    })
+                                }
+                            >
+                                {ui.sourceLoad || 'Open'}
+                            </button>
                         </div>
                     </div>
                     <div

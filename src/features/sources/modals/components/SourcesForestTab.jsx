@@ -13,7 +13,7 @@ import { isPublishedResourceOwner } from '../../../publishing/api/published-owne
 import { SourcesSavedRow } from './SourcesSavedRow.jsx';
 import { SourcesInternetRow } from './SourcesInternetRow.jsx';
 import { SourcesRowEnter } from './SourcesRowEnter.jsx';
-import { ListRowSkeleton } from '../../../../shared/ui/ListRowEnter.jsx';
+import { SourcesCatalogLoading } from './SourcesCatalogLoading.jsx';
 import { useInfiniteScrollSentinel } from '../../../../shared/ui/useInfiniteScrollSentinel.js';
 
 const TREES_LIST_PAGE = 24;
@@ -288,14 +288,7 @@ export function SourcesForestTab({
                     </div>
                 ) : null}
                 {loading && !activeEntry && !activeSaved && !curriculumLoading && !visibleItems.length ? (
-                    <div
-                        role="status"
-                        aria-live="polite"
-                        aria-busy="true"
-                        aria-label={ui.loading || 'Loading…'}
-                    >
-                        <ListRowSkeleton count={3} variant="card" />
-                    </div>
+                    <SourcesCatalogLoading ui={ui} count={3} />
                 ) : null}
                 {listEmpty ? (
                     <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-8">
@@ -397,9 +390,7 @@ export function SourcesForestTab({
                                 );
                             })}
                             {loading && !curriculumLoading && visibleItems.length > 0 ? (
-                                <div role="status" aria-live="polite" aria-busy="true">
-                                    <ListRowSkeleton count={1} variant="card" />
-                                </div>
+                                <SourcesCatalogLoading ui={ui} count={1} compact />
                             ) : null}
                             {infiniteEnabled ? (
                                 <div

@@ -659,6 +659,26 @@ html.dark .arborito-sources-tab-foot {
     margin: 0.5rem 0 0.75rem;
     padding: 0.85rem 1rem;
     border-radius: 1rem;
+    border: 1px dashed rgb(110 231 183 / 0.85);
+    color: rgb(6 78 59);
+}
+
+html.dark .arborito-sources-loading-slot {
+    border-color: rgb(6 78 59 / 0.65);
+    color: rgb(209 250 229);
+}
+
+.arborito-sources-loading-slot--compact {
+    margin-top: 0.25rem;
+    padding: 0.65rem 0.85rem;
+}
+
+.arborito-sources-loading-slot__title {
+    letter-spacing: 0.01em;
+}
+
+.arborito-sources-loading-slot__hint {
+    max-width: 36rem;
 }
 
 .arborito-sources-overlay-panel {

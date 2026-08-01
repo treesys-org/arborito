@@ -36,6 +36,8 @@
   "sourcesBranchesSearchPlaceholder": "Search courses, tutorials, or more…",
   "sourcesBranchGrowingShort": "Loading branch…",
   "sourcesBranchHydratingHint": "Loading branch…",
+  "sourcesCatalogLoading": "Loading courses from the network…",
+  "sourcesCatalogLoadingHint": "Fetching recommended and shared courses.",
   "sourcesBranchInfoButton": "Branch information",
   "sourcesBranchInfoTitle": "About this branch",
   "sourcesComposedTreeHydratingHint": "Loading tree…",

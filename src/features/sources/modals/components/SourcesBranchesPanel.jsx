@@ -14,8 +14,8 @@ import { KindFilterChips } from './KindFilterChips.jsx';
 import { CrossTabActiveBanner, resolveActiveComposedTreePin } from './SourcesForestTab.jsx';
 import { SourcesComposedTreeRow } from './SourcesComposedTreeRow.jsx';
 import { SourcesRowEnter } from './SourcesRowEnter.jsx';
-import { ListRowSkeleton } from '../../../../shared/ui/ListRowEnter.jsx';
 import { useInfiniteScrollSentinel } from '../../../../shared/ui/useInfiniteScrollSentinel.js';
+import { SourcesCatalogLoading } from './SourcesCatalogLoading.jsx';
 import {
     DIRECTORY_CLIENT_FETCH_PAGE,
 } from '../../../p2p-webtorrent/api/directory-index-config.js';
@@ -230,10 +230,16 @@ export function SourcesBranchesPanel({
           )
         : null;
     const demoBranch = demoFromPin || demoFromList?.data?.branch || null;
+    /*
+     * Only treat the demo as Active once the graph is actually mounted
+     * (pin needs state.data). Boot/onboarding often sets activeSource early;
+     * marking Active then hides the Open CTA mid-race.
+     */
+    const demoGraphReady = !!state?.data;
     const demoIsActive = !!(
         demoFromPin ||
-        (demoFromList && demoFromList.data?.isActive) ||
-        (demoBranch && String(activeSource?.id) === DEMO_BRANCH_ID)
+        (demoGraphReady && demoFromList && demoFromList.data?.isActive) ||
+        (demoGraphReady && demoBranch && String(activeSource?.id) === DEMO_BRANCH_ID)
     );
     const demoPinned = !!demoFromPin;
     const listWithoutDemo = visible.filter(
@@ -569,17 +575,10 @@ export function SourcesBranchesPanel({
                     </div>
                 ) : null}
                 {loading &&
-                (scope === 'all' || scope === 'internet') &&
+                (scope === 'all' || scope === 'internet' || mainTab === 'explore') &&
                 !curriculumLoading &&
                 !listWithoutDemo.length ? (
-                    <div
-                        role="status"
-                        aria-live="polite"
-                        aria-busy="true"
-                        aria-label={ui.loading || 'Loading…'}
-                    >
-                        <ListRowSkeleton count={3} variant="card" />
-                    </div>
+                    <SourcesCatalogLoading ui={ui} count={3} />
                 ) : null}
                 {listEmpty && !demoBranch && !showMineExploreCta && !showMineSearchExploreCta ? (
                     <div className="arborito-empty arborito-empty--dashed">
@@ -686,12 +685,10 @@ export function SourcesBranchesPanel({
                     </div>
                 )}
                 {loading &&
-                (scope === 'all' || scope === 'internet') &&
+                (scope === 'all' || scope === 'internet' || mainTab === 'explore') &&
                 !curriculumLoading &&
                 listWithoutDemo.length > 0 ? (
-                    <div role="status" aria-live="polite" aria-busy="true">
-                        <ListRowSkeleton count={1} variant="card" />
-                    </div>
+                    <SourcesCatalogLoading ui={ui} count={1} compact />
                 ) : null}
                 {infiniteEnabled ? (
                     <div

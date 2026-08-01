@@ -35,6 +35,8 @@
   "sourcesBranchAddedToTree": "Rama añadida al árbol.",
   "sourcesBranchGrowingShort": "Cargando rama…",
   "sourcesBranchHydratingHint": "Cargando rama…",
+  "sourcesCatalogLoading": "Cargando cursos de la red…",
+  "sourcesCatalogLoadingHint": "Buscando cursos recomendados y compartidos.",
   "sourcesBranchInfoButton": "Información de la rama",
   "sourcesBranchInfoTitle": "Sobre esta rama",
   "sourcesBranchesSearchPlaceholder": "Buscar cursos, tutoriales o más…",
