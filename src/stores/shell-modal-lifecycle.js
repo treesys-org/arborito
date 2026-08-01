@@ -7,6 +7,7 @@ import { prepareShellForModalOpen } from './shell-overlay-coordinator.js';
 import { onboardingModalFromSourcesHint } from '../shared/lib/onboarding-boot-gate.js';
 import { isBibliotecaSoftMount } from '../features/sources/api/sources-session.js';
 import { maybeRepromptConstructionBranchAfterHubDismiss } from '../features/editor/api/construction-enter-flow.js';
+import { armPostClosePointerGuard } from './shell-dialog-lifecycle.js';
 
 /** @param {import('./shell-store.js').ShellStore} store */
 export function setModalOnStore(store, modal) {
@@ -42,6 +43,10 @@ export function dismissModalOnStore(store, opts = {}) {
     }
     const m = store.state.modal;
     const prevType = m && typeof m === 'object' ? m.type : typeof m === 'string' ? m : null;
+    /* Mobile Back unmounts the sheet, then the synthetic click can hit the top-left
+     * Courses chip (kept tappable under dock sheets) and open Courses by accident —
+     * Search / Arcade / Profile / Language / etc., not only Courses itself. */
+    if (m) armPostClosePointerGuard(550);
     void dismissModalWithFlow(store, opts, m);
     if (prevType === 'arcade' || prevType === 'sources' || prevType === 'forum') {
         try {

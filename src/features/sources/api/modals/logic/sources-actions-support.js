@@ -9,6 +9,7 @@ import {
     maybeSeedArboritoDemo,
     bundledDemoBootSource,
 } from '../../../../../core/demo/seed-arborito-demo.js';
+import { armPostClosePointerGuard } from '../../../../../stores/shell-dialog-lifecycle.js';
 import { plantNewTree } from './sources-logic.js';
 import { sourcesLsGet, sourcesLsSet } from './sources-local-storage.js';
 
@@ -254,6 +255,10 @@ export function closeSourcesModal(opts = {}, embed = false) {
     const forceCanvas = opts.returnToMore === false || isBibliotecaSoftMount();
     const userBack = opts.returnToMore !== false;
     const graphPainted = !!(store.state.data || store.state.rawGraphData);
+
+    /* Ghost click: mobile Back unmounts Courses, then the synthetic click hits the
+     * top-left Courses chip and reopens it (same pattern as lesson Back). */
+    armPostClosePointerGuard(550);
 
     /* Soft-mount / Abrir·Añadir: always leave Biblioteca so trunk + comic paint on the graph. */
     if (forceCanvas) {

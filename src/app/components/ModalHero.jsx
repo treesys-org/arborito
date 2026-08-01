@@ -53,7 +53,9 @@ export function ModalBackButton({ ui, className, tagClass, ariaLabel, buttonId, 
             aria-label={label}
             disabled={blocked || undefined}
             aria-disabled={blocked ? 'true' : undefined}
-            onClick={blocked ? undefined : onClick}
+            /* Mobile: tap wire only — a React onClick would race the synthetic click
+             * that lands on the top-left Courses chip after the sheet unmounts. */
+            onClick={undefined}
         >
             <ModalBackChevronIcon />
         </button>
