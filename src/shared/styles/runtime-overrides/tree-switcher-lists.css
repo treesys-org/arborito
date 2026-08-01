@@ -72,9 +72,7 @@
 }
 
 .arborito-tree-switcher-avatar .arborito-sources-row-title__emoji,
-.arborito-tree-switcher-avatar .arborito-emoji-img,
-.arborito-tree-switcher-avatar .arborito-emoji-glyph,
-.arborito-tree-switcher-avatar .arborito-emoji-glyph .arborito-emoji-img {
+.arborito-tree-switcher-avatar .arborito-emoji-glyph {
     width: 1.35rem !important;
     height: 1.35rem !important;
     max-width: 1.35rem !important;
@@ -84,6 +82,21 @@
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+}
+
+.arborito-tree-switcher-avatar .arborito-emoji-img,
+.arborito-tree-switcher-avatar .arborito-emoji-glyph .arborito-emoji-img,
+.arborito-tree-switcher-avatar img.arborito-emoji-img {
+    display: inline-block !important;
+    width: 1.35rem !important;
+    height: 1.35rem !important;
+    max-width: 1.35rem !important;
+    max-height: 1.35rem !important;
+    margin: 0 !important;
+    object-fit: contain !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .arborito-tree-switcher-avatar--local {
@@ -92,8 +105,8 @@
 }
 
 .arborito-tree-switcher-avatar--composed {
-    background: color-mix(in srgb, var(--arborito-cta-brown-bg) 16%, transparent);
-    border-color: color-mix(in srgb, var(--arborito-cta-brown-bg) 42%, transparent);
+    background: var(--arborito-theme-playlist-avatar-bg);
+    border-color: var(--arborito-theme-playlist-avatar-border);
 }
 
 .arborito-tree-switcher-avatar--installed {

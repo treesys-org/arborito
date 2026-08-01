@@ -31,10 +31,12 @@
         --arborito-theme-branch-chip-bg: rgb(236 253 245 / 0.96);
         --arborito-theme-branch-chip-border: rgb(52 211 153 / 0.45);
         --arborito-theme-branch-chip-fg: rgb(4 120 87);
-        /* Soft surface from Crear playlist CTA (`--arborito-cta-brown-*`). */
-        --arborito-theme-playlist-chip-bg: color-mix(in srgb, var(--arborito-cta-brown-bg) 14%, white);
-        --arborito-theme-playlist-chip-border: color-mix(in srgb, var(--arborito-cta-brown-bg) 55%, transparent);
-        --arborito-theme-playlist-chip-fg: var(--arborito-cta-brown-bg);
+        /* Playlist chip — readable cream surface (cta-brown family). */
+        --arborito-theme-playlist-chip-bg: rgb(255 247 237);
+        --arborito-theme-playlist-chip-border: rgb(180 83 9 / 0.45);
+        --arborito-theme-playlist-chip-fg: rgb(120 53 15);
+        --arborito-theme-playlist-avatar-bg: rgb(254 243 199);
+        --arborito-theme-playlist-avatar-border: rgb(180 83 9 / 0.4);
         --arborito-theme-forum-option-bg: #ffffff;
         --arborito-theme-forum-option-fg: #0f172a;
         --arborito-theme-forum-op-text: #0f172a;
@@ -211,9 +213,11 @@ html.dark {
         --arborito-theme-branch-chip-bg: rgb(6 78 59 / 0.55);
         --arborito-theme-branch-chip-border: rgb(52 211 153 / 0.35);
         --arborito-theme-branch-chip-fg: rgb(167 243 208);
-        --arborito-theme-playlist-chip-bg: color-mix(in srgb, var(--arborito-cta-brown-bg) 28%, transparent);
-        --arborito-theme-playlist-chip-border: color-mix(in srgb, var(--arborito-cta-brown-bg) 45%, transparent);
-        --arborito-theme-playlist-chip-fg: var(--arborito-cta-brown-fg);
+        --arborito-theme-playlist-chip-bg: rgb(120 53 15 / 0.42);
+        --arborito-theme-playlist-chip-border: rgb(251 146 60 / 0.4);
+        --arborito-theme-playlist-chip-fg: rgb(254 243 199);
+        --arborito-theme-playlist-avatar-bg: rgb(120 53 15 / 0.55);
+        --arborito-theme-playlist-avatar-border: rgb(251 146 60 / 0.35);
         --arborito-theme-forum-option-bg: var(--arborito-theme-tile-bg);
         --arborito-theme-forum-option-fg: #f1f5f9;
         --arborito-theme-forum-op-text: #f1f5f9;

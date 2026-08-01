@@ -8,6 +8,7 @@ import { composeTreeGraph, composeTreeGraphPlaceholder } from './compose-tree-gr
 import {
     buildComposedGraphFingerprint,
     getComposedGraphCache,
+    getLatestComposedGraphCacheForTree,
     putComposedGraphCache,
 } from './composed-graph-cache.js';
 import { parseNostrTreeUrl, formatNostrTreeUrl } from '../../nostr/api/nostr-refs.js';
@@ -232,6 +233,218 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
         return false;
     }
 
+    const sameTreeAlreadyOpen =
+        store.state.activeSource?.type === 'composed-tree' &&
+        String(store.state.activeSource.treeId || '') === treeId &&
+        !!store.state.data;
+
+    /*
+     * Same-session reopen: paint the last composed graph from RAM before hydrate/IDB.
+     * Avoids trunk comic + multi-second wait when the user already opened this playlist.
+     */
+    const warmHit = !forceRefresh ? getLatestComposedGraphCacheForTree(treeId) : null;
+    if (warmHit?.graphJson && !sameTreeAlreadyOpen) {
+        const epoch = ++store._curriculumMountEpoch;
+        const prevSourceId =
+            store.state?.activeSource?.id != null ? String(store.state.activeSource.id) : '';
+        const switchedSource = !!prevSourceId && prevSourceId !== treeId;
+        if (switchedSource) resetSageChatForSourceChange(store);
+
+        const finalSource = {
+            ...source,
+            id: treeId,
+            treeId,
+            type: 'composed-tree',
+            url: `tree://${treeId}`,
+            name: treeEntry.name,
+        };
+        store.update({
+            treeHydrating: false,
+            treeGrowingOverlay: false,
+            treeGrowingHint: null,
+            error: null,
+            activeSource: { ...source, treeId, type: 'composed-tree', name: treeEntry.name },
+        });
+
+        const graphJson = warmHit.graphJson;
+        stampDiscoverMeta(graphJson, treeEntry);
+        graphJson.meta = graphJson.meta && typeof graphJson.meta === 'object' ? graphJson.meta : {};
+        delete graphJson.meta.skeleton;
+
+        const normalized = normalizeLoadedTreeJson(graphJson, store, finalSource);
+        const treeContext = {
+            kind: 'composed-tree',
+            treeId,
+            singleBranch: !!warmHit.singleBranch,
+            virtualRootId: warmHit.virtualRootId,
+            branchRefId: null,
+            activeBranchRefId: null,
+        };
+        store.state.treeContext = treeContext;
+        DataProcessor.process(store, normalized, finalSource, {
+            suppressReadmeAutoOpen: true,
+            carryOverSelection: false,
+        });
+        if (epoch !== store._curriculumMountEpoch) return false;
+        store._composedMountFingerprint = warmHit.fingerprint;
+        store.update({
+            treeContext,
+            treeHydrating: false,
+            treeGrowingOverlay: false,
+            treeGrowingHint: null,
+        });
+        queueMicrotask(() => {
+            try {
+                store.dispatchEvent(new CustomEvent('graph-update'));
+            } catch {
+                /* ignore */
+            }
+        });
+
+        /* Quiet reconcile: refresh members if hydrate/IDB now differs. */
+        void (async () => {
+            try {
+                const nostrUrls = refs.map(refNostrUrl).filter(Boolean);
+                const [, cacheByUrl] = await Promise.all([
+                    hydratePromise,
+                    nostrUrls.length
+                        ? getTreeBundleCachesForUrls(nostrUrls)
+                        : Promise.resolve(new Map()),
+                ]);
+                if (epoch !== store._curriculumMountEpoch) return;
+                treeEntry = store.userStore.getTree(treeId) || treeEntry;
+                refs = Array.isArray(treeEntry.branchRefs) ? treeEntry.branchRefs : refs;
+                const offlinePayloads = refs.map((ref) => {
+                    const url = refNostrUrl(ref);
+                    const cacheRow = url ? cacheByUrl.get(cacheKeyForUrl(url)) || null : null;
+                    return resolveBranchOffline(store, ref, cacheRow);
+                });
+                const allOfflineFull =
+                    offlinePayloads.every(Boolean) &&
+                    offlinePayloads.every((p) => p && !p.skeleton);
+                if (!allOfflineFull) return;
+                const fp = buildComposedGraphFingerprint(
+                    store,
+                    treeEntry,
+                    store.state.lang,
+                    offlinePayloads
+                );
+                if (!fp || fp === warmHit.fingerprint) {
+                    store._composedMountFingerprint = fp || warmHit.fingerprint;
+                    return;
+                }
+                if (epoch !== store._curriculumMountEpoch) return;
+
+                /*
+                 * Hydrate often replaces branch.data object identity → fingerprint
+                 * tokens churn without content change. Re-key the warm graph instead
+                 * of recomposing (avoids a second paint flash on every reopen).
+                 */
+                const warmParts = String(warmHit.fingerprint || '').split('|');
+                const structuralSame =
+                    warmParts.length >= 5 &&
+                    String(treeEntry?.updated || 0) === warmParts[1] &&
+                    String(treeEntry?.name || '') === warmParts[2] &&
+                    String(store.state.lang || '').toUpperCase() === warmParts[3] &&
+                    String(refs.length) === warmParts[4];
+                if (structuralSame) {
+                    const prev = getComposedGraphCache(warmHit.fingerprint);
+                    if (prev?.graphJson) {
+                        putComposedGraphCache(fp, {
+                            graphJson: prev.graphJson,
+                            singleBranch: !!prev.singleBranch,
+                            virtualRootId: prev.virtualRootId,
+                        });
+                    }
+                    store._composedMountFingerprint = fp;
+                    return;
+                }
+
+                let graphJson;
+                let singleBranch;
+                let virtualRootId;
+                const cached = getComposedGraphCache(fp);
+                if (cached) {
+                    graphJson = cached.graphJson;
+                    singleBranch = cached.singleBranch;
+                    virtualRootId = cached.virtualRootId;
+                } else {
+                    const composed = composeTreeGraph({
+                        treeEntry,
+                        branchPayloads: offlinePayloads.map((p) => ({
+                            ref: p.ref,
+                            data: p.data,
+                        })),
+                        lang: store.state.lang,
+                    });
+                    singleBranch = composed.singleBranch;
+                    virtualRootId = composed.virtualRootId;
+                    if (composed.graphJson) {
+                        putComposedGraphCache(fp, {
+                            graphJson: composed.graphJson,
+                            singleBranch: !!singleBranch,
+                            virtualRootId,
+                        });
+                        graphJson = deepCloneJson(composed.graphJson);
+                    } else {
+                        graphJson = composed.graphJson;
+                    }
+                }
+                if (!graphJson || epoch !== store._curriculumMountEpoch) return;
+                stampDiscoverMeta(graphJson, treeEntry);
+                graphJson.meta =
+                    graphJson.meta && typeof graphJson.meta === 'object' ? graphJson.meta : {};
+                delete graphJson.meta.skeleton;
+                const normalized = normalizeLoadedTreeJson(graphJson, store, finalSource);
+                const treeContext = {
+                    kind: 'composed-tree',
+                    treeId,
+                    singleBranch: !!singleBranch,
+                    virtualRootId,
+                    branchRefId: null,
+                    activeBranchRefId: null,
+                };
+                store.state.treeContext = treeContext;
+                DataProcessor.process(store, normalized, finalSource, {
+                    suppressReadmeAutoOpen: true,
+                    carryOverSelection: true,
+                });
+                if (epoch !== store._curriculumMountEpoch) return;
+                store._composedMountFingerprint = fp;
+                store.update({
+                    treeContext,
+                    treeHydrating: false,
+                    treeGrowingOverlay: false,
+                    treeGrowingHint: null,
+                });
+            } catch (e) {
+                console.warn('[Arborito] warm composed reopen reconcile', e);
+            }
+        })();
+
+        void runThrottledBackgroundTask(
+            `tree-maintain:${treeId}`,
+            async () => {
+                try {
+                    const { autoMaintainPublishedComposedTree } = await import(
+                        '../../publishing/api/published-entry-auto-maintain.js'
+                    );
+                    await autoMaintainPublishedComposedTree(store, treeId);
+                } catch (e) {
+                    console.warn('[Arborito] autoMaintainPublishedComposedTree', e);
+                }
+            },
+            { oncePerSession: true, minIntervalMs: 8000 }
+        );
+
+        try {
+            store.publishInstalledSourcesForAccount?.({ immediate: true });
+        } catch {
+            /* ignore */
+        }
+        return !!store.state.data;
+    }
+
     const nostrUrls = refs.map(refNostrUrl).filter(Boolean);
     /* Local-only playlists never need the remote bundle IDB scan. */
     const [, cacheByUrl] = await Promise.all([
@@ -249,11 +462,6 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
     });
     const allOffline = offlinePayloads.every(Boolean);
     const allOfflineFull = allOffline && offlinePayloads.every((p) => p && !p.skeleton);
-
-    const sameTreeAlreadyOpen =
-        store.state.activeSource?.type === 'composed-tree' &&
-        String(store.state.activeSource.treeId || '') === treeId &&
-        !!store.state.data;
 
     const composeFingerprint = allOfflineFull
         ? buildComposedGraphFingerprint(store, treeEntry, store.state.lang, offlinePayloads)

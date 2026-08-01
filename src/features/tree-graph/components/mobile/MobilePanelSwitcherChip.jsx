@@ -1,5 +1,5 @@
 import { useTreeGraph } from '../../hooks/useTreeGraph.js';
-import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
+import { CatalogRowEmoji } from '../../../sources/modals/components/CatalogRowEmoji.jsx';
 import { parseNostrTreeUrl } from '../../../nostr/api/nostr-refs.js';
 import {
     curriculumTreeDisplayName,
@@ -47,13 +47,16 @@ function resolveSwitcherChipEmoji(current, tree) {
     return '';
 }
 
-function PanelSwitcherIcon({ current, skipIcon, tree }) {
+function PanelSwitcherIcon({ current, skipIcon, tree, playlist }) {
     if (skipIcon) return null;
     const ic = resolveSwitcherChipEmoji(current, tree);
     if (!ic) return null;
     return (
-        <span className="arborito-switcher-chip-icon text-xl leading-none shrink-0 mt-0.5" aria-hidden="true">
-            <ChromeEmoji emoji={ic} className="arborito-emoji-glyph" />
+        <span
+            className={`arborito-switcher-chip-icon${playlist ? ' arborito-switcher-chip-icon--playlist' : ''} text-xl leading-none shrink-0 mt-0.5`}
+            aria-hidden="true"
+        >
+            <CatalogRowEmoji emoji={ic} size={24} />
         </span>
     );
 }
@@ -71,6 +74,7 @@ function PanelSwitcherChipInner({
     const releases = availableReleases || [];
     const vp = getVersionPresentation(src, releases, ui);
     const shareKind = src?.type === 'composed-tree' ? 'composed-tree' : 'branch';
+    const isPlaylist = shareKind === 'composed-tree';
     const treeName = curriculumTreeDisplayName(ui) || String(src?.name || '').trim();
     const folderName = current?.type === 'root' ? '' : String(current?.name || '').trim();
     const activeFrozen =
@@ -80,7 +84,9 @@ function PanelSwitcherChipInner({
         userStore.isTreeFrozen(src.id);
     const versionLineRaw = activeFrozen
         ? ui.freezeToggleOn || ui.freezeOnHint || 'Offline copy'
-        : String(resolvePanelVersionLabel(ui, current, tree) || vp.chipSub || '').trim();
+        : isPlaylist
+          ? ''
+          : String(resolvePanelVersionLabel(ui, current, tree) || vp.chipSub || '').trim();
     const versionLine =
         versionLineRaw ||
         (vp.isLocal
@@ -94,7 +100,7 @@ function PanelSwitcherChipInner({
     const treeContextLine = isBranch && treeName && treeName !== folderName ? treeName : '';
     const kindLine =
         intent === 'explore'
-            ? shareKind === 'composed-tree'
+            ? isPlaylist
                 ? ui.sourcesPillComposedTree || 'Playlist'
                 : ui.sourcesPillBranch || 'Course'
             : '';
@@ -111,7 +117,15 @@ function PanelSwitcherChipInner({
         }
     }
     const localClass = vp.isLocal ? ' arborito-chip-version-line--local' : '';
-    const metaLine = kindLine ? `${kindLine} · ${versionLine}` : versionLine;
+    /* Playlist chip: kind only — do not dump member course names (ugly + noisy). */
+    const metaLine = isPlaylist
+        ? kindLine ||
+          (vp.isLocal
+              ? ui.releasesVersionScopeLocal || 'On this device'
+              : ui.releasesStateLiveShort || ui.releasesStateLive || 'Latest')
+        : kindLine
+          ? `${kindLine} · ${versionLine}`
+          : versionLine;
 
     return (
         <>
@@ -189,7 +203,12 @@ export function MobilePanelSwitcherChip({ current, ui: uiProp, intent = 'version
                 aria-haspopup="dialog"
                 onClick={onChipClick}
             >
-                <PanelSwitcherIcon current={current} skipIcon={skipIcon} tree={tree} />
+                <PanelSwitcherIcon
+                    current={current}
+                    skipIcon={skipIcon}
+                    tree={tree}
+                    playlist={isPlaylistSource}
+                />
                 <PanelSwitcherChipInner
                     ui={ui}
                     current={current}

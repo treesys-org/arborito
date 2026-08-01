@@ -327,6 +327,42 @@ html:not(.dark) .arborito-mobile-path .mobile-panel-back:hover {
     align-self: flex-start;
     font-size: 1.35rem;
     line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    min-width: 1.75rem;
+    min-height: 1.75rem;
+}
+
+.mobile-panel-branch-unit .arborito-switcher-chip-icon--playlist {
+    width: 2.15rem;
+    min-width: 2.15rem;
+    min-height: 2.15rem;
+    border-radius: 0.55rem;
+    background: var(--arborito-theme-playlist-avatar-bg);
+    border: 1px solid var(--arborito-theme-playlist-avatar-border);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35);
+}
+
+.mobile-panel-branch-unit .arborito-switcher-chip-icon .arborito-sources-row-title__emoji,
+.mobile-panel-branch-unit .arborito-switcher-chip-icon .arborito-emoji-glyph,
+.mobile-panel-branch-unit .arborito-switcher-chip-icon .arborito-emoji-img,
+.mobile-panel-branch-unit .arborito-switcher-chip-icon img.arborito-emoji-img,
+.mobile-panel-branch-unit .arborito-switcher-chip-icon img {
+    display: inline-block !important;
+    width: 1.4rem !important;
+    height: 1.4rem !important;
+    min-width: 1.4rem !important;
+    min-height: 1.4rem !important;
+    max-width: 1.4rem !important;
+    max-height: 1.4rem !important;
+    margin: 0 !important;
+    margin-inline: 0 !important;
+    object-fit: contain !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    vertical-align: middle !important;
 }
 
 .arborito-mobile-path.mobile-tree-ui .mobile-panel-head--branch .mobile-panel-toolbar {
@@ -504,6 +540,16 @@ html:not(.dark) .arborito-mobile-path .mobile-panel-back:hover {
 .mobile-panel-branch-unit .arborito-playlist-curriculum-chip {
     border-color: var(--arborito-theme-playlist-chip-border) !important;
     background: var(--arborito-theme-playlist-chip-bg) !important;
+    color: var(--arborito-theme-playlist-chip-fg);
+}
+
+/* Inside the unit shell the unit already paints brown — keep the button flush/transparent. */
+.mobile-panel-branch-unit
+    .arborito-branch-panel-version-chip--unit.arborito-playlist-curriculum-chip.arborito-timeline-chip--btn {
+    width: 100% !important;
+    max-width: 100% !important;
+    background: transparent !important;
+    border-color: transparent !important;
     color: var(--arborito-theme-playlist-chip-fg);
 }
 

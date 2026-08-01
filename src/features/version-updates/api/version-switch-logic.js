@@ -1,7 +1,6 @@
 import { getArboritoStore } from '../../../core/store-singleton.js';
 import { inferBundleTitle } from '../../publishing/api/arborito-bundle.js';
 import { markPendingCurriculumSwitcher } from '../../editor/api/curriculum-switcher-pending.js';
-import { formatBranchNamesSummary, resolveBranchRefDisplayNames } from '../../forest/api/tree-branch-labels.js';
 import { fileSystem } from '../../backup-export/api/filesystem.js';
 import { resolveEditionManifestUrl } from '../../sources/api/library-mirrors.js';
 import { getPanelRef } from '../../../app/panel-refs.js';
@@ -118,15 +117,10 @@ export function getVersionPresentation(activeSource, releases, ui = {}) {
     } else if (isComposed) {
         versionKind = 'composed';
         chipLabel = kindLabel;
-        const refs = getArboritoStore().userStore?.getTree?.(activeSource.treeId)?.branchRefs;
-        const names = resolveBranchRefDisplayNames(refs);
-        const summary = formatBranchNamesSummary(names, ui, { max: 2 });
-        const n = names.length;
-        chipSub =
-            summary ||
-            (n
-                ? `${n} ${t('sourcesTreeBranchCount', 'branches')}`
-                : t('sourcesKindSubtitleTree', 'Playlist'));
+        /* Keep chipSub short — member course dump belongs on the playlist editor, not chrome. */
+        chipSub = isLocal
+            ? scopeLocal
+            : t('sourcesKindSubtitleTree', t('sourcesPillComposedTree', 'Playlist'));
         icon = '🌳';
     } else if (isLocal) {
         versionKind = 'local';
