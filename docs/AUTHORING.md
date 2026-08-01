@@ -8,7 +8,7 @@ How to create and edit content in Arborito without a terminal.
 2. Tap a node on the map to edit it.
 3. **Leaves** open the lesson editor; **folders** organize modules.
 4. Use **Sage → Tour** for a step-by-step walkthrough.
-5. Publish from the tree info modal when ready.
+5. Publish from the Construction dock (or publish hub) when ready.
 
 **Optional terminal:** `pip install 'arborito-sdk[tui]'` → `arborito-cli edit`. Same on-disk format. See [`PYTHON_SDK.md`](PYTHON_SDK.md).
 
@@ -175,18 +175,18 @@ In Construction, the lesson toolbar **Insert quiz** opens the questionnaire wiza
 
 ## Optional folder achievements
 
-By default the learner can earn a trophy for finishing a course (standalone branch or playlist). For an achievement on one **folder**:
+By default the learner can earn an award under **Achievements** for finishing a course or playlist. For an achievement on one **folder**:
 
 1. Construction → select the folder.
 2. Map tool **Enable achievement**, or **Properties → Enable achievement**.
 
-See [`PRODUCT_GUIDE.md`](PRODUCT_GUIDE.md#trophies-and-achievements).
+See [`PRODUCT_GUIDE.md`](PRODUCT_GUIDE.md#achievements).
 
 ## Publishing
 
 - **Nostr (open network):** Construction → publish. Arborito assigns a **new random network id** on first publish. Technical format: [`NETWORK.md`](NETWORK.md).
-- **Catalog title in Forest:** follows the viewer’s **UI language** via `meta.titles` (set by renaming the root per curriculum language).
-- **Export file:** Forest (Courses) → Export → `.arborito` (optional: include all saved versions under `versions/`).
+- **Listing title in Courses / Explore:** follows the viewer’s **UI language** via `meta.titles` (set by renaming the root per curriculum language).
+- **Export file:** Courses → select the course or playlist → Export → `.arborito` (optional: include all saved versions under `versions/`).
 - **Local only:** import and study without publishing.
 
 Full archive layout: [`ARBORITO_ARCHIVE.md`](ARBORITO_ARCHIVE.md). Shipped author guides in each export: `files/AUTHOR-GUIDE.md` (EN) / `files/AUTORIA.md` (ES).

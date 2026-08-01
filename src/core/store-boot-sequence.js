@@ -10,6 +10,18 @@ import {
 import { ensureAppCoreReady, shouldDeferHeavyBoot } from './store-lazy-modules.js';
 
 const BOOT_SOURCE_INIT_MS = 30000;
+
+function remountDemoIfCanvasEmpty(store) {
+    if (!store || store.state.data) return;
+    if (
+        store.state.treeHydrating &&
+        (store._curriculumMountInFlight || store._autoloadMountInFlight || store._ensureDemoMountInFlight)
+    ) {
+        return;
+    }
+    void store.ensureMinimumDemoMounted?.();
+}
+
 const BOOT_TREE_SLOW_MS = 60000;
 
 function tryOpenSharedCertificate(store) {
@@ -71,6 +83,7 @@ async function runSourceBoot(store) {
                 ),
                 true
             );
+            remountDemoIfCanvasEmpty(store);
             setTimeout(() => store.maybePromptNoTree(), 400);
             return;
         }
@@ -83,6 +96,7 @@ async function runSourceBoot(store) {
         if (!source) {
             hideInitialLoader();
             store.update({ loading: false });
+            remountDemoIfCanvasEmpty(store);
             if (!pendingUntrusted) {
                 setTimeout(() => store.maybePromptNoTree(), 400);
             }
@@ -96,10 +110,17 @@ async function runSourceBoot(store) {
         ) {
             hideInitialLoader();
             store.update({ loading: false });
+            /*
+             * Courses is open after onboarding/sign-in, but tree boot was deferred.
+             * Seed the demo behind the modal so closing Courses never leaves empty sky
+             * while account autoload catches up.
+             */
+            remountDemoIfCanvasEmpty(store);
             return;
         }
 
-        const treeLoadPromise = store.loadData(source, false);
+        /* Empty canvas: force hydrate so soft-open cannot leave a blank sky. */
+        const treeLoadPromise = store.loadData(source, !store.state.data);
         const slowHintTimer = setTimeout(() => {
             if (!store.state.treeHydrating) return;
             const ui = store.ui || {};
@@ -116,12 +137,27 @@ async function runSourceBoot(store) {
                 hideInitialLoader();
                 treeLoadPromise
                     .then((ok) => {
-                        if (!ok) queueMicrotask(() => store.maybePromptNoTree());
+                        if (!ok) {
+                            queueMicrotask(() => {
+                                remountDemoIfCanvasEmpty(store);
+                                store.maybePromptNoTree();
+                            });
+                        }
                     })
-                    .catch(() => queueMicrotask(() => store.maybePromptNoTree()));
+                    .catch(() =>
+                        queueMicrotask(() => {
+                            remountDemoIfCanvasEmpty(store);
+                            store.maybePromptNoTree();
+                        })
+                    );
                 return;
             }
-            if (!raced) queueMicrotask(() => store.maybePromptNoTree());
+            if (!raced) {
+                queueMicrotask(() => {
+                    remountDemoIfCanvasEmpty(store);
+                    store.maybePromptNoTree();
+                });
+            }
             else if (source?._openTreeInfoAfterLoad) {
                 queueMicrotask(() => {
                     try {
@@ -147,6 +183,7 @@ async function runSourceBoot(store) {
         console.warn('[Arborito] source boot aborted', e);
         hideInitialLoader();
         store.update({ loading: false, treeHydrating: false, treeGrowingOverlay: false });
+        remountDemoIfCanvasEmpty(store);
     } finally {
         store._sourceBootFinished = true;
         store.update({ sourceBootInProgress: false });
@@ -239,6 +276,7 @@ export function scheduleStoreSourceBoot(store, clearBootSafetyTimer) {
             console.error('[Arborito] initialize failed', e);
             hideInitialLoader();
             store.update({ loading: false });
+            remountDemoIfCanvasEmpty(store);
         });
 }
 
@@ -251,6 +289,7 @@ export function initStoreInstanceFields(store) {
         console.warn('[Arborito] boot safety timeout, dismissing initial loader');
         hideInitialLoader();
         store.update({ loading: false, treeHydrating: false, treeGrowingOverlay: false });
+        remountDemoIfCanvasEmpty(store);
     }, 65000);
 
     store._sourceManager = null;

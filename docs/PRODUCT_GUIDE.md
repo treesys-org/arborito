@@ -4,27 +4,27 @@ For code contributors: [`DEVELOPMENT.md`](DEVELOPMENT.md). For course authors: [
 
 ## The three screens that matter
 
-| Metaphor (EN / ES) | Nav label today | What it is |
-|--------------------|-----------------|------------|
-| **Forest** / **Bosque** | **Courses** / **Cursos** | Your library: **My courses**, **Explore** (Discover), import, publish |
-| **Backpack** / **Mochila** | same | Your progress: trophies, seeds, Care, lumens |
-| **Map** | same | The visual lesson tree you are studying |
+| Screen | Nav label | What it is |
+|--------|-----------|------------|
+| **Courses** | **Courses** | Your library: **My courses**, **Explore**, create, import, publish |
+| **Backpack** | same | Your progress: seeds, Care, lumens; awards live under **Achievements** |
+| **Map** | same | The visual lesson map you are studying |
 
-**Forest** is the product metaphor (and the code domain under `features/forest/` plus the Courses/`sources` hub). The sidebar may say **Courses** today; docs and conversation still use **Forest**, **branch**, and **tree**.
+**Create** (footer of Courses) opens **Create a course or playlist**.
 
-## Branch vs tree (not the same thing)
+## Course vs playlist (not the same thing)
 
 Think **Spotify**:
 
-| Concept | What it is | Analogy |
-|---------|------------|---------|
-| **Branch** | One full course with lessons | An album |
-| **Tree** | A playlist that combines several courses | A playlist |
+| UI label | What it is | Analogy | Code name |
+|----------|------------|---------|-----------|
+| **Course** | One full course with lessons | An album | branch |
+| **Playlist** | Combines several courses | A playlist | composed tree |
 
-- A **branch** holds the content (lessons, quizzes, languages).
-- A **tree** only **points at** branches; it does not replace them.
+- A **course** holds the content (lessons, quizzes, languages).
+- A **playlist** only **points at** courses; it does not replace them.
 
-In the Forest hub: tab **Individual courses** (caption **Branches**) = single courses. Tab **Combined courses** (caption **Trees**) = playlists.
+In **Courses → My courses**, rows are tagged **Course** or **Playlist**. **Explore** browses the public network directory (code and some moderation copy still say “Discover” for that index).
 
 ## Offline vs versions (the most confusing part)
 
@@ -52,7 +52,7 @@ Analogy: like **downloading a PDF and turning off “new edition available” no
 | **What it does** | Publishes a **new edition** of the same course (v1, v2, …) |
 | **Where you see it** | Version picker on the map / Construction mode |
 | **On web** | Yes |
-| **Sync** | Public versions come from the network; private trees can sync |
+| **Sync** | Public versions come from the network; private playlists can sync |
 
 Analogy: versions are like **“2024 edition” vs “2025 edition” of the same book**. The author wrote both; you pick which one to read.
 
@@ -61,15 +61,17 @@ Analogy: versions are like **“2024 edition” vs “2025 edition” of the sam
 - **Offline** = I keep **my copy** and pause automatic updates.
 - **Versions** = the author published **another edition** and I choose which to study.
 
-## Trophies and achievements
+## Achievements
+
+Open **Achievements** from the nav (or More menu on mobile). Sections include **Completed playlists**, **Completed courses**, and folder diplomas.
 
 | Kind | When | Who sets it up |
 |------|------|----------------|
-| **Tree trophy** | You finish every slot in a **composed tree** (playlist of branches) | Automatic |
-| **Branch trophy** | You finish a **standalone branch**, or one branch slot inside a tree | Automatic |
+| **Completed playlist** | You finish every course slot in a **playlist** | Automatic |
+| **Completed course** | You finish a **standalone course**, or one course slot inside a playlist | Automatic |
 | **Folder achievement** | You finish every lesson inside one folder the author marked | Author (Construction → **Enable achievement** on the folder) |
 
-**Folders inside the map** (modules) do not give a default trophy unless the author turns on **Enable achievement** (🏆 on the map tools, or Properties).
+**Folders inside the map** (modules) do not give a default award unless the author turns on **Enable achievement** (🏆 on the map tools, or Properties).
 
 ## Web vs desktop
 
@@ -96,7 +98,8 @@ Public network courses are **not** stored whole on disk by default; they load on
 
 | Code | Role |
 |------|------|
-| `features/sources/` | Forest hub UI (Courses nav, library + Discover) |
-| `features/forest/` | Composed-tree helpers (playlist / tree metaphor) |
-| `core/user-store/branches.js` | Branch CRUD |
+| `features/sources/` | Courses hub UI (My courses + Explore) |
+| `features/forest/` | Playlist / composed-tree helpers |
+| `features/garden-progress/` | Backpack + Achievements |
+| `core/user-store/branches.js` | Course (branch) CRUD |
 | `tree-freeze-cache.js` / `game-offline-cache.js` | Offline copies to disk |

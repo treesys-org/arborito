@@ -50,12 +50,20 @@ function isActiveBundledDemo(store) {
 export async function ensureMinimumDemoMountedAction(opts = {}) {
     const store = shell();
     if (!store) return false;
+    if (store._ensureDemoMountInFlight) return !!store.state.data || !!store.state.treeHydrating;
     const force = !!opts.force;
     if (!force) {
-        if (store.state.treeHydrating) return true;
-        if (store.state.data && isActiveBundledDemo(store)) return true;
         if (store.state.data) return true;
+        /* Real mount in progress — do not steal the canvas. Bare hydrating
+         * with no in-flight mount means a failed load left the sky empty. */
+        if (
+            store.state.treeHydrating &&
+            (store._curriculumMountInFlight || store._autoloadMountInFlight)
+        ) {
+            return true;
+        }
     }
+    store._ensureDemoMountInFlight = true;
     store.update({ constructionMode: false, curriculumEditLang: null });
     try {
         await store.userStore?.ensureBranchesHydrated?.();
@@ -76,10 +84,12 @@ export async function ensureMinimumDemoMountedAction(opts = {}) {
             return true;
         }
         await loadDataAction(src, true, { skipConstructionLoadConfirm: true });
-        return true;
+        return !!(store.state.data || store.state.treeHydrating || isActiveBundledDemo(store));
     } catch (e) {
         console.warn('[Arborito] ensure minimum demo failed', e);
         return false;
+    } finally {
+        store._ensureDemoMountInFlight = false;
     }
 }
 
@@ -92,7 +102,7 @@ export async function clearCanvasAndShowLoadTreeWelcomeAction() {
     store.update({ constructionMode: false, curriculumEditLang: null });
     const ok = await ensureMinimumDemoMountedAction({ force: true });
     if (!ok) {
-        await loadDataAction(null);
+        /* Still no graph — open Courses; never call loadData(null) (blank sky). */
         store.setModal?.({ type: 'sources' });
     }
 }
@@ -215,7 +225,10 @@ export async function cancelUntrustedLoadAction() {
     stripShareTreeParams();
     const defaultSource = await store.sourceManager.getDefaultSource();
     if (defaultSource) {
-        loadDataAction(defaultSource);
+        await loadDataAction(defaultSource, !store.state.data);
+    }
+    if (!store.state.data && !store.state.treeHydrating) {
+        await ensureMinimumDemoMountedAction();
     } else {
         store.update({ loading: false, error: null });
     }

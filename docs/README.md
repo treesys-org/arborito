@@ -6,7 +6,7 @@ Short index. To run the app: [`../README.md`](../README.md).
 
 | Doc | Audience | Contents |
 |-----|----------|----------|
-| [**PRODUCT_GUIDE.md**](PRODUCT_GUIDE.md) | Everyone | Forest / branch / tree, **offline vs versions**, trophies, web vs desktop |
+| [**PRODUCT_GUIDE.md**](PRODUCT_GUIDE.md) | Everyone | Courses, course vs playlist, **offline vs versions**, Achievements, web vs desktop |
 | [**AUTHORING.md**](AUTHORING.md) | Authors | Construction mode, `@quiz`, `.arborito` format |
 | [**DEVELOPMENT.md**](DEVELOPMENT.md) | Developers | Code layout, hooks, CI, conventions |
 
@@ -16,7 +16,7 @@ Short index. To run the app: [`../README.md`](../README.md).
 |-----|--------|
 | [NETWORK.md](NETWORK.md) | Nostr, WebTorrent, relays, security |
 | [AUTH_AND_ACCOUNT.md](AUTH_AND_ACCOUNT.md) | Optional account, sync, recovery |
-| [PYTHON_SDK.md](PYTHON_SDK.md) | Python CLI and library (**0.2.5**) |
+| [PYTHON_SDK.md](PYTHON_SDK.md) | Python CLI and library (**0.2.6**) |
 | [sdk-spec.md](sdk-spec.md) | Browser Arcade contract (`window.arborito`) |
 
 ## UI and editor (technical)

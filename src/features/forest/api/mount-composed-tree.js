@@ -211,6 +211,11 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
     }
     if (!treeEntry) {
         store.update({ treeHydrating: false, error: 'Tree not found.' });
+        if (!store.state.data) {
+            queueMicrotask(() => {
+                void store.ensureMinimumDemoMounted?.();
+            });
+        }
         return false;
     }
 
@@ -230,6 +235,11 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
             treeHydrating: false,
             error: store.ui.emptyTreeNoBranches || 'This tree has no branches yet.',
         });
+        if (!store.state.data) {
+            queueMicrotask(() => {
+                void store.ensureMinimumDemoMounted?.();
+            });
+        }
         return false;
     }
 
@@ -846,6 +856,11 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
                 treeGrowingHint: null,
                 error: String((e && e.message) || e),
             });
+            if (!store.state.data) {
+                queueMicrotask(() => {
+                    void store.ensureMinimumDemoMounted?.();
+                });
+            }
         }
         return false;
     }

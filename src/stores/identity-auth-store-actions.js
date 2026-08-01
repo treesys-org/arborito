@@ -356,6 +356,36 @@ export async function _finalizeSyncLoginSessionAction(name, opts = {}) {
 }
 
 /**
+ * Never leave a blank sky after sign-in (onboarding defers boot while Courses is open).
+ * @param {object} store
+ */
+async function ensureCanvasAfterSignIn(store) {
+    /* Even if the user picked a course, an empty canvas still needs the demo. */
+    if (store.state.data) return;
+    /* Real mount still running — do not steal it. Bare hydrating with no worker = failed load. */
+    if (
+        store.state.treeHydrating &&
+        (store._curriculumMountInFlight || store._autoloadMountInFlight || store._ensureDemoMountInFlight)
+    ) {
+        return;
+    }
+    try {
+        const ok = await store.ensureMinimumDemoMounted?.();
+        if (ok) return;
+    } catch (e) {
+        console.warn('[arborito] sign-in demo remount failed', e);
+    }
+    try {
+        const cur = store.state.modal;
+        const ct = typeof cur === 'string' ? cur : cur?.type;
+        /* Never replace onboarding — wizard Continue opens Courses. */
+        if (!ct) store.setModal({ type: 'sources' });
+    } catch (e) {
+        console.warn('[arborito] sign-in forest picker open failed', e);
+    }
+}
+
+/**
  * After account restore: apply "last opened" once, or leave the current tree (incl. demo).
  * Waits only for an in-flight curriculum mount to finish — not for arbitrary delays.
  */
@@ -382,6 +412,12 @@ export async function autoloadTreeAfterSignInAction(username) {
         const preferredUrl = String(store._restoredActiveSourceUrl || '').trim();
         const active = store.state.activeSource;
         const activeUrl = String(active?.url || '').trim();
+        const mountBusy = !!(
+            store._curriculumMountInFlight ||
+            store._autoloadMountInFlight ||
+            store._ensureDemoMountInFlight
+        );
+        const canvasReady = !!(store.state.data || (store.state.treeHydrating && mountBusy));
 
         const openLocalById = (localId) => {
             const entry = branches.find((t) => t && t.id === localId);
@@ -420,17 +456,22 @@ export async function autoloadTreeAfterSignInAction(username) {
             } else {
                 src = findCommunitySourceByUrl(community, preferredUrl);
             }
-            if (!src) {
-                /* Preferred not available locally — leave current tree alone. */
-                return;
-            }
-            if (active && canonicalTreeKey(activeUrl) === canonicalTreeKey(src.url || preferredUrl)) {
+            if (
+                src &&
+                active &&
+                canvasReady &&
+                canonicalTreeKey(activeUrl) === canonicalTreeKey(src.url || preferredUrl)
+            ) {
                 store._restoredActiveSourceUrl = '';
                 return;
             }
-        } else {
-            /* No synced last-opened: keep whatever is open (incl. demo). */
-            if (active) return;
+            /* Preferred missing locally, or same pointer with a blank canvas → fall through. */
+            if (!src) store._restoredActiveSourceUrl = '';
+        }
+
+        if (!src) {
+            /* No usable last-opened: keep a painted tree; otherwise pick local/community. */
+            if (active && canvasReady) return;
             const sorted = [...branches]
                 .filter((t) => t?.id && String(t.id) !== DEMO_BRANCH_ID)
                 .sort((a, b) => Number(b?.updated || 0) - Number(a?.updated || 0));
@@ -455,16 +496,7 @@ export async function autoloadTreeAfterSignInAction(username) {
         if (store._userChoseActiveSource) return;
 
         if (!src) {
-            try {
-                if (!store.state.activeSource && !store.state.treeHydrating && !store.state.loading) {
-                    const cur = store.state.modal;
-                    const ct = typeof cur === 'string' ? cur : cur?.type;
-                    /* Never replace onboarding — wizard Continue opens Forest. */
-                    if (!ct) store.setModal({ type: 'sources' });
-                }
-            } catch (e) {
-                console.warn('[arborito] sign-in forest picker open failed', e);
-            }
+            await ensureCanvasAfterSignIn(store);
             return;
         }
 
@@ -476,14 +508,31 @@ export async function autoloadTreeAfterSignInAction(username) {
 
         store._autoloadMountInFlight = true;
         try {
-            await loadDataAction(src, false);
+            /* Blank canvas after onboarding: force a real hydrate (soft open paints nothing). */
+            const force = !store.state.data;
+            const ok = await loadDataAction(src, force);
             store._restoredActiveSourceUrl = '';
+            if (
+                !ok &&
+                !store.state.data &&
+                !(
+                    store.state.treeHydrating &&
+                    (store._curriculumMountInFlight || store._ensureDemoMountInFlight)
+                )
+            ) {
+                await ensureCanvasAfterSignIn(store);
+            }
         } finally {
             store._autoloadMountInFlight = false;
         }
     } catch (e) {
         console.warn('[arborito] auto-load tree after sign-in failed', e);
         store._autoloadMountInFlight = false;
+        try {
+            await ensureCanvasAfterSignIn(store);
+        } catch {
+            /* ignore */
+        }
     } finally {
         store._autoloadAfterSignInPending = false;
         store._autoloadIdleWaitCancel = null;

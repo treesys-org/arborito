@@ -69,6 +69,14 @@ export async function withSourcesNetworkLoad(ctx, work) {
     } finally {
         endBibliotecaSoftMount();
         safeSourcesChromeUpdate(ctx, false);
+        try {
+            const st = store;
+            if (st && !st.state.data && !st.state.treeHydrating) {
+                void st.ensureMinimumDemoMounted?.();
+            }
+        } catch {
+            /* ignore */
+        }
     }
 }
 

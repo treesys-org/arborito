@@ -14,12 +14,12 @@ Millions of **readers** on the same course is feasible with WebTorrent + seeders
 ## Discovering courses
 
 1. **Short code** (`ABCD-EF23`, with or without `#`) → resolves the course on Nostr.
-2. **Courses → Explore / Discover** (browse or search ≥ 3 chars) → bounded directory crawl + `#t` trigram search on relays; optional signed snapshots / HTTP–torrent mirrors.
+2. **Courses → Explore** (browse or search ≥ 3 chars) → bounded directory crawl + `#t` trigram search on relays; optional signed snapshots / HTTP–torrent mirrors.
 3. **Direct link** `nostr://…` always works even if not in the directory.
 
-There is no mandatory central catalog. The Discover directory is **consultative**; authors can opt out at publish time.
+There is no mandatory central catalog. The public directory behind **Explore** is **consultative**; authors can opt out at publish time. (Code and moderation copy often call that index **Discover**.)
 
-### How Discover stays fast at catalogue scale
+### How Explore stays fast at catalogue scale
 
 The client never walks “every course on the network.” Caps live in `src/features/p2p-webtorrent/api/directory-index-config.js` and are documented here so they stay intentional:
 
@@ -30,9 +30,9 @@ The client never walks “every course on the network.” Caps live in `src/feat
 | **Trigram `#t` search** | Deep / older listings: search, not an unbounded crawl. |
 | **Share code** | O(1) claim resolve + one directory row — works even when browse never reached that course. |
 | **Optional snapshots** | Signed recent/top indexes (800 rows each) when publishers are configured. |
-| **Revoked / empty bundles** | Newest bundle header wins across lagging relays. A small header sample marks **known-dead** keys; **unknown** listings stay visible (incomplete intel must not empty Discover). No per-row revoke round-trip over the catalogue. |
+| **Revoked / empty bundles** | Newest bundle header wins across lagging relays. A small header sample marks **known-dead** keys; **unknown** listings stay visible (incomplete intel must not empty Explore). No per-row revoke round-trip over the catalogue. |
 
-**Invariant:** Discover work is O(page size + crawl budget), not O(total published courses).
+**Invariant:** Explore directory work is O(page size + crawl budget), not O(total published courses).
 
 ## Publishing (bundle v2)
 
@@ -89,7 +89,7 @@ Consent before connecting. Private keys never in logs or DOM.
 | Type | Scope |
 |------|-------|
 | **Inside open course** | Worker + IndexedDB; scales with course size |
-| **Global directory (Courses / Discover)** | Nostr metadata; browse is a bounded window, search + share code reach the rest |
+| **Global directory (Courses → Explore)** | Nostr metadata; browse is a bounded window, search + share code reach the rest |
 
 Optional job: `npm run directory-index:build` for signed recent/top snapshots (800 rows each).
 

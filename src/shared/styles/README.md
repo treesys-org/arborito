@@ -26,7 +26,7 @@ Each feature uses `styles/index.css` that `@import`s ordered partials. `main.ent
 | `learning/styles/learning/` | `index.css` | lesson menu, toc, construct, quiz, syllabus |
 | `learning/styles/` | `sage-guide.css` | Sage guide hub/screens (boot `<link>`) |
 | `editor/styles/` | `index.css` | construction-dock, graph-construction-flow (boot `<link>`) |
-| `garden-progress/styles/` | `index.css` | mochila, gamification, progress-scope |
+| `garden-progress/styles/` | `index.css` | backpack (`mochila-*.css`), gamification, progress-scope |
 | `shell-chrome/styles/` | `index.css` | header graph, dock, More menu, landscape |
 | `tree-graph/styles/` | `index.css` | mobile node chrome, tree UI extras, knowledge cards |
 | `sources/styles/` | `sources.css` | sources modal (lazy chunk) |

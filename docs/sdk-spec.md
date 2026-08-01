@@ -51,7 +51,7 @@ Three loaders are supported:
 
 | Loader | Constructor | What you provide | When to use |
 |--------|-------------|------------------|-------------|
-| Exported tree file | `Arborito.from_arborito("course.arborito", lang="ES")` | A `*.arborito` archive exported from the app (**Forest / Courses → branch → Export**). It is a **ZIP** with `manifest.json` (`meta.titles` / `meta.descriptions` per curriculum language) plus one markdown file per lesson under `lessons/<LANG>/…` (quizzes/games live inside the markdown as `@quiz` / `@game` blocks). | Shipping a frozen course bundled with your game. **Default offline path**: no network call. |
+| Exported tree file | `Arborito.from_arborito("course.arborito", lang="ES")` | A `*.arborito` archive exported from the app (**Courses → course → Export**). It is a **ZIP** with `manifest.json` (`meta.titles` / `meta.descriptions` per curriculum language) plus one markdown file per lesson under `lessons/<LANG>/…` (quizzes/games live inside the markdown as `@quiz` / `@game` blocks). | Shipping a frozen course bundled with your game. **Default offline path**: no network call. |
 | Static `data/` folder | `Arborito.from_static_data("/path/to/data", lang="EN")` | A directory laid out like Arborito's static HTTPS source (`meta.json`, lesson markdown, optional `arborito-index.json`). | When the same tree is also self-hosted as a static site and you want both to read from one source on disk. |
 | Public Nostr share code | `Arborito.from_share_code("ABCD-EF23", lang="ES", relays=None)` | An 8-character public **share code** (format `XXXX-XXXX`, alphabet `23456789ABCDEFGHJKLMNPQRSTUVWXYZ`) that some other Arborito user published from their app. Optionally a list of `wss://` relay URLs; otherwise the SDK uses the same defaults as the app (Germany / EU). | Joining a tree someone publishes publicly on Nostr, typically because the player (not you) typed the code, or because you want the latest published version instead of pinning a file. **Requires network and user consent.** |
 
@@ -74,8 +74,8 @@ Pick whichever fits your game; both are valid.
 
 The shortest honest path from "I want my game to use course X" to "the SDK is reading it":
 
-1. **Open the tree in Arborito** (or author it there). This can be your own local tree or one you joined via share code / Nostr; the app normalizes both into your local Forest library.
-2. **Export it** from **Forest (Courses) → select branch → Export**. You get an `arborito-branch-<name>.arborito` file with the **current** curriculum by default. Optionally choose **All saved versions** to nest snapshots under `versions/` in the same ZIP; otherwise pin an edition by re-exporting when you cut a release.
+1. **Open the course in Arborito** (or author it there). This can be your own local course or one you joined via share code / Nostr; the app normalizes both into your local Courses library.
+2. **Export it** from **Courses → select course → Export**. You get an `arborito-branch-<name>.arborito` file with the **current** curriculum by default. Optionally choose **All saved versions** to nest snapshots under `versions/` in the same ZIP; otherwise pin an edition by re-exporting when you cut a release.
 3. **Commit that file into your game's repository** (e.g. `assets/courses/spanish-a1.arborito`) so the course version your game targets is reproducible and pinned. Treat it like any other game asset.
 4. **Load it at startup** and read lessons exactly as a browser cartridge would:
 
@@ -187,7 +187,7 @@ Legend: ✅ first-class · ⚠️ supported with caveats · ❌ out of scope on 
 | SRS (`memory.due`, `memory.report`, `memory.getStatus`) | ✅ App Care schedule; reviews affect the Care tab. | ✅ In-process SM-2; with `login` + Nostr tree, `memory.pull` / `push` / `sync` share Care with the app. |
 | Profile XP (`xp`) | ✅ Increments Arborito profile XP. | ❌ No host profile in a standalone process. |
 | Per-game persistence (`save` / `load`) | ⚠️ Scoped to `gameId` in IndexedDB; hard cap **~195 KB per game**. Throws `GAME_QUOTA_EXCEEDED` past that. | ❌ Host shims; use local files / SQLite / your backend. |
-| Publish course to Nostr | ✅ From the Arborito app (Forest / Courses, or Construction → publish). | ✅ `arborito-cli branch publish` with `[nostr]` (after `session` login when required). |
+| Publish course to Nostr | ✅ From the Arborito app (Courses, or Construction → publish). | ✅ `arborito-cli branch publish` with `[nostr]` (after `session` login when required). |
 | Care progress on Nostr | ✅ Automatic when cloud sync is on. | ✅ Explicit `memory.pull` / `push` / `sync` after `api.login` (or CLI `session login`). |
 | AI (`ask.json`, `ask.chat`) | ✅ Host `aiService`: native llama.cpp on desktop; Expert API in browser. | ⚠️ Local `llama-server` at `LLAMA_CPP_HOST` (default `http://127.0.0.1:8080`). You ship/start it; else static fallback. |
 | Static-mode helpers (`quiz`, `matchPairs`, Quiz V2 parsing, `buildDuelDeck`) | ✅ Same implementation. | ✅ Same implementation, ported. |
@@ -195,7 +195,7 @@ Legend: ✅ first-class · ⚠️ supported with caveats · ❌ out of scope on 
 | Discovery / distribution to players | ✅ In-app Arcade catalog once the cartridge is published. | ❌ You distribute the native/Python app yourself (stores, itch.io, your site). |
 | Update of the *game code* itself | ✅ Re-publish the cartridge bundle; players get it through `downloadAndCacheGame`. | ❌ Ship a new build of your app. |
 | Update of the *tree* (course) | ✅ Whatever tree the user has loaded. | ✅ `arb.refresh()` or `arb.subscribe(..)` in share-code mode; replace the `.arborito` file otherwise. |
-| Forum, certificates, Discover index UI | ✅ Surrounding Arborito UI. | ❌ App surfaces; SDK focuses on curriculum + CLI publish/session. |
+| Forum, certificates, Explore directory UI | ✅ Surrounding Arborito UI. | ❌ App surfaces; SDK focuses on curriculum + CLI publish/session. |
 | Native graphics / audio / multi-threading / GPU | ❌ Sandboxed iframe limits. | ✅ Anything Python and your libraries allow. |
 | Network access during gameplay | ⚠️ Prefer the bridge (`ask.*`, `save`/`load`); arbitrary `fetch` is fragile under CSP/sandbox. | ✅ Subject to the consent flow you collect from the player. |
 | Live Nostr sync of the tree (`subscribe`) | ⚠️ Implicit when the user updates the active source; no cartridge `subscribe()` API. | ✅ Explicit `arb.subscribe(on_update=..)`. |
@@ -292,7 +292,7 @@ The SDK (browser cartridge and Python) shares the same modality logic as the in-
 | Python `examples/ai_tutor.py` | Chat | Dynamic AI via `ask.lesson_action` (~80 lines) |
 | Cartridge `alonso-duel` | All five | Uses `window.arborito.challenge.modes.*` + duel-specific chrome in `card-modes.js`. |
 | Cartridge `classroom-sim`, `firstjob` | `multiple` (via `quiz()`) | Use `quiz.pool` / `quiz.buildOptions` from the SDK; do not reimplement dedup in the cartridge. |
-| Cartridge `memory-garden` | All (extract-only) | "Pares" mode uses `matchPairs`; "Repaso" mode reads `challenge.fromLesson` to surface a flip-card prompt/answer per challenge (no interactive Quiz V2 UI). |
+| Cartridge `memory-garden` | All (extract-only) | "Pairs" mode uses `matchPairs`; "Review" mode reads `challenge.fromLesson` to surface a flip-card prompt/answer per challenge (no interactive Quiz V2 UI). |
 | Narrative / visual-novel cartridges | `narrative.*` | YAML frontmatter scenes; in dynamic mode dialogue uses `ask.speak` / `ask.reply` (no course-quiz pollution). |
 
 ### What this means if you are building a game

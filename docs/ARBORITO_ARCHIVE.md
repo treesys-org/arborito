@@ -57,7 +57,7 @@ my-course.arborito   (ZIP)
 
 | Field | Meaning |
 |-------|---------|
-| `meta.titles` | Course title **per curriculum language** (`ES`, `EN`, …). Forest shows `titles[UI language]`. |
+| `meta.titles` | Course title **per curriculum language** (`ES`, `EN`, …). Courses shows `titles[UI language]`. |
 | `meta.descriptions` | Short blurb per curriculum language (optional). |
 | `meta.icon` | Catalog emoji. |
 
@@ -65,11 +65,11 @@ Which languages the course ships is defined only by folders under `lessons/` (an
 
 - **In the app:** switch curriculum language → rename the **root** title → that language’s entry in `titles`.
 - **On first publish:** Arborito allocates a random Nostr `universeId` (`brn-…`). It is not taken from the archive.
-- **Language chips in Forest** come from folders under `lessons/` (keys of `tree.languages`), not from a primary-language flag.
+- **Language chips in Courses** come from folders under `lessons/` (keys of `tree.languages`), not from a primary-language flag.
 
 ### Module folder `README.md`
 
-Plain text or a short `@info` block. Optional `certifiable: yes` enables a **folder achievement** (diploma in Certificates) when students finish every lesson inside that folder:
+Plain text or a short `@info` block. Optional `certifiable: yes` enables a **folder achievement** (shown under **Achievements**) when students finish every lesson inside that folder:
 
 ```
 @info
@@ -198,15 +198,15 @@ Each `branches/*.arborito` is a full **branch** archive. When you open the tree 
 
 | Action | Result |
 |--------|--------|
-| Import branch `.arborito` | Forest (Courses → Individual courses / Branches) → stored in your local library |
-| Import tree `.arborito` | Forest (Courses → Combined courses / Trees) → playlist with embedded branches |
-| Export branch | Forest → Export → single `.arborito` with `files/AUTHOR-GUIDE.md` (or `AUTORIA.md` for Spanish UI) |
-| Export tree | Forest → Trees tab → Export → manifest + embedded branches |
+| Import course `.arborito` | Courses → My courses → stored in your local library |
+| Import playlist `.arborito` | Courses → My courses → playlist with embedded courses |
+| Export course | Courses → Export → single `.arborito` with `files/AUTHOR-GUIDE.md` (or `AUTORIA.md` for Spanish UI) |
+| Export playlist | Courses → select playlist → Export → manifest + embedded courses |
 
 Validation notes (non-blocking) are listed on import: empty quizzes, unclosed blocks, missing bilingual pairs.
 
 ## Related docs
 
 - [`AUTHORING.md`](AUTHORING.md): blocks, quizzes, authoring
-- [`PRODUCT_GUIDE.md`](PRODUCT_GUIDE.md): trophies and achievements
+- [`PRODUCT_GUIDE.md`](PRODUCT_GUIDE.md): Achievements and course vs playlist
 - [`NETWORK.md`](NETWORK.md): network publish format

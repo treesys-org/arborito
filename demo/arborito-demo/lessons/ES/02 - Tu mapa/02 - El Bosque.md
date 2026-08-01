@@ -14,7 +14,7 @@ En la barra, **Cursos** abre el panel donde guardas lo que abres, importas o cre
 Hay dos pestañas:
 
 - **Mis cursos:** lo tuyo en este dispositivo (y lo sincronizado con tu cuenta).
-- **Explorar:** cursos públicos de la red (Discover).
+- **Explorar:** cursos públicos de la red.
 
 @image
 url: ./media/04-bosque-es.png

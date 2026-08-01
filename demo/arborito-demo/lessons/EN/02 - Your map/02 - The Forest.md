@@ -14,7 +14,7 @@ In the nav, **Courses** opens the panel where you keep what you open, import, or
 There are two tabs:
 
 - **My courses:** yours on this device (and anything synced with your account).
-- **Explore:** public courses from the network (Discover).
+- **Explore:** public courses from the network.
 
 @image
 url: ./media/04-bosque-en.png

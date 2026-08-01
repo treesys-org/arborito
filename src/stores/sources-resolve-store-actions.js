@@ -391,45 +391,42 @@ export function maybePromptNoTreeAction(opts = {}) {
     const store = shell();
     if (!store) return undefined;
 
-            if (store.state.constructionMode) return;
-            if (store.state.treeHydrating) {
-                /* Stuck hydrate with no data, still offer the picker after a long wait. */
-                const stuckMs = Number(store._treeHydrateStartedAt) || 0;
-                if (!stuckMs || Date.now() - stuckMs < 45000) return;
-                store.update({ treeHydrating: false, treeGrowingOverlay: false, loading: false });
+    if (store.state.data) return;
+    if (store.state.treeHydrating) {
+        /* In-flight mount: wait. Stuck hydrate with no worker: clear and remount demo. */
+        if (store._autoloadMountInFlight || store._curriculumMountInFlight || store._ensureDemoMountInFlight) {
+            return;
+        }
+        const stuckMs = Number(store._treeHydrateStartedAt) || 0;
+        if (stuckMs && Date.now() - stuckMs < 45000) return;
+        store.update({ treeHydrating: false, treeGrowingOverlay: false, loading: false });
+    }
+    /* Do not wait on loading/modals: a blank sky must remount Arborito demo
+     * even during onboarding, sign-in, or dialogs. */
+    if (store._autoloadMountInFlight || store._curriculumMountInFlight || store._ensureDemoMountInFlight) {
+        return;
+    }
+    if (store._hasActiveSourcePointer() && !store.state.data) {
+        try {
+            const saved = localStorage.getItem('arborito-active-source-meta');
+            let meta = saved ? JSON.parse(saved) : null;
+            const savedId = localStorage.getItem('arborito-active-source-id');
+            if (!meta && savedId) {
+                const id = String(savedId).trim();
+                meta = id.startsWith('branch-')
+                    ? { id, url: `branch://${id}`, type: 'branch' }
+                    : { id, treeId: id, url: `tree://${id}`, type: 'composed-tree' };
             }
-            if (store.state.loading) return;
-            if (store.state.data) return;
-            if (store._curriculumLoadedAt && Date.now() - store._curriculumLoadedAt < 2500) return;
-            if (store._hasActiveSourcePointer() && !store.state.data) {
-                try {
-                    const saved = localStorage.getItem('arborito-active-source-meta');
-                    let meta = saved ? JSON.parse(saved) : null;
-                    const savedId = localStorage.getItem('arborito-active-source-id');
-                    if (!meta && savedId) {
-                        const id = String(savedId).trim();
-                        meta = id.startsWith('branch-')
-                            ? { id, url: `branch://${id}`, type: 'branch' }
-                            : { id, treeId: id, url: `tree://${id}`, type: 'composed-tree' };
-                    }
-                    if (meta && !localActiveSourceStillExists(meta, store.userStore)) {
-                        clearActiveSourcePointer();
-                    }
-                } catch {
-                    /* ignore */
-                }
+            if (meta && !localActiveSourceStillExists(meta, store.userStore)) {
+                clearActiveSourcePointer();
             }
+        } catch {
+            /* ignore */
+        }
+    }
 
-            const m = store.state.modal;
-            const t = typeof m === 'string' ? m : m?.type;
-            if (t === 'language') return;
-            if (t === 'onboarding') return;
-            if (t === 'load-warning') return;
-            if (t === 'dialog') return;
-            /* Never leave a blank graph: remount Arborito demo instead of relying
-             * on auto-opening Bosque (disabled on cold start). */
-            void store.ensureMinimumDemoMounted?.();
-
+    /* Never leave a blank graph. */
+    void store.ensureMinimumDemoMounted?.();
 }
 
 export function _maybeStartSourcesPickerTourAction() {

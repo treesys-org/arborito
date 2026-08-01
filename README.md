@@ -52,20 +52,21 @@ Pick a subject, explore a visual map at your own pace, plant your own course, tr
 | **Arborito** (this repo) | Web and desktop/mobile app: lesson maps, editor, Care (spaced repetition), optional Arcade |
 | **Public courses** | Publish and discover courses from the app: open network, no central catalogue |
 | **Arborito Games** | Browser minigames via [`arborito-games`](https://github.com/treesys-org/arborito-games) (`window.arborito`) |
-| **arborito-sdk** | Python SDK for scripts, CLIs, and apps outside the browser: [`pip install arborito-sdk`](https://github.com/treesys-org/arborito-sdk) (**0.2.5**) |
+| **arborito-sdk** | Python SDK for scripts, CLIs, and apps outside the browser: [`pip install arborito-sdk`](https://github.com/treesys-org/arborito-sdk) (**0.2.6**) |
 
 Each pillar evolves on its own. See [`ROADMAP.md`](ROADMAP.md) for where we are headed.
 
 ## What you can do today
 
-- **Interactive lesson maps**: pick a branch, read, quiz, move on.
-- **Lesson search**: finds modules and lessons in the open tree (works offline for local branches).
+- **Courses**: **My courses** for what you open or create; **Explore** for the public network. **Create** a course or a playlist (several courses chained together).
+- **Interactive lesson maps**: open a course, read, quiz, move on.
+- **Lesson search**: finds modules and lessons in the open map (works offline for local courses).
 - **Care**: spaced repetition via module seeds in your Backpack (the Arcade also has a Memory Garden cartridge).
-- **Backpack**: growth, seeds, trophies, and lumens (desktop top-right panel; mobile sheet).
-- **Visual editor**: create lessons without code.
+- **Backpack** and **Achievements**: growth, seeds, lumens, and completed courses/playlists (desktop top-right; mobile sheet / More menu).
+- **Visual editor**: create lessons without code (**Construction**).
 - **Lesson Arcade**: optional minigames tied to what you are learning.
 - **Local-first**: progress stays on your device by default; optional online account (username + password, no email).
-- **Shared courses**: publish and open courses on the open network, by HTTPS, or with a short share code (`XXXX-XXXX`). Discover browse is a bounded window; search and codes reach the wider catalogue (see [`docs/NETWORK.md`](docs/NETWORK.md)). No single company you depend on.
+- **Shared courses**: publish and open courses on the open network, by HTTPS, or with a short share code (`XXXX-XXXX`). Explore browse is a bounded window; search and codes reach the wider catalogue (see [`docs/NETWORK.md`](docs/NETWORK.md)). No single company you depend on.
 - **English & Spanish UI**: help translate in `locales/`.
 - **Sage (optional, off by default)**: see [A short note on AI](#a-short-note-on-ai).
 
@@ -76,7 +77,7 @@ You do not need to code to help:
 | You are… | You can… |
 |----------|----------|
 | Learner | Use [arborito.org](https://arborito.org), report what confuses you |
-| Teacher | Plant a tree in Construction mode |
+| Teacher | Create a course in **Courses → Create**, then edit in Construction |
 | Writer | Fix lessons and quizzes |
 | Translator | Help with `locales/` |
 | Developer | App, [`arborito-sdk`](https://github.com/treesys-org/arborito-sdk), or [`arborito-games`](https://github.com/treesys-org/arborito-games) |
@@ -101,7 +102,7 @@ arborito-cli shell
 - **In-app authoring:** Construction mode WYSIWYG (recommended for most authors).
 - **Terminal authoring:** `arborito-cli edit`: block list + quiz forms, not raw `@quiz` fences (`edit --raw` for `$EDITOR`).
 
-Docs: [`docs/PYTHON_SDK.md`](docs/PYTHON_SDK.md). Browser Arcade uses **`window.arborito`** (not this package). **Python SDK `0.2.5`**.
+Docs: [`docs/PYTHON_SDK.md`](docs/PYTHON_SDK.md). Browser Arcade uses **`window.arborito`** (not this package). **Python SDK `0.2.6`**.
 
 ## Why we built it
 

@@ -41,6 +41,7 @@ import {
     ensureDemoProgressSyncOnline,
     isArboritoDemoTree,
 } from '../../publishing/api/demo-tree-guard.js';
+import { DEMO_BRANCH_ID } from '../../../core/demo/arborito-demo-ids.js';
 
 function nostrConnectTimeoutMs() {
     return shouldShowMobileUI() ? 20000 : 12000;
@@ -99,6 +100,10 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
             treeCollaboratorRolesByUsername: null,
             treeContext: null
         });
+        /* Never leave empty sky — remount Arborito demo. */
+        queueMicrotask(() => {
+            void store.ensureMinimumDemoMounted?.();
+        });
         return false;
     }
 
@@ -136,7 +141,10 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
                 ui.maintainerBlocklistLoadRefused ||
                 'This tree is blocked in this app build (maintainer list). It is not an automatic community block: see project policy to appeal.'
         });
-        queueMicrotask(() => store.maybePromptNoTree());
+        queueMicrotask(() => {
+            if (!store.state.data) void store.ensureMinimumDemoMounted?.();
+            else store.maybePromptNoTree();
+        });
         return false;
     }
 
@@ -212,6 +220,7 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
     const hasInstantRemoteCopy = !!(earlyFrozen?.treeJson || earlyRemoteCache?.treeJson);
 
     store._treeHydrateStartedAt = Date.now();
+    store._curriculumMountInFlight = true;
 
     /* Hand off composed trees before clearing the canvas / full-screen “cargando”. */
     if (isComposedTreeUrl) {
@@ -221,7 +230,11 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
         if (!store.state.i18nData) {
             await store.loadLanguage(store.state.lang);
         }
-        return mountComposedTree(store, source, forceRefresh);
+        try {
+            return await mountComposedTree(store, source, forceRefresh);
+        } finally {
+            store._curriculumMountInFlight = false;
+        }
     }
 
     const isLocalBranch = nextUrlEarly.startsWith('branch://');
@@ -248,27 +261,31 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
                 !hasInstantRemoteCopy &&
                 !!(isRemoteSource || switchedSource)));
 
+    const nextData =
+        keepGraphVisible || (softOpen && !switchedSource && snapBefore.data) ? snapBefore.data : null;
+    const nextRaw =
+        keepGraphVisible || (softOpen && !switchedSource && snapBefore.rawGraphData)
+            ? snapBefore.rawGraphData
+            : null;
+    /* Invariant: blanking the canvas always raises hydrating so the sky is never empty. */
+    const blankingCanvas = !nextData;
     store.update({
         /*
-         * Soft open (boot / reopen / SWR): never raise hydrating chrome or blank a
-         * warm canvas. Soft-mount onto a new source: hydrating so float + skeletons
-         * cover the sky until the first structure paints.
+         * Soft open keeps a warm canvas when possible. If the canvas blanks (first
+         * mount, hard switch, cold soft-open), always show hydrating chrome — never
+         * data:null + treeHydrating:false (empty sky).
          */
-        treeHydrating:
-            softOpen && switchedSource && !keepGraphVisible
-                ? true
-                : softOpen
-                  ? false
-                  : !(keepGraphVisible || localFastOpen || softCachedRemote),
+        treeHydrating: blankingCanvas
+            ? true
+            : softOpen
+              ? false
+              : !(keepGraphVisible || localFastOpen || softCachedRemote),
         treeGrowingOverlay: showBlockingOverlay,
         treeGrowingHint: null,
         error: null,
         activeSource: holdCurrentTreeDuringSwitch ? snapBefore.activeSource : source,
-        data: keepGraphVisible || (softOpen && !switchedSource && snapBefore.data) ? snapBefore.data : null,
-        rawGraphData:
-            keepGraphVisible || (softOpen && !switchedSource && snapBefore.rawGraphData)
-                ? snapBefore.rawGraphData
-                : null,
+        data: nextData,
+        rawGraphData: nextRaw,
         path: keepGraphVisible || (softOpen && !switchedSource && snapBefore.path?.length) ? snapBefore.path : [],
         selectedNode:
             keepGraphVisible || (softOpen && snapBefore.selectedNode)
@@ -678,6 +695,7 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
                 data: null,
                 rawGraphData: null,
                 loading: false,
+                treeHydrating: true,
             });
             queueMicrotask(() => {
                 void promptStudentUniverseRevoked(store, {
@@ -692,12 +710,14 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
                 error: String((e && e.message) || e),
                 data: null,
                 rawGraphData: null,
-                loading: false
+                loading: false,
+                treeHydrating: true,
             });
             queueMicrotask(() => store.maybePromptNoTree());
             success = false;
         }
     } finally {
+        store._curriculumMountInFlight = false;
         if (epoch === store._curriculumMountEpoch) {
             if (!success) {
                 const err = store.state.error;
@@ -714,7 +734,8 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
                      * exact same tree the user had loaded last session.
                      */
                     store.update({
-                        treeHydrating: false,
+                        /* Keep hydrating until demo remount paints — never bare empty sky. */
+                        treeHydrating: true,
                         treeGrowingOverlay: false,
                         activeSource: null,
                         data: null,
@@ -741,7 +762,18 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
                     } catch {
                         /* ignore */
                     }
-                    queueMicrotask(() => store.maybePromptNoTree());
+                    /* Failed first mount: remount demo unless we *were* mounting the demo. */
+                    const wasDemo =
+                        String(source?.id || '') === DEMO_BRANCH_ID ||
+                        String(source?.url || '') === `branch://${DEMO_BRANCH_ID}`;
+                    if (!wasDemo) {
+                        queueMicrotask(() => {
+                            void store.ensureMinimumDemoMounted?.();
+                        });
+                    } else {
+                        /* Demo itself failed — drop hydrating so we do not spin forever. */
+                        store.update({ treeHydrating: false, treeGrowingOverlay: false });
+                    }
                 } else if (switchedSource) {
                     /** Failed switch: restore the previous tree so the canvas and dismiss gate stay consistent. */
                     store.update({
@@ -762,6 +794,10 @@ export async function mountCurriculum(store, source, forceRefresh = true, opts =
                             } catch {
                                 /* ignore */
                             }
+                        });
+                    } else {
+                        queueMicrotask(() => {
+                            void store.ensureMinimumDemoMounted?.();
                         });
                     }
                     try {

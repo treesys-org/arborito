@@ -53,9 +53,9 @@ src/
 | `tree-graph` | Lesson map |
 | `learning` | Reader, quiz, Sage |
 | `editor` | Construction mode |
-| `garden-progress` | Backpack |
-| `sources` | Forest hub (Courses nav, library + Discover) |
-| `forest` | Composed-tree / playlist helpers |
+| `garden-progress` | Backpack + Achievements |
+| `sources` | Courses hub (My courses + Explore) |
+| `forest` | Playlist / composed-tree helpers |
 | `nostr` + `p2p-webtorrent` | Public network |
 | `arcade` | Games (`window.arborito`) |
 
@@ -118,7 +118,7 @@ Checklist: only `useX` in `.jsx`? New action in `*-store-actions.js`? Ran `local
 | Repo | Role |
 |------|------|
 | **arborito** | This app |
-| **arborito-sdk** | Python CLI (**0.2.5**), [`PYTHON_SDK.md`](PYTHON_SDK.md) |
+| **arborito-sdk** | Python CLI (**0.2.6**), [`PYTHON_SDK.md`](PYTHON_SDK.md) |
 | **arborito-games** | Arcade cartridges |
 
 See also: [`MODAL_STANDARDS.md`](MODAL_STANDARDS.md) · [`NETWORK.md`](NETWORK.md) · [`../scripts/README.md`](../scripts/README.md) · [`../CONTRIBUTING.md`](../CONTRIBUTING.md)

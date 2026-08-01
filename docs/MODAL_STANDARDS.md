@@ -9,7 +9,7 @@
 | Component | File | Use |
 |-----------|------|-----|
 | `ModalShell` | `src/app/components/ModalShell.jsx` | Backdrop + centered panel |
-| `DockModalShell` | same file | Hub dock (`layout="dock"`), Arcade, Forest (Courses), certificates |
+| `DockModalShell` | same file | Hub dock (`layout="dock"`), Arcade, Courses, Achievements |
 | `ModalCenteredShell` | same file | Centered / bottom-sheet without dock hub chrome |
 | `DockHubSheet` | `src/shared/ui/DockHubSheet.jsx` | Dock-tab sheet (backdrop + sheet above dock); Backpack, construction hubs |
 | `MobMoreSheet` | `src/shared/ui/MobMoreSheet.jsx` | More menu drill (backdrop + hero + scroll host) |
@@ -47,7 +47,7 @@ In `src/features/**/modals/*.jsx` and `components/*.jsx`:
 4. **No** `modalShellHtml` / `modalHeroHtml` / `calloutHtml` in features — use React components from §1.
 5. **Width:** use `panelSize` prop (`compact`, `content`, `dock-hub`, …), see `modal-panel-size.js`. No ad hoc `max-w-*` on the panel.
 6. **Mobile:** `ModalShell` infers `shouldShowMobileUI()`; do not duplicate `arborito-modal--mobile` flags by hand.
-7. **Consolidation / piso (confirm + choice):** binary actions use `DialogModal` / `ModalBinaryFooter` / `arborito-modal-footer` in the shell `footer={…}` slot (sticky bottom). No Unicode `←` / `‹` for back — use `ModalBackChevronIcon` / `arborito-mmenu-back`. Enforced by `npm run check:modal-compliance`.
+7. **Consolidation / floor (confirm + choice):** binary actions use `DialogModal` / `ModalBinaryFooter` / `arborito-modal-footer` in the shell `footer={…}` slot (sticky bottom). No Unicode `←` / `‹` for back — use `ModalBackChevronIcon` / `arborito-mmenu-back`. Enforced by `npm run check:modal-compliance`.
 
 Quick audit before PR:
 
@@ -85,7 +85,7 @@ Some surfaces are **excluded from viewport `DockModalShell`**, but **L2 chrome s
 | Sage settings sub-panel | `SageSettings.jsx` | mob: `DockModalShell` portaled (`#sage-settings-backdrop`); desk: `ModalShell` | `ModalHubHero` ✓ |
 | Immersive game player | `GamePlayerModal.jsx` | `ModalShell` dark immersive; blocking screens use `GamePlayerImmersiveScreen` in `GamePlayerChrome.jsx` | `ModalHubHero` |
 | Team / governance hub | `ContributorModal.jsx` | `DockModalShell` + `ModalHubHero` | ✓ |
-| Sources | `SourcesModal.jsx` | `DockModalShell` HUB + hub `overlay` for Export / delete / tree editor |
+| Courses | `SourcesModal.jsx` | `DockModalShell` HUB + hub `overlay` for Export / delete / playlist editor |
 | Lesson mobile scrim | `Content.jsx` `#backdrop-overlay` | Non-interactive `pointer-events-none` | none |
 | Lesson TOC sheet | `LessonToc.jsx` + `LessonTocSheet.jsx` | In-lesson sheet (not global viewport); mobile `MmenuRootHero` | `MmenuRootHero`, `ChromeEmoji` |
 | Sage lesson overlay | `SageOverlay.jsx` | `DockModalShell` fullbleed portaled; `bareBackdrop` + `embedded` | `ModalHubHero`, `DockHubShell` |
@@ -164,9 +164,9 @@ Any capability that leaves the device, uses the network, or stores secrets needs
 | Nested in-hub sheet | `NestedSheetShell.jsx` + `variant` (`confirm` \| `form`) |
 | In-hub confirm (delete, etc.) | `ConfirmNestedSheet.jsx` (centered callout); viewport confirms use `store.confirm()` |
 | In-hub form prompt | `FormNestedSheet.jsx`: `ModalHubHero` like Language (hint in body, not in hero) |
-| In-hub full-screen stack | `HubStackOverlay.jsx`, e.g. Forest tree editor |
+| In-hub full-screen stack | `HubStackOverlay.jsx`, e.g. Courses playlist editor |
 | Untrusted tree warnings | `UntrustedTreeWarningShell.jsx` |
-| Forest directory network | `runBibliotecaNetworkLoad()` in `src/shared/lib/connected-services/runtime.js` |
+| Courses directory network | `runBibliotecaNetworkLoad()` in `src/shared/lib/connected-services/runtime.js` |
 | CTAs | `modal-action-chrome.js` + `arborito-cta-forms.css` |
 | Modal footers | `arborito-modal-footer` + `arborito-action-row`, see §8b |
 | Forms | `arborito-forms.css` |
