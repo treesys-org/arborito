@@ -39,20 +39,27 @@ function modalIsDialog(modal) {
 
 /**
  * Swallow the synthetic *click* that would land on UI under a just-closed overlay
- * (lesson Back, dialog OK). Do NOT intercept touchend/pointerup: preventDefault on
- * those in capture phase leaves mobile WebKit’s trunk scroller needing a second
- * finger-drag (or a full reload) before pan-y works again.
+ * (lesson Back, dialog OK, More, Courses). Do NOT intercept touchend/pointerup:
+ * preventDefault on those in capture phase leaves mobile WebKit’s trunk scroller
+ * needing a second finger-drag (or a full reload) before pan-y works again.
+ *
+ * Also swallow compatibility mousedown/mouseup (fired after touchend) so chrome
+ * under the finger does not flash `:active` scale (“hundimiento”) even when the
+ * click handler itself is blocked.
  */
 let _postCloseGuardUntil = 0;
 let _postCloseGuardOn = false;
 let _postCloseGuardTimer = 0;
+
+const POST_CLOSE_GUARD_EVENTS = ['click', 'mousedown', 'mouseup'];
+const POST_CLOSE_GUARD_CLASS = 'arborito-post-close-guard';
 
 function postClosePointerGuard(e) {
     if (Date.now() >= _postCloseGuardUntil) {
         teardownPostClosePointerGuard();
         return;
     }
-    if (e.type !== 'click') return;
+    if (!POST_CLOSE_GUARD_EVENTS.includes(e.type)) return;
     try {
         e.preventDefault();
     } catch {
@@ -79,11 +86,19 @@ function teardownPostClosePointerGuard() {
     }
     if (!_postCloseGuardOn) return;
     _postCloseGuardOn = false;
-    document.removeEventListener('click', postClosePointerGuard, true);
+    for (const type of POST_CLOSE_GUARD_EVENTS) {
+        document.removeEventListener(type, postClosePointerGuard, true);
+    }
+    try {
+        document.documentElement.classList.remove(POST_CLOSE_GUARD_CLASS);
+    } catch {
+        /* noop */
+    }
 }
 
-/** Swallow ghost clicks under a just-closed overlay (lesson / dialog). */
+/** Swallow ghost clicks / press under a just-closed overlay (lesson / dialog / sheets). */
 export function armPostClosePointerGuard(ms = 400) {
+    if (typeof document === 'undefined') return;
     const dur = Math.max(0, Number(ms) || 0);
     _postCloseGuardUntil = Date.now() + dur;
     if (_postCloseGuardTimer) clearTimeout(_postCloseGuardTimer);
@@ -91,9 +106,16 @@ export function armPostClosePointerGuard(ms = 400) {
         _postCloseGuardTimer = 0;
         teardownPostClosePointerGuard();
     }, dur + 32);
+    try {
+        document.documentElement.classList.add(POST_CLOSE_GUARD_CLASS);
+    } catch {
+        /* noop */
+    }
     if (_postCloseGuardOn) return;
     _postCloseGuardOn = true;
-    document.addEventListener('click', postClosePointerGuard, true);
+    for (const type of POST_CLOSE_GUARD_EVENTS) {
+        document.addEventListener(type, postClosePointerGuard, true);
+    }
 }
 
 /** @param {import('./shell-store.js').ShellStore} store */

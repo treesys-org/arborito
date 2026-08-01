@@ -42,7 +42,8 @@ export function isModalBackdropEmptyTap(backdrop, e) {
  * If it already fired from touch, the duplicate `click` (~300ms later) is ignored.
  *
  * Do NOT preventDefault on touchend — that poisons WebKit overflow pan-y (trunk).
- * Ghost clicks after navigation are handled by armPostClosePointerGuard at the action site.
+ * Ghost clicks after navigation are handled by armPostClosePointerGuard
+ * (auto via syncMobileTreeShellClass / syncPanelSheetFullbleedClass — MODAL_STANDARDS §8c).
  *
  * `opts.clickOnly`: only activate on the synthetic `click` (or mouse click). Use this on
  * scroll surfaces (mobile tree trunk): firing navigation from `touchend` remounts the

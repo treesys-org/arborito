@@ -14,9 +14,13 @@ export function setModalOnStore(store, modal) {
     if (!modal && store._isSageModal(store.state.modal) && isSagePointerGuarded()) {
         return;
     }
+    const hadModal = !!store.state.modal;
     if (modal) {
         prepareShellForModalOpen(store, modal);
         armModalOpenLoading(modal);
+    } else if (hadModal) {
+        /* setModal(null) paths that skip dismissModal (dock toggle, host clear). */
+        armPostClosePointerGuard(550);
     }
     const isSage =
         modal && (modal === 'sage' || (typeof modal === 'object' && modal.type === 'sage'));

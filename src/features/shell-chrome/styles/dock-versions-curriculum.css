@@ -193,6 +193,21 @@ html.arborito-sage-open .js-btn-sage-mobile-top {
     transform: scale(0.96);
 }
 
+/*
+ * While armPostClosePointerGuard is armed: kill hit-testing + :active scale on the
+ * chrome that sits under mobile Back (Courses chip, dock tabs) so a ghost click
+ * neither opens Courses nor flashes the press-in animation.
+ */
+html.arborito-post-close-guard :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-top-actions,
+html.arborito-post-close-guard :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-top-actions__btn,
+html.arborito-post-close-guard :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-dock-wrap,
+html.arborito-post-close-guard :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-tab {
+    pointer-events: none !important;
+}
+html.arborito-post-close-guard :is(.arborito-mob-top-actions__btn, .arborito-mob-tab):active {
+    transform: none !important;
+}
+
 .arborito-mob-top-actions__btn--lead {
     width: auto;
     max-width: min(46vw, 12rem);

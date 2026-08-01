@@ -8,6 +8,8 @@
  *
  * Examples: `modals/arcade-ui.js`, `modals/sources.js`, `modals/certificates.js`, `progress-widget.js`.
  */
+import { armPostClosePointerGuard } from '../../stores/shell-dialog-lifecycle.js';
+
 export const DOCK_SHEET_BODY_WRAP =
     'flex-1 flex flex-col min-h-0 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]';
 
@@ -48,5 +50,9 @@ export const TREE_SWITCHER_SHEET_HTML_CLASS = 'arborito-tree-switcher-sheet-open
 /** Toggle fullbleed panel chrome on `<html>` (hides dock; sheet runs edge-to-edge). */
 export function syncPanelSheetFullbleedClass(className, open) {
     if (typeof document === 'undefined' || !className) return;
-    document.documentElement.classList.toggle(className, !!open);
+    const root = document.documentElement;
+    const wasOpen = root.classList.contains(className);
+    root.classList.toggle(className, !!open);
+    /* Mochila / curriculum switcher: closing re-exposes Courses under Back (§8c). */
+    if (wasOpen && !open) armPostClosePointerGuard(550);
 }

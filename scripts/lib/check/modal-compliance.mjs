@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Fail when feature modals violate MODAL_STANDARDS hard rules (docs/MODAL_STANDARDS.md §2 + §8b).
+ * Fail when feature modals violate MODAL_STANDARDS hard rules (docs/MODAL_STANDARDS.md §2 + §8b + §8c).
  *
  * Scans src/features modals (*.js, *.jsx under modals/) for:
  * - fixed inset-0 (hand-built backdrop)
@@ -12,6 +12,8 @@
  * - Shell + binary CTAs without shell `footer=` slot (piso / consolidation)
  *
  * Scans all src/features JS/JSX for raw CTA color contracts.
+ *
+ * Also verifies the mobile Back ghost-click consolidation contract (§8c) on canonical files.
  *
  * Allowlist: documented §4 / §8b exceptions (see ALLOWLIST_*).
  */
@@ -208,12 +210,147 @@ async function scanModalConsolidation(file) {
     }
 }
 
+/**
+ * MODAL_STANDARDS §8c — mobile Back ghost click consolidation (canonical files only).
+ * Keeps every sheet reinforced via the shared guard instead of per-modal forks.
+ */
+async function scanGhostClickConsolidation() {
+    const checks = [
+        {
+            rel: 'src/stores/shell-dialog-lifecycle.js',
+            tests: [
+                {
+                    re: /POST_CLOSE_GUARD_EVENTS\s*=\s*\[[^\]]*click[^\]]*mousedown[^\]]*mouseup[^\]]*\]/,
+                    kind: 'ghost-guard-mouse-events',
+                    detail:
+                        'armPostClosePointerGuard must swallow click + mousedown + mouseup (ghost press / hundimiento)',
+                    excerpt: 'POST_CLOSE_GUARD_EVENTS missing click/mousedown/mouseup',
+                },
+                {
+                    re: /arborito-post-close-guard/,
+                    kind: 'ghost-guard-html-class',
+                    detail: 'armPostClosePointerGuard must toggle html.arborito-post-close-guard',
+                    excerpt: 'POST_CLOSE_GUARD_CLASS / arborito-post-close-guard missing',
+                },
+                {
+                    re: /Do NOT intercept touchend\/pointerup/,
+                    kind: 'ghost-guard-no-touch-block',
+                    detail:
+                        'Comment/contract must still forbid preventDefault on touchend/pointerup (trunk pan)',
+                    excerpt: 'expected touchend/pointerup warning in ghost-click guard docs',
+                },
+            ],
+        },
+        {
+            rel: 'src/shared/ui/mobile-tree-shell-class.js',
+            tests: [
+                {
+                    re: /armPostClosePointerGuard\s*\(\s*550\s*\)/,
+                    kind: 'ghost-guard-chrome-sync',
+                    detail:
+                        'syncMobileTreeShellClass must auto-arm armPostClosePointerGuard(550) on chrome reveal (modal consolidation §8c)',
+                    excerpt: 'mobile-tree-shell-class missing auto armPostClosePointerGuard',
+                },
+                {
+                    re: /_ghostChromeArmPrimed[\s\S]*moreJustClosed[\s\S]*arborito-construction-more-open|_ghostChromeArmPrimed[\s\S]*arborito-construction-more-open[\s\S]*moreJustClosed/,
+                    kind: 'ghost-guard-chrome-transitions',
+                    detail:
+                        'syncMobileTreeShellClass must prime boot + detect More/construction-more closes for ghost-click guard',
+                    excerpt: 'missing primed/moreJustClosed/construction-more-open ghost-arm logic',
+                },
+            ],
+        },
+        {
+            rel: 'src/shared/ui/dock-sheet-chrome.js',
+            tests: [
+                {
+                    re: /function syncPanelSheetFullbleedClass[\s\S]*armPostClosePointerGuard\s*\(\s*550\s*\)/,
+                    kind: 'ghost-guard-fullbleed-sync',
+                    detail:
+                        'syncPanelSheetFullbleedClass must arm guard when closing Mochila/Cambiar (§8c)',
+                    excerpt: 'dock-sheet-chrome missing arm on fullbleed close',
+                },
+            ],
+        },
+        {
+            rel: 'src/stores/shell-modal-lifecycle.js',
+            tests: [
+                {
+                    re: /armPostClosePointerGuard\s*\(\s*550\s*\)/,
+                    kind: 'ghost-guard-dismiss',
+                    detail: 'dismissModalOnStore / setModal(null) must arm armPostClosePointerGuard(550)',
+                    excerpt: 'shell-modal-lifecycle missing armPostClosePointerGuard(550)',
+                },
+            ],
+        },
+        {
+            rel: 'src/app/components/ModalHero.jsx',
+            tests: [
+                {
+                    re: /function ModalBackButton[\s\S]*?onClick=\{undefined\}/,
+                    kind: 'ghost-back-onclick-undefined',
+                    detail:
+                        'ModalBackButton mobile must use onClick={undefined} (tap wire only; modal consolidation)',
+                    excerpt: 'ModalBackButton missing onClick={undefined}',
+                },
+            ],
+        },
+        {
+            rel: 'src/features/shell-chrome/styles/dock-versions-curriculum.css',
+            tests: [
+                {
+                    re: /html\.arborito-post-close-guard[\s\S]*?pointer-events:\s*none/,
+                    kind: 'ghost-guard-css-pointer',
+                    detail:
+                        'html.arborito-post-close-guard must disable pointer-events on top-actions/dock chrome',
+                    excerpt: 'post-close-guard CSS pointer-events rule missing',
+                },
+                {
+                    re: /html\.arborito-post-close-guard[\s\S]*?:active[\s\S]*?transform:\s*none/,
+                    kind: 'ghost-guard-css-active',
+                    detail:
+                        'html.arborito-post-close-guard must neutralize :active scale (hundimiento)',
+                    excerpt: 'post-close-guard CSS :active transform:none missing',
+                },
+            ],
+        },
+    ];
+
+    for (const { rel, tests } of checks) {
+        const file = join(ROOT, rel);
+        let content = '';
+        try {
+            content = await readFile(file, 'utf8');
+        } catch {
+            violations.push({
+                file: rel,
+                kind: 'ghost-guard-missing-file',
+                detail: `Canonical §8c file missing: ${rel}`,
+                line: 0,
+                excerpt: 'file not found',
+            });
+            continue;
+        }
+        for (const test of tests) {
+            if (test.re.test(content)) continue;
+            violations.push({
+                file: rel,
+                kind: test.kind,
+                detail: test.detail,
+                line: 0,
+                excerpt: test.excerpt,
+            });
+        }
+    }
+}
+
 await Promise.all([
     ...modalSources.map((file) => scanFile(file, [...MODAL_RULES, ...CTA_COLOR_RULES])),
     ...allFeatureSources
         .filter((f) => !f.includes('/modals/'))
         .map((file) => scanFile(file, CTA_COLOR_RULES)),
     ...modalJsxSources.map((file) => scanModalConsolidation(file)),
+    scanGhostClickConsolidation(),
 ]);
 
 if (violations.length) {
@@ -227,5 +364,5 @@ if (violations.length) {
 }
 
 console.log(
-    `[check-modal-compliance] OK : ${modalSources.length} modal file(s), ${allFeatureSources.length} feature source file(s) scanned (incl. consolidation / piso)`
+    `[check-modal-compliance] OK : ${modalSources.length} modal file(s), ${allFeatureSources.length} feature source file(s) scanned (incl. consolidation / piso / ghost-click §8c)`
 );

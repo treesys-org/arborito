@@ -48,6 +48,7 @@ In `src/features/**/modals/*.jsx` and `components/*.jsx`:
 5. **Width:** use `panelSize` prop (`compact`, `content`, `dock-hub`, …), see `modal-panel-size.js`. No ad hoc `max-w-*` on the panel.
 6. **Mobile:** `ModalShell` infers `shouldShowMobileUI()`; do not duplicate `arborito-modal--mobile` flags by hand.
 7. **Consolidation / floor (confirm + choice):** binary actions use `DialogModal` / `ModalBinaryFooter` / `arborito-modal-footer` in the shell `footer={…}` slot (sticky bottom). No Unicode `←` / `‹` for back — use `ModalBackChevronIcon` / `arborito-mmenu-back`. Enforced by `npm run check:modal-compliance`.
+8. **Consolidation / mobile Back ghost click:** closing a sheet must not reopen Courses or flash chrome `:active` scale. Use the shared `armPostClosePointerGuard` contract (§8c). Do not nudge the Courses chip as a layout “fix”. Enforced by `npm run check:modal-compliance`.
 
 Quick audit before PR:
 
@@ -169,6 +170,7 @@ Any capability that leaves the device, uses the network, or stores secrets needs
 | Courses directory network | `runBibliotecaNetworkLoad()` in `src/shared/lib/connected-services/runtime.js` |
 | CTAs | `modal-action-chrome.js` + `arborito-cta-forms.css` |
 | Modal footers | `arborito-modal-footer` + `arborito-action-row`, see §8b |
+| Mobile Back ghost click | Auto via `syncMobileTreeShellClass` + `syncPanelSheetFullbleedClass` + `armPostClosePointerGuard`, see §8c |
 | Forms | `arborito-forms.css` |
 | App background | `tokens.css` + garden SVGs, no `background-image !important` in features |
 | Sage guide (no AI) | `SageGuide.jsx` + `SageGuideContent.jsx` + `sage-guide.css` |
@@ -256,6 +258,27 @@ Replace `GenericChunkFallback` with a shell-specific fallback when the loaded mo
 | `export-pdf` | mobile/desktop `COMPACT` centered |
 
 Unlisted lazy types fall back to `GenericChunkFallback` (minimal spinner). Prefer a shell-specific fallback when chrome differs.
+
+---
+
+## 8c. Mobile Back ghost click (consolidation)
+
+On touch devices, Back fires on `touchend` and unmounts the sheet. ~300 ms later the browser’s synthetic `click` (and compatibility `mousedown`/`mouseup`) land on whatever is under that finger — usually the top-left **Courses** chip (`arborito-mob-top-actions__btn--lead`), which stays hit-testable under dock sheets. Result: Courses reopens and/or the chip flashes `:active { transform: scale(…) }` (“hundimiento”).
+
+**Automatic (preferred — do not fork):**
+
+| Piece | Where | Rule |
+|-------|--------|------|
+| Chrome sync | `syncMobileTreeShellClass` | Arms when More closes, dock-modal/lesson/fullbleed turn off, or tree-home returns after an overlay (skips first boot paint so the first map tap is not eaten). Construction More is detected via `arborito-construction-more-open`. |
+| Fullbleed panels | `syncPanelSheetFullbleedClass` | Arms when Mochila / curriculum switcher html class turns off. |
+| Store dismiss | `dismissModalOnStore` + `setModal(null)` | Also arms on the same tick (belt for store modals). |
+| Guard API | `armPostClosePointerGuard` in `shell-dialog-lifecycle.js` | Swallow `click` + `mousedown` + `mouseup`; toggle `html.arborito-post-close-guard`. Never block `touchend` / `pointerup`. |
+| Back chrome | `ModalBackButton` | Mobile: tap wire only; `onClick={undefined}`. |
+| Press flash CSS | `dock-versions-curriculum.css` | Under `html.arborito-post-close-guard`, top-actions + dock tabs: no pointer-events / no `:active` scale. |
+
+**Forbidden “fixes”:** shifting the Courses chip; dual `onClick` + tap wire on mobile Back; scattering new `armPostClosePointerGuard` into every modal close (extend the sync helpers instead).
+
+Manual `armPostClosePointerGuard` remains OK only for non-chrome actions that still need a ghost swallow (e.g. install toggle, open lesson covering the map).
 
 ---
 
