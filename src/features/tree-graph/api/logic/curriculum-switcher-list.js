@@ -93,11 +93,16 @@ export function collectTreeSwitcherSources({ hidePlaylistMembers = false, q = ''
         });
     }
 
+    const localComposedIds = new Set();
+    const localComposedCanonUrls = new Set();
     for (const t of composed) {
         if (!t) continue;
         const id = String(t.id || '');
         const name = String(t.name || '').trim() || id;
         const names = resolveBranchRefDisplayNames(t.branchRefs);
+        localComposedIds.add(id);
+        const pubCanon = canonicalNetworkTreeUrlString(String(t.publishedNetworkUrl || '').trim());
+        if (pubCanon) localComposedCanonUrls.add(pubCanon);
         out.push({
             kind: 'composed-tree',
             id,
@@ -123,6 +128,15 @@ export function collectTreeSwitcherSources({ hidePlaylistMembers = false, q = ''
         if (localBranchIds.has(id)) continue;
         const canon = canonicalNetworkTreeUrlString(url);
         if (canon && localCanonUrls.has(canon)) continue;
+        /* Local playlist + Saved community twin → one row (same as Courses forest collect). */
+        if (contentKind === 'composed-tree') {
+            if (localComposedIds.has(id)) continue;
+            if (canon && localComposedCanonUrls.has(canon)) continue;
+            if (url.startsWith('tree://')) {
+                const treeId = url.slice('tree://'.length).split('/')[0] || '';
+                if (treeId && localComposedIds.has(treeId)) continue;
+            }
+        }
         if (
             playlistCoverage &&
             contentKind !== 'composed-tree' &&
@@ -148,6 +162,10 @@ export function collectTreeSwitcherSources({ hidePlaylistMembers = false, q = ''
                 const pub = canonicalNetworkTreeUrlString(String(b?.publishedNetworkUrl || '').trim());
                 return pub && canon && pub === canon;
             }) || null;
+        if (kind === 'composed-tree') {
+            localComposedIds.add(id);
+            if (canon) localComposedCanonUrls.add(canon);
+        }
         out.push({
             kind,
             id,
