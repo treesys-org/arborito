@@ -226,7 +226,8 @@
  "installerSidebar": "installerSidebar.bmp",
  "installerHeader": "installerHeader.bmp",
  "shortcutName": "Arborito",
- "uninstallDisplayName": "Arborito"
+ "uninstallDisplayName": "Arborito",
+ "artifactName": "${productName}.Setup.${version}.${ext}"
  },
  "publish": {
  "provider": "github",

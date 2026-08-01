@@ -58,6 +58,7 @@ Output in `dist/`. Icons from `build/arborito-app-logo.png` → `npm run ensure:
 | Missing Flatpak GPG secrets | Add `FLATPAK_GPG_*` secrets (release job `publish-flatpak-remote` fails closed) |
 | No Wine | `sudo dnf install wine` or `--flatpak --android` only |
 | Wrong icon | Replace `build/arborito-app-logo.png` + `npm run ensure:icon` |
+| Windows update 404 on `.exe` | `latest.yml` must name the same file as the uploaded installer. NSIS uses `artifactName` `${productName}.Setup.${version}.${ext}` (no spaces). CI runs `scripts/verify-windows-update-metadata.mjs`. |
 
 Offline copies on desktop: [`PRODUCT_GUIDE.md`](PRODUCT_GUIDE.md#offline-vs-versions-the-most-confusing-part).
 

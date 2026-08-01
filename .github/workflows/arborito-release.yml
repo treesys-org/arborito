@@ -328,6 +328,7 @@ jobs:
           test -n "$(ls dist/*.exe 2>/dev/null)" || (echo "Missing .exe" && exit 1)
           test -n "$(ls dist/*.apk 2>/dev/null)" || (echo "Missing .apk" && exit 1)
           test -f dist/latest.yml || (echo "Missing latest.yml (Windows auto-update metadata)" && exit 1)
+          node ./scripts/verify-windows-update-metadata.mjs dist
 
       - name: Publish GitHub Release
         env:
