@@ -136,36 +136,12 @@
  "license": "LICENSE",
  "files": [
  [
- "build/org.treesys.arborito.desktop",
- "share/applications/org.treesys.arborito.desktop"
- ],
- [
  "build/org.treesys.arborito.metainfo.xml",
  "share/metainfo/org.treesys.arborito.metainfo.xml"
  ],
  [
  "LICENSE",
  "share/doc/org.treesys.arborito/LICENSE"
- ],
- [
- "build/icons/hicolor/48x48/apps/org.treesys.arborito.png",
- "share/icons/hicolor/48x48/apps/org.treesys.arborito.png"
- ],
- [
- "build/icons/hicolor/64x64/apps/org.treesys.arborito.png",
- "share/icons/hicolor/64x64/apps/org.treesys.arborito.png"
- ],
- [
- "build/icons/hicolor/128x128/apps/org.treesys.arborito.png",
- "share/icons/hicolor/128x128/apps/org.treesys.arborito.png"
- ],
- [
- "build/icons/hicolor/256x256/apps/org.treesys.arborito.png",
- "share/icons/hicolor/256x256/apps/org.treesys.arborito.png"
- ],
- [
- "build/icons/hicolor/512x512/apps/org.treesys.arborito.png",
- "share/icons/hicolor/512x512/apps/org.treesys.arborito.png"
  ],
  [
  "demo/arborito-demo/media/02-mapa-claro-en.png",

@@ -59,6 +59,7 @@ Output in `dist/`. Icons from `build/arborito-app-logo.png` → `npm run ensure:
 | No Wine | `sudo dnf install wine` or `--flatpak --android` only |
 | Wrong icon | Replace `build/arborito-app-logo.png` + `npm run ensure:icon` |
 | Windows update 404 on `.exe` | `latest.yml` must name the same file as the uploaded installer. NSIS uses `artifactName` `${productName}.Setup.${version}.${ext}` (no spaces). CI runs `scripts/verify-windows-update-metadata.mjs`. |
+| Flatpak `ENOENT` chmod on hicolor icon | Do not list desktop/icons in `build.flatpak.files` — electron-builder already stages them and `@malept/flatpak-bundler` copies in parallel; duplicates race. `rebundle` overlays the final `.desktop` + hicolor set. |
 
 Offline copies on desktop: [`PRODUCT_GUIDE.md`](PRODUCT_GUIDE.md#offline-vs-versions-the-most-confusing-part).
 

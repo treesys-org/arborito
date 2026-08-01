@@ -193,7 +193,11 @@ Terminal=false
 `;
 }
 
-/** Relative hicolor icon paths bundled via flatpak.files. */
+/**
+ * Hicolor PNGs under build/icons (from ensure:icon).
+ * Injected by rebundle — not listed in package.json flatpak.files (that races with
+ * electron-builder’s stageDir copy under @malept/flatpak-bundler’s Promise.all).
+ */
 export const HICOLOR_ICON_FILES = [48, 64, 128, 256, 512].map((size) => ({
     src: `build/icons/hicolor/${size}x${size}/apps/org.treesys.arborito.png`,
     dest: `share/icons/hicolor/${size}x${size}/apps/org.treesys.arborito.png`,
