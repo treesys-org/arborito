@@ -301,15 +301,13 @@ html.dark .arborito-sources-action-chip--kind-active[data-kind-filter='all'] {
   display: flex;
 }
 
-/* First-run Bosque tour: demo stays tappable even when already active */
-html.arborito-product-tour-sources-picker
-  [data-arbor-tour='sources-demo-branch'].arborito-sources-row--active
+/* Bundled demo: keep Abrir/Open after active pin + when the picker tour ends. */
+.arborito-sources-row--keep-load-cta.arborito-sources-row--active
   .arborito-sources-primary-stack--load {
   display: flex;
 }
 
-html.arborito-product-tour-sources-picker
-  [data-arbor-tour='sources-demo-branch'].arborito-sources-row--active
+.arborito-sources-row--keep-load-cta.arborito-sources-row--active
   .arborito-sources-primary-stack--placeholder {
   display: none;
 }

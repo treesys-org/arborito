@@ -58,6 +58,8 @@ export function SourcesBranchRow({
     const branchIcon = resolveBranchCatalogIcon(branch);
     const isDemoBranch = isBundledArboritoDemoBranch(branch);
     const activeCls = isActive ? ' arborito-sources-row--active' : '';
+    /* Demo must stay openable after the picker tour ends (CSS hides Load on --active). */
+    const keepLoadCtaCls = isDemoBranch ? ' arborito-sources-row--keep-load-cta' : '';
     const accountSynced = !!(branch?.privateSyncedFromAccount);
     const signedIn = !!store?.isSignedIn?.();
     const networkOn = hasGdprNetworkConsent();
@@ -80,7 +82,7 @@ export function SourcesBranchRow({
 
     return (
         <div
-            className={`p-4 arborito-surface-tile border ${borderCls}${pinCls}${activeCls} rounded-2xl shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors`}
+            className={`p-4 arborito-surface-tile border ${borderCls}${pinCls}${activeCls}${keepLoadCtaCls} rounded-2xl shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors`}
             {...(tourTarget ? { 'data-arbor-tour': tourTarget } : {})}
         >
             <div className="arborito-sources-row-layout flex items-start justify-between gap-3">
