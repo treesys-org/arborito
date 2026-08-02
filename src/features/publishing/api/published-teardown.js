@@ -7,6 +7,7 @@
  */
 
 import { formatNostrTreeUrl, parseNostrTreeUrl } from '../../nostr/api/nostr-refs.js';
+import { KIND_TREE_DIRECTORY } from '../../nostr/api/nostr-spec.js';
 import { normalizeTreeShareCode } from '../../sources/api/share-code.js';
 import { ensureConnectedNostr } from '../../../shared/lib/connected-services/index.js';
 import { canonicalNetworkTreeUrlString } from '../../sources/api/modals/logic/sources-helpers.js';
@@ -222,7 +223,6 @@ export async function sweepOwnedDiscoverGhosts(store, directoryRows) {
             /* ignore */
         }
         if (net && typeof net._query === 'function' && pubs.size) {
-            const { KIND_TREE_DIRECTORY } = await import('../../nostr/api/nostr-spec.js');
             for (const pub of pubs) {
                 let evs = [];
                 try {
