@@ -183,8 +183,12 @@ export function ModalSources({ embed = false }) {
                     ui={ui}
                     title={sources.deleteOverlayTitle}
                     body={sources.deleteOverlayBody}
+                    showAlsoRetract={!!sources.deleteAlsoRetractOption}
+                    alsoRetractDefault={sources.deleteAlsoRetractDefault !== false}
+                    alsoRetractLabel={ui.deletePublishedAlsoRetractLabel || 'Retract from the network'}
+                    alsoRetractHint={ui.deletePublishedAlsoRetractHint || ''}
                     onCancel={() => onAction('cancel-overlay')}
-                    onConfirm={() => onAction('confirm-delete')}
+                    onConfirm={(opts) => onAction('confirm-delete', opts || {})}
                 />
             ) : null}
             {sources.overlay === 'delete-composed-tree' ? (
@@ -192,11 +196,14 @@ export function ModalSources({ embed = false }) {
                     ui={ui}
                     title={sources.deleteOverlayTitle ?? ui.sourcesDeleteComposedTreeConfirm}
                     body={sources.deleteOverlayBody}
+                    showAlsoRetract={!!sources.deleteAlsoRetractOption}
+                    alsoRetractDefault={sources.deleteAlsoRetractDefault !== false}
+                    alsoRetractLabel={ui.deletePublishedAlsoRetractLabel || 'Retract from the network'}
+                    alsoRetractHint={ui.deletePublishedAlsoRetractHint || ''}
                     showAlsoMembers={!!sources.deleteAlsoMembersOption}
                     alsoMembersDefault={sources.deleteAlsoMembersDefault !== false}
-                    alsoMembersLabel={
-                        ui.sourcesDeleteComposedAlsoMembers || 'Also remove its courses'
-                    }
+                    alsoMembersLabel={ui.sourcesDeleteComposedAlsoMembers || 'Also remove courses'}
+                    alsoMembersHint={ui.sourcesDeleteComposedAlsoMembersHint || ''}
                     onCancel={() => onAction('cancel-overlay')}
                     onConfirm={(opts) => onAction('confirm-delete-composed-tree', opts || {})}
                 />

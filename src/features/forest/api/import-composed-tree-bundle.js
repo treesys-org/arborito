@@ -186,8 +186,18 @@ export async function importComposedTreeFromBundle(store, bundle, opts = {}) {
     const metaPatch = {};
     if (presentation) metaPatch.presentation = presentation;
     if (parsed.forkOf && !entry.forkOf) metaPatch.forkOf = parsed.forkOf;
+    /* Track playlist bundle gen so SWR / soft reopen can detect republishes. */
+    const bundleGen = String(bundle?.meta?.gen || '').trim();
+    if (bundleGen) metaPatch.publishedBundleGen = bundleGen;
     if (Object.keys(metaPatch).length) {
-        store.userStore.updateTree(entry.id, metaPatch);
+        const onlyGen =
+            bundleGen &&
+            Object.keys(metaPatch).length === 1 &&
+            metaPatch.publishedBundleGen === bundleGen;
+        store.userStore.updateTree(entry.id, metaPatch, {
+            /* Gen stamp alone must not bust compose cache / fingerprint. */
+            touchUpdated: onlyGen ? false : undefined,
+        });
         entry = store.userStore.getTree(entry.id);
     }
     return entry;

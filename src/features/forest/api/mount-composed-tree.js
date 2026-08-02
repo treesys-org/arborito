@@ -63,6 +63,57 @@ function cacheKeyForUrl(url) {
 }
 
 /**
+ * Soft-open playlists skip member Nostr refetch (avoids double paint). Still peek the
+ * playlist header gen; if the author republished and the tree is not frozen, remount
+ * with forceRefresh so members pull the new generation.
+ * @param {import('../../../core/store.js').Store} store
+ * @param {string} treeId
+ * @param {number} epoch
+ */
+function reconcileComposedPlaylistGenInBackground(store, treeId, epoch) {
+    const id = String(treeId || '').trim();
+    if (!id || !store) return;
+    void runThrottledBackgroundTask(
+        `composed-gen-reconcile:${id}`,
+        async () => {
+            try {
+                if (epoch !== store._curriculumMountEpoch) return;
+                if (store.userStore?.isTreeFrozen?.(id)) return;
+                const entry = store.userStore?.getTree?.(id);
+                const pubUrl = String(entry?.publishedNetworkUrl || '').trim();
+                const treeRef = pubUrl ? parseNostrTreeUrl(pubUrl) : null;
+                if (!entry || !treeRef) return;
+
+                await ensureConnectedNostr(store, {
+                    timeoutMs: shouldShowMobileUI() ? 20000 : 12000,
+                });
+                if (epoch !== store._curriculumMountEpoch) return;
+                if (!store.nostr?.loadNostrBundleHeaderMeta) return;
+
+                const headerMeta = await store.nostr.loadNostrBundleHeaderMeta(treeRef);
+                if (epoch !== store._curriculumMountEpoch) return;
+                const nextGen = String(headerMeta?.gen || '').trim();
+                if (!nextGen) return;
+                const prevGen = String(entry.publishedBundleGen || '').trim();
+                if (prevGen && prevGen === nextGen) return;
+
+                store.userStore.updateTree(id, { publishedBundleGen: nextGen }, { touchUpdated: false });
+                /* Quiet member refresh — force bypasses 1h IDB freshness. */
+                if (
+                    store.state.activeSource?.type === 'composed-tree' &&
+                    String(store.state.activeSource.treeId || '') === id
+                ) {
+                    await store.loadComposedTree(id, true);
+                }
+            } catch (e) {
+                console.warn('[Arborito] composed playlist gen reconcile', e);
+            }
+        },
+        { oncePerSession: false, minIntervalMs: 15_000 }
+    );
+}
+
+/**
  * Local garden branch published at the same Nostr URL as a composed-tree member ref.
  * @param {import('../../../core/store.js' ).Store} store
  * @param {string} nostrUrl
@@ -310,6 +361,7 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
                 /* ignore */
             }
         });
+        reconcileComposedPlaylistGenInBackground(store, treeId, epoch);
 
         /* Quiet reconcile: refresh members if hydrate/IDB now differs. */
         void (async () => {
@@ -492,6 +544,7 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
             error: null,
             activeSource: { ...source, treeId, type: 'composed-tree', name: treeEntry.name },
         });
+        reconcileComposedPlaylistGenInBackground(store, treeId, store._curriculumMountEpoch);
         return true;
     }
 
@@ -649,6 +702,10 @@ export async function mountComposedTree(store, source, forceRefresh = true) {
                 store.publishInstalledSourcesForAccount?.({ immediate: true });
             } catch {
                 /* ignore */
+            }
+            /* Soft opens skip blocking Nostr member refetch; still watch playlist gen. */
+            if (!forceRefresh) {
+                reconcileComposedPlaylistGenInBackground(store, treeId, epoch);
             }
         }
         return ok;

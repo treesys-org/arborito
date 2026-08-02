@@ -61,6 +61,8 @@ export function useSourcesState({ embed }) {
     const [deleteOverlayBody, setDeleteOverlayBody] = useState(null);
     const [deleteAlsoMembersOption, setDeleteAlsoMembersOption] = useState(false);
     const [deleteAlsoMembersDefault, setDeleteAlsoMembersDefault] = useState(true);
+    const [deleteAlsoRetractOption, setDeleteAlsoRetractOption] = useState(false);
+    const [deleteAlsoRetractDefault, setDeleteAlsoRetractDefault] = useState(true);
     const [exportTarget, setExportTarget] = useState(null);
     const [exportBusy, setExportBusy] = useState(false);
     const [sourcesQ, setSourcesQ] = useState('');
@@ -274,10 +276,14 @@ export function useSourcesState({ embed }) {
         setDeleteOverlayBody,
         setDeleteAlsoMembersOption,
         setDeleteAlsoMembersDefault,
+        setDeleteAlsoRetractOption,
+        setDeleteAlsoRetractDefault,
         deleteOverlayTitle,
         deleteOverlayBody,
         deleteAlsoMembersOption,
         deleteAlsoMembersDefault,
+        deleteAlsoRetractOption,
+        deleteAlsoRetractDefault,
         exportTarget,
         setExportTarget,
         exportBusy,
@@ -406,10 +412,14 @@ export function useSourcesState({ embed }) {
         deleteOverlayBody,
         deleteAlsoMembersOption,
         deleteAlsoMembersDefault,
+        deleteAlsoRetractOption,
+        deleteAlsoRetractDefault,
         setDeleteOverlayTitle,
         setDeleteOverlayBody,
         setDeleteAlsoMembersOption,
         setDeleteAlsoMembersDefault,
+        setDeleteAlsoRetractOption,
+        setDeleteAlsoRetractDefault,
         exportTarget,
         setExportTarget,
         exportBusy,

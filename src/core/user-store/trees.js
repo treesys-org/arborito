@@ -70,6 +70,12 @@ export const treesMixin = {
         if (patch.presentation !== undefined) entry.presentation = patch.presentation;
         if (patch.branchSetHash != null) entry.branchSetHash = String(patch.branchSetHash);
         if (patch.publishedBranchSetHash != null) entry.publishedBranchSetHash = String(patch.publishedBranchSetHash);
+        /* Student/network: last seen Nostr bundle gen (SWR / soft reopen freshness). */
+        if (patch.publishedBundleGen != null) {
+            const g = String(patch.publishedBundleGen).trim();
+            if (g) entry.publishedBundleGen = g;
+            else delete entry.publishedBundleGen;
+        }
         if (opts.touchUpdated !== false) {
             entry.updated = Date.now();
             /* Ref URL rewrites use touchUpdated:false — keep compose cache warm. */

@@ -1,6 +1,5 @@
 import { getArboritoStore as store } from '../../../../../../core/store-singleton.js';
 import { isPublishedResourceOwner } from '../../../../../publishing/api/published-owner.js';
-import { hasOtherTeamEditors } from '../../../../../publishing/api/published-team-editors.js';
 import {
     entryHasPublishHints,
     revokeOwnedPublicOnDelete,
@@ -17,6 +16,7 @@ import {
     listRemovablePlaylistOrphanCourses,
     playlistDeleteAlsoMembersDefault,
 } from '../sources-playlist-member-coverage.js';
+import { findLocalTreeForSavedSource } from '../sources-collect-forest.js';
 import {
     PICK_PAGE,
     withSourcesLoadingChrome,
@@ -208,17 +208,41 @@ export async function runForestAction(ctx, action, fields = {}) {
         return true;
     }
 
+    if (action === 'remove-source') {
+        const sid = String(id || '').trim();
+        if (!sid) return true;
+        const src = (store.state.communitySources || []).find((s) => String(s?.id) === sid);
+        /* Installed playlist → same delete sheet as local trees (optional member courses). */
+        if (String(src?.contentKind || '').trim() === 'composed-tree') {
+            const local = findLocalTreeForSavedSource(src);
+            if (local?.id) {
+                return runForestAction(ctx, 'show-delete-composed-tree', { id: local.id });
+            }
+            const ui = store.ui;
+            if (
+                await store.confirm(
+                    ui.sourcesDeleteTreeLinkConfirm ||
+                        'Remove this course? It stays online, and you can add it again any time.'
+                )
+            ) {
+                const wasActive = store.state.activeSource?.id === sid;
+                store.removeCommunitySource?.(sid);
+                if (wasActive) void store.clearCanvasAndShowLoadTreeWelcome();
+                else ctx.bump();
+            }
+            return true;
+        }
+        return false;
+    }
+
     if (action === 'show-delete-composed-tree') {
         const treeId = String(id || '').trim();
         if (!treeId) return true;
         const entry = store.userStore.getTree?.(treeId);
         const published = entryHasPublishHints(entry);
-        const isOwner =
-            published &&
-            (isPublishedResourceOwner(entry, store.getNostrPublisherPair.bind(store)) ||
-                entryHasPublishHints(entry));
+        const canRetract =
+            published && isPublishedResourceOwner(entry, store.getNostrPublisherPair.bind(store));
         const ui = store.ui;
-        const otherEditors = hasOtherTeamEditors(store);
         const orphans = listRemovablePlaylistOrphanCourses(entry, store.userStore?.state?.trees, {
             branches: store.userStore?.state?.branches || [],
             skipBranchId: (bid) => isBundledDemoBranchId(bid),
@@ -228,24 +252,19 @@ export async function runForestAction(ctx, action, fields = {}) {
         const purgeable = orphans.filter(
             (o) => !isUserInstalledNetworkCourse(store.state.communitySources, o.networkUrl)
         );
+        /* Owner: “from device” + retract switch. Installer / local: playlist wording. */
         ctx.setDeleteOverlayTitle?.(
-            published
+            canRetract
                 ? ui.deletePublishedComposedTitle || ui.sourcesDeleteComposedTreeConfirm
                 : ui.sourcesDeleteComposedTreeConfirm
         );
         ctx.setDeleteOverlayBody?.(
-            published
-                ? isOwner
-                    ? otherEditors
-                        ? ui.deletePublishedOwnerHasEditorsBody ||
-                          ui.deletePublishedComposedOwnerBody ||
-                          ''
-                        : ui.deletePublishedOwnerNoEditorsBody ||
-                          ui.deletePublishedComposedOwnerBody ||
-                          ''
-                    : ui.deletePublishedComposedBody || ''
+            published && !canRetract && purgeable.length === 0
+                ? ui.deletePublishedComposedBody || ''
                 : null
         );
+        ctx.setDeleteAlsoRetractOption?.(!!canRetract);
+        ctx.setDeleteAlsoRetractDefault?.(true);
         ctx.setDeleteAlsoMembersOption?.(purgeable.length > 0);
         ctx.setDeleteAlsoMembersDefault?.(
             playlistDeleteAlsoMembersDefault(orphans, store.state.communitySources)
@@ -260,9 +279,12 @@ export async function runForestAction(ctx, action, fields = {}) {
         const treeId = ctx.targetId;
         if (!treeId) return true;
         const entry = store.userStore.getTree?.(treeId);
-        /* Explicit checkbox value; default is computed at show time. */
+        /* Explicit switch values; defaults are computed at show time. */
         const purgeMembers = !!ctx.deleteAlsoMembersOption && !!fields.alsoMembers;
-        if (entry) {
+        const wantRetract = ctx.deleteAlsoRetractOption
+            ? !!fields.alsoRetract
+            : true; /* no switch → best-effort if this device holds the key */
+        if (entry && wantRetract) {
             await revokeOwnedPublicOnDelete(entry, store, {
                 treeIdToUnlink: treeId,
                 contentKind: 'composed-tree',
@@ -281,7 +303,29 @@ export async function runForestAction(ctx, action, fields = {}) {
             store.state.activeSource.treeId === treeId;
         /* Snapshot refs before deleteTree drops the playlist entry. */
         const entrySnapshot = entry ? { ...entry, branchRefs: [...(entry.branchRefs || [])] } : null;
+        const playlistUrl = String(entry?.publishedNetworkUrl || '').trim();
         await store.userStore.deleteTree(treeId);
+        /* Drop the saved Forest link for an installed playlist. */
+        if (playlistUrl) {
+            const saved =
+                findCommunitySourceByUrl(store.state.communitySources, playlistUrl) ||
+                (store.state.communitySources || []).find((s) => {
+                    if (String(s?.contentKind || '').trim() !== 'composed-tree') return false;
+                    const su = String(s?.url || '').trim();
+                    if (!su) return false;
+                    if (su === playlistUrl) return true;
+                    const a = canonicalNetworkTreeUrlString(su);
+                    const b = canonicalNetworkTreeUrlString(playlistUrl);
+                    return !!(a && b && a === b);
+                });
+            if (saved?.id) {
+                try {
+                    store.removeCommunitySource?.(saved.id);
+                } catch (e) {
+                    console.warn('[Arborito] unlink saved playlist source failed', saved.id, e);
+                }
+            }
+        }
         if (purgeMembers && entrySnapshot) {
             try {
                 await purgePlaylistOrphanCourses(entrySnapshot);
@@ -295,6 +339,8 @@ export async function runForestAction(ctx, action, fields = {}) {
         ctx.setDeleteOverlayBody?.(null);
         ctx.setDeleteAlsoMembersOption?.(false);
         ctx.setDeleteAlsoMembersDefault?.(true);
+        ctx.setDeleteAlsoRetractOption?.(false);
+        ctx.setDeleteAlsoRetractDefault?.(true);
         if (wasActive) {
             void store.clearCanvasAndShowLoadTreeWelcome();
         } else {

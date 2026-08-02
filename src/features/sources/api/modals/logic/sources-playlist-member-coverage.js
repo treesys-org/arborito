@@ -98,10 +98,16 @@ export function listRemovablePlaylistOrphanCourses(treeEntry, allTrees, opts = {
             fromBranchUrl = sourceUrl.slice('branch://'.length).split('/')[0] || '';
         }
         const branchId = String(r?.branchId || r?.refId || fromBranchUrl || '').trim();
-        const networkUrl =
+        let networkUrl =
             (!networkUrlRaw.startsWith('branch://') && networkUrlRaw) ||
             (!sourceUrl.startsWith('branch://') && sourceUrl) ||
             '';
+        /* After open, refs may be branch:// — recover network URL from the local branch. */
+        if (!networkUrl && branchId) {
+            const local = branches.find((b) => String(b?.id || '') === branchId);
+            const pub = String(local?.publishedNetworkUrl || '').trim();
+            if (pub && !pub.startsWith('branch://')) networkUrl = pub;
+        }
         if (!networkUrl && !branchId) continue;
         /* Local-only playlist members stay; only network installs cascade. */
         if (!networkUrl) continue;
@@ -146,6 +152,6 @@ export function isUserInstalledNetworkCourse(communitySources, networkUrl) {
 export function playlistDeleteAlsoMembersDefault(orphans, communitySources) {
     const list = Array.isArray(orphans) ? orphans : [];
     if (!list.length) return true;
-    /* Any member also installed on its own → leave checkbox off (safer). */
+    /* Any member also installed on its own → leave switch off (safer). */
     return !list.some((o) => isUserInstalledNetworkCourse(communitySources, o?.networkUrl));
 }

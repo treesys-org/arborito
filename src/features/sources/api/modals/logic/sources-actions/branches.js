@@ -1,7 +1,6 @@
 import { getArboritoStore as store } from '../../../../../../core/store-singleton.js';
 import { isPublishedResourceOwner } from '../../../../../publishing/api/published-owner.js';
 import { isBundledDemoBranchId } from '../../../../../publishing/api/demo-tree-guard.js';
-import { hasOtherTeamEditors } from '../../../../../publishing/api/published-team-editors.js';
 import {
     entryHasPublishHints,
     revokeOwnedPublicOnDelete,
@@ -54,6 +53,8 @@ export async function runBranchesAction(ctx, action, fields = {}) {
         ctx.setDeleteOverlayBody?.(null);
         ctx.setDeleteAlsoMembersOption?.(false);
         ctx.setDeleteAlsoMembersDefault?.(true);
+        ctx.setDeleteAlsoRetractOption?.(false);
+        ctx.setDeleteAlsoRetractDefault?.(true);
         ctx.setExportTarget?.(null);
         ctx.setExportBusy?.(false);
         ctx.bump();
@@ -96,13 +97,9 @@ export async function runBranchesAction(ctx, action, fields = {}) {
         }
         const branch = store.userStore.state.branches.find((t) => t.id === tid);
         const published = entryHasPublishHints(branch);
-        const isOwner =
-            published &&
-            (isPublishedResourceOwner(branch, store.getNostrPublisherPair.bind(store)) ||
-                /* Share-code / meta bind without publishedNetworkUrl (private restore). */
-                entryHasPublishHints(branch));
+        const canRetract =
+            published && isPublishedResourceOwner(branch, store.getNostrPublisherPair.bind(store));
         const ui = store.ui;
-        const otherEditors = hasOtherTeamEditors(store);
         const treesUsing = store.userStore.treesReferencingBranch?.(tid) || [];
         const treeNames = treesUsing
             .map((t) => String(t?.name || '').trim())
@@ -111,20 +108,13 @@ export async function runBranchesAction(ctx, action, fields = {}) {
         const treesBody = treeNames
             ? String(
                   ui.deleteBranchUsedByTreesBody ||
-                      'Used by: {names}. Removing it will unlink it from those trees.'
+                      'In: {names}. It will unlink from those trees.'
               ).replace(/\{names\}/g, treeNames)
             : '';
-        const publishedBody = published
-            ? isOwner
-                ? otherEditors
-                    ? ui.deletePublishedOwnerHasEditorsBody ||
-                      ui.deletePublishedLocalOwnerBody ||
-                      ''
-                    : ui.deletePublishedOwnerNoEditorsBody ||
-                      ui.deletePublishedComposedOwnerBody ||
-                      ''
-                : ui.deletePublishedLocalBody || ''
-            : '';
+        /* Title covers device delete; retract switch carries network choice.
+         * Body only when published but this device cannot retract (+ tree refs). */
+        const publishedBody =
+            published && !canRetract ? ui.deletePublishedLocalBody || '' : '';
         const bodyParts = [publishedBody, treesBody].map((s) => String(s || '').trim()).filter(Boolean);
         ctx.setDeleteOverlayTitle(
             published
@@ -132,6 +122,8 @@ export async function runBranchesAction(ctx, action, fields = {}) {
                 : ui.deleteBranchConfirm || ui.deleteTreeConfirm
         );
         ctx.setDeleteOverlayBody(bodyParts.length ? bodyParts.join('\n\n') : null);
+        ctx.setDeleteAlsoRetractOption?.(!!canRetract);
+        ctx.setDeleteAlsoRetractDefault?.(true);
         ctx.setOverlay('delete');
         ctx.setTargetId(tid);
         ctx.bump();
@@ -143,10 +135,11 @@ export async function runBranchesAction(ctx, action, fields = {}) {
         if (!tid) return true;
         if (isBundledDemoBranchId(tid)) return true;
         const branch = store.userStore.state.branches.find((t) => t.id === tid);
-        /* Always try public teardown when any publish bind remains — private
-         * delete used to skip this when publishedNetworkUrl was missing after
-         * account restore, leaving share codes (#TD9J-…) alive in Discover. */
-        if (branch) {
+        /* Retract when the switch is on; if the switch is hidden, still best-effort. */
+        const wantRetract = ctx.deleteAlsoRetractOption
+            ? !!fields.alsoRetract
+            : true;
+        if (branch && wantRetract) {
             await revokeOwnedPublicOnDelete(branch, store, {
                 branchIdToUnlink: tid,
                 contentKind: 'branch',
@@ -169,6 +162,8 @@ export async function runBranchesAction(ctx, action, fields = {}) {
         ctx.setTargetId(null);
         ctx.setDeleteOverlayTitle?.(null);
         ctx.setDeleteOverlayBody?.(null);
+        ctx.setDeleteAlsoRetractOption?.(false);
+        ctx.setDeleteAlsoRetractDefault?.(true);
         if (wasActive) {
             void store.clearCanvasAndShowLoadTreeWelcome();
         } else {

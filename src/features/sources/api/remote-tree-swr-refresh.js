@@ -3,7 +3,7 @@
  * cache immediately, then quietly replace when the network returns newer JSON.
  */
 
-import { parseNostrTreeUrl } from '../../nostr/api/nostr-refs.js';
+import { parseNostrTreeUrl, formatNostrTreeUrl } from '../../nostr/api/nostr-refs.js';
 import { ensureConnectedNostr } from '../../../shared/lib/connected-services/index.js';
 import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 import { parseArboritoTreeBundle } from '../../forest/api/arborito-tree-bundle.js';
@@ -37,6 +37,30 @@ export function treeBundleRoughStamp(json) {
         String(nodes),
         String(branches),
     ].join('|');
+}
+
+function nostrUrlKey(url) {
+    const g = parseNostrTreeUrl(url);
+    return g ? formatNostrTreeUrl(g.pub, g.universeId) : String(url || '').trim();
+}
+
+/**
+ * After a composed playlist mounts, `activeSource.id` becomes the local treeId while
+ * SWR still tracks the community/nostr source id — treat matching publishedNetworkUrl
+ * as the same mount target.
+ */
+function isRemoteSwrStillActive(store, source, sourceId) {
+    const active = store?.state?.activeSource;
+    if (!active) return false;
+    if (String(active.id || '') === String(sourceId || '')) return true;
+    if (active.type === 'composed-tree' || active.treeId) {
+        const treeId = String(active.treeId || active.id || '').trim();
+        const entry = treeId ? store.userStore?.getTree?.(treeId) : null;
+        const pub = nostrUrlKey(entry?.publishedNetworkUrl || '');
+        const src = nostrUrlKey(source?.url || '');
+        if (pub && src && pub === src) return true;
+    }
+    return false;
 }
 
 /** @type {Map<string, Promise<void>>} */
@@ -90,7 +114,7 @@ async function refreshRemoteTreeBundleInBackgroundBody(store, source, opts, epoc
             });
         }
         if (epoch !== store._curriculumMountEpoch) return;
-        if (String(store.state.activeSource?.id || '') !== sourceId) return;
+        if (!isRemoteSwrStillActive(store, source, sourceId)) return;
 
         const out = await store.sourceManager.loadData(
             source,
@@ -99,7 +123,7 @@ async function refreshRemoteTreeBundleInBackgroundBody(store, source, opts, epoc
             null
         );
         if (epoch !== store._curriculumMountEpoch) return;
-        if (String(store.state.activeSource?.id || '') !== sourceId) return;
+        if (!isRemoteSwrStillActive(store, source, sourceId)) return;
         if (!out?.json) return;
 
         try {
@@ -119,23 +143,57 @@ async function refreshRemoteTreeBundleInBackgroundBody(store, source, opts, epoc
             const treeRef = parseNostrTreeUrl(
                 String((out.finalSource && out.finalSource.url) || source.url || '')
             );
+            const nostrKey = treeRef
+                ? formatNostrTreeUrl(treeRef.pub, treeRef.universeId)
+                : '';
+            const prevEntry =
+                (nostrKey
+                    ? (store.userStore?.state?.trees || []).find(
+                          (t) => String(t?.publishedNetworkUrl || '').trim() === nostrKey
+                      )
+                    : null) ||
+                (store.state.activeSource?.type === 'composed-tree'
+                    ? store.userStore?.getTree?.(store.state.activeSource.treeId)
+                    : null);
+            const prevGen = String(prevEntry?.publishedBundleGen || '').trim();
+            const nextGen = String(out.json?.meta?.gen || '').trim();
+            const nextStamp = treeBundleRoughStamp(out.json);
+
             const entry = await importComposedTreeFromBundle(store, out.json, {
                 treeRef: treeRef || undefined,
                 shareCode: (out.finalSource && out.finalSource.shareCode) || undefined,
             });
             if (epoch !== store._curriculumMountEpoch) return;
-            if (String(store.state.activeSource?.id || '') !== sourceId) return;
+            if (!isRemoteSwrStillActive(store, source, sourceId)) return;
             const composedId = String(entry?.id || '').trim();
+            if (!composedId) return;
+
+            /* Offline freeze: keep the device snapshot; do not pull live curriculum. */
+            if (store.userStore?.isTreeFrozen?.(composedId)) return;
+
             const alreadyComposed =
                 !!store.state.data &&
                 (String(store.state.activeSource?.treeId || store.state.activeSource?.id || '') ===
                     composedId ||
                     store.state.activeSource?.type === 'composed-tree');
-            if (alreadyComposed) {
-                /* Skeleton/full already up — skip remount; cache stamp handled above for flat trees. */
+
+            const sameGen = !!(nextGen && prevGen && prevGen === nextGen);
+            const stampUnchanged =
+                !!(store._lastComposedNetworkStamp &&
+                    nextStamp &&
+                    store._lastComposedNetworkStamp === nextStamp);
+            if (alreadyComposed && (sameGen || (!nextGen && stampUnchanged))) {
+                store._lastComposedNetworkStamp = nextStamp || store._lastComposedNetworkStamp;
                 return;
             }
-            /* Quiet upgrade — do not force-refresh (would blank a warm canvas). */
+
+            store._lastComposedNetworkStamp = nextStamp || '';
+            if (alreadyComposed) {
+                /* Republish: force member refetch (bypass 1h IDB freshness). Quiet remount. */
+                await store.loadComposedTree(composedId, true);
+                return;
+            }
+            /* First paint as composed — soft open keeps a warm canvas. */
             await store.loadComposedTree(composedId, false);
             return;
         }
@@ -163,7 +221,7 @@ async function refreshRemoteTreeBundleInBackgroundBody(store, source, opts, epoc
             await store.refreshTreeNetworkGovernance(out.finalSource);
         }
         if (epoch !== store._curriculumMountEpoch) return;
-        if (String(store.state.activeSource?.id || '') !== sourceId) return;
+        if (!isRemoteSwrStillActive(store, source, sourceId)) return;
 
         DataProcessor.process(store, graphJson, out.finalSource, {
             suppressReadmeAutoOpen: true,
@@ -193,7 +251,7 @@ async function refreshRemoteTreeBundleInBackgroundBody(store, source, opts, epoc
         });
     } catch (e) {
         if (epoch !== store._curriculumMountEpoch) return;
-        if (String(store.state.activeSource?.id || '') !== sourceId) return;
+        if (!isRemoteSwrStillActive(store, source, sourceId)) return;
         const ui = store.ui || {};
         if (isUniverseRevokedError(e)) {
             queueMicrotask(() => {
