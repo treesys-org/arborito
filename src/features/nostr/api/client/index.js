@@ -16,6 +16,7 @@ import { DEFAULT_NOSTR_RELAYS, normalizeNostrRelayUrls } from '../nostr-relays-r
 import { coreMixin, defineCoreAccessors } from './core.js';
 import { cryptoMixin } from './crypto.js';
 import { directoryMixin } from './directory.js';
+import { directoryListMixin } from './directory-list.js';
 import { metricsMixin } from './metrics.js';
 import { governanceMixin } from './governance.js';
 import { accountsMixin } from './accounts.js';
@@ -56,6 +57,7 @@ applyPrototypeMethods(
     coreMixin,
     cryptoMixin,
     directoryMixin,
+    directoryListMixin,
     metricsMixin,
     governanceMixin,
     accountsMixin,
