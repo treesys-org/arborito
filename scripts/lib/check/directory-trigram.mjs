@@ -41,16 +41,27 @@ check(
 );
 
 const directoryJs = readFileSync(join(root, 'src/features/nostr/api/client/directory.js'), 'utf8');
+const directoryListJs = readFileSync(
+    join(root, 'src/features/nostr/api/client/directory-list.js'),
+    'utf8'
+);
+const directorySrc = `${directoryJs}\n${directoryListJs}`;
 check('publish adds t tags', /directoryTrigramTagsForRow/.test(directoryJs));
-check('searchGlobalDirectoryByTrigrams', /searchGlobalDirectoryByTrigrams/.test(directoryJs));
-check('#t relay filter', /'#t'/.test(directoryJs));
+check('searchGlobalDirectoryByTrigrams', /searchGlobalDirectoryByTrigrams/.test(directoryListJs));
+check('#t relay filter', /'#t'/.test(directoryListJs));
 /* Relays like nos.lol break multi-tag `#t`+`#app`; app tag is checked client-side. */
-check('trigram search does not AND #app on relay', !/'#app':\s*\[TAG_APP_VALUE\]/.test(directoryJs));
-check('trigram search checks app tag client-side', /eventHasArboritoAppTag/.test(directoryJs));
-check('search falls back to crawl when thin', /_traverseGlobalDirectoryEntries/.test(directoryJs));
-check('live crawl pages with until', /until/.test(directoryJs) && /DIRECTORY_CLIENT_CRAWL_MAX_EVENTS/.test(directoryJs));
-check('live crawl uses per-relay until', /untilByRelay/.test(directoryJs) && /_queryRelays/.test(directoryJs));
-check('on-demand search (no live subscribe stub)', !/startDirectoryLiveSubscribe/.test(directoryJs));
+check('trigram search does not AND #app on relay', !/'#app':\s*\[TAG_APP_VALUE\]/.test(directorySrc));
+check('trigram search checks app tag client-side', /eventHasArboritoAppTag/.test(directoryListJs));
+check('search falls back to crawl when thin', /_traverseGlobalDirectoryEntries/.test(directoryListJs));
+check(
+    'live crawl pages with until',
+    /until/.test(directoryListJs) && /DIRECTORY_CLIENT_CRAWL_MAX_EVENTS/.test(directoryListJs)
+);
+check(
+    'live crawl uses per-relay until',
+    /untilByRelay/.test(directoryListJs) && /_queryRelays/.test(directoryListJs)
+);
+check('on-demand search (no live subscribe stub)', !/startDirectoryLiveSubscribe/.test(directorySrc));
 
 check('shard files removed', !readFileSync(join(root, 'package.json'), 'utf8').includes('directory-catalog:build'));
 
