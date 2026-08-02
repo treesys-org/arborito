@@ -66,5 +66,17 @@
   {
     "ownerPub": "ccfbe65eeb23fbbc9553604df0844f70fe4764c6af5a62479ab12cc653e22dbb",
     "universeId": "49907f2f-a17a-47ef-b6f7-5ba318e55104"
+  },
+  {
+    "ownerPub": "efcac9f250cd465ae5c5ee91bd866bd185fba76e3deeb55e488a9f60c360fbae",
+    "universeId": "dd429c1a-9d81-4bb3-842b-7b42f486a214"
+  },
+  {
+    "ownerPub": "d11d933b9379b2727b4d90d0b4e3789c15ee457f667998c07dd61b7b9bd6a1ff",
+    "universeId": "33d6304e-e264-47ee-a9ef-54a45874f76c"
+  },
+  {
+    "ownerPub": "22244d94c981794e3e8a21cfca8ec7453fae2f0f74dcdc808cd436c7b7ab1d87",
+    "universeId": "e6dab995-4513-4158-b9b7-7ec6e4e104e2"
   }
 ]

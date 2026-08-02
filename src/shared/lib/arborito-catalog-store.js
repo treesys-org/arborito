@@ -152,6 +152,28 @@ export async function replaceCommunitySources(sources) {
 
 // --- Local branches (.arborito curriculum units) ---
 
+/**
+ * Meta-only catalog rows (no curriculum blobs). Fast path for Bosque list paint.
+ * @returns {Promise<object[]>}
+ */
+export async function loadBranchMetas() {
+    await migrateCatalogV1IfNeeded();
+    const db = await openDb();
+    try {
+        const tx = db.transaction([STORE_BRANCH_META], 'readonly');
+        const metas = await idbRequest(tx.objectStore(STORE_BRANCH_META).getAll());
+        if (!Array.isArray(metas) || !metas.length) return [];
+        const out = [];
+        for (const meta of metas) {
+            if (!meta?.id) continue;
+            out.push(normalizeBranchCatalogEntry({ ...meta }));
+        }
+        return out;
+    } finally {
+        db.close();
+    }
+}
+
 export async function loadBranches() {
     await migrateCatalogV1IfNeeded();
     return loadBranchesFromV2();

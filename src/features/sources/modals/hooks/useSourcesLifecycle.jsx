@@ -122,15 +122,21 @@ export function useSourcesLifecycle({
                     if (typeof store.refreshInstalledSourcesFromAccount === 'function') {
                         await store.refreshInstalledSourcesFromAccount({ forcePublish: true });
                     } else {
-                        try {
-                            await store.loadInstalledSourcesFromAccount?.(signedInName);
-                        } catch (e) {
-                            console.warn('[Arborito] Fuentes installed-sources refresh failed', e);
+                        const [installedSettled, treesSettled] = await Promise.allSettled([
+                            store.loadInstalledSourcesFromAccount?.(signedInName),
+                            store.loadPrivateTreesFromAccount?.(signedInName, { retry: false }),
+                        ]);
+                        if (installedSettled.status === 'rejected') {
+                            console.warn(
+                                '[Arborito] Fuentes installed-sources refresh failed',
+                                installedSettled.reason
+                            );
                         }
-                        try {
-                            await store.loadPrivateTreesFromAccount?.(signedInName, { retry: false });
-                        } catch (e) {
-                            console.warn('[Arborito] Fuentes private-trees refresh failed', e);
+                        if (treesSettled.status === 'rejected') {
+                            console.warn(
+                                '[Arborito] Fuentes private-trees refresh failed',
+                                treesSettled.reason
+                            );
                         }
                         try {
                             await store._loadProgressForInstalledSources?.();

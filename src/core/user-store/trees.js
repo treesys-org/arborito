@@ -283,6 +283,8 @@ export const treesMixin = {
             const parsed = Date.parse(payload.updatedAt || '');
             return Number.isFinite(parsed) ? parsed : Date.now();
         })();
+        const publishedNetworkUrl = String(payload?.publishedNetworkUrl || '').trim() || null;
+        const publishedShareCode = String(payload?.publishedShareCode || '').trim() || null;
         const existing = this.state.trees.find((t) => t.id === id);
         if (existing) {
             if (!existing.privateSyncedFromAccount) return false;
@@ -293,6 +295,8 @@ export const treesMixin = {
             if (payload.presentation !== undefined) existing.presentation = payload.presentation;
             if (payload.forkOf !== undefined) existing.forkOf = payload.forkOf;
             existing.updated = updatedTs;
+            if (publishedNetworkUrl) existing.publishedNetworkUrl = publishedNetworkUrl;
+            if (publishedShareCode) existing.publishedShareCode = publishedShareCode;
             this.state.trees = [...this.state.trees];
             this.markTreeDirty(id);
             this.persist();
@@ -307,7 +311,8 @@ export const treesMixin = {
                 updated: updatedTs,
                 branchRefs: refs,
                 forkOf: payload.forkOf || null,
-                publishedNetworkUrl: null,
+                publishedNetworkUrl: publishedNetworkUrl || null,
+                ...(publishedShareCode ? { publishedShareCode } : {}),
                 presentation: payload.presentation || null,
                 privateSyncedFromAccount: true,
             },

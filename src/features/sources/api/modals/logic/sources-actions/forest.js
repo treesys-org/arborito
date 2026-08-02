@@ -1,7 +1,10 @@
 import { getArboritoStore as store } from '../../../../../../core/store-singleton.js';
-import { parseNostrTreeUrl } from '../../../../../nostr/api/nostr-refs.js';
 import { isPublishedResourceOwner } from '../../../../../publishing/api/published-owner.js';
 import { hasOtherTeamEditors } from '../../../../../publishing/api/published-team-editors.js';
+import {
+    entryHasPublishHints,
+    revokeOwnedPublicOnDelete,
+} from '../../../../../publishing/api/published-teardown.js';
 import { isBundledDemoBranchId } from '../../../../../publishing/api/demo-tree-guard.js';
 import { finishSourcesLoadSession, captureHadCurriculumBeforeLoad } from '../../../sources-session.js';
 import { importTreeFromFile, shareComposedTree } from '../sources-logic.js';
@@ -44,6 +47,10 @@ async function purgePlaylistOrphanCourses(treeEntry) {
                 (b) => String(b?.id || '') === bid
             );
             if (local) {
+                await revokeOwnedPublicOnDelete(local, store, {
+                    branchIdToUnlink: bid,
+                    contentKind: 'branch',
+                });
                 if (store.isSignedIn?.()) {
                     try {
                         await store.unpublishPrivateBranch?.(bid);
@@ -205,8 +212,11 @@ export async function runForestAction(ctx, action, fields = {}) {
         const treeId = String(id || '').trim();
         if (!treeId) return true;
         const entry = store.userStore.getTree?.(treeId);
-        const published = !!String(entry?.publishedNetworkUrl || '').trim();
-        const isOwner = published && isPublishedResourceOwner(entry, store.getNostrPublisherPair.bind(store));
+        const published = entryHasPublishHints(entry);
+        const isOwner =
+            published &&
+            (isPublishedResourceOwner(entry, store.getNostrPublisherPair.bind(store)) ||
+                entryHasPublishHints(entry));
         const ui = store.ui;
         const otherEditors = hasOtherTeamEditors(store);
         const orphans = listRemovablePlaylistOrphanCourses(entry, store.userStore?.state?.trees, {
@@ -252,24 +262,11 @@ export async function runForestAction(ctx, action, fields = {}) {
         const entry = store.userStore.getTree?.(treeId);
         /* Explicit checkbox value; default is computed at show time. */
         const purgeMembers = !!ctx.deleteAlsoMembersOption && !!fields.alsoMembers;
-        const publishedUrl = String(entry?.publishedNetworkUrl || '').trim();
-        const isOwner =
-            !!publishedUrl &&
-            isPublishedResourceOwner(entry, store.getNostrPublisherPair.bind(store));
-        if (isOwner && !hasOtherTeamEditors(store)) {
-            try {
-                const treeRef = parseNostrTreeUrl(publishedUrl);
-                if (treeRef) {
-                    await store._revokePublicTreeCore(treeRef, {
-                        treeIdToUnlink: treeId,
-                        contentKind: 'composed-tree',
-                        skipConfirm: true,
-                        silent: true,
-                    });
-                }
-            } catch (e) {
-                console.warn('[Arborito] revoke composed tree on delete failed', e);
-            }
+        if (entry) {
+            await revokeOwnedPublicOnDelete(entry, store, {
+                treeIdToUnlink: treeId,
+                contentKind: 'composed-tree',
+            });
         }
         /* Account draft must not survive deleting the local composed tree. */
         if (store.isSignedIn?.()) {

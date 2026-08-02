@@ -16,6 +16,7 @@ import {
     runBibliotecaNetworkLoad,
 } from '../../../../../shared/lib/connected-services/index.js';
 import { refreshMaintainerNostrTreeBlocklist } from '../../../../nostr/api/maintainer-nostr-tree-blocklist.js';
+import { sweepOwnedDiscoverGhosts } from '../../../../publishing/api/published-teardown.js';
 import { discoverListingScore } from './sources-search-utils.js';
 import { reporterCommunityReportWeight } from './sources-moderation-limits.js';
 import { canonicalNetworkTreeUrlString } from './sources-helpers.js';
@@ -26,6 +27,9 @@ import {
 import { BRANCH_CHIP_ICON } from '../../../../tree-graph/api/node-property-emojis.js';
 import { mergeDisplayedVotes, readLocalLiked } from './sources-vote-persist.js';
 import { normalizeTreeShareCode } from '../../share-code.js';
+
+/** Once per tab session — clean owned Discover ghosts left by old private-delete. */
+let _ownedDiscoverGhostSweepAt = 0;
 
 /**
  * Fill missing directory `icon` from local published twins / Saved community meta
@@ -471,13 +475,14 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
 
     try {
         await runBibliotecaNetworkLoad(async () => {
-            /* Remote maintainer blocklist (GitHub) — only with network consent. */
-            await refreshMaintainerNostrTreeBlocklist().catch(() => false);
+            /* Blocklist refresh + Nostr connect overlap — neither needs the other first. */
+            const blocklistPromise = refreshMaintainerNostrTreeBlocklist().catch(() => false);
+            const netPromise = ensureConnectedNostr(store, { timeoutMs: 12000 }).catch(() => null);
+            await Promise.all([blocklistPromise, netPromise]);
             if (!stillCurrent()) return;
 
             /* Prefer the service returned by init — `store.nostr` alone races the chunk load. */
-            const net =
-                (await ensureConnectedNostr(store, { timeoutMs: 12000 })) || store.nostr;
+            const net = (await netPromise) || store.nostr;
             const qNorm = q.replace(/^#/, '').trim();
             const shareCodeNorm = normalizeTreeShareCode(qNorm);
             let rows = [];
@@ -585,18 +590,21 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
             let torrentRows = [];
             let httpRows = [];
             if (wantMirrorFallback) {
-                try {
-                    torrentRows = await loadGlobalDirectoryRowsFromTorrent(store, { query: q });
-                } catch (e) {
-                    console.warn('[Arborito] global directory torrent', e);
-                }
+                const [torrentSettled, httpSettled] = await Promise.allSettled([
+                    loadGlobalDirectoryRowsFromTorrent(store, { query: q }),
+                    loadGlobalDirectoryRowsFromHttp({ query: q }),
+                ]);
                 if (!stillCurrent()) return;
-                try {
-                    httpRows = await loadGlobalDirectoryRowsFromHttp({ query: q });
-                } catch (e) {
-                    console.warn('[Arborito] global directory http', e);
+                if (torrentSettled.status === 'fulfilled') {
+                    torrentRows = torrentSettled.value || [];
+                } else {
+                    console.warn('[Arborito] global directory torrent', torrentSettled.reason);
                 }
-                if (!stillCurrent()) return;
+                if (httpSettled.status === 'fulfilled') {
+                    httpRows = httpSettled.value || [];
+                } else {
+                    console.warn('[Arborito] global directory http', httpSettled.reason);
+                }
             }
 
             /* Empty Nostr + failed mirrors: clear circuit breaker and retry once. */
@@ -625,6 +633,14 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
                 mergeNostrAndTorrentDirectoryRows(mergeNostrAndTorrentDirectoryRows(rows, shardRows), torrentRows),
                 httpRows
             );
+            /* Live delist probe + crawl tombstones — drop stale mirror re-injects. */
+            const tombs = net?._lastDirectoryTombstoneKeys;
+            if (tombs instanceof Set && tombs.size) {
+                rows = rows.filter((r) => {
+                    const k = `${String(r?.ownerPub || '').trim()}/${String(r?.universeId || '').trim()}`;
+                    return !k || k === '/' || !tombs.has(k);
+                });
+            }
             rows = rows.filter((r) => !store.isNostrTreeMaintainerBlocked(r?.ownerPub, r?.universeId));
             publishPartialRows(rows);
             if (net && typeof net._filterDirectoryRowsWithPublishedBundle === 'function') {
@@ -642,6 +658,26 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
             /* At absolute max, stop offering network “load more”. */
             if (fetchLimit >= DIRECTORY_CLIENT_FETCH_MAX) hitCap = false;
 
+            if (!stillCurrent()) return;
+            /* Tear down owned listings with no local bind (deleted private courses
+             * that never wrote directory delist — e.g. #TD9J-634V / #4EFD-NPTC).
+             * Runs even when the Discover page is empty: probes the owner's own
+             * directory replaceables on relays. */
+            const sweepNow = Date.now();
+            if (sweepNow - _ownedDiscoverGhostSweepAt > 60_000) {
+                _ownedDiscoverGhostSweepAt = sweepNow;
+                try {
+                    const { keys: sweptKeys } = await sweepOwnedDiscoverGhosts(store, rows);
+                    if (sweptKeys?.size && stillCurrent()) {
+                        rows = rows.filter((r) => {
+                            const k = `${String(r?.ownerPub || '').trim()}/${String(r?.universeId || '').trim()}`;
+                            return !sweptKeys.has(k);
+                        });
+                    }
+                } catch (e) {
+                    console.warn('[Arborito] owned Discover ghost sweep', e);
+                }
+            }
             if (!stillCurrent()) return;
             setters.setGlobalDirRows(rows);
             setters.setGlobalDirLoading(false);

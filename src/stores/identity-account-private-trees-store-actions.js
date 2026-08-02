@@ -297,12 +297,18 @@ export async function publishBranchAsPrivateAction(treeId, opts = {}) {
     if (!net || typeof net.putPrivateTreeBlob !== 'function') {
         throw new Error(ui.nostrNotLoadedHint || 'Nostr relays unavailable.');
     }
+    const publishedNetworkUrl = String(entry.publishedNetworkUrl || '').trim() || null;
+    const publishedShareCode =
+        String(entry.publishedShareCode || entry.data?.meta?.shareCode || '').trim() || null;
     const body = {
         v: 1,
         id: localId,
         name: entry.name || entry.data?.universeName || localId,
         data: entry.data,
         updatedAt: new Date().toISOString(),
+        /* Keep public bind across devices so delete can revoke/delist Discover. */
+        ...(publishedNetworkUrl ? { publishedNetworkUrl } : {}),
+        ...(publishedShareCode ? { publishedShareCode } : {}),
     };
     await net.putPrivateTreeBlob({ username: name, treeId: localId, pair, body });
     /*
@@ -497,6 +503,8 @@ export async function publishComposedTreeAsPrivateAction(treeId, opts = {}) {
     if (!net || typeof net.putPrivateTreeBlob !== 'function') {
         throw new Error(ui.nostrNotLoadedHint || 'Nostr relays unavailable.');
     }
+    const publishedNetworkUrl = String(entry.publishedNetworkUrl || '').trim() || null;
+    const publishedShareCode = String(entry.publishedShareCode || '').trim() || null;
     const body = {
         v: 1,
         kind: 'composed-tree',
@@ -506,6 +514,8 @@ export async function publishComposedTreeAsPrivateAction(treeId, opts = {}) {
         presentation: entry.presentation || null,
         forkOf: entry.forkOf || null,
         updatedAt: new Date().toISOString(),
+        ...(publishedNetworkUrl ? { publishedNetworkUrl } : {}),
+        ...(publishedShareCode ? { publishedShareCode } : {}),
     };
     await net.putPrivateTreeBlob({ username: name, treeId: tid, pair, body });
     store.userStore.markTreeAsPrivateSyncedFromAccount?.(tid);

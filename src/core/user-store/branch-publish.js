@@ -28,6 +28,8 @@ export const branchPublishMixin = {
             const parsed = Date.parse(payload.updatedAt || '');
             return Number.isFinite(parsed) ? parsed : Date.now();
         })();
+        const publishedNetworkUrl = String(payload?.publishedNetworkUrl || '').trim() || null;
+        const publishedShareCode = String(payload?.publishedShareCode || '').trim() || null;
         const existing = this.state.branches.find((t) => t.id === id);
         if (existing) {
             if (!existing.privateSyncedFromAccount) return false;
@@ -36,6 +38,8 @@ export const branchPublishMixin = {
             existing.data = data;
             existing.name = name;
             existing.updated = updatedTs;
+            if (publishedNetworkUrl) existing.publishedNetworkUrl = publishedNetworkUrl;
+            if (publishedShareCode) existing.publishedShareCode = publishedShareCode;
             this.state.branches = [...this.state.branches];
             /* Pull/restore must not enqueue a quiet re-upload of the same blob. */
             this.markBranchDirty(id, { skipAccountSync: true });
@@ -50,7 +54,9 @@ export const branchPublishMixin = {
                 name,
                 data,
                 updated: updatedTs,
-                privateSyncedFromAccount: true
+                privateSyncedFromAccount: true,
+                ...(publishedNetworkUrl ? { publishedNetworkUrl } : {}),
+                ...(publishedShareCode ? { publishedShareCode } : {}),
             }
         ];
         this.markBranchDirty(id, { skipAccountSync: true });

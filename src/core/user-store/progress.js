@@ -1,6 +1,7 @@
 import { ensureWeeklyLumensReset } from '../../features/tree-graph/api/tree-ranking.js';
 import { normalizeGamification } from './_helpers.js';
 import {
+    loadBranchMetas,
     loadBranches,
     loadTrees,
     persistBranchEntry,
@@ -197,10 +198,14 @@ export const progressMixin = {
 
     async _hydrateCatalog() {
         try {
-            const [branches, trees] = await Promise.all([loadBranches(), loadTrees()]);
             const tomb = this._catalogTombstones || { branches: new Set(), trees: new Set() };
+            /*
+             * Phase 1: branch metas + trees (no curriculum blobs) so Bosque can
+             * paint Mis cursos / playlists without waiting on full IDB payloads.
+             */
+            const [branchMetas, trees] = await Promise.all([loadBranchMetas(), loadTrees()]);
             this.state.branches = this._mergeCatalogEntries(
-                branches,
+                branchMetas,
                 this.state.branches,
                 tomb.branches
             );
@@ -212,6 +217,19 @@ export const progressMixin = {
             );
             this._catalogRevision = (this._catalogRevision || 0) + 1;
             maybeSeedArboritoDemo(this);
+            if (typeof this.onCatalogHydrated === 'function') {
+                this.onCatalogHydrated(this._catalogRevision);
+            }
+
+            /* Phase 2: attach curriculum data for open/edit paths.
+             * IDB full rows are the memory side so equal `updated` keeps `data`. */
+            const branches = await loadBranches();
+            this.state.branches = this._mergeCatalogEntries(
+                this.state.branches,
+                branches,
+                tomb.branches
+            );
+            this._catalogRevision = (this._catalogRevision || 0) + 1;
             if (typeof this.onCatalogHydrated === 'function') {
                 this.onCatalogHydrated(this._catalogRevision);
             }

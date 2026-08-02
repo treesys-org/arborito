@@ -2,7 +2,10 @@ import { getArboritoStore as store } from '../../../../../../core/store-singleto
 import { isPublishedResourceOwner } from '../../../../../publishing/api/published-owner.js';
 import { isBundledDemoBranchId } from '../../../../../publishing/api/demo-tree-guard.js';
 import { hasOtherTeamEditors } from '../../../../../publishing/api/published-team-editors.js';
-import { parseNostrTreeUrl } from '../../../../../nostr/api/nostr-refs.js';
+import {
+    entryHasPublishHints,
+    revokeOwnedPublicOnDelete,
+} from '../../../../../publishing/api/published-teardown.js';
 import {
     withSourcesLoadingChrome,
     withSourcesNetworkLoad,
@@ -92,8 +95,12 @@ export async function runBranchesAction(ctx, action, fields = {}) {
             return true;
         }
         const branch = store.userStore.state.branches.find((t) => t.id === tid);
-        const published = !!String(branch?.publishedNetworkUrl || '').trim();
-        const isOwner = published && isPublishedResourceOwner(branch, store.getNostrPublisherPair.bind(store));
+        const published = entryHasPublishHints(branch);
+        const isOwner =
+            published &&
+            (isPublishedResourceOwner(branch, store.getNostrPublisherPair.bind(store)) ||
+                /* Share-code / meta bind without publishedNetworkUrl (private restore). */
+                entryHasPublishHints(branch));
         const ui = store.ui;
         const otherEditors = hasOtherTeamEditors(store);
         const treesUsing = store.userStore.treesReferencingBranch?.(tid) || [];
@@ -136,24 +143,14 @@ export async function runBranchesAction(ctx, action, fields = {}) {
         if (!tid) return true;
         if (isBundledDemoBranchId(tid)) return true;
         const branch = store.userStore.state.branches.find((t) => t.id === tid);
-        const publishedUrl = String(branch?.publishedNetworkUrl || '').trim();
-        const isOwner =
-            !!publishedUrl &&
-            isPublishedResourceOwner(branch, store.getNostrPublisherPair.bind(store));
-        if (isOwner && !hasOtherTeamEditors(store)) {
-            try {
-                const treeRef = parseNostrTreeUrl(publishedUrl);
-                if (treeRef) {
-                    await store._revokePublicTreeCore(treeRef, {
-                        branchIdToUnlink: tid,
-                        contentKind: 'branch',
-                        skipConfirm: true,
-                        silent: true,
-                    });
-                }
-            } catch (e) {
-                console.warn('[Arborito] revoke branch on delete failed', e);
-            }
+        /* Always try public teardown when any publish bind remains — private
+         * delete used to skip this when publishedNetworkUrl was missing after
+         * account restore, leaving share codes (#TD9J-…) alive in Discover. */
+        if (branch) {
+            await revokeOwnedPublicOnDelete(branch, store, {
+                branchIdToUnlink: tid,
+                contentKind: 'branch',
+            });
         }
         /* Account draft must not survive deleting the local branch. Always try
          * while signed in — sync flag may be cleared after sign-out/sign-in. */

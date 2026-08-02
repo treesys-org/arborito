@@ -35,6 +35,7 @@ import {
     directoryDTag,
     directoryIndexChunkDTag
 } from '../nostr-spec.js';
+import { isNostrTreeMaintainerBlocked } from '../maintainer-nostr-tree-blocklist.js';
 import { QUERY_MS_LONG, QUERY_MS, truncateUtf8 } from './_shared.js';
 
 /** True when the signed event carries `["app","arborito"]` (client-side filter). */
@@ -389,35 +390,146 @@ export const directoryMixin = {
         return cache.known.has(key) && !(cache.live instanceof Set && cache.live.has(key));
     },
 
+    /**
+     * Drop maintainer-blocked rows as early as the directory list path.
+     * Relays/snapshots may still ship them; clients must not paint them.
+     * @param {object[]} rows
+     * @returns {object[]}
+     */
+    _filterMaintainerBlockedDirectoryRows(rows) {
+        const list = Array.isArray(rows) ? rows : [];
+        if (!list.length) return list;
+        return list.filter(
+            (r) => !isNostrTreeMaintainerBlocked(r?.ownerPub, r?.universeId)
+        );
+    },
+
+    /**
+     * Snapshot / torrent mirrors can lag behind owner delist replaceables.
+     * Probe live kind-30100 rows by `d` tag and return keys whose newest body is delisted.
+     * Missing relay answers do not tombstone (incomplete intel must not empty Discover).
+     * @param {object[]} rows
+     * @returns {Promise<Set<string>>}
+     */
+    async _collectLiveDirectoryDelistKeys(rows) {
+        /** @type {Set<string>} */
+        const delisted = new Set();
+        const list = Array.isArray(rows) ? rows : [];
+        if (!list.length) return delisted;
+
+        /** @type {{ key: string, ownerPub: string, d: string }[]} */
+        const targets = [];
+        const seen = new Set();
+        for (const r of list) {
+            const ownerPub = String(r?.ownerPub || '').trim();
+            const universeId = String(r?.universeId || '').trim();
+            const key = directoryRowKey(ownerPub, universeId);
+            if (!ownerPub || !universeId || !key || key === '/' || seen.has(key)) continue;
+            seen.add(key);
+            targets.push({ key, ownerPub, d: directoryDTag(ownerPub, universeId) });
+        }
+        if (!targets.length) return delisted;
+
+        const BATCH = 24;
+        for (let i = 0; i < targets.length; i += BATCH) {
+            const batch = targets.slice(i, i + BATCH);
+            const dTags = batch.map((t) => t.d);
+            const authors = [...new Set(batch.map((t) => t.ownerPub))];
+            let evs = [];
+            try {
+                evs = await this._query(
+                    {
+                        kinds: [KIND_TREE_DIRECTORY],
+                        authors,
+                        '#d': dTags,
+                        limit: Math.min(200, Math.max(batch.length * 2, 40)),
+                    },
+                    QUERY_MS
+                );
+            } catch {
+                evs = [];
+            }
+            /** @type {Map<string, object>} */
+            const newestBody = new Map();
+            for (const { body } of this._latestTreeDirectoryRowsFromEvents(evs || [])) {
+                const k = directoryRowKey(body?.ownerPub, body?.universeId);
+                if (k && k !== '/') newestBody.set(k, body);
+            }
+            for (const t of batch) {
+                const body = newestBody.get(t.key);
+                if (body && body.delisted === true) delisted.add(t.key);
+            }
+        }
+        return delisted;
+    },
+
+    /**
+     * Remove tombstoned keys from a working list + seen set; remember for mirror merges.
+     * @param {object[]} rows
+     * @param {Set<string>} seen
+     * @param {Set<string>} delistedKeys
+     * @returns {object[]}
+     */
+    _purgeDirectoryDelistKeys(rows, seen, delistedKeys) {
+        if (!(delistedKeys instanceof Set) || !delistedKeys.size) return rows;
+        for (const k of delistedKeys) {
+            seen?.delete?.(k);
+            this._lastDirectoryTombstoneKeys?.add?.(k);
+        }
+        return rows.filter((r) => {
+            const k = directoryRowKey(r?.ownerPub, r?.universeId);
+            return !k || !delistedKeys.has(k);
+        });
+    },
+
     async listGlobalTreeDirectoryEntriesOnce(opts = {}) {
         const limit = Math.max(1, Math.min(800, Number(opts.limit) || 120));
         const q = String(opts.query || '').trim();
         const qLower = q.toLowerCase();
-        /* Warm header intel before crawl/partial paint so revoked ghosts never flash. */
-        try {
-            await this._publishedBundleStateCached();
-        } catch {
-            /* incomplete relays — crawl still runs */
-        }
+        /** Keys confirmed delisted live — mirrors must not re-inject them. */
+        this._lastDirectoryTombstoneKeys = new Set();
         const onPartial = typeof opts.onPartial === 'function' ? opts.onPartial : null;
         const emitPartial = (rows) => {
             if (!onPartial || !rows.length) return;
             try {
-                onPartial(rows.slice(0, limit));
+                onPartial(this._filterMaintainerBlockedDirectoryRows(rows).slice(0, limit));
             } catch {
                 /* UI partial paint must not abort the listing. */
             }
         };
-        const indexed = await this._mergeDirectoryRowsFromSnapshots(limit, qLower);
-        let merged = indexed.filter(
-            (r) => !this._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId)
+        /* Header intel + snapshot index overlap — neither needs the other first. */
+        const bundleWarm = this._publishedBundleStateCached().catch(() => null);
+        const indexedPromise = this._mergeDirectoryRowsFromSnapshots(limit, qLower);
+        await Promise.all([bundleWarm, indexedPromise]);
+        const indexed = await indexedPromise;
+        let merged = this._filterMaintainerBlockedDirectoryRows(
+            indexed.filter((r) => !this._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId))
         );
         /** @type {Set<string>} */
         const seen = new Set(
             merged.map((r) => directoryRowKey(r.ownerPub, r.universeId)).filter(Boolean)
         );
+        /*
+         * Snapshots / shards can retain a pre-delist meta until the aggregator
+         * rebuilds. Crawl used to `excludeKeys: seen`, so a full snapshot never
+         * learned about newer delist replaceables — ghosts stayed in Discover.
+         * Reconcile before the first paint so delisted rows never flash.
+         */
+        if (merged.length) {
+            try {
+                const snapDelists = await this._collectLiveDirectoryDelistKeys(merged);
+                if (snapDelists.size) {
+                    merged = this._purgeDirectoryDelistKeys(merged, seen, snapDelists);
+                }
+            } catch {
+                /* relay probe failed — keep snapshot rows; crawl may still help */
+            }
+        }
         /* Snapshot index is the fast path — paint Discover before crawl/trigram. */
         emitPartial(merged);
+
+        /** @type {Set<string>} */
+        const crawlDelists = new Set();
 
         if (q.length >= 3) {
             const tagRows = await this.searchGlobalDirectoryByTrigrams({
@@ -425,7 +537,7 @@ export const directoryMixin = {
                 limit,
                 excludeKeys: seen,
             });
-            for (const r of tagRows) {
+            for (const r of this._filterMaintainerBlockedDirectoryRows(tagRows)) {
                 if (this._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId)) continue;
                 const k = directoryRowKey(r.ownerPub, r.universeId);
                 if (!seen.has(k)) {
@@ -443,8 +555,9 @@ export const directoryMixin = {
                     limit: need,
                     query: q,
                     excludeKeys: seen,
+                    delistedKeys: crawlDelists,
                     onPartial: (pageRows) => {
-                        for (const r of pageRows) {
+                        for (const r of this._filterMaintainerBlockedDirectoryRows(pageRows)) {
                             if (this._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId)) continue;
                             const k = directoryRowKey(r.ownerPub, r.universeId);
                             if (seen.has(k)) continue;
@@ -454,12 +567,15 @@ export const directoryMixin = {
                         emitPartial(merged);
                     },
                 });
-                for (const r of rest) {
+                for (const r of this._filterMaintainerBlockedDirectoryRows(rest)) {
                     if (this._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId)) continue;
                     const k = directoryRowKey(r.ownerPub, r.universeId);
                     if (seen.has(k)) continue;
                     seen.add(k);
                     merged.push(r);
+                }
+                if (crawlDelists.size) {
+                    merged = this._purgeDirectoryDelistKeys(merged, seen, crawlDelists);
                 }
                 emitPartial(merged);
             }
@@ -469,9 +585,10 @@ export const directoryMixin = {
                 limit: need,
                 query: qLower,
                 excludeKeys: seen,
+                delistedKeys: crawlDelists,
                 onPartial: (pageRows) => {
                     const batch = [...merged];
-                    for (const r of pageRows) {
+                    for (const r of this._filterMaintainerBlockedDirectoryRows(pageRows)) {
                         if (this._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId)) continue;
                         const k = directoryRowKey(r.ownerPub, r.universeId);
                         if (seen.has(k)) continue;
@@ -482,17 +599,20 @@ export const directoryMixin = {
                     emitPartial(merged);
                 },
             });
-            for (const r of rest) {
+            for (const r of this._filterMaintainerBlockedDirectoryRows(rest)) {
                 if (this._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId)) continue;
                 const k = directoryRowKey(r.ownerPub, r.universeId);
                 if (seen.has(k)) continue;
                 seen.add(k);
                 merged.push(r);
             }
+            if (crawlDelists.size) {
+                merged = this._purgeDirectoryDelistKeys(merged, seen, crawlDelists);
+            }
             emitPartial(merged);
         }
 
-        return merged.slice(0, limit);
+        return this._filterMaintainerBlockedDirectoryRows(merged).slice(0, limit);
     },
 
     /**
@@ -554,6 +674,7 @@ export const directoryMixin = {
         const out = [];
         for (const { ev, body } of best.values()) {
             if (out.length >= limit) break;
+            if (isNostrTreeMaintainerBlocked(body?.ownerPub, body?.universeId)) continue;
             const row = await this._directoryRowFromVerifiedEvent(ev, body);
             if (row && catalogRowMatchesQuery(q, row)) out.push(row);
         }
@@ -674,6 +795,7 @@ export const directoryMixin = {
             const universeId = String(meta.universeId || '');
             const key = `${ownerPub}/${universeId}`;
             if (!ownerPub || !universeId || seen.has(key)) return;
+            if (isNostrTreeMaintainerBlocked(ownerPub, universeId)) return;
             if (!matches(meta)) return;
             seen.add(key);
             const snapRelays =
@@ -788,12 +910,20 @@ export const directoryMixin = {
         const limit = Math.max(1, Math.min(800, Number(opts.limit) || 120));
         const q = String(opts.query || '').trim().toLowerCase();
         const excludeKeys = opts.excludeKeys instanceof Set ? opts.excludeKeys : new Set();
+        /** Optional out-set: newest directory body for a key is `delisted: true`. */
+        const delistedKeys = opts.delistedKeys instanceof Set ? opts.delistedKeys : null;
         const onPartial = typeof opts.onPartial === 'function' ? opts.onPartial : null;
         const pageSize = Math.max(50, Math.min(500, Number(DIRECTORY_CLIENT_CRAWL_PAGE_SIZE) || 200));
         const maxEvents = Math.max(pageSize, Math.min(20000, Number(DIRECTORY_CLIENT_CRAWL_MAX_EVENTS) || 3000));
         const maxAgeSec = Math.max(86400, Number(DIRECTORY_CLIENT_CRAWL_MAX_AGE_SEC) || 180 * 86400);
         const oldestAllowed = Math.floor(Date.now() / 1000) - maxAgeSec;
         const nowUntil = Math.floor(Date.now() / 1000) + 60;
+
+        const noteDelistBody = (body) => {
+            if (!delistedKeys || !body || body.delisted !== true) return;
+            const k = directoryRowKey(body.ownerPub, body.universeId);
+            if (k && k !== '/') delistedKeys.add(k);
+        };
 
         const relays =
             typeof this._relaysFastFirst === 'function'
@@ -912,7 +1042,14 @@ export const directoryMixin = {
                     const key = `${String(item.body.ownerPub || '')}/${String(item.body.universeId || '')}`;
                     const prev = best.get(key);
                     const ca = Number(item.ev.created_at) || 0;
-                    if (!prev || ca > (Number(prev.ev.created_at) || 0)) best.set(key, item);
+                    if (!prev || ca > (Number(prev.ev.created_at) || 0)) {
+                        best.set(key, item);
+                        noteDelistBody(item.body);
+                        if (prev && delistedKeys && item.body?.delisted !== true) {
+                            /* Newer live replaceable supersedes a prior delist in this crawl. */
+                            delistedKeys.delete(key);
+                        }
+                    }
                 }
             }
 
@@ -958,8 +1095,10 @@ export const directoryMixin = {
             (a, b) => (Number(b.ev.created_at) || 0) - (Number(a.ev.created_at) || 0)
         );
         for (const { ev, body } of rows) {
+            noteDelistBody(body);
             if (out.length >= limit) break;
             if (this._isKnownDeadDirectoryKey(body?.ownerPub, body?.universeId)) continue;
+            if (isNostrTreeMaintainerBlocked(body?.ownerPub, body?.universeId)) continue;
             const row = await this._directoryRowFromVerifiedEvent(ev, body);
             if (!row) continue;
             const key = directoryRowKey(row.ownerPub, row.universeId);
