@@ -5,7 +5,7 @@
  * @see format version 1
  */
 
-import { safeStripeSupportUrl } from '../../../shared/lib/stripe-support-url.js';
+import { normalizeCreatorSupportUrl } from '../../../shared/lib/creator-support-url.js';
 import { applyAttributionToTreeData, attributionFromPresentation } from '../../../shared/lib/arborito-attribution.js';
 
 const BUNDLE_FORMAT = 'arborito-bundle';
@@ -110,7 +110,7 @@ export function mergeBundleMetaIntoTree(tree, meta) {
     }
     if (next.supportUrl == null || String(next.supportUrl).length === 0) {
         if (meta.supportUrl != null && String(meta.supportUrl).length > 0) {
-            next.supportUrl = safeStripeSupportUrl(String(meta.supportUrl)) || '';
+            next.supportUrl = normalizeCreatorSupportUrl(String(meta.supportUrl)) || '';
         }
     }
     tree.universePresentation = next;

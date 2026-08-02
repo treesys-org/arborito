@@ -93,7 +93,7 @@ export function AttributionsSection({ ui }) {
                             <a
                                 href={it.href}
                                 target="_blank"
-                                rel="noopener noreferrer"
+                                rel="noopener noreferrer nofollow"
                                 className="font-bold text-slate-700 dark:text-slate-200 text-xs hover:underline"
                             >
                                 {it.key}
@@ -101,7 +101,7 @@ export function AttributionsSection({ ui }) {
                             <a
                                 href={it.licHref}
                                 target="_blank"
-                                rel="noopener noreferrer"
+                                rel="noopener noreferrer nofollow"
                                 className="shrink-0 text-[10px] font-mono px-2 py-0.5 rounded-full arborito-surface-tile text-slate-500 dark:text-slate-400 hover:underline"
                             >
                                 {it.lic}

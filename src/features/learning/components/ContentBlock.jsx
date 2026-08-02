@@ -93,7 +93,7 @@ function ExternalMediaPlaceholder({ b, ui, onRetry }) {
                     <a
                         href={youtubeWatch}
                         target="_blank"
-                        rel="noopener noreferrer"
+                        rel="noopener noreferrer nofollow"
                         className="text-sm font-semibold underline text-slate-600 dark:text-slate-300"
                     >
                         {ui.mediaWatchOnYoutube || 'Watch on YouTube'}

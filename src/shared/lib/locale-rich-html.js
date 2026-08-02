@@ -70,7 +70,7 @@ function cleanNode(node) {
         }
         const out = document.createElement('a');
         out.setAttribute('href', href);
-        out.setAttribute('rel', 'noopener noreferrer');
+        out.setAttribute('rel', 'noopener noreferrer nofollow');
         out.setAttribute('target', '_blank');
         for (const c of [...node.childNodes]) {
             const x = cleanNode(c);

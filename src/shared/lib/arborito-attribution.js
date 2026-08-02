@@ -3,6 +3,7 @@
  */
 
 import { parseNostrTreeUrl } from '../../features/nostr/api/nostr-refs.js';
+import { normalizeCreatorSupportUrl } from './creator-support-url.js';
 
 export const ARBORITO_LICENSE = 'CC-BY-SA-4.0';
 export const ARBORITO_LICENSE_URL = 'https://creativecommons.org/licenses/by-sa/4.0/';
@@ -51,7 +52,7 @@ export function normalizeAttribution(raw) {
     const desc = String(a.description || '').trim();
     const authorName = String(a.authorName || '').trim();
     const authorAbout = String(a.authorAbout || '').trim();
-    const supportUrl = String(a.supportUrl || '').trim();
+    const supportUrl = normalizeCreatorSupportUrl(a.supportUrl);
     const ownerPub = String(a.ownerPub || '').trim();
     const exportedAt = String(a.exportedAt || '').trim();
     const contentKind = String(a.contentKind || '').trim();

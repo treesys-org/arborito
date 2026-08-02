@@ -66,7 +66,7 @@ function parseInline(text, keyPrefix) {
                         key={`${keyPrefix}-a${partKey++}`}
                         href={m[2]}
                         target="_blank"
-                        rel="noopener noreferrer"
+                        rel="noopener noreferrer nofollow"
                         className="text-blue-600 dark:text-blue-400 hover:underline font-semibold"
                     >
                         {m[1]}

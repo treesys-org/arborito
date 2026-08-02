@@ -83,7 +83,7 @@ export function OnboardingWelcome({
                                 className="arborito-onboarding-foot-link arborito-onboarding-foot-link--version"
                                 href={GITHUB_REPO}
                                 target="_blank"
-                                rel="noopener noreferrer"
+                                rel="noopener noreferrer nofollow"
                                 title={githubTip}
                                 aria-label={githubTip}
                             >

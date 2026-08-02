@@ -59,7 +59,7 @@ export function sanitizeDialogHtml(html) {
                         el.replaceWith(...[...el.childNodes]);
                         continue;
                     }
-                    if (!el.getAttribute('rel')) el.setAttribute('rel', 'noopener noreferrer');
+                    el.setAttribute('rel', 'noopener noreferrer nofollow');
                     if (!el.getAttribute('target')) el.setAttribute('target', '_blank');
                 }
                 if (tag === 'BUTTON') {

@@ -1,6 +1,6 @@
 import { useTreeGraph } from '../hooks/useTreeGraph.js';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
-import { safeStripeSupportUrl } from '../../../shared/lib/stripe-support-url.js';
+import { normalizeCreatorSupportUrl } from '../../../shared/lib/creator-support-url.js';
 import {
     currentIdentityNameForSave,
     savePresentationMetadata,
@@ -16,17 +16,17 @@ function resolveSupportForSave(rawSupport, baselineSupport, changed) {
     if (!changed) {
         const baselineTrimmed = String(baselineSupport || '').trim();
         if (!baselineTrimmed) return '';
-        return safeStripeSupportUrl(baselineTrimmed) || '';
+        return normalizeCreatorSupportUrl(baselineTrimmed) || '';
     }
     if (!trimmed) return '';
-    return safeStripeSupportUrl(trimmed) || '';
+    return normalizeCreatorSupportUrl(trimmed) || '';
 }
 
 function supportBlocksSave(rawSupport, baselineSupport) {
     const trimmed = String(rawSupport || '').trim();
     if (!trimmed) return false;
     if (!supportFieldChanged(rawSupport, baselineSupport)) return false;
-    return !safeStripeSupportUrl(trimmed);
+    return !normalizeCreatorSupportUrl(trimmed);
 }
 
 export const TreePresentationForm = forwardRef(function TreePresentationForm(
@@ -104,7 +104,7 @@ export const TreePresentationForm = forwardRef(function TreePresentationForm(
             description: baseline.description,
             authorName: identityName,
             authorAbout,
-            supportUrl: baseline.supportUrl ? safeStripeSupportUrl(baseline.supportUrl) || '' : '',
+            supportUrl: baseline.supportUrl ? normalizeCreatorSupportUrl(baseline.supportUrl) || '' : '',
         });
         return undefined;
     }, [
@@ -156,8 +156,9 @@ export const TreePresentationForm = forwardRef(function TreePresentationForm(
             return {
                 ok: false,
                 message:
-                    ui.treeMetaSupportStripeHint ||
-                    'Only Stripe Payment Links (https://buy.stripe.com/…).',
+                    ui.treeSupportUrlInvalid ||
+                    ui.treeMetaSupportHint ||
+                    'That URL is not an allowed creator support link.',
             };
         }
         if (description.length < pubLim.descriptionMin) {
@@ -241,7 +242,7 @@ export const TreePresentationForm = forwardRef(function TreePresentationForm(
                     aria-label={showDescLabel ? undefined : descLabel}
                 />
                 <label className="arborito-eyebrow arborito-eyebrow--strong block">
-                    {ui.treeMetaSupportUrl || 'Support-the-creator link'}
+                    {ui.treeMetaSupportUrl || 'Creator support link'}
                 </label>
                 <input
                     id="tree-pres-support"
@@ -249,13 +250,13 @@ export const TreePresentationForm = forwardRef(function TreePresentationForm(
                     inputMode="url"
                     className="arborito-input arborito-input--compact w-full text-xs arborito-input--mono"
                     value={supportUrl}
-                    placeholder="https://buy.stripe.com/…"
+                    placeholder="https://…"
                     autoComplete="off"
                     onChange={(e) => setSupportUrl(e.target.value)}
                 />
                 <p className="text-[10px] arborito-text-muted leading-snug pt-0.5">
-                    {ui.treeMetaSupportStripeHint ||
-                        'Only Stripe Payment Links (https://buy.stripe.com/…).'}
+                    {ui.treeMetaSupportHint ||
+                        'Stripe, Mercado Pago, PayPal.me, Ko-fi, or Buy Me a Coffee (https).'}
                 </p>
                 {publishHub ? (
                     <>

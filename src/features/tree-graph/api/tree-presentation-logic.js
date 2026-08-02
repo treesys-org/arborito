@@ -1,7 +1,7 @@
 import { getArboritoStore as store } from '../../../core/store-singleton.js';
 import { fileSystem } from '../../backup-export/api/filesystem.js';
 import { parseNostrTreeUrl } from '../../nostr/api/nostr-refs.js';
-import { safeStripeSupportUrl } from '../../../shared/lib/stripe-support-url.js';
+import { normalizeCreatorSupportUrl } from '../../../shared/lib/creator-support-url.js';
 import { currentOnlineAccountUsername } from './tree-owner-display.js';
 import { resolvePresentationAboutKind } from '../../editor/api/construction-enter-flow.js';
 import { persistActiveComposedBranchFromRaw } from '../../forest/api/persist-composed-branch-from-raw.js';
@@ -50,7 +50,7 @@ export function resolvePresentationState({ isModalHost }) {
     const desc = String(pres.description || '').trim();
     const authorName = String(pres.authorName || '').trim();
     const supportRaw = String(pres.supportUrl || '').trim();
-    const supportUrl = safeStripeSupportUrl(supportRaw);
+    const supportUrl = normalizeCreatorSupportUrl(supportRaw);
     const supportInputValue = supportUrl || supportRaw;
 
     return {

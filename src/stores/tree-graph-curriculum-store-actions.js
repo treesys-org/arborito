@@ -13,7 +13,7 @@ import {
 } from '../features/tree-graph/api/raw-graph-mutations.js';
 import { syncReadmeFromUniversePresentation } from '../features/learning/api/course-intro-markdown.js';
 import { parseFolderReadme } from '../shared/lib/arborito-archive.js';
-import { safeStripeSupportUrl } from '../shared/lib/stripe-support-url.js';
+import { normalizeCreatorSupportUrl } from '../shared/lib/creator-support-url.js';
 import { currentOnlineAccountUsername } from '../features/tree-graph/api/tree-owner-display.js';
 import { parseNostrTreeUrl, formatNostrTreeUrl, createNostrPair } from '../features/nostr/api/nostr-refs.js';
 import { fileSystem } from '../features/backup-export/api/filesystem.js';
@@ -335,7 +335,7 @@ export function updateUniversePresentationAction(patch) {
             const p = { ...patch };
             if (Object.prototype.hasOwnProperty.call(p, 'supportUrl')) {
                 const rawIn = String(p.supportUrl ?? '').trim();
-                p.supportUrl = rawIn ? safeStripeSupportUrl(rawIn) || '' : '';
+                p.supportUrl = rawIn ? normalizeCreatorSupportUrl(rawIn) || '' : '';
             }
             raw.universePresentation = {
                 ...(raw.universePresentation || {}),

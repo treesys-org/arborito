@@ -26,7 +26,7 @@ function nodeToReact(node, key) {
         if (href) {
             props.href = href;
             props.target = '_blank';
-            props.rel = 'noopener noreferrer';
+            props.rel = 'noopener noreferrer nofollow';
         }
     }
     if (tag === 'code') props.className = node.className || undefined;

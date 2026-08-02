@@ -1,8 +1,8 @@
-import { safeStripeSupportUrl } from '../../../shared/lib/stripe-support-url.js';
+import { normalizeCreatorSupportUrl } from '../../../shared/lib/creator-support-url.js';
 
 function readSupportUrl(pres) {
     if (!pres || typeof pres !== 'object') return '';
-    return safeStripeSupportUrl(pres.supportUrl);
+    return normalizeCreatorSupportUrl(pres.supportUrl);
 }
 
 /**

@@ -38,7 +38,7 @@ export function publishDialogLinkSectionHtml(ui, url, sectionLabelEsc, tone, fir
         '<div class="max-h-28 w-full max-w-full overflow-auto overscroll-contain rounded-lg border ' + box + ' p-2 text-left">' +
         '<code class="block m-0 text-[11px] font-mono text-slate-700 dark:text-slate-200 break-all whitespace-pre-wrap leading-snug">' + esc(url) + '</code></div>' +
         '<p class="flex flex-wrap gap-3 justify-center items-center m-0 mt-2">' +
-        '<a href="' + href + '" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold ' + aTone + ' underline">' + openL + '</a>' +
+        '<a href="' + href + '" target="_blank" rel="noopener noreferrer nofollow" class="text-sm font-semibold ' + aTone + ' underline">' + openL + '</a>' +
         '<button type="button" data-copy="' + escAttr(url) + '" class="text-sm font-semibold px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-100 hover:opacity-90 active:scale-[0.98]">' + copyL + '</button></p>'
     );
 }

@@ -94,7 +94,7 @@ function DownloadAppPanel({ ui, state }) {
                             data-brand={p.brand}
                             href={p.url}
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel="noopener noreferrer nofollow"
                             title={`${label}, ${sub}`}
                             aria-label={`${label} (${sub})`}
                         >
@@ -109,7 +109,7 @@ function DownloadAppPanel({ ui, state }) {
                     );
                 })}
             </div>
-            <a className="arborito-download-app-panel__all" href={GITHUB_RELEASES} target="_blank" rel="noopener noreferrer">
+            <a className="arborito-download-app-panel__all" href={GITHUB_RELEASES} target="_blank" rel="noopener noreferrer nofollow">
                 {allLabel} ↗
             </a>
         </div>

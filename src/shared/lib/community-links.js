@@ -1,5 +1,5 @@
 import { GITHUB_REPO, YOUTUBE_TREESYS_CHANNEL } from './release-downloads.js';
-import { safeStripeSupportUrl } from './stripe-support-url.js';
+import { normalizeCreatorSupportUrl } from './creator-support-url.js';
 
 export const MASTODON_TREESYS_PROFILE = 'https://mastodon.social/@treesys';
 export const REDDIT_TREESYS_SUBREDDIT = 'https://www.reddit.com/r/treesys/';
@@ -18,7 +18,7 @@ export const COMMUNITY_EXTERNAL_LINKS = [
 ];
 
 /** Voluntary contributions to Arborito development (Stripe Payment Links). */
-export const ARBORITO_SUPPORT_STRIPE_ONCE = safeStripeSupportUrl('https://buy.stripe.com/14AcN4aEr2y007SclL8N201');
-export const ARBORITO_SUPPORT_STRIPE_MONTHLY = safeStripeSupportUrl('https://buy.stripe.com/eVqdR88wja0s6wg85v8N200');
+export const ARBORITO_SUPPORT_STRIPE_ONCE = normalizeCreatorSupportUrl('https://buy.stripe.com/14AcN4aEr2y007SclL8N201');
+export const ARBORITO_SUPPORT_STRIPE_MONTHLY = normalizeCreatorSupportUrl('https://buy.stripe.com/eVqdR88wja0s6wg85v8N200');
 
 export const HAS_ARBORITO_SUPPORT = Boolean(ARBORITO_SUPPORT_STRIPE_ONCE || ARBORITO_SUPPORT_STRIPE_MONTHLY);
