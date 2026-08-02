@@ -1,5 +1,6 @@
 import { GLOBAL_DIRECTORY_TORRENT_MAX_ENTRIES } from './directory-index-config.js';
 import { normalizeNostrRelayUrls } from '../../nostr/api/nostr-relays-runtime.js';
+import { isNostrTreeMaintainerBlocked } from '../../nostr/api/maintainer-nostr-tree-blocklist.js';
 import {
     getWindowGlobalDirectoryJsonUrl,
     getWindowGlobalDirectoryTorrentMagnet,
@@ -294,6 +295,7 @@ function rowsFromGlobalDirectoryJsonText(text, qRaw) {
     for (let i = 0; i < entries.length && out.length < cap; i++) {
         const row = normalizeTorrentEntry(entries[i]);
         if (!row) continue;
+        if (isNostrTreeMaintainerBlocked(row.ownerPub, row.universeId)) continue;
         if (!directoryRowMatchesQuery(q, row)) continue;
         out.push(row);
     }

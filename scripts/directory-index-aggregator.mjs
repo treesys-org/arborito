@@ -20,6 +20,7 @@ import { DIRECTORY_INDEX_SNAPSHOT_CAP, DIRECTORY_INDEX_TRUSTED_PUBLISHERS } from
 import { KIND_DIRECTORY_BUMP, KIND_DIRECTORY_INDEX_SNAPSHOT, KIND_TREE_DIRECTORY, NOSTR_CHUNK_CONTENT_MAX, directoryIndexChunkDTag } from '../src/features/nostr/api/nostr-spec.js';
 import { trigramsFromCatalogRow } from '../src/features/nostr/api/directory-trigram-index.js';
 import { DIRECTORY_SEARCH_SHARD_CAP, DIRECTORY_SEARCH_SHARD_VERSION } from '../src/features/p2p-webtorrent/api/directory-search-shared.js';
+import { isNostrTreeMaintainerBlocked } from '../src/features/nostr/api/maintainer-nostr-tree-blocklist.js';
 
 /* Filename check (not import.meta.url equality): the module is also imported
  * by tests/bundlers for `buildSearchShards`, where main() must not run. */
@@ -102,6 +103,9 @@ async function collectDirectoryRows(pool, relays, maxEvents) {
     const rows = [];
     for (const { ev, body } of best.values()) {
         if (body.delisted === true) continue;
+        /* Drop maintainer-blocked ghosts so snapshots/shards cannot reinject
+         * old seed twins (e.g. Linux #HRBW-TVFS) after a client-side hide. */
+        if (isNostrTreeMaintainerBlocked(body.ownerPub, body.universeId)) continue;
         rows.push({
             key: `${String(body.ownerPub)}/${String(body.universeId)}`,
             meta: { ...body, sig: ev },

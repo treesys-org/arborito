@@ -14,6 +14,7 @@ import {
     rankTrigramsForSearch,
     trigramsFromQuery,
 } from '../../nostr/api/directory-trigram-index.js';
+import { isNostrTreeMaintainerBlocked } from '../../nostr/api/maintainer-nostr-tree-blocklist.js';
 import { verifyGlobalTreeDirectoryMetaNostr } from './directory-index-shared.js';
 import { entriesFromSearchShardPayload } from './directory-search-shared.js';
 
@@ -103,6 +104,7 @@ export async function searchGlobalDirectoryViaHttpShards(opts = {}) {
         if (!key || seen.has(key) || excludeKeys.has(key)) continue;
         seen.add(key);
         if (meta.delisted === true) continue;
+        if (isNostrTreeMaintainerBlocked(meta.ownerPub, meta.universeId)) continue;
         if (!catalogRowMatchesQuery(q, meta)) continue;
         if (!(await verifyGlobalTreeDirectoryMetaNostr(meta.sig, meta))) continue;
         const { sig: _sig, ...row } = meta;
