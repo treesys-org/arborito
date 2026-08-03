@@ -4,7 +4,6 @@ import { metricsForPublishedUrl } from '../../api/modals/logic/sources-directory
 import { SourcesPill } from './SourcesPill.jsx';
 import { LanguagePills } from './LanguagePills.jsx';
 import { SourcesMoreButton, SourcesPublishedSocialToolbar } from './SourcesRowChrome.jsx';
-import { SourcesShareCodeField } from './SourcesShareCodeField.jsx';
 import { usePublishedShareCode } from '../../hooks/usePublishedShareCode.js';
 import {
     backfillBranchCatalogIcon,
@@ -29,8 +28,6 @@ export function SourcesBranchRow({
     globalDirMetrics = null,
     isPublishedOwner = false,
     tourTarget,
-    /** Copyable share code — Mis cursos only (Explore keeps like + share sheet). */
-    showShareCode = true,
 }) {
     const store = useSourcesStore();
     const { lang } = useSources();
@@ -42,7 +39,7 @@ export function SourcesBranchRow({
     const key = `branch:${String(branch?.id || '')}`;
     const open = actionsOpen?.has(key);
     const branchLangs = branch?.data?.languages ? Object.keys(branch.data.languages) : [];
-    const { shareCode, shareOpts, loading: shareCodeLoading } = usePublishedShareCode({
+    const { shareCode, shareOpts } = usePublishedShareCode({
         entry: branch,
         kind: 'branch',
     });
@@ -126,24 +123,6 @@ export function SourcesBranchRow({
                         ) : null}
                         {!compact ? <LanguagePills langCodes={branchLangs} /> : null}
                     </div>
-                    {!compact && showShareCode ? (
-                        <SourcesShareCodeField
-                            ui={ui}
-                            shareCode={shareCode}
-                            shareOpts={shareOpts}
-                            loading={shareCodeLoading}
-                            published={!!branch?.publishedNetworkUrl}
-                            onShare={(opts) =>
-                                onAction?.('share-tree-row', {
-                                    shareName: opts.name,
-                                    shareUrl: opts.url,
-                                    shareCode: opts.shareCode,
-                                    ownerPub: opts.ownerPub,
-                                    universeId: opts.universeId,
-                                })
-                            }
-                        />
-                    ) : null}
                     {!compact ? (
                         <p className="m-0 mt-1 text-[10px] text-slate-400 font-mono">
                             {ui.sourcesUpdated || 'Updated'}: {updatedLabel}

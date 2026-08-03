@@ -136,7 +136,6 @@ export function SourcesBranchesPanel({
     const deferredScope = useDeferredValue(listScopeInput);
     const listMainTab = deferredMainTab;
     const listScope = deferredScope;
-    const showShareCode = mainTab === 'mine';
     const items = useMemo(() => {
         const wantBranches = kindFilter !== 'composed-tree';
         const wantPlaylists = kindFilter !== 'branch';
@@ -367,7 +366,6 @@ export function SourcesBranchesPanel({
                             actionsOpen={rowActionsOpen}
                             onAction={onAction}
                             onToggleRowActions={toggleRowActions}
-                            showShareCode={showShareCode}
                         />
                     </div>
                 ) : null}
@@ -391,7 +389,6 @@ export function SourcesBranchesPanel({
                             onAction={onAction}
                             onToggleRowActions={toggleRowActions}
                             onToggleFreeze={(id) => onAction('toggle-tree-freeze', { id })}
-                            showShareCode={showShareCode}
                         />
                     </div>
                 ) : null}
@@ -417,7 +414,6 @@ export function SourcesBranchesPanel({
                             globalDirMetrics={globalDirMetrics}
                             onAction={onAction}
                             onToggleRowActions={toggleRowActions}
-                            showShareCode={showShareCode}
                         />
                     </div>
                 ) : null}
@@ -441,7 +437,6 @@ export function SourcesBranchesPanel({
                             onAction={onAction}
                             onToggleRowActions={toggleRowActions}
                             onToggleFreeze={(id) => onAction('toggle-tree-freeze', { id })}
-                            showShareCode={showShareCode}
                         />
                     </div>
                 ) : null}
@@ -470,7 +465,6 @@ export function SourcesBranchesPanel({
                             actionsOpen={rowActionsOpen}
                             onAction={onAction}
                             onToggleRowActions={toggleRowActions}
-                            showShareCode={showShareCode}
                         />
                     </div>
                 ) : null}
@@ -545,7 +539,6 @@ export function SourcesBranchesPanel({
                                             globalDirMetrics={globalDirMetrics}
                                             onAction={onAction}
                                             onToggleRowActions={toggleRowActions}
-                                            showShareCode={showShareCode}
                                         />
                                     </SourcesRowEnter>
                                 );
@@ -562,7 +555,6 @@ export function SourcesBranchesPanel({
                                             actionsOpen={rowActionsOpen}
                                             onAction={onAction}
                                             onToggleRowActions={toggleRowActions}
-                                            showShareCode={showShareCode}
                                         />
                                     </SourcesRowEnter>
                                 );
@@ -580,7 +572,6 @@ export function SourcesBranchesPanel({
                                             onAction={onAction}
                                             onToggleRowActions={toggleRowActions}
                                             onToggleFreeze={(id) => onAction('toggle-tree-freeze', { id })}
-                                            showShareCode={showShareCode}
                                         />
                                     </SourcesRowEnter>
                                 );

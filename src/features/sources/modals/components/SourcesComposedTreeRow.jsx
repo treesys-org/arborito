@@ -1,6 +1,5 @@
 import { TreeBranchSummaryLine } from '../../../forest/components/TreeBranchLabels.jsx';
 import { metricsForPublishedUrl } from '../../api/modals/logic/sources-directory-fetch.js';
-import { SourcesShareCodeField } from './SourcesShareCodeField.jsx';
 import { usePublishedShareCode } from '../../hooks/usePublishedShareCode.js';
 import { SourcesPill } from './SourcesPill.jsx';
 import { SourcesMoreButton, SourcesPublishedSocialToolbar } from './SourcesRowChrome.jsx';
@@ -26,8 +25,6 @@ export function SourcesComposedTreeRow({
     onAction,
     onToggleRowActions,
     isPublishedOwner = false,
-    /** Copyable share code — Mis cursos only. */
-    showShareCode = true,
 }) {
     const store = useSourcesStore();
     const signedIn = !!store?.isSignedIn?.();
@@ -41,7 +38,7 @@ export function SourcesComposedTreeRow({
         activeSource?.type === 'composed-tree' &&
         String(activeSource.treeId || '') === String(tree.id || '')
     );
-    const { shareCode, shareOpts, loading: shareCodeLoading } = usePublishedShareCode({
+    const { shareCode, shareOpts } = usePublishedShareCode({
         entry: tree,
         kind: 'composed-tree',
         activeSource,
@@ -99,25 +96,6 @@ export function SourcesComposedTreeRow({
                             </SourcesPill>
                         ) : null}
                     </div>
-                    {!compact && showShareCode ? (
-                        <SourcesShareCodeField
-                            ui={ui}
-                            shareCode={shareCode}
-                            shareOpts={shareOpts}
-                            loading={shareCodeLoading}
-                            published={!!tree.publishedNetworkUrl}
-                            tone="brown"
-                            onShare={(opts) =>
-                                onAction?.('share-tree-row', {
-                                    shareName: opts.name,
-                                    shareUrl: opts.url,
-                                    shareCode: opts.shareCode,
-                                    ownerPub: opts.ownerPub,
-                                    universeId: opts.universeId,
-                                })
-                            }
-                        />
-                    ) : null}
                     {!compact ? (
                         <TreeBranchSummaryLine branchRefs={tree.branchRefs} ui={ui} max={4} />
                     ) : null}

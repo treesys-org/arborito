@@ -5,7 +5,6 @@ import { pickTitleForLang, resolveCatalogDescription } from '../../../../shared/
 import { SourcesPill } from './SourcesPill.jsx';
 import { LanguagePills } from './LanguagePills.jsx';
 import { SourcesMoreButton, SourcesPublishedSocialToolbar } from './SourcesRowChrome.jsx';
-import { SourcesShareCodeField } from './SourcesShareCodeField.jsx';
 import { SwitchRow } from '../../../../shared/ui/SwitchRow.jsx';
 import { isElectronDesktop } from '../../../learning/api/electron-bridge.js';
 import { SourcesMenuPrefs } from './SourcesMenuPrefs.jsx';
@@ -26,8 +25,6 @@ export function SourcesSavedRow({
     onToggleRowActions,
     onToggleFreeze,
     globalDirMetrics = null,
-    /** Copyable share code — Mis cursos only. */
-    showShareCode = true,
 }) {
     const { communitySources, userStore, lang } = useSources();
     const store = useSourcesStore();
@@ -201,24 +198,6 @@ export function SourcesSavedRow({
                         ) : null}
                         {!compact ? <LanguagePills langCodes={savedLangs} /> : null}
                     </div>
-                    {!compact && showShareCode && shareOpts ? (
-                        <SourcesShareCodeField
-                            ui={ui}
-                            shareCode={shareCode}
-                            shareOpts={shareOpts}
-                            published
-                            tone={rowKind === 'composed-tree' ? 'brown' : 'emerald'}
-                            onShare={(opts) =>
-                                onAction?.('share-tree-row', {
-                                    shareName: opts.name,
-                                    shareUrl: opts.url,
-                                    shareCode: opts.shareCode,
-                                    ownerPub: opts.ownerPub,
-                                    universeId: opts.universeId,
-                                })
-                            }
-                        />
-                    ) : null}
                 </div>
                 <aside className="arborito-sources-row-aside">
                     <div className="arborito-sources-primary-stack arborito-sources-primary-stack--load">
