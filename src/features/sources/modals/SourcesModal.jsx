@@ -2,7 +2,6 @@ import '../styles/sources.css';
 import { useSourcesModal } from '../hooks/useSourcesModal.js';
 import { DockModalShell } from '../../../app/components/ModalShell.jsx';
 import { ModalHubHero, ModalBackChevronIcon } from '../../../app/components/ModalHero.jsx';
-import { TabBar } from '../../../app/components/TabBar.jsx';
 import { SourcesTreeEditor } from './SourcesTreeEditor.jsx';
 import { SourcesForestTab } from './components/SourcesForestTab.jsx';
 import { SourcesDeleteOverlay } from './components/SourcesDeleteOverlay.jsx';
@@ -66,33 +65,27 @@ export function ModalSources({ embed = false }) {
                                 sources.bump();
                             }}
                         />
-                        <div data-arbor-tour="sources-main-tabs">
-                            {mainTab === 'trees' ? (
-                                <div className="flex items-center gap-2 min-h-11">
-                                    <button
-                                        type="button"
-                                        className="arborito-mmenu-back shrink-0"
-                                        aria-label={ui.navBack || 'Back'}
-                                        data-arbor-tour="sources-combined-back"
-                                        onClick={() => switchMainTab('mine')}
-                                    >
-                                        <ModalBackChevronIcon />
-                                    </button>
-                                    <p className="m-0 text-sm font-extrabold text-slate-900 dark:text-white truncate">
-                                        {ui.sourcesCombinedTitle ||
-                                            ui.sourcesTabTrees ||
-                                            'Combined courses'}
-                                    </p>
-                                </div>
-                            ) : (
-                                <TabBar
-                                    tabs={mainTabs}
-                                    activeTab={mainTab}
-                                    onTabChange={switchMainTab}
-                                    ariaLabel={ui.sourcesMainTabsAria || 'Library'}
-                                />
-                            )}
-                        </div>
+                        {mainTab === 'trees' ? (
+                            <div
+                                data-arbor-tour="sources-main-tabs"
+                                className="flex items-center gap-2 min-h-11"
+                            >
+                                <button
+                                    type="button"
+                                    className="arborito-mmenu-back shrink-0"
+                                    aria-label={ui.navBack || 'Back'}
+                                    data-arbor-tour="sources-combined-back"
+                                    onClick={() => switchMainTab('mine')}
+                                >
+                                    <ModalBackChevronIcon />
+                                </button>
+                                <p className="m-0 text-sm font-extrabold text-slate-900 dark:text-white truncate">
+                                    {ui.sourcesCombinedTitle ||
+                                        ui.sourcesTabTrees ||
+                                        'Combined courses'}
+                                </p>
+                            </div>
+                        ) : null}
                     </div>
                     {mainTab === 'trees' ? (
                         <SourcesForestTab
@@ -124,6 +117,8 @@ export function ModalSources({ embed = false }) {
                             ui={ui}
                             state={state}
                             mainTab={mainTab}
+                            mainTabs={mainTabs}
+                            onMainTabChange={switchMainTab}
                             sourcesQ={sources.sourcesQ}
                             setSourcesQ={sources.setSourcesQ}
                             sourcesScope={sources.sourcesScope}

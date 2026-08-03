@@ -19,12 +19,15 @@ export function SourcesSavedRow({
     ui,
     isActive,
     pinned = false,
+    compact = false,
     actionsOpen,
     freezeBusy,
     onAction,
     onToggleRowActions,
     onToggleFreeze,
     globalDirMetrics = null,
+    /** Copyable share code — Mis cursos only. */
+    showShareCode = true,
 }) {
     const { communitySources, userStore, lang } = useSources();
     const store = useSourcesStore();
@@ -158,7 +161,7 @@ export function SourcesSavedRow({
 
     return (
         <div
-            className={`p-4 arborito-surface-tile border ${borderCls}${pinCls} rounded-2xl shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors`}
+            className={`p-4 arborito-surface-tile border ${borderCls}${pinCls} rounded-2xl shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors${compact ? ' arborito-sources-row--compact' : ''}`}
         >
             <div className="arborito-sources-row-layout flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
@@ -166,13 +169,13 @@ export function SourcesSavedRow({
                         <CatalogRowEmoji emoji={rowEmoji} size={22} />
                         <span className="min-w-0 line-clamp-2">{title}</span>
                     </p>
-                    {author ? (
+                    {!compact && author ? (
                         <p className="m-0 mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
                             {ui.sourcesGlobalBy || 'by'} {author}
                         </p>
                     ) : null}
-                    {desc ? (
-                        <p className="m-0 mt-2 text-[11px] text-slate-600 dark:text-slate-300 leading-snug line-clamp-3">
+                    {!compact && desc ? (
+                        <p className="m-0 mt-2 text-[11px] text-slate-600 dark:text-slate-300 leading-snug line-clamp-1">
                             {desc}
                         </p>
                     ) : null}
@@ -196,9 +199,9 @@ export function SourcesSavedRow({
                                 {ui.sourceActive || 'Active'}
                             </SourcesPill>
                         ) : null}
-                        <LanguagePills langCodes={savedLangs} />
+                        {!compact ? <LanguagePills langCodes={savedLangs} /> : null}
                     </div>
-                    {shareOpts ? (
+                    {!compact && showShareCode && shareOpts ? (
                         <SourcesShareCodeField
                             ui={ui}
                             shareCode={shareCode}
@@ -240,21 +243,23 @@ export function SourcesSavedRow({
                         aria-hidden="true"
                     />
                     <div className="arborito-sources-toolbar arborito-sources-toolbar--social">
-                        <SourcesPublishedSocialToolbar
-                            ui={ui}
-                            shareOpts={shareOpts}
-                            metrics={pubMetrics}
-                            onVote={(payload) => onAction?.('global-vote', payload)}
-                            onShare={(opts) =>
-                                onAction?.('share-tree-row', {
-                                    shareName: opts.name,
-                                    shareUrl: opts.url,
-                                    shareCode: opts.shareCode,
-                                    ownerPub: opts.ownerPub,
-                                    universeId: opts.universeId,
-                                })
-                            }
-                        />
+                        {!compact ? (
+                            <SourcesPublishedSocialToolbar
+                                ui={ui}
+                                shareOpts={shareOpts}
+                                metrics={pubMetrics}
+                                onVote={(payload) => onAction?.('global-vote', payload)}
+                                onShare={(opts) =>
+                                    onAction?.('share-tree-row', {
+                                        shareName: opts.name,
+                                        shareUrl: opts.url,
+                                        shareCode: opts.shareCode,
+                                        ownerPub: opts.ownerPub,
+                                        universeId: opts.universeId,
+                                    })
+                                }
+                            />
+                        ) : null}
                         <SourcesMoreButton
                             ui={ui}
                             rowKey={key}

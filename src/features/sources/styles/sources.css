@@ -124,44 +124,49 @@
     border-color: var(--arborito-theme-sources-action-chip-sky-border);
 }
 
+/* Kind / Mío / Todo active — contrast via theme filter-chip tokens (see sticky bar). */
 .arborito-sources-action-chip--kind-active {
-    border-color: var(--arborito-theme-trees-accent);
-    background: var(--arborito-theme-trees-accent);
-    color: rgb(255 255 255);
+    border-color: var(--arborito-theme-filter-chip-neutral-active-border);
+    background: var(--arborito-theme-filter-chip-neutral-active-bg);
+    color: var(--arborito-theme-filter-chip-neutral-active-fg);
 }
 
 .arborito-sources-action-chip--kind-active[data-kind-filter='branch'] {
-    border-color: rgb(5 150 105);
-    background: rgb(5 150 105);
+    border-color: color-mix(
+        in srgb,
+        rgb(16 185 129) 50%,
+        var(--arborito-theme-filter-chip-neutral-active-border)
+    );
+    background: color-mix(
+        in srgb,
+        rgb(16 185 129) 18%,
+        var(--arborito-theme-filter-chip-neutral-active-bg)
+    );
+    color: var(--arborito-theme-filter-chip-neutral-active-fg);
+}
+
+.arborito-sources-action-chip--kind-active[data-kind-filter='composed-tree'] {
+    border-color: color-mix(
+        in srgb,
+        rgb(180 83 9) 42%,
+        var(--arborito-theme-filter-chip-neutral-active-border)
+    );
+    background: color-mix(
+        in srgb,
+        rgb(180 83 9) 16%,
+        var(--arborito-theme-filter-chip-neutral-active-bg)
+    );
+    color: var(--arborito-theme-filter-chip-neutral-active-fg);
 }
 
 .arborito-sources-action-chip--kind-active[data-kind-filter='all'] {
-    border-color: rgb(30 41 59);
-    background: rgb(30 41 59);
+    border-color: var(--arborito-theme-filter-chip-neutral-active-border);
+    background: var(--arborito-theme-filter-chip-neutral-active-bg);
+    color: var(--arborito-theme-filter-chip-neutral-active-fg);
 }
 
 .arborito-sources-action-chip--kind-active:hover {
-    background: var(--arborito-theme-trees-accent);
-    border-color: var(--arborito-theme-trees-accent);
     filter: brightness(1.05);
-}
-
-.arborito-sources-action-chip--kind-active[data-kind-filter='branch']:hover {
-    background: rgb(5 150 105);
-    border-color: rgb(5 150 105);
-}
-
-.arborito-sources-action-chip--kind-active[data-kind-filter='all']:hover {
-    background: rgb(30 41 59);
-    border-color: rgb(30 41 59);
-}
-
-html.dark .arborito-sources-action-chip--kind-active {
-    color: rgb(15 23 42);
-}
-
-html.dark .arborito-sources-action-chip--kind-active[data-kind-filter='all'] {
-    color: rgb(15 23 42);
 }
 
 /* Trees modal — fixed-width action column (uniform CTAs + aligned icon row) */
@@ -454,8 +459,8 @@ html.dark .arborito-sources-action-chip--kind-active[data-kind-filter='all'] {
     overflow: hidden;
 }
 
-/* Course catalog tabs — same consolidation in light + dark: track, raised active, muted idle. */
-.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab-bar {
+/* Course catalog tabs (legacy wrapper — prefer .arborito-sources-catalog-tab-bar). */
+.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-tab-bar:not(.arborito-sources-catalog-tab-bar) {
     gap: 0;
     padding: 0;
     overflow: hidden;
@@ -573,12 +578,90 @@ html.dark .arborito-sources-export-scope__option {
     background: var(--arborito-theme-surface-bg);
 }
 
-/* Search + filters: always one row — filters stay compact, search takes the rest. */
+/* Sticky catalog chrome — tabs + search + chips, one surface, zero slit. */
+.arborito-sources-sticky-head {
+    margin: 0;
+    padding: 0;
+    background: var(--arborito-theme-surface-bg);
+    border-bottom: 1px solid color-mix(in srgb, var(--arborito-theme-strip-bg) 65%, transparent);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.arborito-sources-sticky-card {
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.arborito-sources-catalog-chrome {
+    /* Hard rule: never invent vertical air above the search under tabs. */
+    padding-top: 0 !important;
+}
+
+.arborito-sources-catalog-tabs {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.arborito-sources-catalog-tab-bar.arborito-tab-bar,
+.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-sources-catalog-tab-bar {
+    gap: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 0;
+    border-bottom: 1px solid var(--arborito-theme-tab-bar-border);
+    background: var(--arborito-theme-strip-bg);
+}
+
+.arborito-sources-catalog-tab-bar .arborito-tab,
+.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-sources-catalog-tab-bar .arborito-tab {
+    border-radius: 0;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin: 0;
+    min-height: 2.65rem;
+    padding: 0.55rem 0.75rem 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    box-shadow: none;
+    color: var(--arborito-theme-tab-fg);
+}
+
+.arborito-sources-catalog-tab-bar .arborito-tab--active,
+.arborito-sources-catalog-tab-bar .arborito-tab[aria-selected='true'],
+.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-sources-catalog-tab-bar .arborito-tab--active,
+.arborito-sources-modal-shell [data-arbor-tour='sources-main-tabs'] .arborito-sources-catalog-tab-bar .arborito-tab[aria-selected='true'] {
+    color: var(--arborito-theme-tab-active-fg);
+    background: var(--arborito-theme-tab-active-bg);
+    border-bottom-color: var(--arborito-theme-tab-active-indicator);
+}
+
+.arborito-sources-catalog-tools {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 0.45rem 0.75rem 0.55rem;
+    margin: 0;
+    box-sizing: border-box;
+}
+
 .arborito-sources-search-bar {
     display: flex;
     flex-direction: row;
     align-items: stretch;
     gap: 0.5rem;
+    min-width: 0;
+}
+
+.arborito-sources-search-bar--solo .arborito-sources-search-bar__input {
+    flex: 1 1 auto;
+    width: 100%;
     min-width: 0;
 }
 
@@ -588,16 +671,85 @@ html.dark .arborito-sources-export-scope__option {
     min-height: 2.75rem;
 }
 
-.arborito-sources-search-bar__filters {
+.arborito-sources-quick-filters__row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 1px;
+}
+
+.arborito-sources-quick-filters__row::-webkit-scrollbar {
+    display: none;
+}
+
+.arborito-sources-quick-filters__row .arborito-sources-action-chip,
+.arborito-sources-quick-filters__row .arborito-filter-chip {
     flex: 0 0 auto;
-    max-width: 9.5rem;
     white-space: nowrap;
 }
 
-.arborito-sources-search-bar__filters.is-active {
+.arborito-sources-kind-chips {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 0 0 auto;
+}
+
+.arborito-sources-active-pin--compact {
+    padding: 0.45rem 0.55rem 0.5rem;
+}
+
+.arborito-sources-active-pin--compact .arborito-sources-active-pin__label {
+    margin-bottom: 0.3rem;
+}
+
+.arborito-sources-row--compact {
+    padding: 0.65rem 0.75rem !important;
+}
+
+.arborito-sources-filter-menu {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    min-height: 2.5rem;
+    padding: 0;
+    border-radius: 0.75rem;
+    border: 1px solid var(--arborito-theme-sources-action-chip-border);
+    background: var(--arborito-theme-sources-action-chip-bg);
+    color: var(--arborito-theme-sources-action-chip-fg);
+}
+
+.arborito-sources-filter-menu:hover {
+    background: var(--arborito-theme-sources-action-chip-hover-bg);
+    border-color: var(--arborito-theme-sources-action-chip-hover-border);
+}
+
+.arborito-sources-filter-menu.is-active {
     border-color: var(--arborito-theme-sources-action-chip-accent-border);
     background: var(--arborito-theme-sources-action-chip-accent-bg);
     color: var(--arborito-theme-sources-action-chip-accent-fg);
+}
+
+.arborito-sources-filter-menu__icon {
+    display: block;
+}
+
+.arborito-sources-filter-menu-panel {
+    padding: 0.65rem 0.15rem 0.15rem;
+    border-top: 1px solid color-mix(in srgb, var(--arborito-theme-sources-action-chip-border) 70%, transparent);
+}
+
+.arborito-sources-quick-filters__row--wrap {
+    flex-wrap: wrap;
+    overflow: visible;
 }
 
 /* Footer CTAs: bare button row (no card chrome behind Import / New branch). */

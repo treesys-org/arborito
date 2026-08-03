@@ -200,7 +200,7 @@ export function SourcesInternetRow({
                         </p>
                     ) : null}
                     {desc ? (
-                        <p className="m-0 mt-2 text-[11px] text-slate-600 dark:text-slate-300 leading-snug line-clamp-3">
+                        <p className="m-0 mt-1.5 text-[11px] text-slate-600 dark:text-slate-300 leading-snug line-clamp-1">
                             {desc}
                         </p>
                     ) : null}
@@ -216,9 +216,6 @@ export function SourcesInternetRow({
                                 ? ui.sourcesPillComposedTree || 'Tree'
                                 : ui.sourcesPillBranch || 'Branch'}
                         </SourcesPill>
-                        <SourcesPill className="arborito-pill--sky arborito-pill--bordered">
-                            {ui.sourcesPillInternet || 'Internet'}
-                        </SourcesPill>
                         {modState.isReported && !isOwner ? (
                             <SourcesPill className="arborito-pill--rose arborito-pill--bordered">
                                 {ui.sourcesGlobalReportedPill || 'Reported'}
@@ -227,11 +224,6 @@ export function SourcesInternetRow({
                         {modState.legalPendingDefense && !modState.covered ? (
                             <SourcesPill className="arborito-pill--amber arborito-pill--bordered">
                                 {ui.sourcesGlobalDisputePill || 'Dispute'}
-                            </SourcesPill>
-                        ) : null}
-                        {row?.shareCode ? (
-                            <SourcesPill className="arborito-surface-tile text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700">
-                                #{row.shareCode}
                             </SourcesPill>
                         ) : null}
                         <LanguagePills langCodes={internetLangs} />

@@ -5,7 +5,13 @@ const KIND_OPTIONS = [
 ];
 
 /** Branch vs composed-tree kind filter chips. */
-export function KindFilterChips({ ui, kindFilter, onChange, variant = 'biblioteca' }) {
+export function KindFilterChips({
+    ui,
+    kindFilter,
+    onChange,
+    variant = 'biblioteca',
+    showLabel = true,
+} = {}) {
     const cur = String(kindFilter || 'all');
 
     if (variant === 'switcher') {
@@ -38,10 +44,17 @@ export function KindFilterChips({ ui, kindFilter, onChange, variant = 'bibliotec
     }
 
     return (
-        <div className="flex flex-wrap gap-2 items-center" data-arbor-tour="sources-kind-filter">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 shrink-0">
-                {ui.sourcesKindFilterLabel || 'Type'}
-            </span>
+        <div
+            className={`arborito-sources-kind-chips${showLabel ? '' : ' arborito-sources-kind-chips--nolabel'}`}
+            role="group"
+            aria-label={ui.sourcesKindFilterLabel || 'Type'}
+            data-arbor-tour="sources-kind-filter"
+        >
+            {showLabel ? (
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 shrink-0">
+                    {ui.sourcesKindFilterLabel || 'Type'}
+                </span>
+            ) : null}
             {KIND_OPTIONS.map(([id, labelFn, tourTarget]) => {
                 const active = cur === id;
                 return (

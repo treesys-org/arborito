@@ -5,7 +5,6 @@ import { SourcesPill } from './SourcesPill.jsx';
 import { LanguagePills } from './LanguagePills.jsx';
 import { SourcesMoreButton, SourcesPublishedSocialToolbar } from './SourcesRowChrome.jsx';
 import { SourcesShareCodeField } from './SourcesShareCodeField.jsx';
-import { SourcesSocialMetrics } from './SourcesSocialMetrics.jsx';
 import { usePublishedShareCode } from '../../hooks/usePublishedShareCode.js';
 import {
     backfillBranchCatalogIcon,
@@ -23,12 +22,15 @@ export function SourcesBranchRow({
     ui,
     isActive,
     pinned = false,
+    compact = false,
     actionsOpen,
     onAction,
     onToggleRowActions,
     globalDirMetrics = null,
     isPublishedOwner = false,
     tourTarget,
+    /** Copyable share code — Mis cursos only (Explore keeps like + share sheet). */
+    showShareCode = true,
 }) {
     const store = useSourcesStore();
     const { lang } = useSources();
@@ -47,9 +49,6 @@ export function SourcesBranchRow({
     const pubMetrics = branch?.publishedNetworkUrl
         ? metricsForPublishedUrl(branch.publishedNetworkUrl, globalDirMetrics)
         : {};
-    const publishedMetrics = branch?.publishedNetworkUrl ? (
-        <SourcesSocialMetrics ui={ui} metrics={pubMetrics} />
-    ) : null;
     const updatedTs = Number(branch?.updated);
     const updatedLabel =
         Number.isFinite(updatedTs) && updatedTs >= 946684800000
@@ -82,7 +81,7 @@ export function SourcesBranchRow({
 
     return (
         <div
-            className={`p-4 arborito-surface-tile border ${borderCls}${pinCls}${activeCls}${keepLoadCtaCls} rounded-2xl shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors`}
+            className={`p-4 arborito-surface-tile border ${borderCls}${pinCls}${activeCls}${keepLoadCtaCls} rounded-2xl shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors${compact ? ' arborito-sources-row--compact' : ''}`}
             {...(tourTarget ? { 'data-arbor-tour': tourTarget } : {})}
         >
             <div className="arborito-sources-row-layout flex items-start justify-between gap-3">
@@ -91,8 +90,8 @@ export function SourcesBranchRow({
                         <CatalogRowEmoji emoji={branchIcon} size={22} />
                         <span className="truncate">{displayName}</span>
                     </p>
-                    {displayDesc ? (
-                        <p className="m-0 mt-1.5 text-[11px] text-slate-600 dark:text-slate-300 leading-snug line-clamp-3">
+                    {!compact && displayDesc ? (
+                        <p className="m-0 mt-1.5 text-[11px] text-slate-600 dark:text-slate-300 leading-snug line-clamp-1">
                             {displayDesc}
                         </p>
                     ) : null}
@@ -105,17 +104,17 @@ export function SourcesBranchRow({
                         <SourcesPill className="arborito-pill--emerald arborito-pill--bordered">
                             {ui.sourcesPillBranch || 'Branch'}
                         </SourcesPill>
-                        {branch?.publishedNetworkUrl ? (
+                        {!compact && branch?.publishedNetworkUrl ? (
                             <SourcesPill className="arborito-pill--sky arborito-pill--bordered">
                                 {ui.sourcesPillPublished || 'Published'}
                             </SourcesPill>
                         ) : null}
-                        {accountSynced ? (
+                        {!compact && accountSynced ? (
                             <SourcesPill className="arborito-pill--violet arborito-pill--bordered">
                                 {ui.privateTreeSyncedBadge || 'Private · synced'}
                             </SourcesPill>
                         ) : null}
-                        {isPublishedOwner ? (
+                        {!compact && isPublishedOwner ? (
                             <SourcesPill className="arborito-pill--amber arborito-pill--bordered">
                                 {ui.sourcesPillOwner || 'Owner'}
                             </SourcesPill>
@@ -125,28 +124,31 @@ export function SourcesBranchRow({
                                 {ui.sourceActive || 'Active'}
                             </SourcesPill>
                         ) : null}
-                        <LanguagePills langCodes={branchLangs} />
+                        {!compact ? <LanguagePills langCodes={branchLangs} /> : null}
                     </div>
-                    <SourcesShareCodeField
-                        ui={ui}
-                        shareCode={shareCode}
-                        shareOpts={shareOpts}
-                        loading={shareCodeLoading}
-                        published={!!branch?.publishedNetworkUrl}
-                        onShare={(opts) =>
-                            onAction?.('share-tree-row', {
-                                shareName: opts.name,
-                                shareUrl: opts.url,
-                                shareCode: opts.shareCode,
-                                ownerPub: opts.ownerPub,
-                                universeId: opts.universeId,
-                            })
-                        }
-                    />
-                    <p className="m-0 mt-1 text-[10px] text-slate-400 font-mono">
-                        {ui.sourcesUpdated || 'Updated'}: {updatedLabel}
-                    </p>
-                    {publishedMetrics}
+                    {!compact && showShareCode ? (
+                        <SourcesShareCodeField
+                            ui={ui}
+                            shareCode={shareCode}
+                            shareOpts={shareOpts}
+                            loading={shareCodeLoading}
+                            published={!!branch?.publishedNetworkUrl}
+                            onShare={(opts) =>
+                                onAction?.('share-tree-row', {
+                                    shareName: opts.name,
+                                    shareUrl: opts.url,
+                                    shareCode: opts.shareCode,
+                                    ownerPub: opts.ownerPub,
+                                    universeId: opts.universeId,
+                                })
+                            }
+                        />
+                    ) : null}
+                    {!compact ? (
+                        <p className="m-0 mt-1 text-[10px] text-slate-400 font-mono">
+                            {ui.sourcesUpdated || 'Updated'}: {updatedLabel}
+                        </p>
+                    ) : null}
                 </div>
                 <aside className="arborito-sources-row-aside">
                     <div className="arborito-sources-primary-stack arborito-sources-primary-stack--load">
@@ -171,21 +173,23 @@ export function SourcesBranchRow({
                         aria-hidden="true"
                     />
                     <div className="arborito-sources-toolbar arborito-sources-toolbar--social">
-                        <SourcesPublishedSocialToolbar
-                            ui={ui}
-                            shareOpts={shareOpts}
-                            metrics={pubMetrics}
-                            onVote={(payload) => onAction?.('global-vote', payload)}
-                            onShare={(opts) =>
-                                onAction?.('share-tree-row', {
-                                    shareName: opts.name,
-                                    shareUrl: opts.url,
-                                    shareCode: opts.shareCode,
-                                    ownerPub: opts.ownerPub,
-                                    universeId: opts.universeId,
-                                })
-                            }
-                        />
+                        {!compact ? (
+                            <SourcesPublishedSocialToolbar
+                                ui={ui}
+                                shareOpts={shareOpts}
+                                metrics={pubMetrics}
+                                onVote={(payload) => onAction?.('global-vote', payload)}
+                                onShare={(opts) =>
+                                    onAction?.('share-tree-row', {
+                                        shareName: opts.name,
+                                        shareUrl: opts.url,
+                                        shareCode: opts.shareCode,
+                                        ownerPub: opts.ownerPub,
+                                        universeId: opts.universeId,
+                                    })
+                                }
+                            />
+                        ) : null}
                         <SourcesMoreButton
                             ui={ui}
                             rowKey={key}

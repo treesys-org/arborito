@@ -227,36 +227,66 @@ export async function ensureGlobalMetricsForRows(rows, filter, metricsMap, setMe
     if (!queue.length) return metricsMap;
     setMetricsMap(nextMap);
 
+    let metricsFlushRaf = 0;
+    const scheduleMetricsFlush = () => {
+        if (metricsFlushRaf) return;
+        metricsFlushRaf = requestAnimationFrame(() => {
+            metricsFlushRaf = 0;
+            setMetricsMap({ ...nextMap });
+        });
+    };
+
     const runOne = async ({ r, k }) => {
         try {
             const next = { ...(nextMap[k] || {}) };
+            const tasks = [];
             if (needVotes) {
-                let votes = await net.countTreeVotesOnce({
-                    ownerPub: r.ownerPub,
-                    universeId: r.universeId,
-                });
-                const liked = readLocalLiked(r.ownerPub, r.universeId);
-                const merged = mergeDisplayedVotes(r.ownerPub, r.universeId, votes, liked);
-                if (merged != null) votes = merged;
-                next.votes = votes;
+                tasks.push(
+                    (async () => {
+                        let votes = await net.countTreeVotesOnce({
+                            ownerPub: r.ownerPub,
+                            universeId: r.universeId,
+                        });
+                        const liked = readLocalLiked(r.ownerPub, r.universeId);
+                        const merged = mergeDisplayedVotes(r.ownerPub, r.universeId, votes, liked);
+                        if (merged != null) votes = merged;
+                        next.votes = votes;
+                    })()
+                );
             }
             if (needUsed7) {
-                next.used7 = await net.countTreeUsageUniqueLastNDaysOnce({
-                    ownerPub: r.ownerPub,
-                    universeId: r.universeId,
-                    days: 7,
-                });
+                tasks.push(
+                    (async () => {
+                        next.used7 = await net.countTreeUsageUniqueLastNDaysOnce({
+                            ownerPub: r.ownerPub,
+                            universeId: r.universeId,
+                            days: 7,
+                        });
+                    })()
+                );
             }
             if (needUsed1) {
-                next.used1 = await net.countTreeUsageUniqueLastNDaysOnce({
-                    ownerPub: r.ownerPub,
-                    universeId: r.universeId,
-                    days: 1,
-                });
+                tasks.push(
+                    (async () => {
+                        next.used1 = await net.countTreeUsageUniqueLastNDaysOnce({
+                            ownerPub: r.ownerPub,
+                            universeId: r.universeId,
+                            days: 1,
+                        });
+                    })()
+                );
             }
             if (needForks && typeof net.countTreeForksOnce === 'function') {
-                next.forks = await net.countTreeForksOnce({ ownerPub: r.ownerPub, universeId: r.universeId });
+                tasks.push(
+                    (async () => {
+                        next.forks = await net.countTreeForksOnce({
+                            ownerPub: r.ownerPub,
+                            universeId: r.universeId,
+                        });
+                    })()
+                );
             }
+            if (tasks.length) await Promise.all(tasks);
             if (needReports && typeof net.listTreeReportsOnce === 'function') {
                 const reportRows = await net.listTreeReportsOnce({
                     ownerPub: r.ownerPub,
@@ -314,14 +344,14 @@ export async function ensureGlobalMetricsForRows(rows, filter, metricsMap, setMe
             }
             next.loading = false;
             nextMap[k] = next;
-            setMetricsMap({ ...nextMap });
+            scheduleMetricsFlush();
         } catch {
             nextMap[k] = { ...(nextMap[k] || {}), loading: false };
-            setMetricsMap({ ...nextMap });
+            scheduleMetricsFlush();
         }
     };
 
-    const concurrency = 6;
+    const concurrency = 8;
     let idx = 0;
     await Promise.all(
         Array.from({ length: concurrency }, async () => {
@@ -331,6 +361,11 @@ export async function ensureGlobalMetricsForRows(rows, filter, metricsMap, setMe
             }
         })
     );
+    if (metricsFlushRaf) {
+        cancelAnimationFrame(metricsFlushRaf);
+        metricsFlushRaf = 0;
+    }
+    setMetricsMap({ ...nextMap });
     return nextMap;
 }
 
@@ -408,9 +443,14 @@ export function ensureSavedSourcesMetrics(sources, metricsMap, setMetricsMap) {
 /** Bumps whenever a Discover fetch starts; stale async work must not paint. */
 let globalDirFetchGeneration = 0;
 
+/** Drop in-flight Discover work (e.g. user left Explorar). Safe to call often. */
+export function invalidateGlobalDirectoryFetch() {
+    globalDirFetchGeneration += 1;
+}
+
 export function scheduleGlobalDirectoryFetch(state, setters, { reason = 'input', onUpdate } = {}) {
     if (state.globalDirTimer) clearTimeout(state.globalDirTimer);
-    const delay = reason === 'render' ? 0 : reason === 'load-more' ? 0 : 450;
+    const delay = reason === 'render' ? 0 : reason === 'load-more' ? 0 : 300;
     const timer = setTimeout(() => {
         void runGlobalDirectoryFetch(state, setters, { onUpdate, reason });
     }, delay);
@@ -448,29 +488,32 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
     await yieldToPaint();
 
     /**
-     * Paint Discover as soon as snapshot/trigram/crawl batches arrive — do not
-     * wait for mirrors or final sort. Still drop known-revoked ghosts immediately.
+     * Paint Discover ASAP from crawl batches. Skip async bundle probes here —
+     * known-dead keys use the sync cache; full bundle filter runs once at the end.
      * @param {object[]} partial
      */
+    let partialPaintRaf = 0;
+    let pendingPartialRows = null;
     const publishPartialRows = (partial) => {
-        void (async () => {
-            if (!stillCurrent()) return;
-            let next = Array.isArray(partial) ? partial : [];
-            next = next.filter((r) => !store.isNostrTreeMaintainerBlocked(r?.ownerPub, r?.universeId));
-            const net = store.nostr;
-            if (net && typeof net._filterDirectoryRowsWithPublishedBundle === 'function') {
-                try {
-                    next = await net._filterDirectoryRowsWithPublishedBundle(next);
-                } catch {
-                    /* keep unfiltered partial on probe errors */
-                }
-            }
-            if (!stillCurrent()) return;
-            next = enrichDirectoryRowsWithKnownIcons(next);
-            if (next.length > fetchLimit) next = next.slice(0, fetchLimit);
-            setters.setGlobalDirRows(next);
+        if (!stillCurrent()) return;
+        let next = Array.isArray(partial) ? partial : [];
+        next = next.filter((r) => !store.isNostrTreeMaintainerBlocked(r?.ownerPub, r?.universeId));
+        const net = store.nostr;
+        if (net && typeof net._isKnownDeadDirectoryKey === 'function') {
+            next = next.filter(
+                (r) => !net._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId)
+            );
+        }
+        next = enrichDirectoryRowsWithKnownIcons(next);
+        if (next.length > fetchLimit) next = next.slice(0, fetchLimit);
+        pendingPartialRows = next;
+        if (partialPaintRaf) return;
+        partialPaintRaf = requestAnimationFrame(() => {
+            partialPaintRaf = 0;
+            if (!stillCurrent() || !pendingPartialRows) return;
+            setters.setGlobalDirRows(pendingPartialRows);
             onUpdate?.();
-        })();
+        });
     };
 
     try {
@@ -483,6 +526,14 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
 
             /* Prefer the service returned by init — `store.nostr` alone races the chunk load. */
             const net = (await netPromise) || store.nostr;
+            /* Prefetch metric feeds while the directory crawl runs (one REQ each). */
+            if (net && typeof net._loadMetricFeed === 'function') {
+                void Promise.all([
+                    net._loadMetricFeed('vote'),
+                    net._loadMetricFeed('usage'),
+                    net._loadMetricFeed('fork'),
+                ]).catch(() => {});
+            }
             const qNorm = q.replace(/^#/, '').trim();
             const shareCodeNorm = normalizeTreeShareCode(qNorm);
             let rows = [];
@@ -659,26 +710,7 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
             if (fetchLimit >= DIRECTORY_CLIENT_FETCH_MAX) hitCap = false;
 
             if (!stillCurrent()) return;
-            /* Tear down owned listings with no local bind (deleted private courses
-             * that never wrote directory delist — e.g. #TD9J-634V / #4EFD-NPTC).
-             * Runs even when the Discover page is empty: probes the owner's own
-             * directory replaceables on relays. */
-            const sweepNow = Date.now();
-            if (sweepNow - _ownedDiscoverGhostSweepAt > 60_000) {
-                _ownedDiscoverGhostSweepAt = sweepNow;
-                try {
-                    const { keys: sweptKeys } = await sweepOwnedDiscoverGhosts(store, rows);
-                    if (sweptKeys?.size && stillCurrent()) {
-                        rows = rows.filter((r) => {
-                            const k = `${String(r?.ownerPub || '').trim()}/${String(r?.universeId || '').trim()}`;
-                            return !sweptKeys.has(k);
-                        });
-                    }
-                } catch (e) {
-                    console.warn('[Arborito] owned Discover ghost sweep', e);
-                }
-            }
-            if (!stillCurrent()) return;
+            /* Paint first; owned ghost sweep is background (must not delay Discover). */
             setters.setGlobalDirRows(rows);
             setters.setGlobalDirLoading(false);
             setters.setGlobalDirHitCap(hitCap);
@@ -688,6 +720,28 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
                 setters.setGlobalDirError('');
             }
             onUpdate?.();
+
+            const sweepNow = Date.now();
+            if (sweepNow - _ownedDiscoverGhostSweepAt > 60_000) {
+                _ownedDiscoverGhostSweepAt = sweepNow;
+                void (async () => {
+                    try {
+                        const { keys: sweptKeys } = await sweepOwnedDiscoverGhosts(store, rows);
+                        if (!sweptKeys?.size || !stillCurrent()) return;
+                        setters.setGlobalDirRows((prev) => {
+                            const cur = Array.isArray(prev) ? prev : rows;
+                            return cur.filter((r) => {
+                                const k = `${String(r?.ownerPub || '').trim()}/${String(r?.universeId || '').trim()}`;
+                                return !sweptKeys.has(k);
+                            });
+                        });
+                        onUpdate?.();
+                    } catch (e) {
+                        console.warn('[Arborito] owned Discover ghost sweep', e);
+                    }
+                })();
+            }
+
             const sortSetters = {
                 ...setters,
                 setGlobalDirRows: (next) => {

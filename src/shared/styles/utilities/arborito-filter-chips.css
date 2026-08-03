@@ -31,13 +31,9 @@
 }
 
 .arborito-filter-chip--active.arborito-filter-chip--online {
-    background: var(--arborito-theme-online-accent);
-    color: rgb(255 255 255);
-    border-color: var(--arborito-theme-online-accent);
-}
-
-html.dark .arborito-filter-chip--active.arborito-filter-chip--online {
-    color: rgb(15 23 42);
+    background: var(--arborito-theme-filter-chip-neutral-active-bg);
+    color: var(--arborito-theme-filter-chip-neutral-active-fg);
+    border-color: var(--arborito-theme-filter-chip-neutral-active-border);
 }
 
 .arborito-connected-banner {

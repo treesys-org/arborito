@@ -6,6 +6,7 @@ import { collectBranchesTabItems } from '../../api/modals/logic/sources-collect-
 import {
     scheduleGlobalDirectoryFetch,
     applyGlobalDirectorySortAndMetrics,
+    invalidateGlobalDirectoryFetch,
 } from '../../api/modals/logic/sources-directory-fetch.js';
 import { closeSourcesModal } from '../../api/modals/logic/sources-actions/index.js';
 import {
@@ -100,6 +101,11 @@ export function useSourcesState({ embed }) {
     const [globalDirLastFetchAt, setGlobalDirLastFetchAt] = useState(0);
     const [globalDirLastQuery, setGlobalDirLastQuery] = useState('');
     const [globalDirTimer, setGlobalDirTimer] = useState(null);
+    const globalDirTimerRef = useRef(null);
+    const setGlobalDirTimerTracked = useCallback((t) => {
+        globalDirTimerRef.current = t;
+        setGlobalDirTimer(t);
+    }, []);
     const [, bumpTick] = useState(0);
     const bump = useCallback(() => bumpTick((n) => n + 1), []);
 
@@ -183,9 +189,9 @@ export function useSourcesState({ embed }) {
             setGlobalDirLastFetchAt,
             setGlobalDirLastQuery,
             setGlobalDirLastFetchLimit,
-            setGlobalDirTimer,
+            setGlobalDirTimer: setGlobalDirTimerTracked,
         }),
-        []
+        [setGlobalDirTimerTracked]
     );
 
     const directoryState = useCallback(
@@ -199,7 +205,7 @@ export function useSourcesState({ embed }) {
             globalDirLastFetchAt,
             globalDirLastQuery,
             globalDirLastFetchLimit,
-            globalDirTimer,
+            globalDirTimer: globalDirTimerRef.current,
         }),
         [
             globalDirFilter,
@@ -211,7 +217,6 @@ export function useSourcesState({ embed }) {
             globalDirLastFetchAt,
             globalDirLastQuery,
             globalDirLastFetchLimit,
-            globalDirTimer,
         ]
     );
 
@@ -307,11 +312,19 @@ export function useSourcesState({ embed }) {
         setGlobalDirQ(sourcesQ);
     }, [sourcesQ]);
 
+    /* Discover only while on Explorar (or legacy internet scope). Mine “Todos”
+     * must not kick relays — that felt like the sheet reloading itself. */
     const directoryFetchEnabled =
-        mainTab === 'explore' || sourcesScope === 'internet' || sourcesScope === 'all';
+        mainTab === 'explore' || sourcesScope === 'internet';
 
     useEffect(() => {
         if (!directoryFetchEnabled) {
+            const t = globalDirTimerRef.current;
+            if (t) clearTimeout(t);
+            globalDirTimerRef.current = null;
+            setGlobalDirTimer(null);
+            invalidateGlobalDirectoryFetch();
+            setGlobalDirLoading(false);
             return undefined;
         }
         const widening = globalDirFetchLimit > (globalDirLastFetchLimit || 0);
@@ -320,11 +333,12 @@ export function useSourcesState({ embed }) {
             onUpdate: bump,
         });
         return () => {
-            const t = globalDirTimer;
+            const t = globalDirTimerRef.current;
             if (t) clearTimeout(t);
+            globalDirTimerRef.current = null;
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [globalDirQ, globalDirFetchLimit, directoryFetchEnabled, mainTab]);
+    }, [globalDirQ, globalDirFetchLimit, directoryFetchEnabled]);
 
     const loadMoreDirectoryCatalog = useCallback(() => {
         setGlobalDirFetchLimit((n) => {

@@ -1,5 +1,5 @@
 /** Branches tab list + filters in sources modal. */
-import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useState, startTransition } from 'react';
 import { DEMO_BRANCH_ID, DEMO_BRANCH_UNIVERSE } from '../../../../core/demo/arborito-demo-ids.js';
 import { shouldShowMobileUI } from '../../../../shared/ui/breakpoints.js';
 import { useSources } from '../../hooks/useSources.js';
@@ -9,8 +9,7 @@ import { findCommunitySourceByUrl } from '../../api/modals/logic/sources-helpers
 import { SourcesBranchRow } from './SourcesBranchRow.jsx';
 import { SourcesSavedRow } from './SourcesSavedRow.jsx';
 import { SourcesInternetRow } from './SourcesInternetRow.jsx';
-import { SourcesFilterChip } from './SourcesFilterChip.jsx';
-import { KindFilterChips } from './KindFilterChips.jsx';
+import { SourcesCatalogFilterBar } from './SourcesCatalogFilterBar.jsx';
 import { CrossTabActiveBanner, resolveActiveComposedTreePin } from './SourcesForestTab.jsx';
 import { SourcesComposedTreeRow } from './SourcesComposedTreeRow.jsx';
 import { SourcesRowEnter } from './SourcesRowEnter.jsx';
@@ -110,6 +109,8 @@ export function SourcesBranchesPanel({
     onAction,
     onSwitchTab,
     mainTab,
+    mainTabs = null,
+    onMainTabChange,
     onLoadMoreCatalog,
 }) {
     const { userStore, getNostrPublisherPair } = useSources();
@@ -135,6 +136,7 @@ export function SourcesBranchesPanel({
     const deferredScope = useDeferredValue(listScopeInput);
     const listMainTab = deferredMainTab;
     const listScope = deferredScope;
+    const showShareCode = mainTab === 'mine';
     const items = useMemo(() => {
         const wantBranches = kindFilter !== 'composed-tree';
         const wantPlaylists = kindFilter !== 'branch';
@@ -253,7 +255,7 @@ export function SourcesBranchesPanel({
         !demoBranch &&
         !(showPlaylistChrome && activePlaylistPinForQuery);
     const hasUserMineContent =
-        mainTab !== 'mine' ||
+        listMainTab !== 'mine' ||
         !!(showPlaylistChrome && activePlaylistPinForQuery) ||
         !!(
             showBranchChrome &&
@@ -271,9 +273,9 @@ export function SourcesBranchesPanel({
                 it.kind === 'saved' ||
                 (it.kind === 'internet' && it.listGroup === 'playlist')
         );
-    const showMineExploreCta = mainTab === 'mine' && !err && !hasUserMineContent;
+    const showMineExploreCta = listMainTab === 'mine' && !err && !hasUserMineContent;
     const showMineSearchExploreCta =
-        mainTab === 'mine' &&
+        listMainTab === 'mine' &&
         !!String(q || '').trim() &&
         listEmpty &&
         !loading &&
@@ -284,127 +286,54 @@ export function SourcesBranchesPanel({
         () => document.getElementById('tab-content-scroll'),
         []
     );
+    /* Only widen Discover from Explorar — never from Mis (even scope “Todos”). */
+    const allowCatalogWiden =
+        listMainTab === 'explore' && !!globalDirHitCap && !loading;
     const onInfiniteMore = useCallback(() => {
         if (remaining > 0) {
             setShown((n) => n + pageSize);
             return;
         }
-        if (globalDirHitCap && !loading) {
+        if (allowCatalogWiden) {
             onLoadMoreCatalog?.();
             setShown((n) => n + Math.max(pageSize, DIRECTORY_CLIENT_FETCH_PAGE));
         }
-    }, [remaining, pageSize, globalDirHitCap, loading, onLoadMoreCatalog]);
-    const infiniteEnabled = remaining > 0 || (!!globalDirHitCap && !loading);
+    }, [remaining, pageSize, allowCatalogWiden, onLoadMoreCatalog]);
+    const canLoadMore = remaining > 0 || allowCatalogWiden;
+    const infiniteEnabled = canLoadMore || (loading && listMainTab === 'explore');
     const infiniteSentinelRef = useInfiniteScrollSentinel({
         enabled: infiniteEnabled,
         busy: !!loading || !!curriculumLoading,
         onLoadMore: onInfiniteMore,
         getScrollRoot,
+        armKey: `${visible.length}|${items.length}|${pagKey}`,
     });
+    const queryActive = !!String(q || '').trim();
 
     return (
         <div className="pt-0 pb-1 flex flex-col flex-1 min-h-full">
-            <div className="sticky top-0 z-20 px-4 pt-0 pb-3 arborito-sources-sticky-head">
-                <div className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 arborito-surface-tile arborito-sources-sticky-card">
-                    <div className="flex flex-col gap-2">
-                        <div className="arborito-sources-search-bar">
-                            <input
-                                id="inp-sources-search"
-                                type="search"
-                                autoComplete="off"
-                                value={q}
-                                placeholder={
-                                    ui.sourcesBranchesSearchPlaceholder ||
-                                    ui.sourcesUnifiedSearchPlaceholder ||
-                                    'Search branches…'
-                                }
-                                className="arborito-input arborito-sources-search-bar__input"
-                                onChange={(e) => setSourcesQ(e.target.value)}
-                            />
-                            <button
-                                type="button"
-                                className={`arborito-sources-action-chip arborito-sources-search-bar__filters${advancedOpen ? ' is-active' : ''}`}
-                                aria-expanded={advancedOpen}
-                                onClick={() => setSourcesAdvancedOpen(!advancedOpen)}
-                            >
-                                {advancedOpen
-                                    ? ui.sourcesFiltersHideShort ||
-                                      ui.sourcesFiltersHide ||
-                                      'Hide'
-                                    : ui.sourcesFiltersShowShort ||
-                                      ui.sourcesFiltersShow ||
-                                      'More'}
-                            </button>
-                        </div>
-                        {advancedOpen ? (
-                            <div className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 arborito-surface-tile space-y-3">
-                                <div className="space-y-1.5">
-                                    <KindFilterChips
-                                        ui={ui}
-                                        kindFilter={kindFilter}
-                                        onChange={(id) => setSourcesKindFilter?.(id)}
-                                    />
-                                </div>
-                                {mainTab === 'mine' ? (
-                                    <div className="space-y-1.5">
-                                        <p className="m-0 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                                            {ui.sourcesFiltersWhereHint || 'Which list to show'}
-                                        </p>
-                                        <div className="flex flex-wrap gap-2 items-center" role="group">
-                                            {[
-                                                [
-                                                    'branch',
-                                                    ui.sourcesUnifiedScopeMine ||
-                                                        ui.sourcesUnifiedScopeLocal ||
-                                                        'My courses',
-                                                ],
-                                                [
-                                                    'saved',
-                                                    ui.sourcesUnifiedScopeSaved || 'Downloaded',
-                                                ],
-                                                ['all', ui.sourcesUnifiedScopeAll || 'All'],
-                                            ].map(([id, label]) => (
-                                                <SourcesFilterChip
-                                                    key={id}
-                                                    label={label}
-                                                    active={scope === id}
-                                                    onClick={() => setSourcesScope(id)}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                ) : null}
-                                {(mainTab === 'explore' || scope === 'all' || scope === 'internet') && (
-                                    <div className="space-y-1.5">
-                                        <p className="m-0 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                                            {ui.sourcesFiltersSortHint ||
-                                                ui.sourcesUnifiedInternetSortTitle ||
-                                                'Online sort'}
-                                        </p>
-                                        <div className="flex flex-wrap gap-2 items-center" role="group">
-                                            {[
-                                                ['discover', ui.sourcesGlobalFilterDiscover || 'Recommended'],
-                                                ['recent', ui.sourcesGlobalFilterRecent || 'Newest'],
-                                                ['voted', ui.sourcesGlobalFilterVoted || 'Most voted'],
-                                                ['used7', ui.sourcesGlobalFilterUsed7 || 'Popular (7d)'],
-                                                ['active', ui.sourcesGlobalFilterActive || 'Active now'],
-                                            ].map(([id, label]) => (
-                                                <SourcesFilterChip
-                                                    key={id}
-                                                    label={label}
-                                                    tone="online"
-                                                    active={dirFilter === id}
-                                                    onClick={() => onAction('global-filter', { filter: id })}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        ) : null}
-                    </div>
-                </div>
-            </div>
+            <SourcesCatalogFilterBar
+                ui={ui}
+                q={q}
+                onQueryChange={setSourcesQ}
+                kindFilter={kindFilter}
+                onKindChange={(id) => {
+                    startTransition(() => setSourcesKindFilter?.(id));
+                }}
+                menuOpen={advancedOpen}
+                onToggleMenu={() => setSourcesAdvancedOpen(!advancedOpen)}
+                showSort={mainTab === 'explore'}
+                dirFilter={dirFilter}
+                onSort={(id) => onAction('global-filter', { filter: id })}
+                showMineScope={mainTab === 'mine'}
+                scope={scope}
+                onScope={(id) => {
+                    startTransition(() => setSourcesScope(id));
+                }}
+                mainTabs={mainTabs}
+                mainTab={mainTab}
+                onMainTabChange={onMainTabChange || onSwitchTab}
+            />
             <div className="mt-4 space-y-3 px-4 pb-2 arborito-sources-list flex flex-col flex-1 min-h-0">
                 <CrossTabActiveBanner
                     ui={ui}
@@ -420,7 +349,7 @@ export function SourcesBranchesPanel({
                 activePinForQuery?.kind === 'branch' &&
                 String(activePinForQuery.branch?.id) !== DEMO_BRANCH_ID ? (
                     <div
-                        className="arborito-sources-active-pin"
+                        className={`arborito-sources-active-pin${queryActive ? ' arborito-sources-active-pin--compact' : ''}`}
                         data-arbor-tour="sources-active-branch"
                     >
                         <p className="arborito-sources-active-pin__label">
@@ -431,18 +360,20 @@ export function SourcesBranchesPanel({
                             ui={ui}
                             isActive
                             pinned
+                            compact={queryActive}
                             tourTarget="sources-active-branch"
                             isPublishedOwner={isPublishedResourceOwner(activePinForQuery.branch, getNostrPublisherPair)}
                             globalDirMetrics={globalDirMetrics}
                             actionsOpen={rowActionsOpen}
                             onAction={onAction}
                             onToggleRowActions={toggleRowActions}
+                            showShareCode={showShareCode}
                         />
                     </div>
                 ) : null}
                 {showBranchChrome && activePinForQuery?.kind === 'saved' ? (
                     <div
-                        className="arborito-sources-active-pin"
+                        className={`arborito-sources-active-pin${queryActive ? ' arborito-sources-active-pin--compact' : ''}`}
                         data-arbor-tour="sources-active-branch"
                     >
                         <p className="arborito-sources-active-pin__label">
@@ -453,18 +384,20 @@ export function SourcesBranchesPanel({
                             ui={ui}
                             isActive
                             pinned
+                            compact={queryActive}
                             actionsOpen={rowActionsOpen}
                             freezeBusy={treeFreezeBusy}
                             globalDirMetrics={globalDirMetrics}
                             onAction={onAction}
                             onToggleRowActions={toggleRowActions}
                             onToggleFreeze={(id) => onAction('toggle-tree-freeze', { id })}
+                            showShareCode={showShareCode}
                         />
                     </div>
                 ) : null}
                 {showPlaylistChrome && activePlaylistPinForQuery?.kind === 'device' ? (
                     <div
-                        className="arborito-sources-active-pin arborito-sources-active-pin--tree"
+                        className={`arborito-sources-active-pin arborito-sources-active-pin--tree${queryActive ? ' arborito-sources-active-pin--compact' : ''}`}
                         data-arbor-tour="sources-active-composed-tree"
                     >
                         <p className="arborito-sources-active-pin__label">
@@ -475,6 +408,7 @@ export function SourcesBranchesPanel({
                             ui={ui}
                             activeSource={activeSource}
                             pinned
+                            compact={queryActive}
                             isPublishedOwner={isPublishedResourceOwner(
                                 activePlaylistPinForQuery.tree,
                                 getNostrPublisherPair
@@ -483,12 +417,13 @@ export function SourcesBranchesPanel({
                             globalDirMetrics={globalDirMetrics}
                             onAction={onAction}
                             onToggleRowActions={toggleRowActions}
+                            showShareCode={showShareCode}
                         />
                     </div>
                 ) : null}
                 {showPlaylistChrome && activePlaylistPinForQuery?.kind === 'saved' ? (
                     <div
-                        className="arborito-sources-active-pin arborito-sources-active-pin--tree"
+                        className={`arborito-sources-active-pin arborito-sources-active-pin--tree${queryActive ? ' arborito-sources-active-pin--compact' : ''}`}
                         data-arbor-tour="sources-active-composed-tree"
                     >
                         <p className="arborito-sources-active-pin__label">
@@ -499,12 +434,14 @@ export function SourcesBranchesPanel({
                             ui={ui}
                             isActive
                             pinned
+                            compact={queryActive}
                             actionsOpen={rowActionsOpen}
                             freezeBusy={treeFreezeBusy}
                             globalDirMetrics={globalDirMetrics}
                             onAction={onAction}
                             onToggleRowActions={toggleRowActions}
                             onToggleFreeze={(id) => onAction('toggle-tree-freeze', { id })}
+                            showShareCode={showShareCode}
                         />
                     </div>
                 ) : null}
@@ -533,6 +470,7 @@ export function SourcesBranchesPanel({
                             actionsOpen={rowActionsOpen}
                             onAction={onAction}
                             onToggleRowActions={toggleRowActions}
+                            showShareCode={showShareCode}
                         />
                     </div>
                 ) : null}
@@ -574,10 +512,7 @@ export function SourcesBranchesPanel({
                         </button>
                     </div>
                 ) : null}
-                {loading &&
-                (scope === 'all' || scope === 'internet' || mainTab === 'explore') &&
-                !curriculumLoading &&
-                !listWithoutDemo.length ? (
+                {loading && mainTab === 'explore' && !curriculumLoading && !listWithoutDemo.length ? (
                     <SourcesCatalogLoading ui={ui} count={3} />
                 ) : null}
                 {listEmpty && !demoBranch && !showMineExploreCta && !showMineSearchExploreCta ? (
@@ -610,6 +545,7 @@ export function SourcesBranchesPanel({
                                             globalDirMetrics={globalDirMetrics}
                                             onAction={onAction}
                                             onToggleRowActions={toggleRowActions}
+                                            showShareCode={showShareCode}
                                         />
                                     </SourcesRowEnter>
                                 );
@@ -626,6 +562,7 @@ export function SourcesBranchesPanel({
                                             actionsOpen={rowActionsOpen}
                                             onAction={onAction}
                                             onToggleRowActions={toggleRowActions}
+                                            showShareCode={showShareCode}
                                         />
                                     </SourcesRowEnter>
                                 );
@@ -643,6 +580,7 @@ export function SourcesBranchesPanel({
                                             onAction={onAction}
                                             onToggleRowActions={toggleRowActions}
                                             onToggleFreeze={(id) => onAction('toggle-tree-freeze', { id })}
+                                            showShareCode={showShareCode}
                                         />
                                     </SourcesRowEnter>
                                 );
@@ -684,10 +622,7 @@ export function SourcesBranchesPanel({
                         })}
                     </div>
                 )}
-                {loading &&
-                (scope === 'all' || scope === 'internet' || mainTab === 'explore') &&
-                !curriculumLoading &&
-                listWithoutDemo.length > 0 ? (
+                {loading && mainTab === 'explore' && !curriculumLoading && listWithoutDemo.length > 0 ? (
                     <SourcesCatalogLoading ui={ui} count={1} compact />
                 ) : null}
                 {infiniteEnabled ? (

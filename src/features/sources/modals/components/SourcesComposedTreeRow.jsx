@@ -4,7 +4,6 @@ import { SourcesShareCodeField } from './SourcesShareCodeField.jsx';
 import { usePublishedShareCode } from '../../hooks/usePublishedShareCode.js';
 import { SourcesPill } from './SourcesPill.jsx';
 import { SourcesMoreButton, SourcesPublishedSocialToolbar } from './SourcesRowChrome.jsx';
-import { SourcesSocialMetrics } from './SourcesSocialMetrics.jsx';
 import { SourcesMenuPrefs } from './SourcesMenuPrefs.jsx';
 import { SwitchRow } from '../../../../shared/ui/SwitchRow.jsx';
 import { useSourcesStore } from '../../hooks/useSources.js';
@@ -21,11 +20,14 @@ export function SourcesComposedTreeRow({
     ui,
     activeSource,
     pinned = false,
+    compact = false,
     actionsOpen,
     globalDirMetrics,
     onAction,
     onToggleRowActions,
     isPublishedOwner = false,
+    /** Copyable share code — Mis cursos only. */
+    showShareCode = true,
 }) {
     const store = useSourcesStore();
     const signedIn = !!store?.isSignedIn?.();
@@ -56,13 +58,10 @@ export function SourcesComposedTreeRow({
     const pubMetrics = tree.publishedNetworkUrl
         ? metricsForPublishedUrl(tree.publishedNetworkUrl, globalDirMetrics)
         : {};
-    const publishedMetrics = tree.publishedNetworkUrl ? (
-        <SourcesSocialMetrics ui={ui} metrics={pubMetrics} />
-    ) : null;
 
     return (
         <div
-            className={`p-4 arborito-surface-tile border ${borderCls}${pinCls} rounded-2xl shadow-sm hover:border-amber-400 dark:hover:border-amber-700 transition-colors mb-2`}
+            className={`p-4 arborito-surface-tile border ${borderCls}${pinCls} rounded-2xl shadow-sm hover:border-amber-400 dark:hover:border-amber-700 transition-colors mb-2${compact ? ' arborito-sources-row--compact' : ''}`}
         >
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
@@ -79,16 +78,17 @@ export function SourcesComposedTreeRow({
                         <SourcesPill className="arborito-pill--amber arborito-pill--bordered">
                             {ui.sourcesPillComposedTree || 'Tree'}
                         </SourcesPill>
-                        {tree.publishedNetworkUrl ? (
+                        {!compact && tree.publishedNetworkUrl ? (
                             <SourcesPill className="arborito-pill--sky arborito-pill--bordered">
                                 {ui.sourcesPillPublished || 'Published'}
                             </SourcesPill>
-                        ) : (
+                        ) : null}
+                        {!compact && !tree.publishedNetworkUrl ? (
                             <SourcesPill className="arborito-surface-tile text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700">
                                 {ui.sourcesPillLocal || 'On device'}
                             </SourcesPill>
-                        )}
-                        {isPublishedOwner ? (
+                        ) : null}
+                        {!compact && isPublishedOwner ? (
                             <SourcesPill className="arborito-pill--amber arborito-pill--bordered">
                                 {ui.sourcesPillOwner || 'Owner'}
                             </SourcesPill>
@@ -99,25 +99,28 @@ export function SourcesComposedTreeRow({
                             </SourcesPill>
                         ) : null}
                     </div>
-                    <SourcesShareCodeField
-                        ui={ui}
-                        shareCode={shareCode}
-                        shareOpts={shareOpts}
-                        loading={shareCodeLoading}
-                        published={!!tree.publishedNetworkUrl}
-                        tone="brown"
-                        onShare={(opts) =>
-                            onAction?.('share-tree-row', {
-                                shareName: opts.name,
-                                shareUrl: opts.url,
-                                shareCode: opts.shareCode,
-                                ownerPub: opts.ownerPub,
-                                universeId: opts.universeId,
-                            })
-                        }
-                    />
-                    <TreeBranchSummaryLine branchRefs={tree.branchRefs} ui={ui} max={4} />
-                    {publishedMetrics}
+                    {!compact && showShareCode ? (
+                        <SourcesShareCodeField
+                            ui={ui}
+                            shareCode={shareCode}
+                            shareOpts={shareOpts}
+                            loading={shareCodeLoading}
+                            published={!!tree.publishedNetworkUrl}
+                            tone="brown"
+                            onShare={(opts) =>
+                                onAction?.('share-tree-row', {
+                                    shareName: opts.name,
+                                    shareUrl: opts.url,
+                                    shareCode: opts.shareCode,
+                                    ownerPub: opts.ownerPub,
+                                    universeId: opts.universeId,
+                                })
+                            }
+                        />
+                    ) : null}
+                    {!compact ? (
+                        <TreeBranchSummaryLine branchRefs={tree.branchRefs} ui={ui} max={4} />
+                    ) : null}
                 </div>
                 <aside className="arborito-sources-row-aside">
                     {isActive || pinned ? (
@@ -138,29 +141,40 @@ export function SourcesComposedTreeRow({
                             </div>
                         </div>
                     )}
-                    <div className="arborito-sources-toolbar arborito-sources-toolbar--social">
-                        <SourcesPublishedSocialToolbar
-                            ui={ui}
-                            shareOpts={shareOpts}
-                            metrics={pubMetrics}
-                            onVote={(payload) => onAction?.('global-vote', payload)}
-                            onShare={(opts) =>
-                                onAction?.('share-tree-row', {
-                                    shareName: opts.name,
-                                    shareUrl: opts.url,
-                                    shareCode: opts.shareCode,
-                                    ownerPub: opts.ownerPub,
-                                    universeId: opts.universeId,
-                                })
-                            }
-                        />
-                        <SourcesMoreButton
-                            ui={ui}
-                            rowKey={key}
-                            open={open}
-                            onToggle={onToggleRowActions}
-                        />
-                    </div>
+                    {!compact ? (
+                        <div className="arborito-sources-toolbar arborito-sources-toolbar--social">
+                            <SourcesPublishedSocialToolbar
+                                ui={ui}
+                                shareOpts={shareOpts}
+                                metrics={pubMetrics}
+                                onVote={(payload) => onAction?.('global-vote', payload)}
+                                onShare={(opts) =>
+                                    onAction?.('share-tree-row', {
+                                        shareName: opts.name,
+                                        shareUrl: opts.url,
+                                        shareCode: opts.shareCode,
+                                        ownerPub: opts.ownerPub,
+                                        universeId: opts.universeId,
+                                    })
+                                }
+                            />
+                            <SourcesMoreButton
+                                ui={ui}
+                                rowKey={key}
+                                open={open}
+                                onToggle={onToggleRowActions}
+                            />
+                        </div>
+                    ) : (
+                        <div className="arborito-sources-toolbar arborito-sources-toolbar--social">
+                            <SourcesMoreButton
+                                ui={ui}
+                                rowKey={key}
+                                open={open}
+                                onToggle={onToggleRowActions}
+                            />
+                        </div>
+                    )}
                 </aside>
             </div>
             {open ? (

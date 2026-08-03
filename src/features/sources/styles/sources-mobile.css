@@ -42,35 +42,45 @@
     box-sizing: border-box !important;
 }
 
-/* Sticky search sits flush under the hero (kill subpixel hairline + right gutter). */
+/* Sticky catalog chrome flush — tabs sit on the same surface as search (no slit). */
 :is(html.arborito-shell-mobile, html.force-mobile)
     #modal-backdrop.arborito-modal--sources
-    .arborito-sources-sticky-head {
-    margin-top: -1px;
-    padding-top: 1px;
-    padding-bottom: 0.5rem !important;
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
+    .arborito-sources-sticky-head,
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-catalog-chrome {
+    margin: 0 !important;
+    padding: 0 !important;
     width: 100% !important;
     max-width: none !important;
     box-sizing: border-box !important;
     background: var(--arborito-theme-surface-bg) !important;
+    border-bottom: 1px solid color-mix(in srgb, var(--arborito-theme-strip-bg) 65%, transparent) !important;
 }
 
 :is(html.arborito-shell-mobile, html.force-mobile)
     #modal-backdrop.arborito-modal--sources
     .arborito-sources-sticky-card {
-    padding: 0.5rem !important;
-    border-radius: 0.85rem !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
 }
 
 :is(html.arborito-shell-mobile, html.force-mobile)
     #modal-backdrop.arborito-modal--sources
-    .arborito-sources-search-bar__filters {
-    max-width: 5.75rem;
-    padding-left: 0.55rem;
-    padding-right: 0.55rem;
-    font-size: 0.625rem;
+    .arborito-sources-catalog-tools {
+    padding: 0.4rem 0.75rem 0.5rem !important;
+    gap: 0.4rem !important;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-catalog-tab-bar .arborito-tab {
+    min-height: 2.55rem;
+    font-size: 0.7rem;
+    padding: 0.5rem 0.65rem 0.45rem;
 }
 
 :is(html.arborito-shell-mobile, html.force-mobile)
@@ -78,6 +88,23 @@
     .arborito-sources-search-bar__input {
     min-height: 2.5rem;
     font-size: 0.875rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-filter-menu {
+    width: 2.4rem;
+    min-height: 2.4rem;
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-quick-filters__row .arborito-sources-action-chip,
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-quick-filters__row .arborito-filter-chip {
+    flex: 0 0 auto;
+    white-space: nowrap;
 }
 
 :is(html.arborito-shell-mobile, html.force-mobile)

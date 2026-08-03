@@ -153,17 +153,23 @@ export function SourcesForestTab({
             setTreesVisible((n) => n + TREES_LIST_PAGE);
             return;
         }
-        if (globalDirHitCap && !loading) {
+        const allowCatalogWiden =
+            (scope === 'internet' || scope === 'all') && !!globalDirHitCap && !loading;
+        if (allowCatalogWiden) {
             onLoadMoreCatalog?.();
             setTreesVisible((n) => n + Math.max(TREES_LIST_PAGE, DIRECTORY_CLIENT_FETCH_PAGE));
         }
-    }, [hasMoreTrees, globalDirHitCap, loading, onLoadMoreCatalog]);
-    const infiniteEnabled = hasMoreTrees || (!!globalDirHitCap && !loading);
+    }, [hasMoreTrees, scope, globalDirHitCap, loading, onLoadMoreCatalog]);
+    const allowCatalogWiden =
+        (scope === 'internet' || scope === 'all') && !!globalDirHitCap && !loading;
+    const canLoadMore = hasMoreTrees || allowCatalogWiden;
+    const infiniteEnabled = canLoadMore || (loading && (scope === 'internet' || scope === 'all'));
     const infiniteSentinelRef = useInfiniteScrollSentinel({
         enabled: infiniteEnabled,
         busy: !!loading || !!curriculumLoading,
         onLoadMore: onInfiniteMore,
         getScrollRoot,
+        armKey: `${visibleItems.length}|${items.length}|${scope}|${q}`,
     });
 
     return (

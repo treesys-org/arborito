@@ -9,8 +9,8 @@ import { useResolvedLessonMediaSrc } from '../hooks/useResolvedLessonMediaSrc.js
 /**
  * Lesson video: iframe on web; Electron <webview> for embeds; <video> for local files.
  *
- * Web: youtube-nocookie.com (Privacy Enhanced Mode).
- * Desktop: youtube.com/embed in a <webview>; main-process session injects Referer (Error 153).
+ * Web and desktop use youtube.com/embed (nocookie often refuses to connect on Pages).
+ * Desktop: <webview> + main-process Referer covers YouTube Error 153.
  */
 export function LessonVideoPlayer({ src, branchId = '' }) {
     const embed = resolveVideoEmbedSrc(src);

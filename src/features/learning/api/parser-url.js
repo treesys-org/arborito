@@ -313,14 +313,13 @@ export function resolveVideoEmbedSrc(raw) {
     if (!embed) return '';
     const ytId = extractYoutubeVideoId(raw) || extractYoutubeVideoId(embed);
     if (ytId) {
-        // Web: Privacy Enhanced Mode. Desktop: youtube.com — guest data-URL loads were
-        // leaving an empty black webview; session Referer fix covers Error 153 there.
+        /* Always youtube.com/embed. youtube-nocookie often paints an empty frame
+         * (refused to connect) on web/Pages; desktop webview + Referer covers Error 153. */
         const electron =
             typeof window !== 'undefined' && window.arboritoElectron;
-        const host = electron
-            ? 'https://www.youtube.com'
-            : 'https://www.youtube-nocookie.com';
-        const u = new URL(`${host}/embed/${encodeURIComponent(ytId)}`);
+        const u = new URL(
+            `https://www.youtube.com/embed/${encodeURIComponent(ytId)}`
+        );
         if (electron) {
             u.searchParams.set('origin', ELECTRON_YOUTUBE_EMBED_ORIGIN);
         }

@@ -11,7 +11,42 @@ import {
 } from '../nostr-spec.js';
 import { hasArbRoot, QUERY_MS_LONG, truncateUtf8 } from './_shared.js';
 
+const METRIC_FEED_TTL_MS = 60_000;
+
 export const metricsMixin = {
+    _invalidateMetricFeedCache() {
+        this._metricFeedCache = null;
+    },
+
+    /**
+     * One broad `#m` query per metric kind is shared across Discover ranking.
+     * Without this, each listing re-fetched the same vote/usage/fork feed.
+     * @param {'vote'|'usage'|'fork'} metricKey
+     * @param {number} [limit]
+     */
+    async _loadMetricFeed(metricKey, limit = 8000) {
+        const key = String(metricKey || '').trim();
+        if (key !== 'vote' && key !== 'usage' && key !== 'fork') return [];
+        const now = Date.now();
+        if (!this._metricFeedCache || now - (this._metricFeedCache.at || 0) > METRIC_FEED_TTL_MS) {
+            this._metricFeedCache = { at: now, vote: null, usage: null, fork: null };
+        }
+        const cache = this._metricFeedCache;
+        if (Array.isArray(cache[key])) return cache[key];
+        const tag =
+            key === 'vote' ? this.metricKindName('vote') : key === 'usage' ? this.metricKindName('usage') : this.metricKindName('fork');
+        const evs = await this._query(
+            {
+                kinds: [KIND_APP_SIGNED_PAYLOAD],
+                '#m': [tag],
+                limit: Math.min(8000, Math.max(200, Number(limit) || 8000)),
+            },
+            QUERY_MS_LONG
+        );
+        cache[key] = Array.isArray(evs) ? evs : [];
+        return cache[key];
+    },
+
     async putTreeUsagePing({ pair, ownerPub, universeId, dayKey = null }) {
         const dk = dayKey || new Date().toISOString().slice(0, 10);
         const bucket = `usage:${dk}`;
@@ -35,6 +70,7 @@ export const metricsMixin = {
             content: JSON.stringify(payload)
         });
         await this._publish(ev);
+        this._invalidateMetricFeedCache();
     },
 
     async verifyTreeUsagePing(record) {
@@ -57,13 +93,9 @@ export const metricsMixin = {
     },
 
     async countTreeUsageUniqueLastNDaysOnce({ ownerPub, universeId, days = 7, maxUsersPerDay = 800 } = {}) {
-        const evs = await this._query(
-            {
-                kinds: [KIND_APP_SIGNED_PAYLOAD],
-                '#m': [this.metricKindName('usage')],
-                limit: Math.min(4000, maxUsersPerDay * Math.max(1, days) * 4)
-            },
-            QUERY_MS_LONG
+        const evs = await this._loadMetricFeed(
+            'usage',
+            Math.min(4000, maxUsersPerDay * Math.max(1, days) * 4)
         );
         const dayKeys = new Set();
         const now = Date.now();
@@ -118,6 +150,7 @@ export const metricsMixin = {
             content: JSON.stringify(payload)
         });
         await this._publish(ev);
+        this._invalidateMetricFeedCache();
     },
 
     async verifyTreeVote(record) {
@@ -145,15 +178,9 @@ export const metricsMixin = {
          * snowballs into "too many concurrent REQs". The broad query (no
          * `#U`) returns the same data at slightly higher cost, so we just
          * use that. We still filter by `#m` (single-letter, NIP-12-style)
-         * and validate `arbRoot` client-side. */
-        const broad = await this._query(
-            {
-                kinds: [KIND_APP_SIGNED_PAYLOAD],
-                '#m': [this.metricKindName('vote')],
-                limit: Math.min(8000, max * 2)
-            },
-            QUERY_MS_LONG
-        );
+         * and validate `arbRoot` client-side.
+         * Discover ranks many rows: share one feed query via `_loadMetricFeed`. */
+        const broad = await this._loadMetricFeed('vote', Math.min(8000, max * 2));
         /* Dedupe per PUBKEY (keep newest), not per event id: the vote record
          * is replaceable, so different relays can return different versions of
          * the same voter's event, id-level dedupe double-counted those, and a
@@ -326,6 +353,7 @@ export const metricsMixin = {
             content: JSON.stringify(payload),
         });
         await this._publish(ev);
+        this._invalidateMetricFeedCache();
     },
 
     async verifyTreeFork(record) {
@@ -362,14 +390,7 @@ export const metricsMixin = {
     },
 
     async countTreeForksOnce({ ownerPub, universeId, max = 2500 } = {}) {
-        const broad = await this._query(
-            {
-                kinds: [KIND_APP_SIGNED_PAYLOAD],
-                '#m': [this.metricKindName('fork')],
-                limit: Math.min(8000, max * 2),
-            },
-            QUERY_MS_LONG
-        );
+        const broad = await this._loadMetricFeed('fork', Math.min(8000, max * 2));
         /* Dedupe per fork CHILD (ownerPub/universeId of the fork): the record
          * is replaceable per child, so relay divergence or replays must not
          * count the same fork twice. */

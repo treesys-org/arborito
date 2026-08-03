@@ -84,14 +84,16 @@ export function useSourcesLifecycle({
 
         bump();
 
+        /* Warm relays as soon as Cursos opens so Explorar's first REQ is cheaper. */
+        void warmNostrRelayConnections(store, { probe: false }).catch((e) => {
+            console.warn('[Arborito] sources nostr prewarm', e);
+        });
+
         const fromOnboarding = !!(m && typeof m === 'object' && m.fromOnboarding);
         if (fromOnboarding) {
             setMainTab('explore');
             setActiveTab('branch');
             setSourcesScope?.('internet');
-            void warmNostrRelayConnections(store, { probe: true }).catch((e) => {
-                console.warn('[Arborito] sources onboarding nostr prewarm', e);
-            });
         }
 
         void store.userStore?.ensureBranchesHydrated?.().then(() => {

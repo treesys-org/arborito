@@ -92,6 +92,7 @@
   "sourcesFiltersHideShort": "Cerrar",
   "sourcesFiltersShow": "Filtros",
   "sourcesFiltersShowShort": "Filtros",
+  "sourcesFilterMineShort": "Mío",
   "sourcesFiltersSortHint": "Orden de lo que hay en la red",
   "sourcesFiltersWhereHint": "Origen de la lista",
   "sourcesGlobalActiveNowLabel": "Activos ahora",
