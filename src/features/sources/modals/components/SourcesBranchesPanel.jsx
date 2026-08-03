@@ -288,9 +288,18 @@ export function SourcesBranchesPanel({
     /* Only widen Discover from Explorar — never from Mis (even scope “Todos”). */
     const allowCatalogWiden =
         listMainTab === 'explore' && !!globalDirHitCap && !loading;
+    /*
+     * Prefetch ~one viewport ahead of the sentinel: grow the local window and,
+     * once fewer than a screen of buffered rows remain, kick the next network
+     * page before the user hits the bottom. Network busy must not freeze local
+     * reveal while we still have rows in hand.
+     */
     const onInfiniteMore = useCallback(() => {
         if (remaining > 0) {
             setShown((n) => n + pageSize);
+            if (remaining <= pageSize && allowCatalogWiden) {
+                onLoadMoreCatalog?.();
+            }
             return;
         }
         if (allowCatalogWiden) {
@@ -302,9 +311,13 @@ export function SourcesBranchesPanel({
     const infiniteEnabled = canLoadMore || (loading && listMainTab === 'explore');
     const infiniteSentinelRef = useInfiniteScrollSentinel({
         enabled: infiniteEnabled,
-        busy: !!loading || !!curriculumLoading,
+        /* Keep revealing buffered rows while a background catalog widen runs. */
+        busy: !!curriculumLoading || (!!loading && remaining <= 0),
         onLoadMore: onInfiniteMore,
         getScrollRoot,
+        /* Assume the user will scroll a bit past the fold — fire early. */
+        rootMargin: '70%',
+        coolDownMs: 280,
         armKey: `${visible.length}|${items.length}|${pagKey}`,
     });
     const queryActive = !!String(q || '').trim();

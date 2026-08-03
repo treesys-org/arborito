@@ -150,7 +150,13 @@ export function SourcesForestTab({
     );
     const onInfiniteMore = useCallback(() => {
         if (hasMoreTrees) {
+            const nextRemaining = Math.max(0, items.length - (treesVisible + TREES_LIST_PAGE));
             setTreesVisible((n) => n + TREES_LIST_PAGE);
+            const allowWiden =
+                (scope === 'internet' || scope === 'all') && !!globalDirHitCap && !loading;
+            if (nextRemaining <= TREES_LIST_PAGE && allowWiden) {
+                onLoadMoreCatalog?.();
+            }
             return;
         }
         const allowCatalogWiden =
@@ -159,16 +165,18 @@ export function SourcesForestTab({
             onLoadMoreCatalog?.();
             setTreesVisible((n) => n + Math.max(TREES_LIST_PAGE, DIRECTORY_CLIENT_FETCH_PAGE));
         }
-    }, [hasMoreTrees, scope, globalDirHitCap, loading, onLoadMoreCatalog]);
+    }, [hasMoreTrees, items.length, treesVisible, scope, globalDirHitCap, loading, onLoadMoreCatalog]);
     const allowCatalogWiden =
         (scope === 'internet' || scope === 'all') && !!globalDirHitCap && !loading;
     const canLoadMore = hasMoreTrees || allowCatalogWiden;
     const infiniteEnabled = canLoadMore || (loading && (scope === 'internet' || scope === 'all'));
     const infiniteSentinelRef = useInfiniteScrollSentinel({
         enabled: infiniteEnabled,
-        busy: !!loading || !!curriculumLoading,
+        busy: !!curriculumLoading || (!!loading && !hasMoreTrees),
         onLoadMore: onInfiniteMore,
         getScrollRoot,
+        rootMargin: '70%',
+        coolDownMs: 280,
         armKey: `${visibleItems.length}|${items.length}|${scope}|${q}`,
     });
 

@@ -7,6 +7,7 @@ import {
     DIRECTORY_CLIENT_CRAWL_MAX_AGE_SEC,
     DIRECTORY_CLIENT_CRAWL_MAX_EVENTS,
     DIRECTORY_CLIENT_CRAWL_PAGE_SIZE,
+    DIRECTORY_CLIENT_FETCH_PAGE,
     getConfiguredDirectoryIndexPublishers,
 } from '../../../p2p-webtorrent/api/directory-index-config.js';
 import {
@@ -24,7 +25,7 @@ import {
     directoryDTag,
 } from '../nostr-spec.js';
 import { isNostrTreeMaintainerBlocked } from '../maintainer-nostr-tree-blocklist.js';
-import { QUERY_MS_LONG, QUERY_MS } from './_shared.js';
+import { QUERY_MS } from './_shared.js';
 
 /** True when the signed event carries `["app","arborito"]` (client-side filter). */
 function eventHasArboritoAppTag(ev) {
@@ -142,11 +143,18 @@ export const directoryListMixin = {
                 /* UI partial paint must not abort the listing. */
             }
         };
-        /* Header intel + snapshot index overlap — neither needs the other first. */
-        const bundleWarm = this._publishedBundleStateCached().catch(() => null);
-        const indexedPromise = this._mergeDirectoryRowsFromSnapshots(limit, qLower);
-        await Promise.all([bundleWarm, indexedPromise]);
-        const indexed = await indexedPromise;
+        /*
+         * Bundle-header warm used to gate the whole list (QUERY_MS_LONG) even when
+         * snapshots were empty — Discover waited seconds before the first crawl
+         * REQ. Defer warm to a microtask so the first crawl page claims query
+         * slots first; `_isKnownDeadDirectoryKey` starts filtering as the cache
+         * lands, and Discover still runs `_filterDirectoryRowsWithPublishedBundle`
+         * once at the end. Incomplete intel must not empty / delay the catalog.
+         */
+        queueMicrotask(() => {
+            void this._publishedBundleStateCached().catch(() => null);
+        });
+        const indexed = await this._mergeDirectoryRowsFromSnapshots(limit, qLower);
         let merged = this._filterMaintainerBlockedDirectoryRows(
             indexed.filter((r) => !this._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId))
         );
@@ -536,20 +544,20 @@ export const directoryListMixin = {
     },
 
     /**
-     * Cursor-paginated live crawl (same idea as `directory-index-aggregator`).
-     * Relays apply `limit` to *events*, not unique courses: delist/republish
-     * churn on kind 30100 would otherwise hide live rows within days.
+     * Live Discover crawl — **first relay to deliver a course wins that row**.
+     *
+     * Each peer pages its own `until` cursor independently (no shared page
+     * barrier). Queries bypass the global concurrency gate so slow/cooling
+     * relays cannot serialize the race. Rows paint **one at a time** via
+     * `onPartial([row])` as soon as each body verifies. A newer replaceable may
+     * still upgrade `best` for the final return.
+     *
+     * First REQ uses `limit:1` so the catalog never waits for a 48-event EOSE
+     * before the first card. Later pages widen (8 → fetch-page → crawl page).
      *
      * Scale invariant (millions of listings): never per-row relay revoke checks.
      * Budget is `DIRECTORY_CLIENT_CRAWL_MAX_EVENTS` + age cap. Deep catalog is
      * snapshot index + `#t` / share-code search — not an unbounded client crawl.
-     * Known-dead (newest header revoked) is an O(1) set lookup from a small
-     * header sample; unknown rows stay eligible (incomplete intel must not
-     * empty Discover).
-     *
-     * Pagination is **per relay**: a shared `until` advances to the oldest event
-     * across peers, and a sparse relay (wide time span in one page) would skip
-     * denser peers' mid-window rows (live course only mirrored on one relay).
      */
     async _traverseGlobalDirectoryEntries(opts) {
         const limit = Math.max(1, Math.min(800, Number(opts.limit) || 120));
@@ -559,10 +567,22 @@ export const directoryListMixin = {
         const delistedKeys = opts.delistedKeys instanceof Set ? opts.delistedKeys : null;
         const onPartial = typeof opts.onPartial === 'function' ? opts.onPartial : null;
         const pageSize = Math.max(50, Math.min(500, Number(DIRECTORY_CLIENT_CRAWL_PAGE_SIZE) || 200));
+        const widenPage = Math.max(
+            8,
+            Math.min(pageSize, Number(DIRECTORY_CLIENT_FETCH_PAGE) || 48)
+        );
         const maxEvents = Math.max(pageSize, Math.min(20000, Number(DIRECTORY_CLIENT_CRAWL_MAX_EVENTS) || 3000));
         const maxAgeSec = Math.max(86400, Number(DIRECTORY_CLIENT_CRAWL_MAX_AGE_SEC) || 180 * 86400);
         const oldestAllowed = Math.floor(Date.now() / 1000) - maxAgeSec;
         const nowUntil = Math.floor(Date.now() / 1000) + 60;
+        /** Cold first REQ; later pages stay short — peers that already answered keep paging. */
+        const FIRST_WAIT_MS = Math.min(QUERY_MS, 3500);
+        const NEXT_WAIT_MS = Math.min(QUERY_MS, 2500);
+        const maxPagesPerRelay = Math.ceil(maxEvents / 1) + 2;
+
+        /* Invalidate older Discover crawls still finishing after an early exit. */
+        const crawlGen = (this._directoryCrawlGen = (this._directoryCrawlGen || 0) + 1);
+        const crawlCurrent = () => this._directoryCrawlGen === crawlGen;
 
         const noteDelistBody = (body) => {
             if (!delistedKeys || !body || body.delisted !== true) return;
@@ -587,97 +607,119 @@ export const directoryListMixin = {
         const best = new Map();
         /** @type {Set<string>} */
         const emittedKeys = new Set();
+        /** @type {Map<string, object>} verified rows already painted — skip re-verify on return */
+        const verifiedByKey = new Map();
+        /** Dedup event ids across the race. */
+        const seenEventIds = new Set();
         let fetched = 0;
-        let pages = 0;
-        let stagnantLivePages = 0;
-        let prevLiveUnique = 0;
-        const maxPages = Math.ceil(maxEvents / pageSize) + 2;
+        let stopAll = false;
+        /** Resolve when first-wins filled the page so slow peers cannot hold Discover open. */
+        let resolveFilled = null;
+        const filledGate = new Promise((resolve) => {
+            resolveFilled = resolve;
+        });
 
+        const liveUniqueCount = () => {
+            let n = 0;
+            for (const { body } of best.values()) {
+                if (!body || body.delisted === true) continue;
+                if (this._isKnownDeadDirectoryKey(body.ownerPub, body.universeId)) continue;
+                n += 1;
+            }
+            return n;
+        };
+
+        const filledEnough = () => {
+            if (q) return false;
+            /* Prefer painted/verified count when streaming; otherwise raw live bodies. */
+            if (onPartial) return emittedKeys.size >= limit;
+            return liveUniqueCount() >= limit;
+        };
+
+        const shouldStop = () =>
+            stopAll || !crawlCurrent() || fetched >= maxEvents || filledEnough();
+
+        const signalFilled = () => {
+            if (!filledEnough()) return;
+            stopAll = true;
+            resolveFilled?.();
+            resolveFilled = null;
+        };
+
+        /**
+         * Verify + paint **one row at a time** so Discover streams even when a
+         * single relay returns a batch. First viewport yields a frame per card
+         * (enter animation); past that, fill the ahead-buffer without waiting
+         * on rAF so scroll-ahead stays warm.
+         */
+        const FIRST_VIEWPORT_STREAM = 16;
         const emitNewRows = async () => {
-            if (!onPartial) return;
-            const fresh = [];
+            if (!onPartial) {
+                signalFilled();
+                return;
+            }
             const rows = [...best.values()].sort(
                 (a, b) => (Number(b.ev.created_at) || 0) - (Number(a.ev.created_at) || 0)
             );
             for (const { ev, body } of rows) {
-                if (fresh.length + emittedKeys.size >= limit) break;
+                if (shouldStop() && emittedKeys.size >= limit) break;
+                if (emittedKeys.size >= limit) break;
                 const key = directoryRowKey(String(body?.ownerPub || ''), String(body?.universeId || ''));
                 if (!key || excludeKeys.has(key) || emittedKeys.has(key)) continue;
                 if (this._isKnownDeadDirectoryKey(body?.ownerPub, body?.universeId)) continue;
+                if (body?.delisted === true) continue;
                 const row = await this._directoryRowFromVerifiedEvent(ev, body);
+                if (!crawlCurrent()) return;
                 if (!row) continue;
-                const rk = directoryRowKey(row.ownerPub, row.universeId);
+                const rk = directoryRowKey(row.ownerPub, row.universeId) || key;
                 if (excludeKeys.has(rk) || emittedKeys.has(rk)) continue;
                 if (q && !catalogRowMatchesQuery(q, row)) continue;
                 emittedKeys.add(rk);
-                fresh.push(row);
-            }
-            if (fresh.length) {
+                verifiedByKey.set(rk, row);
                 try {
-                    onPartial(fresh);
+                    onPartial([row]);
                 } catch {
                     /* UI partial paint must not abort the crawl. */
                 }
-            }
-        };
-
-        const countLive = () => {
-            let liveUnique = 0;
-            let knownDeadUnique = 0;
-            for (const { body } of best.values()) {
-                if (!body || body.delisted === true) continue;
-                if (this._isKnownDeadDirectoryKey(body.ownerPub, body.universeId)) {
-                    knownDeadUnique += 1;
-                    continue;
+                if (emittedKeys.size <= FIRST_VIEWPORT_STREAM) {
+                    await new Promise((resolve) => {
+                        requestAnimationFrame(() => resolve());
+                    });
+                    if (!crawlCurrent()) return;
                 }
-                liveUnique += 1;
+                if (emittedKeys.size >= limit) break;
             }
-            return { liveUnique, knownDeadUnique };
+            signalFilled();
         };
 
-        while (fetched < maxEvents && pages < maxPages && exhausted.size < relays.length) {
-            pages += 1;
-            const active = relays.filter((r) => !exhausted.has(r));
-            if (!active.length) break;
-
-            const budget = Math.min(pageSize, maxEvents - fetched);
-            if (budget <= 0) break;
-
-            const pageResults = await Promise.all(
-                active.map(async (relay) => {
-                    const until = untilByRelay.get(relay) || nowUntil;
-                    let evs = [];
-                    try {
-                        if (typeof this._queryRelays === 'function') {
-                            evs = await this._queryRelays(
-                                [relay],
-                                { kinds: [KIND_TREE_DIRECTORY], until, limit: budget },
-                                QUERY_MS_LONG
-                            );
-                        } else {
-                            evs = await this._query(
-                                { kinds: [KIND_TREE_DIRECTORY], until, limit: budget },
-                                QUERY_MS_LONG
-                            );
-                        }
-                    } catch {
-                        evs = [];
-                    }
-                    return { relay, until, evs: Array.isArray(evs) ? evs : [] };
-                })
-            );
-
-            /** @type {Set<string>} */
-            const pageIds = new Set();
-            for (const { relay, until, evs } of pageResults) {
+        /**
+         * Serialize merge of concurrent relay replies (map mutations), then paint.
+         * First body for a key wins the paint; newer replaceables still update `best`.
+         * @type {Promise<void>}
+         */
+        let mergeTail = Promise.resolve();
+        /**
+         * @param {{ relay: string, until: number, evs: object[], budget: number }} page
+         */
+        const mergeRelayPage = (page) => {
+            const run = async () => {
+                if (!crawlCurrent()) return;
+                if (shouldStop() && !page.evs?.length) {
+                    exhausted.add(page.relay);
+                    return;
+                }
+                /* Still ingest the page that just arrived even if another peer
+                 * already filled the limit — then stop. Dropping it lost rows on
+                 * the second open when a stale crawl flipped stopAll mid-flight. */
+                const { relay, until, evs, budget } = page;
                 if (!evs.length || evs.length < budget) exhausted.add(relay);
                 let oldest = until;
                 for (const ev of evs) {
                     const ca = Number(ev.created_at) || 0;
                     if (ca && ca < oldest) oldest = ca;
                     const id = String(ev?.id || '');
-                    if (id && !pageIds.has(id)) {
-                        pageIds.add(id);
+                    if (id && !seenEventIds.has(id)) {
+                        seenEventIds.add(id);
                         fetched += 1;
                     }
                 }
@@ -691,47 +733,90 @@ export const directoryListMixin = {
                         best.set(key, item);
                         noteDelistBody(item.body);
                         if (prev && delistedKeys && item.body?.delisted !== true) {
-                            /* Newer live replaceable supersedes a prior delist in this crawl. */
                             delistedKeys.delete(key);
                         }
                     }
                 }
-            }
+                await emitNewRows();
+                if (shouldStop()) exhausted.add(relay);
+            };
+            mergeTail = mergeTail.then(run, () => run());
+            return mergeTail;
+        };
 
-            const { liveUnique, knownDeadUnique } = countLive();
-            await emitNewRows();
-
-            /* Top-N filled: stop only when no relay can still return something
-             * newer than the Nth row (per-relay until past that cutoff). */
-            if (!q && liveUnique >= limit) {
-                const acceptedCas = [...best.values()]
-                    .filter(({ body }) => {
-                        if (!body || body.delisted === true) return false;
-                        return !this._isKnownDeadDirectoryKey(body.ownerPub, body.universeId);
-                    })
-                    .map(({ ev }) => Number(ev.created_at) || 0)
-                    .sort((a, b) => b - a);
-                const cutoff = acceptedCas[Math.min(limit, acceptedCas.length) - 1] || 0;
-                let anyCanImprove = false;
-                for (const relay of relays) {
-                    if (exhausted.has(relay)) continue;
-                    if ((untilByRelay.get(relay) || 0) >= cutoff) {
-                        anyCanImprove = true;
-                        break;
-                    }
+        const queryRelayPage = async (relay, filter, ms) => {
+            if (!crawlCurrent() || shouldStop()) return [];
+            try {
+                if (typeof this._queryRelayDirect === 'function') {
+                    return await this._queryRelayDirect(relay, filter, ms);
                 }
-                if (!anyCanImprove) break;
+                if (typeof this._queryRelays === 'function') {
+                    return await this._queryRelays([relay], filter, ms);
+                }
+                return await this._query(filter, ms);
+            } catch {
+                return [];
             }
+        };
 
-            if (liveUnique <= prevLiveUnique) {
-                const chewingGhosts = knownDeadUnique > 0 && liveUnique < limit;
-                if (!chewingGhosts) stagnantLivePages += 1;
-                else stagnantLivePages = 0;
-            } else {
-                stagnantLivePages = 0;
+        /** @param {number} page 1-based */
+        const budgetForPage = (page) => {
+            if (page === 1) return 1;
+            if (page === 2) return Math.min(8, widenPage);
+            if (page === 3) return widenPage;
+            return pageSize;
+        };
+
+        /**
+         * One worker per relay — pages alone, never waits for peers.
+         * First peer with events paints Discover; others only fill missing keys.
+         * @param {string} relay
+         */
+        const crawlRelay = async (relay) => {
+            let stagnant = 0;
+            let prevLiveForRelay = 0;
+            for (let page = 1; page <= maxPagesPerRelay; page += 1) {
+                if (shouldStop() || exhausted.has(relay) || !crawlCurrent()) break;
+                const budget = Math.min(budgetForPage(page), Math.max(0, maxEvents - fetched));
+                if (budget <= 0) break;
+                const until = untilByRelay.get(relay) || nowUntil;
+                const evs = await queryRelayPage(
+                    relay,
+                    { kinds: [KIND_TREE_DIRECTORY], until, limit: budget },
+                    page === 1 ? FIRST_WAIT_MS : NEXT_WAIT_MS
+                );
+                if (!crawlCurrent()) break;
+                const beforeKeys = best.size;
+                await mergeRelayPage({
+                    relay,
+                    until,
+                    evs: Array.isArray(evs) ? evs : [],
+                    budget,
+                });
+                if (shouldStop() || exhausted.has(relay) || !crawlCurrent()) break;
+                const live = liveUniqueCount();
+                if (live <= prevLiveForRelay && best.size <= beforeKeys) {
+                    stagnant += 1;
+                } else {
+                    stagnant = 0;
+                }
+                prevLiveForRelay = live;
+                /* This peer has nothing new — leave the race; others keep going. */
+                if (page >= 2 && stagnant >= 2) {
+                    exhausted.add(relay);
+                    break;
+                }
             }
-            prevLiveUnique = liveUnique;
-            if (pages >= 2 && stagnantLivePages >= 2) break;
+            exhausted.add(relay);
+        };
+
+        await Promise.race([Promise.all(relays.map((r) => crawlRelay(r))), filledGate]);
+        stopAll = true;
+        resolveFilled = null;
+        await mergeTail;
+        if (!crawlCurrent()) {
+            /* Superseded by a newer Discover fetch — return what we painted. */
+            return [...verifiedByKey.values()].slice(0, limit);
         }
 
         const out = [];
@@ -744,7 +829,11 @@ export const directoryListMixin = {
             if (out.length >= limit) break;
             if (this._isKnownDeadDirectoryKey(body?.ownerPub, body?.universeId)) continue;
             if (isNostrTreeMaintainerBlocked(body?.ownerPub, body?.universeId)) continue;
-            const row = await this._directoryRowFromVerifiedEvent(ev, body);
+            const keyGuess = directoryRowKey(String(body?.ownerPub || ''), String(body?.universeId || ''));
+            let row = keyGuess ? verifiedByKey.get(keyGuess) : null;
+            if (!row) {
+                row = await this._directoryRowFromVerifiedEvent(ev, body);
+            }
             if (!row) continue;
             const key = directoryRowKey(row.ownerPub, row.universeId);
             if (excludeKeys.has(key) || seen.has(key)) continue;

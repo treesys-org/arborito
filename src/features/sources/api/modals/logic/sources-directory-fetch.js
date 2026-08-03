@@ -490,10 +490,10 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
     /**
      * Paint Discover ASAP from crawl batches. Skip async bundle probes here —
      * known-dead keys use the sync cache; full bundle filter runs once at the end.
+     * Do **not** coalesce to the latest snapshot only — that turned one-by-one
+     * relay hits into a single dump after the fast peer finished.
      * @param {object[]} partial
      */
-    let partialPaintRaf = 0;
-    let pendingPartialRows = null;
     const publishPartialRows = (partial) => {
         if (!stillCurrent()) return;
         let next = Array.isArray(partial) ? partial : [];
@@ -506,12 +506,10 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
         }
         next = enrichDirectoryRowsWithKnownIcons(next);
         if (next.length > fetchLimit) next = next.slice(0, fetchLimit);
-        pendingPartialRows = next;
-        if (partialPaintRaf) return;
-        partialPaintRaf = requestAnimationFrame(() => {
-            partialPaintRaf = 0;
-            if (!stillCurrent() || !pendingPartialRows) return;
-            setters.setGlobalDirRows(pendingPartialRows);
+        const snapshot = next;
+        requestAnimationFrame(() => {
+            if (!stillCurrent()) return;
+            setters.setGlobalDirRows(snapshot);
             onUpdate?.();
         });
     };

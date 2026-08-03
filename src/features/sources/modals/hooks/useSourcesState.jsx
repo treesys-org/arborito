@@ -347,6 +347,33 @@ export function useSourcesState({ embed }) {
         });
     }, []);
 
+    /*
+     * After the first Discover page lands, prefetch one more chunk on idle.
+     * First paint stays highest priority (this only runs once loading is false);
+     * we assume the user will scroll a little past the fold.
+     */
+    useEffect(() => {
+        if (!directoryFetchEnabled) return undefined;
+        if (globalDirLoading) return undefined;
+        if (!globalDirHitCap) return undefined;
+        if (!globalDirRows?.length) return undefined;
+        if ((Number(globalDirFetchLimit) || 0) > DIRECTORY_CLIENT_FETCH_PAGE) return undefined;
+        return scheduleIdle(() => {
+            setGlobalDirFetchLimit((n) => {
+                const cur = Math.max(DIRECTORY_CLIENT_FETCH_PAGE, Number(n) || DIRECTORY_CLIENT_FETCH_PAGE);
+                if (cur > DIRECTORY_CLIENT_FETCH_PAGE) return cur;
+                return Math.min(DIRECTORY_CLIENT_FETCH_MAX, cur + DIRECTORY_CLIENT_FETCH_PAGE);
+            });
+        }, 700);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+        directoryFetchEnabled,
+        globalDirLoading,
+        globalDirHitCap,
+        globalDirRows?.length,
+        globalDirFetchLimit,
+    ]);
+
     useEffect(() => {
         if (!directoryFetchEnabled) return;
         const dirStale =

@@ -18,10 +18,19 @@ import { useCallback, useEffect, useRef } from 'react';
  *   coolDownMs?: number,
  * }} opts
  */
-function rootMarginTopPx(rootMargin) {
+function rootMarginTopPx(rootMargin, root) {
     const raw = String(rootMargin || '0').trim().split(/\s+/)[0] || '0';
     if (raw.endsWith('px')) return Number.parseFloat(raw) || 0;
-    if (raw.endsWith('%')) return 160;
+    if (raw.endsWith('%')) {
+        const pct = Number.parseFloat(raw);
+        const h =
+            (root && typeof root.getBoundingClientRect === 'function'
+                ? root.getBoundingClientRect().height
+                : 0) ||
+            (typeof window !== 'undefined' ? window.innerHeight : 0) ||
+            600;
+        return (h * (Number.isFinite(pct) ? pct : 70)) / 100;
+    }
     const n = Number.parseFloat(raw);
     return Number.isFinite(n) ? n : 160;
 }
@@ -119,7 +128,7 @@ export function useInfiniteScrollSentinel({
         if (!enabled || busy) return undefined;
         const el = sentinelRef.current;
         if (!el) return undefined;
-        const marginPx = rootMarginTopPx(rootMargin);
+        const marginPx = rootMarginTopPx(rootMargin, stableGetRoot());
         const id = requestAnimationFrame(() => {
             const root = stableGetRoot();
             if (isNearScrollRoot(el, root, marginPx)) tryLoad();

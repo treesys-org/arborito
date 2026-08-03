@@ -687,6 +687,25 @@ export const coreMixin = {
         }
     },
 
+    /**
+     * Single-relay query **outside** the shared concurrency gate.
+     * Discover crawl races every peer at once; a gate of 3 would serialize the
+     * “first relay wins” path behind slow/cooling peers.
+     * @param {string} relayUrl
+     * @param {import('nostr-tools').Filter} filter
+     * @param {number} [ms]
+     */
+    async _queryRelayDirect(relayUrl, filter, ms = QUERY_MS) {
+        this._assertNetworkConsent('query');
+        const relay = normalizeNostrRelayUrls([relayUrl]).filter(Boolean)[0];
+        if (!relay) return [];
+        try {
+            return (await this._pool.querySync([relay], filter, { maxWait: ms })) || [];
+        } catch {
+            return [];
+        }
+    },
+
     async _query(filter, ms = QUERY_MS) {
         return this._queryFast(filter, ms);
     },

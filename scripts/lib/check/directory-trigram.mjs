@@ -61,6 +61,33 @@ check(
     'live crawl uses per-relay until',
     /untilByRelay/.test(directoryListJs) && /_queryRelays/.test(directoryListJs)
 );
+check(
+    'crawl paints per relay (first response)',
+    /crawlRelay/.test(directoryListJs) && /_queryRelayDirect/.test(directoryListJs + '\n' + readFileSync(join(root, 'src/features/nostr/api/client/core.js'), 'utf8'))
+);
+check(
+    'crawl first-wins early exit',
+    /filledGate/.test(directoryListJs) && /signalFilled/.test(directoryListJs)
+);
+check(
+    'crawl streams one row at a time',
+    /onPartial\(\[row\]\)/.test(directoryListJs) && /budgetForPage/.test(directoryListJs)
+);
+check(
+    'crawl prioritizes first viewport then fills ahead',
+    /FIRST_VIEWPORT_STREAM/.test(directoryListJs)
+);
+check(
+    'crawl invalidates superseded fetches',
+    /_directoryCrawlGen/.test(directoryListJs)
+);
+check(
+    'directory list does not await bundle warm before crawl',
+    /queueMicrotask/.test(directoryListJs) &&
+        /_publishedBundleStateCached\(\)/.test(directoryListJs) &&
+        !/await Promise\.all\(\[bundleWarm/.test(directoryListJs) &&
+        !/await this\._publishedBundleStateCached\(\)/.test(directoryListJs)
+);
 check('on-demand search (no live subscribe stub)', !/startDirectoryLiveSubscribe/.test(directorySrc));
 
 check('shard files removed', !readFileSync(join(root, 'package.json'), 'utf8').includes('directory-catalog:build'));
