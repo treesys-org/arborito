@@ -395,6 +395,11 @@ export function getActiveBlocks(blocks, toc, activeSectionIndex) {
     }
     if (startIndex === -1) startIndex = 0;
 
+    /* Preamble before the first syllabus heading (@video, prose, etc.) belongs to
+     * section 0 — same rule as getTocSectionRanges. Without this, layout "video
+     * above first @section" never renders in student view when toc.length > 1. */
+    if (activeSectionIndex === 0 && startIndex > 0) startIndex = 0;
+
     let endIndex = blocks.length;
     if (nextItem) {
         const ordNext = tocIdOrdinalBefore(toc, activeSectionIndex + 1);
