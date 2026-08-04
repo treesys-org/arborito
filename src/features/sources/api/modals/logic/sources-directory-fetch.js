@@ -669,8 +669,44 @@ export async function runGlobalDirectoryFetch(state, setters, { onUpdate, reason
                     rows = Array.isArray(rows) ? rows : [];
                     rows = rows.filter((r) => !store.isNostrTreeMaintainerBlocked(r?.ownerPub, r?.universeId));
                     if (rows.length) directoryFetchError = '';
+                    directoryHitCap = rows.length >= fetchLimit;
                 } catch (e) {
                     if (!directoryFetchError) directoryFetchError = String(e?.message || e);
+                }
+            }
+
+            /*
+             * Pathologically thin first crawl (under the mirror-fallback band)
+             * used to lock Discover: hitCap stayed false so infinite-scroll never
+             * widened. One unpause + re-crawl recovers when relays were still
+             * warming / cooling after a truncated answer.
+             */
+            if (
+                net &&
+                !directoryFetchError &&
+                rows.length > 0 &&
+                rows.length < 8 &&
+                typeof net.listGlobalTreeDirectoryEntriesOnce === 'function'
+            ) {
+                try {
+                    net._unpauseAllRelays?.();
+                    let retryRows = await net.listGlobalTreeDirectoryEntriesOnce({
+                        limit: fetchLimit,
+                        query: q,
+                        onPartial: publishPartialRows,
+                    });
+                    if (!stillCurrent()) return;
+                    retryRows = Array.isArray(retryRows) ? retryRows : [];
+                    retryRows = retryRows.filter(
+                        (r) => !store.isNostrTreeMaintainerBlocked(r?.ownerPub, r?.universeId)
+                    );
+                    if (retryRows.length > rows.length) {
+                        rows = retryRows;
+                        directoryHitCap = rows.length >= fetchLimit;
+                        publishPartialRows(rows);
+                    }
+                } catch {
+                    /* keep the first crawl */
                 }
             }
 

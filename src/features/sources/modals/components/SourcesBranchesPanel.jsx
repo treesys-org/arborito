@@ -482,7 +482,7 @@ export function SourcesBranchesPanel({
                     </div>
                 ) : null}
                 {showMineExploreCta && !showMineSearchExploreCta ? (
-                    <div className="arborito-empty arborito-empty--card arborito-sources-mine-empty mt-1 flex-1 min-h-[12rem] justify-center">
+                    <div className="arborito-empty arborito-empty--card arborito-sources-mine-empty mt-1 flex-1 min-h-[12rem] justify-start sm:justify-center">
                         <p className="arborito-empty__title">
                             {ui.sourcesUnifiedEmptyMine || 'No courses here yet'}
                         </p>
@@ -500,7 +500,7 @@ export function SourcesBranchesPanel({
                     </div>
                 ) : null}
                 {showMineSearchExploreCta ? (
-                    <div className="arborito-empty arborito-empty--card arborito-sources-mine-empty mt-1 flex-1 min-h-[12rem] justify-center">
+                    <div className="arborito-empty arborito-empty--card arborito-sources-mine-empty mt-1 flex-1 min-h-[12rem] justify-start sm:justify-center">
                         <p className="arborito-empty__title">
                             {ui.sourcesEmptySearchMine || 'Nothing in My courses'}
                         </p>

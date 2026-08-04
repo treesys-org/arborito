@@ -93,11 +93,19 @@ export function buildSageRagBrief({ lang, lastMsg, plan, sources = [], appKnowle
     }
 
     if (plan.intent === SAGE_INTENT.NAV_OUTLINE) {
-        lines.push(
-            L === 'ES'
-                ? 'Responde listando exactamente los submódulos y lecciones del bloque [Módulo: …] siguiente.'
-                : 'Answer by listing exactly the submodules and lessons in the [Module: …] block below.'
-        );
+        if (plan.courseMapBlock && !plan.moduleBlock) {
+            lines.push(
+                L === 'ES'
+                    ? 'Pregunta sobre el CURSO CARGADO (temario), no sobre la app. Usá [Mapa del curso]: título, descripción y módulos listados. NO expliques la sección Cursos de Arborito ni cómo importar .arborito.'
+                    : 'Question about the LOADED COURSE (syllabus), not the app. Use [Course map]: title, description, and listed modules. Do NOT explain Arborito’s Courses section or how to import .arborito files.'
+            );
+        } else {
+            lines.push(
+                L === 'ES'
+                    ? 'Responde listando exactamente los submódulos y lecciones del bloque [Módulo: …] siguiente. Si también hay [Mapa del curso], usalo para el panorama.'
+                    : 'Answer by listing exactly the submodules and lessons in the [Module: …] block below. If [Course map] is also present, use it for the overview.'
+            );
+        }
     } else if (plan.intent === SAGE_INTENT.APP_HELP) {
         lines.push(
             appKnowledgeOnly

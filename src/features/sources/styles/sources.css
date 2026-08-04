@@ -862,6 +862,7 @@ button.arborito-sources-row-title--button {
 .arborito-sources-mine-empty {
     width: 100%;
     box-sizing: border-box;
+    /* Desktop: tall centered card. Mobile overrides below — keyboard must not cover CTA. */
     min-height: max(12rem, 42vh);
     padding: 1.75rem 1.25rem;
 }

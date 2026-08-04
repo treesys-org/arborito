@@ -23,6 +23,12 @@ export {
 } from './sage-tree-rag-intent.js';
 
 export {
+    isCurriculumCourseDeixis,
+    hasStrongAppProductSignal,
+    resolveCourseVsAppIntentGate,
+} from './sage-course-intent.js';
+
+export {
     resolveArboritoDemoRagBudget,
     preloadRagLessonContent,
     collectTreeRagEvidence,

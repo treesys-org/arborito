@@ -156,8 +156,8 @@ export function composeSageSystemContext({
                 : '\n\nIMPORTANT: There is an [Arborito application help — NOT the loaded course] block. That is product knowledge (how the app works). It is NOT the open syllabus. [Course map], [Module: …], and [Current lesson] are the loaded course. Do not say the user is studying the “Arborito course”, demo, or Welcome trail unless that is the open tree.';
         } else {
             systemContext += lang === 'ES'
-                ? '\n\nUsa el CONTEXTO como fuente principal. Los bloques [Mapa del curso], [Módulo: …] y [Lección actual] describen el curso cargado. El bloque [Documentación de la app Arborito] es ayuda del producto (no es el temario del curso). Para preguntas de estructura del curso, enumera lo listado; no inventes lecciones ni comandos.'
-                : '\n\nUse CONTEXT as the primary source. Blocks [Course map], [Module: …], and [Current lesson] describe the loaded course. [Arborito app documentation] is product help (not the course syllabus). For course structure questions, list what is shown; do not invent lessons or commands.';
+                ? '\n\nUsa el CONTEXTO como fuente principal. Los bloques [Mapa del curso], [Módulo: …] y [Lección actual] describen el curso cargado. El bloque [Documentación de la app Arborito] es ayuda del producto (no es el temario del curso). Si preguntan «de qué trata este curso» o similar, respondé con el mapa/temario cargado — nunca con la sección Cursos de la app. Para estructura, enumera lo listado; no inventes lecciones ni comandos.'
+                : '\n\nUse CONTEXT as the primary source. Blocks [Course map], [Module: …], and [Current lesson] describe the loaded course. [Arborito app documentation] is product help (not the course syllabus). If they ask what “this course” is about, answer from the loaded map/syllabus — never from the app Courses section. For course structure questions, list what is shown; do not invent lessons or commands.';
         }
         if (appHelp) {
             systemContext += lang === 'ES'

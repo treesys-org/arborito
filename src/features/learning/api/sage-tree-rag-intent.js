@@ -10,6 +10,10 @@ import {
     expandQueryByProductVocab,
     matchVocabByQueryPrefix,
 } from './sage-app-stems.js';
+import {
+    isCurriculumCourseDeixis,
+    hasStrongAppProductSignal,
+} from './sage-course-intent.js';
 
 export const ARBORITO_APP_QUERY_RE =
     /\b(arborito|sage|arcade|memory\s*garden|jard[ií]n|construcci[oó]n|construction|bosque|forest|cursos|courses|backpack|mochila|flatpak|aplicaci[oó]n)\b/i;
@@ -49,13 +53,14 @@ const MODULE_QUERY_RE = /\b(m[oó]dulo|module|cap[ií]tulo|chapter|unidad|unit|s
 
 /** User wants the syllabus / outline (not only when they say "módulo"). */
 const MODULE_OUTLINE_QUERY_RE =
-    /\b(dentro\s+(de(l|\s+la|\s+el)?)?|qu[eé]\s+hay|que\s+hay|contenido|temas|lecciones|incluye|submodulo|sub-?m[oó]dulo|estructura|qu[eé]\s+trata|que\s+trata|partes|componentes)\b/i;
+    /\b(dentro\s+(de(l|\s+la|\s+el)?)?|qu[eé]\s+hay|que\s+hay|contenido|temas|lecciones|incluye|submodulo|sub-?m[oó]dulo|estructura|qu[eé]\s+trata|que\s+trata|partes|componentes|temario|syllabus|overview)\b/i;
 
 const COURSE_TOPIC_GUARD_RE =
     /\b(m[oó]dulo|lecci[oó]n|curso|chmod|linux|bash|permiso|propiedad|examen|quiz|explica|resumen|script|directorio|ruta|usuario|grupo)\b/i;
 
 export function wantsModuleOutline(query) {
     const q = String(query || '');
+    if (isCurriculumCourseDeixis(q)) return true;
     return MODULE_QUERY_RE.test(q) || MODULE_OUTLINE_QUERY_RE.test(q);
 }
 
@@ -63,6 +68,7 @@ export function wantsModuleOutline(query) {
 export function isPrimarilyArboritoAppQuery(query) {
     const raw = String(query || '').trim();
     if (!raw) return false;
+    if (isCurriculumCourseDeixis(raw) && !hasStrongAppProductSignal(raw)) return false;
     if (isMetaAppQuestion(raw)) return true;
     const q = expandQueryByProductVocab(raw);
     const vocabHits = matchVocabByQueryPrefix(raw);
@@ -73,6 +79,7 @@ export function isPrimarilyArboritoAppQuery(query) {
         || /\b(cu[eé]ntame|cuentame|hablame|h[aá]blame|tell me)\s+(de|sobre|about)\b/i.test(q);
     const namesApp =
         vocabHits.length > 0
+        || hasStrongAppProductSignal(raw)
         || /\b(arcade|arborito|sage|mochila|backpack|memory\s*garden|flatpak|construcci[oó]n|bosque|forest|cursos|courses|aplicaci[oó]n)\b/i.test(q);
 
     if (appDefQuestion && namesApp) return true;
@@ -440,8 +447,8 @@ export function resolveSageIntentQuery(lastMsg, messages = []) {
 
     if (/\bbosque\b/i.test(q)) q += ' forest cursos courses arborito';
     else if (/\bforest\b/i.test(q)) q += ' bosque cursos courses arborito';
-    else if (/\bcursos\b/i.test(q)) q += ' courses bosque forest arborito';
-    else if (/\bcourses\b/i.test(q)) q += ' cursos forest bosque arborito';
+    else if (/\bcursos\b/i.test(q) && !isCurriculumCourseDeixis(q)) q += ' courses bosque forest arborito';
+    else if (/\bcourses\b/i.test(q) && !isCurriculumCourseDeixis(q)) q += ' cursos forest bosque arborito';
 
     if (SHORT_APP_FOLLOWUP_RE.test(q) && (ARBORITO_APP_QUERY_RE.test(q) || matchVocabByQueryPrefix(q).length)) {
         q += ' arborito app';
@@ -451,11 +458,17 @@ export function resolveSageIntentQuery(lastMsg, messages = []) {
         q += ' sage búho sabio owl arborito';
     }
 
-    if (/\b(qu[eé]|que|what)\s+(sabes|sabe|know|conoces|conoce)\s+(de|sobre|about)\b/i.test(q)) {
+    if (
+        /\b(qu[eé]|que|what)\s+(sabes|sabe|know|conoces|conoce)\s+(de|sobre|about)\b/i.test(q)
+        && !isCurriculumCourseDeixis(q)
+    ) {
         q += ' arborito app';
     }
 
-    if (/\b(cu[eé]ntame|cuentame|hablame|h[aá]blame|tell me)\s+(de|sobre|about)\b/i.test(q)) {
+    if (
+        /\b(cu[eé]ntame|cuentame|hablame|h[aá]blame|tell me)\s+(de|sobre|about)\b/i.test(q)
+        && !isCurriculumCourseDeixis(q)
+    ) {
         q += ' arborito';
     }
 
@@ -492,8 +505,8 @@ export function expandSageRagQuery(lastMsg, messages = []) {
     merged = expandQueryByProductVocab(merged);
     if (/\bbosque\b/i.test(merged)) merged += ' forest cursos courses arborito';
     else if (/\bforest\b/i.test(merged)) merged += ' bosque cursos courses arborito';
-    else if (/\bcursos\b/i.test(merged)) merged += ' courses bosque forest arborito';
-    else if (/\bcourses\b/i.test(merged)) merged += ' cursos forest bosque arborito';
+    else if (/\bcursos\b/i.test(merged) && !isCurriculumCourseDeixis(merged)) merged += ' courses bosque forest arborito';
+    else if (/\bcourses\b/i.test(merged) && !isCurriculumCourseDeixis(merged)) merged += ' cursos forest bosque arborito';
     return merged.trim();
 }
 

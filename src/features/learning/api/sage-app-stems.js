@@ -8,6 +8,11 @@
  */
 
 import { tokenizeForSearch } from '../../search/api/search-index-core.js';
+import {
+    isCurriculumCourseDeixis,
+    hasStrongAppProductSignal,
+    isWeakCoursesVocabOnly,
+} from './sage-course-intent.js';
 
 /**
  * Vite rewrites `import.meta.glob(...)` to a module map. Do NOT guard with
@@ -50,6 +55,10 @@ function normalizeVocabToken(w) {
 export function expandKnownAppStems(q) {
     let out = String(q || '');
     if (!out.trim()) return out;
+    /*
+     * Plural UI “cursos/courses” only — singular “curso/course” is the loaded
+     * syllabus (“de qué trata este curso?”) and must not become product RAG.
+     */
     const rules = [
         { re: /\barbor/i, add: 'arborito', have: /\barborito\b/i },
         /* arc / arcad / arcade — whole-word so “archivo” does not match. */
@@ -57,17 +66,24 @@ export function expandKnownAppStems(q) {
         { re: /\bbosq/i, add: 'bosque forest cursos courses', have: /\b(bosque|forest|cursos|courses)\b/i },
         { re: /\bbosque?\b/i, add: 'bosque forest cursos courses', have: /\b(bosque|forest|cursos|courses)\b/i },
         { re: /\bforest/i, add: 'forest bosque cursos courses', have: /\b(bosque|forest|cursos|courses)\b/i },
-        { re: /\bcursos?\b/i, add: 'cursos courses bosque forest', have: /\b(bosque|forest|cursos|courses)\b/i },
-        { re: /\bcourses?\b/i, add: 'courses cursos forest bosque', have: /\b(bosque|forest|cursos|courses)\b/i },
+        { re: /\bcursos\b/i, add: 'cursos courses bosque forest', have: /\b(bosque|forest|cursos|courses)\b/i },
+        { re: /\bcourses\b/i, add: 'courses cursos forest bosque', have: /\b(bosque|forest|cursos|courses)\b/i },
         { re: /\bconstruc/i, add: 'construcción construction', have: /\bconstrucci/i },
         { re: /\bmochil/i, add: 'mochila backpack', have: /\b(mochila|backpack)\b/i },
     ];
+    const skipCoursesExpand =
+        isCurriculumCourseDeixis(out) && !hasStrongAppProductSignal(out);
     for (const { re, add, have } of rules) {
+        if (skipCoursesExpand && /\b(cursos|courses|bosque|forest)\b/i.test(add) && !/\b(arborito|arcade|mochila|backpack|construcci)/i.test(add)) {
+            continue;
+        }
         if (re.test(out) && !have.test(out)) out = `${out} ${add}`;
     }
     /* Typos like .arbprto / arbprto → arborito (+ file hint when dotted). */
     out = expandArboritoTypos(out);
-    out = expandBosqueTypos(out);
+    if (!(isCurriculumCourseDeixis(out) && !hasStrongAppProductSignal(out))) {
+        out = expandBosqueTypos(out);
+    }
     return out.trim();
 }
 
@@ -193,6 +209,11 @@ function queryTermsLoose(query) {
  * @returns {string[]}
  */
 export function matchVocabByQueryPrefix(query, vocab = getProductVocab()) {
+    const q0 = String(query || '');
+    /* “este curso” must not prefix-match product vocab “cursos”. */
+    if (isCurriculumCourseDeixis(q0) && !hasStrongAppProductSignal(q0)) {
+        return [];
+    }
     const terms = queryTermsLoose(query);
     if (!terms.length) return [];
     const bag = vocab instanceof Set ? vocab : new Set(vocab || []);
@@ -202,6 +223,17 @@ export function matchVocabByQueryPrefix(query, vocab = getProductVocab()) {
     for (const term of terms) {
         for (const word of bag) {
             if (VOCAB_STOP.has(word)) continue;
+            /*
+             * False friend: Spanish/English “curso/course” (syllabus) vs UI “cursos/courses”.
+             * Exact plural still matches product help (“qué es Cursos”).
+             */
+            if (
+                (term === 'curso' || term === 'course')
+                && (word === 'cursos' || word === 'courses' || word === 'curso' || word === 'course')
+                && word !== term
+            ) {
+                continue;
+            }
             if (word === term) {
                 hits.add(word);
                 continue;
@@ -216,7 +248,12 @@ export function matchVocabByQueryPrefix(query, vocab = getProductVocab()) {
             }
         }
     }
-    return [...hits];
+    const out = [...hits];
+    if (isWeakCoursesVocabOnly(out) && !hasStrongAppProductSignal(q0)) {
+        /* Bare “curso” noise with no product cue — ignore. */
+        if (!/\bcursos\b|\bcourses\b/i.test(q0)) return [];
+    }
+    return out;
 }
 
 /**
@@ -227,6 +264,10 @@ export function matchVocabByQueryPrefix(query, vocab = getProductVocab()) {
 export function expandQueryByProductVocab(query, vocab = getProductVocab()) {
     const q0 = String(query || '').trim();
     if (!q0) return q0;
+    if (isCurriculumCourseDeixis(q0) && !hasStrongAppProductSignal(q0)) {
+        /* Keep typo expands for arborito/arcade, but never inject Cursos/Bosque. */
+        return expandKnownAppStems(q0);
+    }
     let q = expandKnownAppStems(q0);
     const hits = matchVocabByQueryPrefix(q0, vocab);
     if (!hits.length) return q;
@@ -234,6 +275,13 @@ export function expandQueryByProductVocab(query, vocab = getProductVocab()) {
     if (!missing.length) return q;
     return `${q} ${missing.join(' ')}`.trim();
 }
+
+export {
+    isCurriculumCourseDeixis,
+    hasStrongAppProductSignal,
+    isWeakCoursesVocabOnly,
+} from './sage-course-intent.js';
+
 
 function escapeRe(s) {
     return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

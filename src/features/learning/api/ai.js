@@ -281,7 +281,7 @@ async function buildSageContextBlock({ mode, lang, lastMsg, contextNode, message
         }
     }
 
-    const activeLesson =
+    let activeLesson =
         plan.includeActiveLesson && isLessonNode(focusNode) && focusNode.content
             ? buildSageActiveLessonContext(store, focusNode, lang, budgets.lesson)
             : '';
@@ -305,17 +305,43 @@ async function buildSageContextBlock({ mode, lang, lastMsg, contextNode, message
             maxNodes:
                 plan.intent === SAGE_INTENT.NAV_OUTLINE
                     ? Math.min(6, budgets.ragNodes)
-                    : activeLesson
+                    : activeLesson || plan.intent === SAGE_INTENT.LESSON_QA
                       ? budgets.ragNodesWithLesson
                       : budgets.ragNodes,
             maxChars:
                 plan.intent === SAGE_INTENT.NAV_OUTLINE
                     ? Math.floor(budgets.tree * 0.45)
-                    : activeLesson
+                    : activeLesson || plan.intent === SAGE_INTENT.LESSON_QA
                       ? Math.floor(budgets.tree * 0.85)
                       : budgets.tree,
         };
-        await preloadRagLessonContent(store, rawGraph, lang, ragOpts, plan.intent === SAGE_INTENT.NAV_OUTLINE ? 1 : 2);
+        const preloadN =
+            plan.intent === SAGE_INTENT.LESSON_QA
+                ? Math.max(3, budgets.ragNodesWithLesson || 3)
+                : plan.intent === SAGE_INTENT.NAV_OUTLINE
+                  ? 1
+                  : 2;
+        await preloadRagLessonContent(store, rawGraph, lang, ragOpts, preloadN);
+        /* Focus may have been filled by RAG preload when direct load failed. */
+        if (
+            plan.includeActiveLesson
+            && focusNode
+            && isLessonNode(focusNode)
+            && !activeLesson
+            && focusNode.content
+        ) {
+            activeLesson = buildSageActiveLessonContext(store, focusNode, lang, budgets.lesson);
+            if (activeLesson) {
+                parts.push(activeLesson);
+                grounding.hasLesson = true;
+                ragOpts.excludeNodeId = focusNode.id;
+                briefSources.push({
+                    kind: 'lesson',
+                    title: focusNode?.name || (lang === 'ES' ? 'Lección actual' : 'Current lesson'),
+                    snippet: summarizeContextPart(activeLesson),
+                });
+            }
+        }
         const rag = collectTreeRagEvidence(rawGraph, lang, {
             ...ragOpts,
             ui: store.ui || store.value?.ui || {},
@@ -335,6 +361,19 @@ async function buildSageContextBlock({ mode, lang, lastMsg, contextNode, message
             briefSources.push({
                 kind: 'lesson',
                 title: lang === 'ES' ? 'Lecciones del árbol' : 'Tree lessons',
+                snippet: summarizeContextPart(String(rag.text)),
+            });
+        } else if (
+            rag?.text
+            && plan.intent === SAGE_INTENT.LESSON_QA
+            && !grounding.hasLesson
+        ) {
+            /* Named lesson still lazy — at least feed RAG snippets so we do not invent. */
+            parts.push(String(rag.text));
+            grounding.hasRag = true;
+            briefSources.push({
+                kind: 'lesson',
+                title: lang === 'ES' ? 'Lección recuperada' : 'Retrieved lesson',
                 snippet: summarizeContextPart(String(rag.text)),
             });
         }

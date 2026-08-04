@@ -191,3 +191,17 @@
     padding-left: 0.75rem !important;
     padding-right: 0.75rem !important;
 }
+
+/*
+ * “Mis cursos” empty CTA — keep “Ir a Explorar” above the virtual keyboard.
+ * A tall centered card (42vh + justify-center) parked the button behind the IME.
+ */
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal--sources
+    .arborito-sources-mine-empty {
+    flex: 0 0 auto !important;
+    justify-content: flex-start !important;
+    min-height: 0 !important;
+    margin-top: 0.75rem !important;
+    padding: 1.1rem 1rem 1.25rem !important;
+}

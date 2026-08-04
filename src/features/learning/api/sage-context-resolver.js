@@ -15,6 +15,13 @@ import {
     queryTerms,
 } from './sage-tree-rag.js';
 import { matchVocabByQueryPrefix, expandQueryByProductVocab } from './sage-app-stems.js';
+import {
+    isCurriculumCourseDeixis,
+    hasStrongAppProductSignal,
+    isWeakCoursesVocabOnly,
+    resolveCourseVsAppIntentGate,
+    STRONG_LESSON_SCORE,
+} from './sage-course-intent.js';
 import { DEMO_BRANCH_ID, DEMO_BRANCH_UNIVERSE } from '../../../core/demo/arborito-demo-ids.js';
 import { isBundledDemoBranchId } from '../../publishing/api/demo-tree-guard.js';
 
@@ -167,6 +174,7 @@ function inferIntent({
     contextNode,
     wantsOutline,
     messages,
+    hasTree = false,
 }) {
     if (isCasualSageGreeting(lastMsg)) return SAGE_INTENT.GREETING;
 
@@ -180,30 +188,52 @@ function inferIntent({
             ARBORITO_APP_TERMS.test(raw)
             || matchVocabByQueryPrefix(lastMsg).length > 0
         );
+    const vocabHits = matchVocabByQueryPrefix(lastMsg);
+    const strongApp = hasStrongAppProductSignal(raw);
+    const weakCoursesOnly = isWeakCoursesVocabOnly(vocabHits) && !strongApp;
     const appHit =
         metaApp
-        || ARBORITO_APP_TERMS.test(raw)
-        || matchVocabByQueryPrefix(lastMsg).length > 0;
+        || (ARBORITO_APP_TERMS.test(raw) && !isCurriculumCourseDeixis(raw))
+        || (vocabHits.length > 0 && !weakCoursesOnly)
+        || strongApp;
     const courseHit = intentBranchScore >= 24 || intentLeafScore >= 24;
     const appTopicFollow =
         isFollowUpQuery(lastMsg, messages)
         && !!sessionFocus?.appTopic
         && !courseHit;
 
-    /* Never let product-vocab / appQuestion override a strong course catalog match. */
+    const gate = resolveCourseVsAppIntentGate({
+        raw,
+        wantsOutline,
+        courseHit,
+        metaApp,
+        shortAppFollow,
+        appTopicFollow,
+        appHit,
+        hasTree,
+        leafScore: intentLeafScore,
+    });
+    if (gate === 'app_help') return SAGE_INTENT.APP_HELP;
+    if (gate === 'lesson_qa') return SAGE_INTENT.LESSON_QA;
+    if (gate === 'nav_outline') return SAGE_INTENT.NAV_OUTLINE;
+
+    /* Named lesson (“hola mundo”) before outline regex (“trata”). */
     if (
-        (metaApp && !courseHit)
-        || appTopicFollow
-        || shortAppFollow
-        || (appHit && !courseHit)
+        intentLeafScore >= STRONG_LESSON_SCORE
+        && !isCurriculumCourseDeixis(raw)
+        && intentLeafScore >= intentBranchScore
     ) {
-        if (!wantsOutline || appHit || shortAppFollow || metaApp || appTopicFollow) {
-            return SAGE_INTENT.APP_HELP;
-        }
+        return SAGE_INTENT.LESSON_QA;
     }
 
-    if (wantsOutline || NAV_HINT_RE.test(raw)) {
-        if (intentBranchScore >= 14 || sessionFocus?.branchId) return SAGE_INTENT.NAV_OUTLINE;
+    if (wantsOutline || NAV_HINT_RE.test(raw) || isCurriculumCourseDeixis(raw)) {
+        if (
+            intentBranchScore >= 14
+            || sessionFocus?.branchId
+            || (hasTree && (isCurriculumCourseDeixis(raw) || (wantsOutline && intentLeafScore < STRONG_LESSON_SCORE)))
+        ) {
+            return SAGE_INTENT.NAV_OUTLINE;
+        }
     }
     /* Session follow-ups alone must not force outline over a strong lesson match. */
     if (
@@ -232,17 +262,39 @@ function inferIntent({
     return SAGE_INTENT.GENERAL;
 }
 
+function countLeavesUnder(node) {
+    let n = 0;
+    const walk = (x) => {
+        if (!x) return;
+        if (x.type === 'leaf' || x.type === 'exam') n += 1;
+        if (Array.isArray(x.children)) x.children.forEach(walk);
+    };
+    walk(node);
+    return n;
+}
+
 function buildCourseMapBlock(treeRoot, lang, maxChars) {
     if (!treeRoot?.children?.length) return '';
     const header = lang === 'ES' ? '[Mapa del curso]' : '[Course map]';
     const lines = [header];
+    const rootName = String(treeRoot.name || '').trim();
+    const rootDesc = String(treeRoot.description || '').trim();
+    if (rootName) {
+        lines.push(lang === 'ES' ? `Curso cargado: ${rootName}` : `Loaded course: ${rootName}`);
+    }
+    if (rootDesc) lines.push(rootDesc);
+    lines.push(
+        lang === 'ES'
+            ? 'Módulos del temario (enumera estos — no la sección Cursos de la app):'
+            : 'Syllabus modules (list these — not the app Courses section):'
+    );
     for (const child of treeRoot.children) {
         if (!child || child.type !== 'branch') continue;
         const name = String(child.name || child.id || '').trim();
         const desc = String(child.description || '').trim();
         let countHint = '';
         if (Array.isArray(child.children)) {
-            const leaves = child.children.filter((c) => c && (c.type === 'leaf' || c.type === 'exam')).length;
+            const leaves = countLeavesUnder(child);
             const subs = child.children.filter((c) => c && c.type === 'branch').length;
             if (leaves || subs) {
                 countHint =
@@ -278,6 +330,7 @@ export function resolveSageContextPlan({
     const ragTerms = queryTerms(ragQuery);
     const intentTerms = queryTerms(intentQuery);
     const wantsOutline = wantsModuleOutline(String(lastMsg || '')) || NAV_HINT_RE.test(String(lastMsg || ''));
+    const wholeCourseAsk = isCurriculumCourseDeixis(String(lastMsg || ''));
     const sourceKey = activeSourceId != null ? String(activeSourceId) : '';
 
     /* Drop focus bound to a previous curriculum source. */
@@ -368,7 +421,7 @@ export function resolveSageContextPlan({
         bestBranchScore = Math.max(bestBranchScore, 45);
     }
 
-    const intent = inferIntent({
+    let intent = inferIntent({
         lastMsg,
         intentQuery,
         intentBranchScore,
@@ -377,7 +430,30 @@ export function resolveSageContextPlan({
         contextNode,
         wantsOutline,
         messages,
+        hasTree: true,
     });
+    /* Safety net: never answer product Cursos docs for “este curso” on a real tree. */
+    if (
+        intent === SAGE_INTENT.APP_HELP
+        && !isDemoCurriculum
+        && wholeCourseAsk
+        && !hasStrongAppProductSignal(String(lastMsg || ''))
+        && !isMetaAppQuestion(lastMsg)
+    ) {
+        intent = SAGE_INTENT.NAV_OUTLINE;
+    }
+    /*
+     * “de qué trata Hola mundo” used to stay NAV_OUTLINE (word “trata”) and never
+     * load the lesson body — model invented from the title alone.
+     */
+    if (
+        (intent === SAGE_INTENT.NAV_OUTLINE || intent === SAGE_INTENT.GENERAL)
+        && !wholeCourseAsk
+        && bestLeafScore >= STRONG_LESSON_SCORE
+        && bestLeafScore >= bestBranchScore
+    ) {
+        intent = SAGE_INTENT.LESSON_QA;
+    }
 
     if (intent === SAGE_INTENT.GREETING) {
         return { ...empty, intent, includeCourseRag: false, includeActiveLesson: false };
@@ -411,7 +487,11 @@ export function resolveSageContextPlan({
     }
 
     let focusNode = null;
-    if (bestLeafScore >= 40 || (ragTerms.length && bestLeafScore >= 28)) {
+    if (
+        bestLeafScore >= 40
+        || (ragTerms.length && bestLeafScore >= STRONG_LESSON_SCORE)
+        || (intent === SAGE_INTENT.LESSON_QA && bestLeafScore >= STRONG_LESSON_SCORE)
+    ) {
         focusNode = bestLeaf;
     } else if (
         intent === SAGE_INTENT.LESSON_QA &&
@@ -427,11 +507,17 @@ export function resolveSageContextPlan({
         focusNode = findNodeById(treeRoot, contextNode.id) || null;
     }
 
+    /*
+     * Whole-course deixis (“de qué trata este curso”) → course map, not a
+     * weakly matched submodule (or leftover session focus on Arranque).
+     */
     let moduleBranch = null;
-    if (intent === SAGE_INTENT.NAV_OUTLINE) {
+    if (intent === SAGE_INTENT.NAV_OUTLINE && wholeCourseAsk && bestBranchScore < 40) {
+        moduleBranch = null;
+    } else if (intent === SAGE_INTENT.NAV_OUTLINE) {
         moduleBranch =
             (bestBranchScore >= 14 ? bestBranch : null)
-            || sessionBranch
+            || (!wholeCourseAsk ? sessionBranch : null)
             || (focusNode ? findParentBranch(treeRoot, focusNode.id) : null)
             || (contextNode?.type === 'branch' ? findNodeById(treeRoot, contextNode.id) : null);
     } else if (bestBranchScore >= 55) {
@@ -441,17 +527,23 @@ export function resolveSageContextPlan({
     }
 
     const outlineMode = intent === SAGE_INTENT.NAV_OUTLINE || wantsOutline;
+    /* Lesson Q&A needs the body, not a module title list that crowds out RAG. */
     const moduleBlock =
-        moduleBranch && (intent === SAGE_INTENT.NAV_OUTLINE || wantsOutline || bestBranchScore >= 40)
+        intent !== SAGE_INTENT.LESSON_QA
+        && moduleBranch
+        && (intent === SAGE_INTENT.NAV_OUTLINE || wantsOutline || bestBranchScore >= 40)
             ? buildModuleOverviewBlock(moduleBranch, lang, moduleBudget, outlineMode)
             : '';
 
     const courseMapBlock =
-        intent === SAGE_INTENT.NAV_OUTLINE && !moduleBlock
+        intent === SAGE_INTENT.NAV_OUTLINE && (!moduleBlock || wholeCourseAsk)
             ? buildCourseMapBlock(treeRoot, lang, mapBudget)
             : intent === SAGE_INTENT.GENERAL && ragTerms.length <= 2 && !focusNode
               ? buildCourseMapBlock(treeRoot, lang, Math.min(mapBudget, 800))
               : '';
+
+    /* Prefer the map alone for whole-course asks so the model is not pulled into Arranque. */
+    const moduleBlockFinal = wholeCourseAsk && courseMapBlock ? '' : moduleBlock;
 
     const focusParentId =
         focusNode?.parentId
@@ -461,34 +553,42 @@ export function resolveSageContextPlan({
 
     const sessionPatch = {
         sageNavFocus: stampFocus({
-            branchId: moduleBranch?.id || sessionBranch?.id || focus?.branchId || null,
+            branchId: moduleBlockFinal
+                ? (moduleBranch?.id || sessionBranch?.id || focus?.branchId || null)
+                : (wholeCourseAsk ? null : (moduleBranch?.id || sessionBranch?.id || focus?.branchId || null)),
             nodeId: focusNode?.id || focus?.nodeId || null,
-            path: moduleBranch?.path || focusNode?.path || focus?.path || null,
-            appTopic: focus?.appTopic || null,
+            path: moduleBlockFinal
+                ? (moduleBranch?.path || focusNode?.path || focus?.path || null)
+                : (wholeCourseAsk ? null : (moduleBranch?.path || focusNode?.path || focus?.path || null)),
+            appTopic: wholeCourseAsk ? null : (focus?.appTopic || null),
         }),
     };
 
     const includeActiveLesson =
         intent === SAGE_INTENT.LESSON_QA
-        || (intent === SAGE_INTENT.GENERAL && !!focusNode);
+        || (intent === SAGE_INTENT.GENERAL && !!focusNode)
+        || (!!focusNode && bestLeafScore >= STRONG_LESSON_SCORE);
 
     /* Demo product docs only on the demo curriculum, or explicit meta “what is this app”. */
     const includeDemoRag =
         intent === SAGE_INTENT.APP_HELP
-        || (isDemoCurriculum && ARBORITO_APP_TERMS.test(String(lastMsg || '')) && !moduleBlock)
-        || (isMetaAppQuestion(lastMsg) && !moduleBlock);
+        || (isDemoCurriculum && ARBORITO_APP_TERMS.test(String(lastMsg || '')) && !moduleBlockFinal && !courseMapBlock)
+        || (isMetaAppQuestion(lastMsg) && !moduleBlockFinal && !courseMapBlock);
 
     return {
         intent,
         query: ragQuery,
         intentQuery,
         focusNode,
-        moduleBranch,
-        moduleBlock,
+        moduleBranch: moduleBlockFinal ? moduleBranch : null,
+        moduleBlock: moduleBlockFinal,
         courseMapBlock,
         focusParentId,
         includeActiveLesson,
-        includeCourseRag: true,
+        /* Named-lesson questions must run course RAG (+ preload) even after outline heuristics. */
+        includeCourseRag:
+            intent === SAGE_INTENT.LESSON_QA
+            || !(intent === SAGE_INTENT.NAV_OUTLINE && wholeCourseAsk),
         includeDemoRag,
         sessionPatch,
     };

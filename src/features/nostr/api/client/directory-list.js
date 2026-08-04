@@ -575,9 +575,12 @@ export const directoryListMixin = {
         const maxAgeSec = Math.max(86400, Number(DIRECTORY_CLIENT_CRAWL_MAX_AGE_SEC) || 180 * 86400);
         const oldestAllowed = Math.floor(Date.now() / 1000) - maxAgeSec;
         const nowUntil = Math.floor(Date.now() / 1000) + 60;
-        /** Cold first REQ; later pages stay short — peers that already answered keep paging. */
+        /**
+         * Cold first REQ stays snappy; later pages use the full query budget so
+         * Pages cold-load does not timeout mid-batch and falsely EOSE the peer.
+         */
         const FIRST_WAIT_MS = Math.min(QUERY_MS, 3500);
-        const NEXT_WAIT_MS = Math.min(QUERY_MS, 2500);
+        const NEXT_WAIT_MS = QUERY_MS;
         const maxPagesPerRelay = Math.ceil(maxEvents / 1) + 2;
 
         /* Invalidate older Discover crawls still finishing after an early exit. */
@@ -699,7 +702,7 @@ export const directoryListMixin = {
          */
         let mergeTail = Promise.resolve();
         /**
-         * @param {{ relay: string, until: number, evs: object[], budget: number }} page
+         * @param {{ relay: string, until: number, evs: object[] }} page
          */
         const mergeRelayPage = (page) => {
             const run = async () => {
@@ -711,8 +714,18 @@ export const directoryListMixin = {
                 /* Still ingest the page that just arrived even if another peer
                  * already filled the limit — then stop. Dropping it lost rows on
                  * the second open when a stale crawl flipped stopAll mid-flight. */
-                const { relay, until, evs, budget } = page;
-                if (!evs.length || evs.length < budget) exhausted.add(relay);
+                const { relay, until, evs } = page;
+                /*
+                 * Empty page = real EOSE for this until-cursor.
+                 * Do **not** treat a short page (fewer events than the REQ limit)
+                 * as EOSE: querySync resolves on maxWait with a partial batch
+                 * (common on GitHub Pages cold WS). That used to exhaust every
+                 * peer after page 2 (budget 8), leave Discover with ~7 network
+                 * rows, and freeze widen (hitCap false). True end-of-history
+                 * still yields [] on the next page, or trips the stagnant
+                 * counter when events repeat without new keys.
+                 */
+                if (!evs.length) exhausted.add(relay);
                 let oldest = until;
                 for (const ev of evs) {
                     const ca = Number(ev.created_at) || 0;
@@ -791,7 +804,6 @@ export const directoryListMixin = {
                     relay,
                     until,
                     evs: Array.isArray(evs) ? evs : [],
-                    budget,
                 });
                 if (shouldStop() || exhausted.has(relay) || !crawlCurrent()) break;
                 const live = liveUniqueCount();

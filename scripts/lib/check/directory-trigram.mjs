@@ -70,6 +70,11 @@ check(
     /filledGate/.test(directoryListJs) && /signalFilled/.test(directoryListJs)
 );
 check(
+    'crawl does not EOSE on timeout-truncated pages',
+    /if\s*\(\s*!evs\.length\s*\)\s*exhausted\.add/.test(directoryListJs) &&
+        !/evs\.length\s*<\s*budget/.test(directoryListJs)
+);
+check(
     'crawl streams one row at a time',
     /onPartial\(\[row\]\)/.test(directoryListJs) && /budgetForPage/.test(directoryListJs)
 );

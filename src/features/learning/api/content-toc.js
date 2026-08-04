@@ -424,6 +424,7 @@ export const PROSE_BLOCK_TYPES = new Set([
     'video',
     'audio',
     'game',
+    'math',
 ]);
 
 export function sectionSliceHasProse(slice) {
