@@ -9,6 +9,7 @@ import { chromeEmojiHtml } from '../../../shared/lib/emoji-display.js';
 import { createQuizWizardMountShell } from './quiz-wizard-block.js';
 import { normalizeChallenge } from '../../learning/api/quiz-schema.js';
 import { mediaProviderSelectHtml } from './logic/editor-media-block.js';
+import { mediaProviderById } from '../../learning/api/lesson-media-providers.js';
 import { buildTableBlockHtml } from './logic/editor-table.js';
 import {
     parseArboritoFile,
@@ -76,6 +77,11 @@ export const BLOCKS = {
             ui.editorBlockMediaWhyBody ||
                 "We're a small team and, by law, must not host unmoderated uploads. We only allow platforms that already moderate. We'll add more over time."
         );
+        const openUploadTpl = ui.editorBlockMediaOpenUpload || 'Upload on {platform}';
+        const openUploadHint = escHtml(
+            ui.editorBlockMediaOpenUploadHint ||
+                'Open the site, upload your file, then paste the link here.'
+        );
         const localWarn = escHtml(
             ui.editorBlockMediaLocalDisclaimer ||
                 'Local files do not travel on the network and cannot be published online. If you want to publish this content, replace it with one of the platforms.'
@@ -88,6 +94,11 @@ export const BLOCKS = {
             (url ? '' : type === 'video' ? 'youtube' : type === 'audio' ? 'archive' : 'imgur');
         const isLocal = detectedProvider === 'local';
         const localFileLabel = isLocal && url ? escHtml(String(url).replace(/^.*\//, '')) : '';
+        const uploadProvider = mediaProviderById(detectedProvider);
+        const uploadHref = uploadProvider?.uploadUrl || '';
+        const openUploadLabel = uploadHref
+            ? escHtml(String(openUploadTpl).replace(/\{platform\}/g, uploadProvider.label || ''))
+            : '';
         return `
         <div class="edit-block-wrapper arborito-media-edit my-6 p-4 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl relative group flex flex-col items-stretch max-w-full" data-type="${type}"${url ? ` data-media-url="${escAttr(url)}"` : ''} data-media-provider="${detectedProvider}" contenteditable="false">
             <div class="remove-btn absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer shadow opacity-100 transition-opacity z-10" data-editor-action="remove-block" role="button" tabindex="-1" title="${escAttr(ui.delete || ui.editorBlockRemove || 'Remove')}">🗑️</div>
@@ -115,6 +126,10 @@ export const BLOCKS = {
                 </div>
             </div>
             <div class="media-network-foot mt-5 pt-1${isLocal ? ' hidden' : ''}"${isLocal ? ' hidden style="display:none"' : ''}>
+                <p class="media-upload-open-wrap mb-1.5 text-[11px] leading-snug${uploadHref ? '' : ' hidden'}"${uploadHref ? '' : ' hidden'}>
+                    <a class="media-upload-open-link font-semibold text-sky-700 dark:text-sky-300 underline underline-offset-2" href="${escAttr(uploadHref)}" target="_blank" rel="noopener noreferrer">${openUploadLabel}</a>
+                    <span class="media-upload-open-hint block mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">${openUploadHint}</span>
+                </p>
                 <p class="media-url-foot mb-0 text-[10px] leading-snug text-slate-500 dark:text-slate-400">
                     <button type="button" class="media-url-why-toggle underline underline-offset-2 hover:text-slate-700 dark:hover:text-slate-200 bg-transparent border-0 p-0 cursor-pointer text-[10px] text-inherit font-medium" aria-expanded="false">${whyLink}</button>
                 </p>

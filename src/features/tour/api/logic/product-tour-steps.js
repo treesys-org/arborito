@@ -39,10 +39,9 @@ export function mascotForTarget(mode, target) {
     else if (t === 'search' || t === 'mob-search') m = '🔍';
     else if (t === 'profile' || t === 'mob-profile') m = '🎒';
     else if (t === 'sage-fab' || t === 'mob-sage') m = '🦉';
-    else if (t === 'sources-main-tabs') m = '🌲';
+    else if (t === 'sources-main-tabs' || t === 'mob-sources') m = '🌲';
     else if (
         t === 'sources' ||
-        t === 'mob-sources' ||
         t === 'sources-pick-tree' ||
         t === 'sources-tab-branches' ||
         t === 'sources-demo-branch'

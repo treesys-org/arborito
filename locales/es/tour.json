@@ -156,8 +156,13 @@
     },
     {
       "target": "mob-search",
-      "title": "Buscar",
-      "body": "Encuentra lecciones por nombre dentro del curso que tienes abierto."
+      "title": "Buscar en este curso",
+      "body": "Arriba se despliega la búsqueda en el curso abierto. Si no está, te invita a Explorar otros cursos."
+    },
+    {
+      "target": "mob-sources",
+      "title": "Cursos",
+      "body": "Abre tus cursos y Explorar para encontrar otros en la red."
     },
     {
       "target": "mob-sage",
@@ -172,7 +177,7 @@
     {
       "target": "mob-more",
       "title": "Más",
-      "body": "Logros, idioma, construcción y ajustes. Cursos está arriba a la izquierda."
+      "body": "Logros, idioma, construcción y ajustes."
     }
   ],
   "uiTourStepsLessonEdit": [

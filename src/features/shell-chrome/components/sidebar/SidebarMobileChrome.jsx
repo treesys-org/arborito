@@ -7,6 +7,7 @@ import { MobDockTab, MobDockMenuIcon } from '../../../../shared/ui/MobDockTab.js
 import { ArboritoLogoMark } from './SidebarMobileMoreMenu.jsx';
 import { CreatorModerationBell } from './CreatorModerationBell.jsx';
 import { GuestAccountHintBadge } from './GuestAccountHintBadge.jsx';
+import { SidebarDesktopSearch } from './SidebarDesktopSearch.jsx';
 
 function openSageFromChrome({ onCloseMenu, selectedNode, modal, setModal, openSageModal }) {
     onCloseMenu?.();
@@ -41,7 +42,17 @@ function openSourcesDock({ onCloseMenu, sourcesActive, setModal, dockToggleModal
     setModal({ type: 'sources', dockUi: true });
 }
 
-export function SidebarMobileTopActions({ ui, chrome, onCloseMenu, dockToggleModal }) {
+export function SidebarMobileTopActions({
+    ui,
+    chrome,
+    onCloseMenu,
+    searchOpen,
+    deskSearch,
+    onOpenSearch,
+    onCloseSearch,
+    onSearchInput,
+    onSearchRefresh,
+}) {
     const { setModal, toggleTheme, modal } = useShellChrome();
     const {
         g,
@@ -49,10 +60,11 @@ export function SidebarMobileTopActions({ ui, chrome, onCloseMenu, dockToggleMod
         mobProgressPct,
         mobProgressScope,
         constructionMode,
-        sourcesActive,
+        searchActive,
     } = chrome;
 
     const openProfile = () => {
+        onCloseSearch?.();
         prefetchModal('profile');
         const cur = modal;
         const curType = cur && (typeof cur === 'string' ? cur : cur.type);
@@ -63,81 +75,88 @@ export function SidebarMobileTopActions({ ui, chrome, onCloseMenu, dockToggleMod
         setModal({ type: 'profile', focus: 'seeds' });
     };
 
-    const sourcesLabel = ui.navSources || ui.moreMenuRowSources || 'Courses';
+    const openInlineSearch = () => {
+        onCloseMenu?.();
+        onOpenSearch?.();
+    };
 
     return (
-        <div
-            className="arborito-mob-top-actions"
-            role="toolbar"
-            aria-label={`${sourcesLabel} · ${ui.navProfile || 'Profile'} · ${ui.progressTitle || 'Progress'} · ${ui.themeToggle || 'Theme'}`}
-        >
-            <button
-                type="button"
-                className={`arborito-mob-top-actions__btn arborito-mob-top-actions__btn--lead js-btn-sources-mobile-top${sourcesActive ? ' is-active' : ''}`}
-                data-arbor-tour="mob-sources-chip"
-                title={sourcesLabel}
-                aria-label={sourcesLabel}
-                aria-pressed={sourcesActive ? 'true' : 'false'}
-                onPointerEnter={() => prefetchModal('sources')}
-                onClick={() =>
-                    openSourcesDock({
-                        onCloseMenu,
-                        sourcesActive,
-                        setModal,
-                        dockToggleModal,
-                    })
-                }
-            >
-                <span className="arborito-mob-top-actions__lead-ic" aria-hidden="true">
-                    <ChromeEmoji emoji="🌲" size={22} />
-                </span>
-                <span className="arborito-mob-top-actions__lead-name">{sourcesLabel}</span>
-            </button>
-            <div className="arborito-mob-top-actions__trailing" role="group">
-                <div className="arborito-guest-account-hint-host">
-                    <button
-                        type="button"
-                        className="arborito-mob-top-actions__btn arborito-mob-top-actions__btn--profile js-btn-mobile-profile"
-                        data-arbor-tour="mob-profile"
-                        aria-label={mobProfileChipLabel}
-                        onPointerEnter={() => prefetchModal('profile')}
-                        onClick={openProfile}
-                    >
-                        <span className="arborito-mob-top-actions__profile-ic" aria-hidden="true">
-                            <ChromeEmoji emoji={g.avatar || '👤'} size={22} />
-                        </span>
-                        <span className="arborito-mob-top-actions__profile-name">{mobProfileChipLabel}</span>
-                    </button>
-                    <GuestAccountHintBadge />
-                </div>
-                {!constructionMode ? (
-                    <button
-                        type="button"
-                        className={`arborito-mob-top-actions__btn arborito-mob-top-actions__btn--progress js-btn-progress-mobile ${mobProgressScope}`}
-                        data-arbor-tour="mob-progress"
-                        aria-label={`${ui.progressTitle || 'Progress'} (${mobProgressPct}%)`}
-                        onClick={() => document.dispatchEvent(new CustomEvent('toggle-progress-widget'))}
-                    >
-                        <span className="arborito-mob-top-actions__progress-ic" aria-hidden="true">
-                            <ChromeEmoji emoji="🎒" size={20} />
-                        </span>
-                        <span className="arborito-mob-top-actions__progress-pct">{mobProgressPct}%</span>
-                    </button>
-                ) : null}
-                <CreatorModerationBell className="arborito-mob-top-actions__btn arborito-mob-top-actions__btn--bell" />
+        <>
+            {searchOpen ? (
                 <button
                     type="button"
-                    className="arborito-mob-top-actions__btn arborito-mob-top-actions__btn--icon js-btn-theme-inline"
-                    data-arbor-tour="mob-theme"
-                    aria-label={ui.themeToggle || 'Toggle theme'}
-                    onClick={() => toggleTheme()}
+                    className="arborito-mob-search-scrim"
+                    aria-label={ui.close || 'Close'}
+                    onClick={() => onCloseSearch?.()}
+                />
+            ) : null}
+            <div
+                className={`arborito-mob-top-actions${searchOpen ? ' arborito-mob-top-actions--search-open' : ''}`}
+                role="toolbar"
+                aria-label={`${ui.searchInCourseTitle || ui.navSearch || 'Search'} · ${ui.navProfile || 'Profile'} · ${ui.progressTitle || 'Progress'} · ${ui.themeToggle || 'Theme'}`}
+            >
+                <div
+                    className={`arborito-mob-top-actions__search-wrap${searchOpen ? ' arborito-mob-top-actions__search-wrap--open' : ''}`}
                 >
-                    <span aria-hidden="true">
-                        <ChromeEmoji emoji={chrome.theme === 'light' ? '🌙' : '☀️'} size={22} />
-                    </span>
-                </button>
+                    <SidebarDesktopSearch
+                        ui={ui}
+                        open={!!searchOpen}
+                        searchActive={searchActive}
+                        deskSearch={deskSearch}
+                        onOpen={openInlineSearch}
+                        onClose={onCloseSearch}
+                        onInput={onSearchInput}
+                        onRefresh={onSearchRefresh}
+                    />
+                </div>
+                {!searchOpen ? (
+                    <div className="arborito-mob-top-actions__trailing" role="group">
+                        <div className="arborito-guest-account-hint-host">
+                            <button
+                                type="button"
+                                className="arborito-mob-top-actions__btn arborito-mob-top-actions__btn--profile js-btn-mobile-profile"
+                                data-arbor-tour="mob-profile"
+                                aria-label={mobProfileChipLabel}
+                                onPointerEnter={() => prefetchModal('profile')}
+                                onClick={openProfile}
+                            >
+                                <span className="arborito-mob-top-actions__profile-ic" aria-hidden="true">
+                                    <ChromeEmoji emoji={g.avatar || '👤'} size={22} />
+                                </span>
+                                <span className="arborito-mob-top-actions__profile-name">{mobProfileChipLabel}</span>
+                            </button>
+                            <GuestAccountHintBadge />
+                        </div>
+                        {!constructionMode ? (
+                            <button
+                                type="button"
+                                className={`arborito-mob-top-actions__btn arborito-mob-top-actions__btn--progress js-btn-progress-mobile ${mobProgressScope}`}
+                                data-arbor-tour="mob-progress"
+                                aria-label={`${ui.progressTitle || 'Progress'} (${mobProgressPct}%)`}
+                                onClick={() => document.dispatchEvent(new CustomEvent('toggle-progress-widget'))}
+                            >
+                                <span className="arborito-mob-top-actions__progress-ic" aria-hidden="true">
+                                    <ChromeEmoji emoji="🎒" size={20} />
+                                </span>
+                                <span className="arborito-mob-top-actions__progress-pct">{mobProgressPct}%</span>
+                            </button>
+                        ) : null}
+                        <CreatorModerationBell className="arborito-mob-top-actions__btn arborito-mob-top-actions__btn--bell" />
+                        <button
+                            type="button"
+                            className="arborito-mob-top-actions__btn arborito-mob-top-actions__btn--icon js-btn-theme-inline"
+                            data-arbor-tour="mob-theme"
+                            aria-label={ui.themeToggle || 'Toggle theme'}
+                            onClick={() => toggleTheme()}
+                        >
+                            <span aria-hidden="true">
+                                <ChromeEmoji emoji={chrome.theme === 'light' ? '🌙' : '☀️'} size={22} />
+                            </span>
+                        </button>
+                    </div>
+                ) : null}
             </div>
-        </div>
+        </>
     );
 }
 
@@ -148,12 +167,19 @@ export function SidebarMobileDock({
     onToggleMenu,
     onCloseMenu,
     dockToggleModal,
+    onCloseSearch,
 }) {
     const { setModal, openSageModal, requestGoHome, modal, selectedNode } = useShellChrome();
-    const { homeActive, searchActive, sageActive, arcadeActive, moreActive, dueCount } = chrome;
+    const { homeActive, sourcesActive, sageActive, arcadeActive, moreActive, dueCount } = chrome;
 
     const arcadeLabel = ui.navArcade || 'Arcade';
     const arcadeAria = `${arcadeLabel}${dueCount > 0 ? ` (${dueCount})` : ''}`;
+    const sourcesLabel = ui.navSources || ui.moreMenuRowSources || 'Courses';
+
+    const closeSearchThen = (fn) => {
+        onCloseSearch?.();
+        fn?.();
+    };
 
     return (
         <MobDockBar ariaLabel={ui.ariaMainNavigation || ui.ariaDesktopMainNav || 'Main navigation'}>
@@ -166,26 +192,34 @@ export function SidebarMobileDock({
                     ariaLabel={ui.navHome || 'Home'}
                     ariaCurrent={homeActive ? 'page' : undefined}
                     onClick={() => {
-                        onCloseMenu();
-                        requestGoHome();
+                        closeSearchThen(() => {
+                            onCloseMenu();
+                            requestGoHome();
+                        });
                     }}
                     icon={<ArboritoLogoMark size={30} className="arborito-mob-home-svg" />}
                     iconClass="arborito-mob-tab__icon--svg"
                     label={ui.navHome || 'Home'}
                 />
                 <MobDockTab
-                    className="js-btn-search-mobile-dock"
-                    tour="mob-search"
-                    active={searchActive}
-                    title={ui.navSearch}
-                    ariaLabel={ui.navSearch}
-                    onPointerEnter={() => prefetchModal('search')}
-                    onClick={() => {
-                        onCloseMenu();
-                        dockToggleModal({ type: 'search', dockUi: true });
-                    }}
-                    icon={<ChromeEmoji emoji="🔍" size={22} />}
-                    label={ui.navSearch}
+                    className="js-btn-sources-mobile-dock"
+                    tour="mob-sources"
+                    active={sourcesActive}
+                    title={sourcesLabel}
+                    ariaLabel={sourcesLabel}
+                    onPointerEnter={() => prefetchModal('sources')}
+                    onClick={() =>
+                        closeSearchThen(() =>
+                            openSourcesDock({
+                                onCloseMenu,
+                                sourcesActive,
+                                setModal,
+                                dockToggleModal,
+                            })
+                        )
+                    }
+                    icon={<ChromeEmoji emoji="🌲" size={22} />}
+                    label={sourcesLabel}
                 />
                 <MobDockTab
                     className="js-btn-sage-mobile-dock"
@@ -194,13 +228,15 @@ export function SidebarMobileDock({
                     title={ui.navSage}
                     ariaLabel={ui.navSage}
                     onClick={() =>
-                        openSageFromChrome({
-                            onCloseMenu,
-                            selectedNode,
-                            modal,
-                            setModal,
-                            openSageModal,
-                        })
+                        closeSearchThen(() =>
+                            openSageFromChrome({
+                                onCloseMenu,
+                                selectedNode,
+                                modal,
+                                setModal,
+                                openSageModal,
+                            })
+                        )
                     }
                     icon={<ChromeEmoji emoji="🦉" size={22} />}
                     label={ui.navSageDock || ui.navSage}
@@ -213,8 +249,10 @@ export function SidebarMobileDock({
                     ariaLabel={arcadeAria}
                     onPointerEnter={() => prefetchModal('arcade')}
                     onClick={() => {
-                        onCloseMenu();
-                        dockToggleModal({ type: 'arcade', dockUi: true });
+                        closeSearchThen(() => {
+                            onCloseMenu();
+                            dockToggleModal({ type: 'arcade', dockUi: true });
+                        });
                     }}
                     icon={<ChromeEmoji emoji="🎮" size={22} />}
                     label={arcadeLabel}
@@ -233,7 +271,7 @@ export function SidebarMobileDock({
                     ariaExpanded={isMobileMenuOpen}
                     onClick={(e) => {
                         e.stopPropagation();
-                        onToggleMenu();
+                        closeSearchThen(() => onToggleMenu());
                     }}
                     icon={<MobDockMenuIcon size={22} />}
                     label={ui.navMore || 'More'}

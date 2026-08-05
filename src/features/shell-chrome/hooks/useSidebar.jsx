@@ -399,7 +399,6 @@ export function useSidebar() {
 
     useEffect(() => {
         const onDeskOpen = () => {
-            if (!isDesktop) return;
             setDesktopSearchOpen(true);
             setDeskSearch({ query: '', results: [], isSearching: false });
         };
@@ -413,7 +412,7 @@ export function useSidebar() {
             window.removeEventListener('arborito-desktop-search-open', onDeskOpen);
             window.removeEventListener('arborito-desktop-search-refresh', onDeskRefresh);
         };
-    }, [desktopSearchOpen, deskSearch.query, runDeskSearch, isDesktop]);
+    }, [desktopSearchOpen, deskSearch.query, runDeskSearch]);
 
     useEffect(() => {
         if (mmenuFreshEnter) {
@@ -437,6 +436,15 @@ export function useSidebar() {
     const dueCount = countCareDue(shell);
     const mobProgressPctVal = mobile && state.data ? mobileProgressPct(shell) : 0;
 
+    /* Mobile inline search lives in the tree-home top bar; close when leaving that surface. */
+    useEffect(() => {
+        if (isDesktop || !desktopSearchOpen) return undefined;
+        if (lessonOpen || isMobileMenuOpen) {
+            closeDesktopSearch();
+        }
+        return undefined;
+    }, [isDesktop, desktopSearchOpen, lessonOpen, isMobileMenuOpen, closeDesktopSearch]);
+
     const chrome = {
         isDesktop,
         mobile,
@@ -449,9 +457,7 @@ export function useSidebar() {
         mobProfileChipLabel,
         mobProgressPct: mobProgressPctVal,
         mobProgressScope: mobileProgressScopeClass(shell),
-        searchActive: isDesktop
-            ? desktopSearchOpen
-            : state.modal === 'search' || modalType === 'search',
+        searchActive: desktopSearchOpen || state.modal === 'search' || modalType === 'search',
         sageActive: state.modal === 'sage' || modalType === 'sage',
         sourcesActive: state.modal === 'sources' || modalType === 'sources',
         arcadeActive: state.modal === 'arcade' || modalType === 'arcade',

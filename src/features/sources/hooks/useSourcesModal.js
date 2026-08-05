@@ -59,6 +59,7 @@ export function useSourcesModal(embed = false) {
         setTreeEditor: sources.setTreeEditor,
         setSourcesScope: sources.setSourcesScope,
         setTreesScope: sources.setTreesScope,
+        setSourcesQ: sources.setSourcesQ,
     });
 
     useEffect(() => {

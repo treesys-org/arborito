@@ -156,8 +156,13 @@
     },
     {
       "target": "mob-search",
-      "title": "Search",
-      "body": "Find lessons by name inside the course you already have open."
+      "title": "Search in this course",
+      "body": "Up top, search expands in place for the open course. If nothing matches, it offers Explore for other courses."
+    },
+    {
+      "target": "mob-sources",
+      "title": "Courses",
+      "body": "Open your courses and Explore to find others on the network."
     },
     {
       "target": "mob-sage",
@@ -172,7 +177,7 @@
     {
       "target": "mob-more",
       "title": "More",
-      "body": "Achievements, language, construction, and settings. Courses sits at the top left."
+      "body": "Achievements, language, construction, and settings."
     }
   ],
   "uiTourStepsLessonEdit": [

@@ -85,6 +85,7 @@ html.arborito-sage-open .js-btn-sage-mobile-top {
     pointer-events: none;
     -webkit-tap-highlight-color: transparent;
     isolation: isolate;
+    overflow: visible;
     background: var(--arborito-mob-top-actions-shield-bg-solid);
     border-bottom: 1px solid var(--arborito-mob-top-actions-shield-border);
     box-shadow: none;
@@ -95,6 +96,7 @@ html.arborito-sage-open .js-btn-sage-mobile-top {
     display: flex;
     align-items: center;
     gap: 0.35rem;
+    flex-shrink: 0;
     pointer-events: none;
 }
 
@@ -120,8 +122,8 @@ html.arborito-sage-open .js-btn-sage-mobile-top {
 }
 
 /*
- * Exception: with a dock sheet open (search/sage/arcade) keep Sage + profile/theme
- * accesibles para que el usuario pueda salir o cambiar de contexto sin quedar atrapado
+ * Exception: with a dock sheet open (sage/arcade/…) keep top chrome
+ * accessible so the user can leave or switch context without getting stuck
  * on the sheet. Dock button already toggles; this covers the path from the top bar.
  */
 :is(html.arborito-shell-mobile, html.force-mobile).arborito-mob-dock-modal-open :is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-top-actions {
@@ -221,6 +223,210 @@ html.arborito-post-close-guard :is(.arborito-mob-top-actions__btn, .arborito-mob
     box-shadow:
         var(--arborito-theme-mob-top-actions-btn-box-shadow),
         0 0 0 2px rgb(16 185 129 / 0.2);
+}
+
+.arborito-mob-top-actions__search-wrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+.arborito-mob-top-actions__search-wrap--open {
+    z-index: 131;
+}
+
+.arborito-mob-top-actions--search-open {
+    align-items: center;
+    z-index: 130;
+}
+
+:is(arborito-sidebar, [data-arborito-panel="sidebar"]) .arborito-mob-top-actions--search-open {
+    z-index: 130;
+}
+
+/* Dim map while searching: field stays in chrome, panel floats. Not a modal sheet. */
+.arborito-mob-search-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 129;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgb(15 23 42 / 0.32);
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    cursor: default;
+}
+
+html.dark .arborito-mob-search-scrim {
+    background: rgb(0 0 0 / 0.5);
+}
+
+.arborito-mob-top-actions .arborito-desktop-search-trigger {
+    width: 100%;
+    max-width: none;
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0 0.85rem 0 0.55rem;
+    border-radius: 999px;
+    border: 1px solid var(--arborito-moss-border);
+    background: var(--arborito-chrome-tile);
+    box-shadow: var(--arborito-theme-mob-top-actions-btn-box-shadow);
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    font-size: 0.8125rem;
+    font-weight: 650;
+    color: var(--arborito-bark-ink);
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.arborito-mob-top-actions .arborito-desktop-search-trigger.is-active,
+.arborito-mob-top-actions .arborito-desktop-search-inline__row:focus-within {
+    border-color: rgb(45 212 191 / 0.65);
+    box-shadow:
+        var(--arborito-theme-mob-top-actions-btn-box-shadow),
+        0 0 0 3px rgb(45 212 191 / 0.2);
+}
+
+.arborito-mob-top-actions .arborito-desktop-search-trigger__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--arborito-bark-muted, #64748b);
+}
+
+.arborito-mob-top-actions .arborito-desktop-search-trigger__placeholder {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 550;
+    color: var(--arborito-bark-muted, #64748b);
+}
+
+.arborito-mob-top-actions .arborito-desktop-search-inline {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+    pointer-events: auto;
+}
+
+.arborito-mob-top-actions .arborito-desktop-search-inline__row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    padding: 0.2rem 0.4rem 0.2rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid var(--arborito-moss-border);
+    background: var(--arborito-chrome-tile);
+    box-shadow: var(--arborito-theme-mob-top-actions-btn-box-shadow);
+}
+
+.arborito-mob-top-actions .arborito-desktop-search-inline__ic {
+    display: inline-flex;
+    color: var(--arborito-bark-muted, #64748b);
+    flex-shrink: 0;
+}
+
+.arborito-mob-top-actions .arborito-desktop-search-inline__input {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    font-family: var(--arborito-font-display, ui-sans-serif, system-ui, sans-serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--arborito-bark-ink);
+    outline: none;
+}
+
+.arborito-mob-top-actions .arborito-desktop-search-inline__input::placeholder {
+    font-weight: 500;
+    color: var(--arborito-bark-muted, #64748b);
+}
+
+.arborito-mob-top-actions .arborito-desktop-search-inline__close {
+    width: 2.35rem;
+    height: 2.35rem;
+    border: none;
+    border-radius: 999px;
+    background: rgb(226 232 240 / 0.95);
+    color: rgb(51 65 85);
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+html.dark .arborito-mob-top-actions .arborito-desktop-search-inline__close {
+    background: rgb(51 65 85 / 0.9);
+    color: rgb(226 232 240);
+}
+
+.arborito-mob-top-actions .arborito-desktop-search-inline__msg {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 0.4rem);
+    z-index: 132;
+    pointer-events: none;
+    text-align: center;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--arborito-bark-muted, #64748b);
+    padding: 0.45rem 0.65rem;
+}
+
+.arborito-mob-top-actions .arborito-desktop-search-inline__results {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 0.4rem);
+    z-index: 133;
+    width: 100%;
+    max-height: min(58vh, 26rem);
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 1rem;
+    border: 1px solid var(--arborito-moss-border);
+    background: var(--arborito-chrome-tile);
+    box-shadow: 0 16px 40px -10px rgb(15 23 42 / 0.28);
+    padding: 0.4rem 0.3rem 0.55rem;
+    pointer-events: auto;
+}
+
+html.dark .arborito-mob-top-actions .arborito-desktop-search-inline__results {
+    box-shadow: 0 18px 44px -8px rgb(0 0 0 / 0.55);
+}
+
+.arborito-mob-top-actions .arborito-desktop-search-inline__index-banner {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 0.4rem);
+    z-index: 132;
+    pointer-events: none;
 }
 
 .arborito-mob-top-actions__lead-ic {

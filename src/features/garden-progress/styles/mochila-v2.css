@@ -532,6 +532,137 @@
     box-shadow: 0 6px 18px rgb(34 197 94 / 0.28);
 }
 
+.mochila-v2__btn--ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    background: transparent;
+    border: 1px solid var(--mochila-border);
+    color: var(--mochila-ink);
+    box-shadow: none;
+    font-weight: 750;
+}
+
+.mochila-v2__btn--ghost:hover {
+    background: var(--mochila-surface);
+}
+
+/* Quiet mochila: hero ring → labeled stats → footer actions */
+.mochila-v2--quiet {
+    gap: 0.9rem;
+}
+
+.mochila-v2--quiet .mochila-v2__grove--hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0.9rem 0.75rem 0.95rem;
+}
+
+.mochila-v2--quiet .mochila-v2__ring-heading {
+    margin: 0;
+}
+
+.mochila-v2--quiet .mochila-v2__subtitle {
+    margin: 0.15rem 0 0;
+    max-width: 18rem;
+}
+
+.mochila-v2__stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+    width: 100%;
+}
+
+.mochila-v2__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.2rem;
+    min-height: 5rem;
+    padding: 0.7rem 0.5rem 0.65rem;
+    border-radius: 1rem;
+    background: var(--mochila-surface);
+    border: 1px solid var(--mochila-border);
+    box-shadow: 0 4px 14px rgb(15 23 42 / 0.04);
+    text-align: center;
+}
+
+.mochila-v2__stat-lb {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.28rem;
+    font-size: 0.6875rem;
+    font-weight: 750;
+    line-height: 1.2;
+    color: var(--mochila-muted);
+}
+
+.mochila-v2__stat-val {
+    margin: 0.1rem 0 0;
+    font-size: 1.55rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--mochila-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.mochila-v2__stat-sub {
+    margin: 0.15rem 0 0;
+    max-width: 100%;
+    padding: 0 0.1rem;
+    font-size: 0.6875rem;
+    font-weight: 650;
+    line-height: 1.3;
+    color: var(--mochila-muted);
+}
+
+.mochila-v2__stat-sub--row {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem 0.3rem;
+    color: var(--mochila-ink);
+}
+
+.mochila-v2__stat-sub--muted {
+    opacity: 0.75;
+}
+
+.mochila-v2__stat-dot {
+    opacity: 0.4;
+    font-weight: 700;
+    padding: 0 0.05rem;
+}
+
+.mochila-v2__foot {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 0.1rem;
+}
+
+.mochila-v2--quiet .mochila-v2__foot .mochila-v2__btn {
+    width: 100%;
+}
+
+.mochila-v2--quiet .mochila-v2__foot .mochila-v2__btn--primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
 /* Desktop v2: inherit host height cap (header → Sage); scroll only if content overflows */
 html.arborito-desktop .arborito-desktop-mochila-host:has(.arborito-mochila-card--v2) {
     max-height: calc(
@@ -570,6 +701,22 @@ html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2__grove {
     align-items: stretch;
     gap: 0.65rem;
     padding: 0.75rem;
+}
+
+html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2--quiet .mochila-v2__grove--hero {
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.85rem 0.75rem 0.9rem;
+}
+
+html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2--quiet {
+    gap: 0.75rem;
+}
+
+html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2--quiet .mochila-v2__subtitle {
+    flex: none;
+    text-align: center;
+    max-width: 18rem;
 }
 
 html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2__splash {
@@ -649,8 +796,17 @@ html.arborito-desktop .arborito-mochila-card--v2 .mochila-v2__card--care {
     background: transparent;
 }
 
+.mochila-v2--mobile.mochila-v2--modal.mochila-v2--quiet {
+    gap: 0.8rem;
+    padding-top: 0.25rem;
+}
+
 .mochila-v2--mobile.mochila-v2--modal .mochila-v2__ring {
     --ring-size: 6.5rem;
+}
+
+.mochila-v2--mobile.mochila-v2--modal.mochila-v2--quiet .mochila-v2__ring {
+    --ring-size: 6.75rem;
 }
 
 .mochila-v2--mobile.mochila-v2--modal .mochila-v2__splash {

@@ -72,6 +72,36 @@ function syncLocalFilenameLabel(block, path) {
     el.hidden = !name;
 }
 
+function syncMediaUploadOpenLink(block) {
+    const wrap = block.querySelector('.media-upload-open-wrap');
+    const link = block.querySelector('.media-upload-open-link');
+    const hint = block.querySelector('.media-upload-open-hint');
+    if (!(wrap instanceof HTMLElement) || !(link instanceof HTMLAnchorElement)) return;
+    const select = block.querySelector('.media-provider-select');
+    const providerId =
+        (select instanceof HTMLSelectElement && select.value) ||
+        block.dataset.mediaProvider ||
+        '';
+    const provider = mediaProviderById(providerId);
+    const href = provider?.uploadUrl || '';
+    if (!href || provider?.local) {
+        wrap.classList.add('hidden');
+        wrap.hidden = true;
+        link.removeAttribute('href');
+        return;
+    }
+    const tpl = store.ui.editorBlockMediaOpenUpload || 'Upload on {platform}';
+    link.href = href;
+    link.textContent = String(tpl).replace(/\{platform\}/g, provider.label || '');
+    if (hint instanceof HTMLElement) {
+        hint.textContent =
+            store.ui.editorBlockMediaOpenUploadHint ||
+            'Open the site, upload your file, then paste the link here.';
+    }
+    wrap.classList.remove('hidden');
+    wrap.hidden = false;
+}
+
 function syncLocalUploadVisibility(block) {
     const select = block.querySelector('.media-provider-select');
     const urlRow = block.querySelector('.media-url-row');
@@ -105,6 +135,7 @@ function syncLocalUploadVisibility(block) {
         syncLocalFilenameLabel(block, path);
         setWhyOpen(block, false);
     }
+    syncMediaUploadOpenLink(block);
 }
 
 function syncProviderSelect(block, url) {
@@ -322,6 +353,7 @@ export function bindMediaBlockControls(block) {
     const whyToggle = block.querySelector('.media-url-why-toggle');
     const fileInput = block.querySelector('.media-local-file');
 
+    syncLocalUploadVisibility(block);
     input?.addEventListener('input', () => syncMediaBlockPreview(block));
     input?.addEventListener('change', () => {
         enforceMediaBlockUrl(block, { clearInvalid: true });

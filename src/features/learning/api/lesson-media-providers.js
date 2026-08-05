@@ -12,6 +12,7 @@
  *   exampleByKind?: Partial<Record<'image'|'video'|'audio', string>>,
  *   hosts?: string[],
  *   local?: boolean,
+ *   uploadUrl?: string,
  *   match: (host: string, url: URL | null, raw: string) => boolean
  * }} MediaProvider */
 
@@ -36,6 +37,7 @@ export const LESSON_MEDIA_PROVIDERS = [
         kinds: ['video'],
         label: 'YouTube',
         example: 'https://www.youtube.com/watch?v=jNQXAC9IVRw',
+        uploadUrl: 'https://www.youtube.com/upload',
         hosts: ['youtube.com', 'youtu.be', 'm.youtube.com', 'youtube-nocookie.com'],
         match: (host) =>
             host === 'youtu.be' ||
@@ -63,6 +65,7 @@ export const LESSON_MEDIA_PROVIDERS = [
         kinds: ['video'],
         label: 'Vimeo',
         example: 'https://vimeo.com/…',
+        uploadUrl: 'https://vimeo.com/upload',
         hosts: ['vimeo.com', 'player.vimeo.com'],
         match: (host) => host === 'vimeo.com' || host === 'player.vimeo.com',
     },
@@ -71,6 +74,7 @@ export const LESSON_MEDIA_PROVIDERS = [
         kinds: ['image'],
         label: 'Imgur',
         example: 'https://imgur.com/gallery/… or https://i.imgur.com/….gif',
+        uploadUrl: 'https://imgur.com/upload',
         hosts: ['imgur.com', 'i.imgur.com'],
         match: (host) => host === 'imgur.com' || host === 'i.imgur.com',
     },
@@ -90,6 +94,7 @@ export const LESSON_MEDIA_PROVIDERS = [
         kinds: ['image'],
         label: 'Unsplash',
         example: 'https://images.unsplash.com/…',
+        uploadUrl: 'https://unsplash.com/',
         hosts: ['images.unsplash.com'],
         match: (host) => host === 'images.unsplash.com',
     },

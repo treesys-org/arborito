@@ -29,6 +29,11 @@ export function ModalCelebrationPrefs({ embed = false }) {
     const togglePref = (key, next) => {
         setGamificationPref(key, next);
         setPrefs((p) => ({ ...p, [key]: next }));
+        try {
+            window.dispatchEvent(new CustomEvent('arborito-gamification-prefs-changed'));
+        } catch {
+            /* ignore */
+        }
     };
 
     const toggles = (

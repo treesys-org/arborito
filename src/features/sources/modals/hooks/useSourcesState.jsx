@@ -47,6 +47,14 @@ function readInitialMainTab(store) {
     return 'mine';
 }
 
+function readInitialSourcesQ(store) {
+    const m = store.value?.modal;
+    if (m && typeof m === 'object' && typeof m.focusQuery === 'string') {
+        return String(m.focusQuery).trim();
+    }
+    return '';
+}
+
 export function useSourcesState({ embed }) {
     const store = useSourcesStore();
     const [mainTab, setMainTabRaw] = useState(() => readInitialMainTab(store));
@@ -66,7 +74,7 @@ export function useSourcesState({ embed }) {
     const [deleteAlsoRetractDefault, setDeleteAlsoRetractDefault] = useState(true);
     const [exportTarget, setExportTarget] = useState(null);
     const [exportBusy, setExportBusy] = useState(false);
-    const [sourcesQ, setSourcesQ] = useState('');
+    const [sourcesQ, setSourcesQ] = useState(() => readInitialSourcesQ(store));
     const [treesQ, setTreesQ] = useState('');
     const [treesScope, setTreesScope] = useState('device');
     const [treesAdvancedOpen, setTreesAdvancedOpen] = useState(false);

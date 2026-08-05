@@ -81,7 +81,12 @@ export function Sidebar({ embed }) {
                         ui={ui}
                         chrome={chrome}
                         onCloseMenu={closeMobileMenuIfOpen}
-                        dockToggleModal={dockToggleModal}
+                        searchOpen={desktopSearchOpen}
+                        deskSearch={deskSearch}
+                        onOpenSearch={openDesktopSearch}
+                        onCloseSearch={closeDesktopSearch}
+                        onSearchInput={runDeskSearch}
+                        onSearchRefresh={refreshDeskSearch}
                     />
                     <SidebarMobileDock
                         ui={ui}
@@ -90,6 +95,7 @@ export function Sidebar({ embed }) {
                         onToggleMenu={toggleMobileMenu}
                         onCloseMenu={closeMobileMenuIfOpen}
                         dockToggleModal={dockToggleModal}
+                        onCloseSearch={closeDesktopSearch}
                     />
                     <SidebarMobileMoreMenu
                         ui={ui}

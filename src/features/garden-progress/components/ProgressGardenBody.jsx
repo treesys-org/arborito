@@ -1,50 +1,51 @@
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
-import { GardenVitalityBanner, GardenPlot } from './GardenWidgets.jsx';
-import { ProgressStatsRow } from './ProgressStatsRow.jsx';
-import {
-    ACHIEVEMENT_TROPHY_EMOJI,
-} from '../api/achievement-trophy.js';
+import { localDateKey } from '../../../core/user-store/date-key.js';
 
-/** Desktop / mobile mochila body (replaces buildCompactBodyHtml). */
+/**
+ * Quiet mochila layout:
+ * 1) Ring (course progress)
+ * 2) Two labeled stats (habit | pack)
+ * 3) Footer actions (care if due, logros)
+ */
 export function ProgressGardenBody({ data }) {
     const {
-        omitGardenBlock,
         omitActions,
         mobile,
         modalFull,
         ui,
         g,
         stats,
-        collectedItems,
         dueCount,
         dailyGoalVal,
-        seedPreview,
-        trophyPreview,
         lessonsLine,
-        careLine,
         vitalityPct,
         vitalityLabel,
         lumensBalance,
         shieldCount,
         ringLabel,
         tagline,
-        careEmptyHint,
-        seedsLabelResolved,
         careLabel,
         waterLabel,
-        seedsLabel,
         progressTitle,
-        careCountClass,
         ringEmoji,
-        seedsEmptyHint,
-        gardenEmptyHint,
-        trophyEarned,
-        trophyTotal,
     } = data;
+
+    const studiedToday = Boolean(g?.lastStudyDate) && g.lastStudyDate === localDateKey();
+    const streakDays = Number(g?.streak) || 0;
+    const streakTip = studiedToday ? ui.streakHintDone || '' : ui.streakHint || '';
+    const goal = Math.max(0, Number(dailyGoalVal) || 0);
+    const dailyXp = Math.max(0, Number(g?.dailyXP) || 0);
+    const shields = Math.max(0, Number(shieldCount) || 0);
+    const arcadeScore = Math.max(0, Number(g?.arcadeScore) || 0);
+    const habitLabel = ui.streak || 'Racha';
+    const packLabel = ui.lumensBadgeLabel || ui.xpUnit || 'Lúmenes';
+    const todayLabel = ui.todayGoal || 'Hoy';
+    const showCare = dueCount > 0;
+    const showFooter = showCare || !omitActions;
 
     return (
         <div
-            className={`mochila-v2 mochila-v2--forest${mobile ? ' mochila-v2--mobile' : ''}${mobile && modalFull ? ' mochila-v2--modal' : ''}`}
+            className={`mochila-v2 mochila-v2--forest mochila-v2--quiet${mobile ? ' mochila-v2--mobile' : ''}${mobile && modalFull ? ' mochila-v2--modal' : ''}`}
         >
             {!mobile ? (
                 <header className="mochila-v2__head">
@@ -53,172 +54,109 @@ export function ProgressGardenBody({ data }) {
                     </div>
                     <div className="mochila-v2__head-copy">
                         <p className="mochila-v2__head-title">{progressTitle}</p>
-                        <p className="mochila-v2__head-tagline">{tagline}</p>
+                        {tagline ? <p className="mochila-v2__head-tagline">{tagline}</p> : null}
                     </div>
                 </header>
             ) : null}
 
-            {mobile ? (
-                <p className="mochila-v2__daily-goal">
-                    {g.dailyXP || 0}/{dailyGoalVal}{' '}
-                    <ChromeEmoji emoji="☀️" size={14} /> {ui.todayGoal || 'Photosynthesis'} · {vitalityLabel}
-                </p>
-            ) : (
-                <GardenVitalityBanner ui={ui} g={g} compact />
-            )}
-
-            <section className="mochila-v2__grove" aria-label={ringLabel}>
-                <div className="mochila-v2__splash">
-                    <div className="mochila-v2__splash-ring-block">
-                        <p className="mochila-v2__ring-heading">{ringLabel}</p>
-                        <div
-                            className="mochila-v2__ring mochila-v2__ring--vitality"
-                            style={{ '--pct': stats.percentage, '--vitality': vitalityPct }}
-                            role="img"
-                            aria-label={`${ringLabel} ${stats.percentage}%`}
-                        >
-                            <div className="mochila-v2__ring-inner">
-                                <div className="mochila-v2__ring-core">
-                                    <span className="mochila-v2__ring-pct">
-                                        {stats.percentage}
-                                        <small>%</small>
-                                    </span>
-                                    <span className="mochila-v2__ring-emoji" aria-hidden="true">
-                                        <ChromeEmoji emoji={ringEmoji} size={22} />
-                                    </span>
-                                </div>
-                            </div>
+            <section className="mochila-v2__grove mochila-v2__grove--hero" aria-label={ringLabel}>
+                <p className="mochila-v2__ring-heading">{ringLabel}</p>
+                <div
+                    className="mochila-v2__ring mochila-v2__ring--vitality"
+                    style={{ '--pct': stats.percentage, '--vitality': vitalityPct }}
+                    role="img"
+                    aria-label={`${ringLabel} ${stats.percentage}%`}
+                >
+                    <div className="mochila-v2__ring-inner">
+                        <div className="mochila-v2__ring-core">
+                            <span className="mochila-v2__ring-pct">
+                                {stats.percentage}
+                                <small>%</small>
+                            </span>
+                            <span className="mochila-v2__ring-emoji" aria-hidden="true">
+                                <ChromeEmoji emoji={ringEmoji} size={22} />
+                            </span>
                         </div>
                     </div>
-                    <p className="mochila-v2__subtitle">{lessonsLine}</p>
                 </div>
-                <ProgressStatsRow g={g} ui={ui} lumensBalance={lumensBalance} shieldCount={shieldCount} />
+                {lessonsLine ? <p className="mochila-v2__subtitle">{lessonsLine}</p> : null}
             </section>
 
-            {collectedItems.length ? (
-                <article className="mochila-v2__card" aria-label={seedsLabel}>
-                    <div className="mochila-v2__card-head">
-                        <span className="mochila-v2__card-title">
-                            <span aria-hidden="true">
-                                <ChromeEmoji emoji="🪴" size={16} />
-                            </span>{' '}
-                            {ui.gardenPlotTitle || seedsLabel}
-                        </span>
-                    </div>
-                    {ui.gardenPlotHint ? (
-                        <p className="mochila-v2__hint mochila-v2__hint--plot">{ui.gardenPlotHint}</p>
-                    ) : null}
-                    <GardenPlot ui={ui} />
-                </article>
-            ) : null}
-
-            <div className="mochila-v2__cards">
-                <article className="mochila-v2__card mochila-v2__card--care" aria-label={careLabel}>
-                    <div className="mochila-v2__card-head">
-                        <span className="mochila-v2__card-title">
-                            <span aria-hidden="true">
-                                <ChromeEmoji emoji="💧" size={16} />
-                            </span>{' '}
-                            {careLabel}
-                        </span>
-                        <span className={`mochila-v2__card-count${careCountClass}`}>
-                            {dueCount > 0 ? dueCount : ''}
-                        </span>
-                    </div>
-                    <p className="mochila-v2__hint mochila-v2__care-stats">
-                        {dueCount > 0 || careLine.length
-                            ? careLine.map((line) => (
-                                  <span key={line} className="mochila-v2__care-stat">
-                                      {line}
-                                  </span>
-                              ))
-                            : careEmptyHint}
+            <div className="mochila-v2__stats" role="group" aria-label={progressTitle || 'Mochila'}>
+                <article className="mochila-v2__stat" title={streakTip || undefined}>
+                    <p className="mochila-v2__stat-lb">
+                        <ChromeEmoji emoji="💧" size={14} /> {habitLabel}
                     </p>
-                    {dueCount > 0 ? (
-                        <button
-                            type="button"
-                            className="mochila-v2__btn mochila-v2__btn--primary js-mochila-care"
-                            style={{ marginTop: '0.55rem' }}
-                        >
-                            {waterLabel} ({dueCount})
-                        </button>
+                    <p className="mochila-v2__stat-val">{streakDays}</p>
+                    {goal > 0 ? (
+                        <p className="mochila-v2__stat-sub">
+                            {dailyXp}/{goal} {todayLabel}
+                            {vitalityLabel ? (
+                                <>
+                                    <span className="mochila-v2__stat-dot" aria-hidden="true">
+                                        ·
+                                    </span>
+                                    {vitalityLabel}
+                                </>
+                            ) : null}
+                        </p>
+                    ) : vitalityLabel ? (
+                        <p className="mochila-v2__stat-sub">{vitalityLabel}</p>
                     ) : null}
                 </article>
 
-                {!omitGardenBlock ? (
-                    <article className="mochila-v2__card" aria-label={seedsLabelResolved}>
-                        <div className="mochila-v2__card-head">
-                            <span className="mochila-v2__card-title">
-                                <span aria-hidden="true">
-                                    <ChromeEmoji emoji="🌱" size={16} />
-                                </span>{' '}
-                                {seedsLabelResolved}
-                            </span>
-                            <span className="mochila-v2__card-count">{collectedItems.length}</span>
-                        </div>
-                        {seedPreview.length ? (
-                            <div className="mochila-v2__collection">
-                                {seedPreview.map((s) => (
-                                    <span key={s.id} className="mochila-v2__chip" title={s.id}>
-                                        {s.icon || '🌱'}
-                                    </span>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="mochila-v2__hint mochila-v2__hint--empty">{gardenEmptyHint}</p>
-                        )}
-                    </article>
-                ) : null}
-
-                <article className="mochila-v2__card" aria-label={ui.navCertificates || 'Logros'}>
-                    <div className="mochila-v2__card-head">
-                        <span className="mochila-v2__card-title">
-                            <span aria-hidden="true">
-                                <ChromeEmoji emoji="🏆" size={16} />
-                            </span>{' '}
-                            {ui.navCertificates || 'Logros'}
-                        </span>
-                        <span className="mochila-v2__card-count">
-                            {trophyEarned}/{trophyTotal || '0'}
-                        </span>
-                    </div>
-                    {trophyPreview.length ? (
-                        <div className="mochila-v2__collection">
-                            {trophyPreview.map((c) =>
-                                c.isComplete ? (
-                                    <button
-                                        key={c.id}
-                                        type="button"
-                                        className={`mochila-v2__trophy mochila-v2__trophy--earned js-mochila-open-cert arborito-desktop-hit`}
-                                        data-id={encodeURIComponent(c.id)}
-                                        title={c.name}
-                                    >
-                                        <ChromeEmoji emoji={ACHIEVEMENT_TROPHY_EMOJI} size={20} />
-                                    </button>
-                                ) : (
-                                    <span
-                                        key={c.id}
-                                        className={`mochila-v2__trophy mochila-v2__trophy--locked`}
-                                        title={c.name}
-                                        aria-hidden="false"
-                                    >
-                                        <ChromeEmoji emoji={ACHIEVEMENT_TROPHY_EMOJI} size={20} />
-                                    </span>
-                                )
-                            )}
-                        </div>
+                <article className="mochila-v2__stat" title={ui.lumensBadgeHint || undefined}>
+                    <p className="mochila-v2__stat-lb">
+                        <ChromeEmoji emoji="☀️" size={14} /> {packLabel}
+                    </p>
+                    <p className="mochila-v2__stat-val">{lumensBalance}</p>
+                    {shields > 0 || arcadeScore > 0 ? (
+                        <p className="mochila-v2__stat-sub mochila-v2__stat-sub--row">
+                            {shields > 0 ? (
+                                <span title={ui.streakShieldHint || undefined}>
+                                    <ChromeEmoji emoji="☂️" size={12} /> {shields}
+                                </span>
+                            ) : null}
+                            {shields > 0 && arcadeScore > 0 ? (
+                                <span className="mochila-v2__stat-dot" aria-hidden="true">
+                                    ·
+                                </span>
+                            ) : null}
+                            {arcadeScore > 0 ? (
+                                <span title={ui.arcadeScoreHint || undefined}>
+                                    <ChromeEmoji emoji="🎮" size={12} /> {arcadeScore}
+                                </span>
+                            ) : null}
+                        </p>
                     ) : (
-                        <p className="mochila-v2__hint mochila-v2__hint--empty">{seedsEmptyHint}</p>
+                        <p className="mochila-v2__stat-sub mochila-v2__stat-sub--muted">
+                            {ui.xpUnit || packLabel}
+                        </p>
                     )}
                 </article>
             </div>
 
-            {!omitActions ? (
-                <div className="mochila-v2__actions">
-                    <button type="button" className="mochila-v2__btn mochila-v2__btn--primary js-mochila-certs">
-                        {ui.progressViewCerts || 'Ver certificados'}
-                    </button>
-                </div>
+            {showFooter ? (
+                <footer className="mochila-v2__foot">
+                    {showCare ? (
+                        <button
+                            type="button"
+                            className="mochila-v2__btn mochila-v2__btn--primary js-mochila-care"
+                            aria-label={`${careLabel}: ${waterLabel} (${dueCount})`}
+                        >
+                            <ChromeEmoji emoji="💧" size={16} /> {waterLabel} ({dueCount})
+                        </button>
+                    ) : null}
+                    {!omitActions ? (
+                        <button
+                            type="button"
+                            className="mochila-v2__btn mochila-v2__btn--ghost js-mochila-certs"
+                        >
+                            <ChromeEmoji emoji="🏆" size={16} />{' '}
+                            {ui.progressViewCerts || ui.navCertificates || 'Logros'}
+                        </button>
+                    ) : null}
+                </footer>
             ) : null}
         </div>
     );

@@ -158,10 +158,9 @@ export function ProgressWidget() {
         progressHeading,
     };
 
-    const desktopBody = deriveWidgetBodyData(compactCtx, { omitActions: true });
+    const desktopBody = deriveWidgetBodyData(compactCtx, {});
     const mobileBody = deriveWidgetBodyData(compactCtx, {
         mobile: true,
-        omitGardenBlock: true,
         modalFull: true,
     });
 

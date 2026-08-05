@@ -77,11 +77,11 @@ function SearchBody({
                     id="inp-search"
                     type="search"
                     enterKeyHint="search"
-                    placeholder={ui.searchPlaceholder || 'Search topics...'}
+                    placeholder={ui.searchPlaceholder || 'Search in this course…'}
                     className={inputClass}
                     value={query}
                     autoComplete="off"
-                    aria-label={ui.navSearch || 'Search'}
+                    aria-label={ui.searchInCourseTitle || ui.navSearch || 'Search in this course'}
                     autoFocus={!mobUi}
                     onChange={(e) => onInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -199,7 +199,7 @@ export function ModalSearch({ dockEmbed = false, dockEmbedActive = false }) {
         <ModalHubHero
             ui={ui}
             mobile={dockChrome}
-            title={ui.navSearch || 'Search'}
+            title={ui.searchInCourseTitle || ui.navSearch || 'Search in this course'}
             leadingIcon="🔍"
             tagClass="btn-close-search"
             onClose={close}

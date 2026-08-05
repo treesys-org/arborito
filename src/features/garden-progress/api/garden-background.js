@@ -3,6 +3,7 @@
  */
 
 import { getEquippedDecor } from './lumen-shop.js';
+import { getGamificationPrefs } from './gamification-prefs.js';
 
 /** @type {Record<string, { count: number, layer: 'sky'|'ground', anim: string }>} */
 export const DECO_LAYOUT = {
@@ -14,6 +15,14 @@ export const DECO_LAYOUT = {
     'deco-mushroom': { count: 3, layer: 'ground', anim: 'still' },
 };
 
+/** Quieter map: fewer moving particles (still items keep a reduced count). */
+const QUIET_DECO_COUNT = {
+    'deco-fireflies': 3,
+    'deco-butterfly': 2,
+    'deco-lantern': 1,
+    'deco-mushroom': 2,
+};
+
 /** Preset positions (% of layer box) per particle index */
 export const SKY_SPOTS = [
     [8, 12], [22, 8], [38, 18], [55, 10], [72, 16], [88, 12], [45, 6],
@@ -22,6 +31,17 @@ export const SKY_SPOTS = [
 export const GROUND_SPOTS = [
     [12, 72], [28, 78], [50, 82], [68, 76], [85, 80], [40, 88], [58, 74],
 ];
+
+function mapWantsQuietMotion() {
+    if (typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return true;
+    }
+    try {
+        return getGamificationPrefs().effects === false;
+    } catch {
+        return false;
+    }
+}
 
 /**
  * @param {import('../../../core/store.js' ).default} store
@@ -34,6 +54,11 @@ export function getGardenBackgroundState(store) {
         !store.state?.data;
 
     if (hide) {
+        return { visible: false, skyItem: null, groundItem: null };
+    }
+
+    /* Effects off / reduced motion: keep the map calm (no floating decor). */
+    if (mapWantsQuietMotion()) {
         return { visible: false, skyItem: null, groundItem: null };
     }
 
@@ -64,8 +89,11 @@ export function syncGardenBackground(store) {
 export function buildGardenLayerParticles(item, layer) {
     const layout = DECO_LAYOUT[item.id] || { count: 1, layer, anim: 'still' };
     const spots = layer === 'sky' ? SKY_SPOTS : GROUND_SPOTS;
+    const quietCap = QUIET_DECO_COUNT[item.id];
+    const count =
+        typeof quietCap === 'number' ? Math.min(layout.count, quietCap) : layout.count;
     const particles = [];
-    for (let i = 0; i < layout.count; i++) {
+    for (let i = 0; i < count; i++) {
         const [x, y] = spots[i % spots.length];
         particles.push({
             key: `${item.id}-${i}`,

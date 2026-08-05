@@ -61,6 +61,8 @@
   "editorBlockMediaProviderChoose": "Plataforma…",
   "editorBlockMediaWhyLink": "¿Por qué no puedo pegar cualquier link?",
   "editorBlockMediaWhyBody": "Somos un equipo pequeño y, por ley, no podemos alojar ni retransmitir subidas sin moderación: solo plataformas que ya moderan (YouTube, PeerTube, Vimeo, Imgur, Wikimedia…). Iremos añadiendo más con el tiempo.",
+  "editorBlockMediaOpenUpload": "Subir en {platform}",
+  "editorBlockMediaOpenUploadHint": "Ábrelo, sube el archivo y pega aquí el enlace.",
   "editorBlockMediaLocalChoose": "Elegir archivo…",
   "editorBlockMediaLocalEmpty": "Elige un archivo local",
   "editorBlockMediaLocalDisclaimer": "Los archivos locales no viajan por la red y no se pueden publicar en internet. Si quieres publicar este contenido, reemplázalo por una de las plataformas.",

@@ -4,6 +4,7 @@ import { getToc } from '../../learning/api/content-toc.js';
 import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import { TreeUtils } from '../../tree-graph/api/tree-utils.js';
 import { ListRowEnter, ListRowSkeleton } from '../../../shared/ui/ListRowEnter.jsx';
+import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 
 function SearchLoading({ label }) {
     return (
@@ -225,9 +226,41 @@ export function SearchResultsPanel({ state, ui, lightChrome = false, onPick, onR
         getManualBookmarks,
         getRecentLessons,
         isCompleted,
+        setModal,
     } = useSearch();
 
     const { isSearching, results, query } = state;
+
+    const goExploreCourses = () => {
+        const q = String(query || '').trim();
+        const mobile = shouldShowMobileUI();
+        if (!mobile) {
+            document.querySelector('.js-desk-search-close')?.click();
+        }
+        setModal({
+            type: 'sources',
+            dockUi: mobile,
+            focusTab: 'explore',
+            ...(q ? { focusQuery: q } : {}),
+        });
+    };
+
+    const exploreCta = (
+        <div className="flex flex-col items-center gap-3 px-3 py-2">
+            <p className="text-center text-sm text-slate-600 dark:text-slate-400 m-0 max-w-[18rem]">
+                {query.length >= 2
+                    ? ui.searchNoResultsExplore || ui.noResults
+                    : ui.searchEmptyExploreHint || ui.searchBookmarksEmpty}
+            </p>
+            <button
+                type="button"
+                className="arborito-cta-emerald btn px-4 py-2.5 rounded-xl text-sm font-bold"
+                onClick={goExploreCourses}
+            >
+                {ui.searchNoResultsExploreCta || ui.sourcesEmptySearchGoExplore || 'Search courses'}
+            </button>
+        </div>
+    );
 
     const bookmarkLists = useMemo(() => {
         if (query.length > 0) return null;
@@ -279,9 +312,9 @@ export function SearchResultsPanel({ state, ui, lightChrome = false, onPick, onR
         if (results.length > 0 || query.length >= 2) {
             if (!results.length) {
                 return (
-                    <div className="arborito-empty py-10 flex flex-col items-center gap-2">
+                    <div className="arborito-empty py-10 flex flex-col items-center gap-3">
                         <ChromeEmoji emoji="🍃" size={24} className="text-2xl opacity-50" />
-                        <span>{ui.noResults}</span>
+                        {exploreCta}
                     </div>
                 );
             }
@@ -297,7 +330,14 @@ export function SearchResultsPanel({ state, ui, lightChrome = false, onPick, onR
 
     if (!bookmarkLists) return null;
     const { manualNodes, recentNodes } = bookmarkLists;
-    if (!manualNodes.length && !recentNodes.length) return null;
+    if (!manualNodes.length && !recentNodes.length) {
+        return (
+            <div className="arborito-empty py-8 flex flex-col items-center gap-3">
+                <ChromeEmoji emoji="🔍" size={24} className="text-2xl opacity-50" />
+                {exploreCta}
+            </div>
+        );
+    }
 
     return (
         <>
@@ -320,6 +360,7 @@ export function SearchResultsPanel({ state, ui, lightChrome = false, onPick, onR
                 confirm={confirm}
                 removeBookmark={removeBookmark}
             />
+            <div className="pt-4 pb-2">{exploreCta}</div>
             <div className="h-6" aria-hidden="true" />
         </>
     );

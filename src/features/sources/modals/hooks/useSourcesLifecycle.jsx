@@ -61,6 +61,7 @@ export function useSourcesLifecycle({
     setTreeEditor,
     setSourcesScope,
     setTreesScope,
+    setSourcesQ,
 }) {
     const store = useSourcesStore();
     useEffect(() => {
@@ -80,6 +81,10 @@ export function useSourcesLifecycle({
             setActiveTab('trees');
             setMainTab('trees');
             setTreesScope?.('device');
+        }
+
+        if (m && typeof m === 'object' && typeof m.focusQuery === 'string' && setSourcesQ) {
+            setSourcesQ(String(m.focusQuery).trim());
         }
 
         bump();

@@ -59,10 +59,23 @@ export function SidebarDesktopSearch({
         if (!open) return undefined;
         const onDocClick = (e) => {
             if (wrapRef.current?.contains(e.target)) return;
+            /* Scrim is a sibling outside wrapRef; still a deliberate dismiss. */
             onClose();
         };
-        queueMicrotask(() => document.addEventListener('click', onDocClick, true));
-        return () => document.removeEventListener('click', onDocClick, true);
+        const onDocTouch = (e) => {
+            const t = e.target;
+            if (wrapRef.current?.contains(t)) return;
+            if (t instanceof Element && t.closest('.arborito-mob-search-scrim')) return;
+            onClose();
+        };
+        queueMicrotask(() => {
+            document.addEventListener('click', onDocClick, true);
+            document.addEventListener('touchstart', onDocTouch, { capture: true, passive: true });
+        });
+        return () => {
+            document.removeEventListener('click', onDocClick, true);
+            document.removeEventListener('touchstart', onDocTouch, true);
+        };
     }, [open, onClose]);
 
     const showIndexBanner = indexStatus === 'indexing' || indexStatus === 'error';
@@ -90,9 +103,10 @@ export function SidebarDesktopSearch({
         return (
             <button
                 type="button"
-                className={`arborito-desktop-search-trigger js-btn-desktop-search${searchActive ? ' is-active' : ''}`}
-                aria-label={ui.navSearch || 'Search'}
-                title={ui.navSearch || 'Search'}
+                className={`arborito-desktop-search-trigger js-btn-desktop-search js-btn-search-mobile-top${searchActive ? ' is-active' : ''}`}
+                data-arbor-tour="mob-search"
+                aria-label={ui.searchInCourseTitle || ui.navSearch || 'Search'}
+                title={ui.searchInCourseTitle || ui.navSearch || 'Search'}
                 onClick={(e) => {
                     e.stopPropagation();
                     onOpen();
@@ -104,7 +118,7 @@ export function SidebarDesktopSearch({
                     </svg>
                 </span>
                 <span className="arborito-desktop-search-trigger__placeholder">
-                    {ui.searchPlaceholder || 'Search topics...'}
+                    {ui.searchPlaceholder || 'Search in this course…'}
                 </span>
             </button>
         );
@@ -123,10 +137,10 @@ export function SidebarDesktopSearch({
                     id="arborito-desk-search-input"
                     type="search"
                     enterKeyHint="search"
-                    placeholder={ui.searchPlaceholder || 'Search topics...'}
+                    placeholder={ui.searchPlaceholder || 'Search in this course…'}
                     autoComplete="off"
                     className="arborito-desktop-search-inline__input"
-                    aria-label={ui.navSearch || 'Search'}
+                    aria-label={ui.searchInCourseTitle || ui.navSearch || 'Search in this course'}
                     value={query}
                     onChange={(e) => onInput(e.target.value)}
                 />
