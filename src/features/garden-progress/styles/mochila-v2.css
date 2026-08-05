@@ -616,6 +616,27 @@
     font-variant-numeric: tabular-nums;
 }
 
+.mochila-v2__stat-val--with-extra {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.mochila-v2__stat-shield {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--mochila-muted);
+    line-height: 1;
+}
+
+.mochila-v2__stat-shield-n {
+    font-variant-numeric: tabular-nums;
+}
+
 .mochila-v2__stat-sub {
     margin: 0.15rem 0 0;
     max-width: 100%;

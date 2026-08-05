@@ -19,7 +19,6 @@ export function ProgressGardenBody({ data }) {
         dailyGoalVal,
         lessonsLine,
         vitalityPct,
-        vitalityLabel,
         lumensBalance,
         shieldCount,
         ringLabel,
@@ -39,9 +38,10 @@ export function ProgressGardenBody({ data }) {
     const arcadeScore = Math.max(0, Number(g?.arcadeScore) || 0);
     const habitLabel = ui.streak || 'Racha';
     const packLabel = ui.lumensBadgeLabel || ui.xpUnit || 'Lúmenes';
-    const todayLabel = ui.todayGoal || 'Hoy';
     const showCare = dueCount > 0;
     const showFooter = showCare || !omitActions;
+    const dailyCapLine =
+        goal > 0 ? `${Math.min(dailyXp, goal)}/${goal} ${ui.dailyShort || 'hoy'}` : '';
 
     return (
         <div
@@ -87,22 +87,27 @@ export function ProgressGardenBody({ data }) {
                     <p className="mochila-v2__stat-lb">
                         <ChromeEmoji emoji="💧" size={14} /> {habitLabel}
                     </p>
-                    <p className="mochila-v2__stat-val">{streakDays}</p>
-                    {goal > 0 ? (
+                    <p className="mochila-v2__stat-val mochila-v2__stat-val--with-extra">
+                        <span>{streakDays}</span>
+                        {shields > 0 ? (
+                            <span
+                                className="mochila-v2__stat-shield"
+                                title={ui.streakShieldHint || undefined}
+                            >
+                                <ChromeEmoji emoji="☂️" size={16} />
+                                <span className="mochila-v2__stat-shield-n">{shields}</span>
+                            </span>
+                        ) : null}
+                    </p>
+                    {studiedToday ? (
                         <p className="mochila-v2__stat-sub">
-                            {dailyXp}/{goal} {todayLabel}
-                            {vitalityLabel ? (
-                                <>
-                                    <span className="mochila-v2__stat-dot" aria-hidden="true">
-                                        ·
-                                    </span>
-                                    {vitalityLabel}
-                                </>
-                            ) : null}
+                            {ui.streakTodayDone || ui.streakKept || 'Hoy ok'}
                         </p>
-                    ) : vitalityLabel ? (
-                        <p className="mochila-v2__stat-sub">{vitalityLabel}</p>
-                    ) : null}
+                    ) : (
+                        <p className="mochila-v2__stat-sub mochila-v2__stat-sub--muted">
+                            {ui.streakTodayPending || 'Falta hoy'}
+                        </p>
+                    )}
                 </article>
 
                 <article className="mochila-v2__stat" title={ui.lumensBadgeHint || undefined}>
@@ -110,24 +115,15 @@ export function ProgressGardenBody({ data }) {
                         <ChromeEmoji emoji="☀️" size={14} /> {packLabel}
                     </p>
                     <p className="mochila-v2__stat-val">{lumensBalance}</p>
-                    {shields > 0 || arcadeScore > 0 ? (
-                        <p className="mochila-v2__stat-sub mochila-v2__stat-sub--row">
-                            {shields > 0 ? (
-                                <span title={ui.streakShieldHint || undefined}>
-                                    <ChromeEmoji emoji="☂️" size={12} /> {shields}
-                                </span>
-                            ) : null}
-                            {shields > 0 && arcadeScore > 0 ? (
-                                <span className="mochila-v2__stat-dot" aria-hidden="true">
-                                    ·
-                                </span>
-                            ) : null}
-                            {arcadeScore > 0 ? (
-                                <span title={ui.arcadeScoreHint || undefined}>
-                                    <ChromeEmoji emoji="🎮" size={12} /> {arcadeScore}
-                                </span>
-                            ) : null}
+                    {arcadeScore > 0 ? (
+                        <p
+                            className="mochila-v2__stat-sub mochila-v2__stat-sub--row"
+                            title={ui.arcadeScoreHint || undefined}
+                        >
+                            <ChromeEmoji emoji="🎮" size={12} /> {arcadeScore}
                         </p>
+                    ) : dailyCapLine ? (
+                        <p className="mochila-v2__stat-sub">{dailyCapLine}</p>
                     ) : (
                         <p className="mochila-v2__stat-sub mochila-v2__stat-sub--muted">
                             {ui.xpUnit || packLabel}
