@@ -117,17 +117,19 @@ export function MobileBranchPanel({
             ) : null}
             {visibleChildren.map((child) => {
                 const id = String(child.id);
+                const orderIndex =
+                    revealChildren.findIndex((c) => String(c.id) === id) + 1;
                 const firstSeen = !seenEnterRef.current.has(id);
                 if (firstSeen) {
                     seenEnterRef.current.add(id);
                     const wave = enterWaveRef.current++;
                     return (
                         <ListRowEnter key={id} index={wave}>
-                            <MobileChildRow child={child} ctx={ctx} />
+                            <MobileChildRow child={child} ctx={ctx} orderIndex={orderIndex} />
                         </ListRowEnter>
                     );
                 }
-                return <MobileChildRow key={id} child={child} ctx={ctx} />;
+                return <MobileChildRow key={id} child={child} ctx={ctx} orderIndex={orderIndex} />;
             })}
             {virtualized && paddingBottom > 0 ? (
                 <div className="mobile-child-virtual-spacer" style={{ height: paddingBottom }} aria-hidden="true" />

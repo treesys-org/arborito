@@ -34,7 +34,7 @@ function pickChildIcon(child, _childCompleted) {
 }
 
 /** One child row in the mobile branch panel (viñeta). */
-export function MobileChildRow({ child, ctx }) {
+export function MobileChildRow({ child, ctx, orderIndex = 0 }) {
     const renameInputRef = useRef(null);
     const rowRef = useRef(null);
     const { mobile } = useViewportShell();
@@ -172,7 +172,9 @@ export function MobileChildRow({ child, ctx }) {
                 data-node-id={String(child.id)}
                 role="button"
                 tabIndex={0}
-                aria-label={`${cname}${childCompleted ? `, ${ui.completed || 'completed'}` : ''}`}
+                aria-label={`${orderIndex > 0 ? `${orderIndex}. ` : ''}${cname}${
+                    childCompleted ? `, ${ui.completed || 'completed'}` : ''
+                }`}
                 onClick={mobile ? undefined : onRowActivate}
                 onKeyDown={onRowKeyDown}
             >
@@ -193,6 +195,11 @@ export function MobileChildRow({ child, ctx }) {
                     ) : (
                         <ChromeEmoji emoji={childIcon} size={22} className="mobile-child-icon arborito-emoji-glyph" />
                     )}
+                    {orderIndex > 0 ? (
+                        <span className="mobile-child-ord arborito-no-emojify" aria-hidden="true">
+                            {orderIndex}
+                        </span>
+                    ) : null}
                 </div>
                 {!renamingRow && isConstruct && canWrite && !isComposedBranch ? (
                     <button
