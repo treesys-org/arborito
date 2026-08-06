@@ -17,13 +17,20 @@ import { buildQuizMultipleOptions, filterQuizTraps } from '../api/quiz-trap-filt
 import { quizPassTier, resolveQuizPassRate } from '../api/quiz-pass.js';
 import { normalizeClozeToken, splitClozeDisplayWord } from '../api/quiz-player.js';
 
-function orderingChipsPrompt(mainQuestion, langCode) {
+function orderingChipsPrompt(mainQuestion, concept, langCode) {
     const mq = String(mainQuestion || '').trim();
-    if (!mq) return '';
+    const topic = String(concept || '').trim();
     const lang = String(langCode || 'ES').toUpperCase();
+    if (mq) {
+        return lang === 'EN'
+            ? `Order the words to answer: ${mq}`
+            : `Ordena las palabras para responder: ${mq}`;
+    }
+    if (!topic) return '';
+    // Match arcade MODE_PROMPTS: concept-only flashcards still need a prompt.
     return lang === 'EN'
-        ? `Order the words to answer: ${mq}`
-        : `Ordena las palabras para responder: ${mq}`;
+        ? `Order the words for «${topic}».`
+        : `Ordena las palabras para «${topic}».`;
 }
 
 function shuffleOptions(seed, options) {
@@ -334,7 +341,11 @@ function QuizChips({ b, c, ui, state, blockId, onPick, onUnpick, onCheck }) {
     const shuffled = useMemo(() => shuffleOptions(`${blockId}-chips`, words), [blockId, words]);
     const picked = state.chipOrder || [];
     const pool = shuffled.filter((w) => picked.filter((p) => p === w).length < shuffled.filter((x) => x === w).length);
-    const prompt = orderingChipsPrompt(c.main_question || b.main_question, lang);
+    const prompt = orderingChipsPrompt(
+        c.main_question || b.main_question,
+        c.core_concept || b.core_concept,
+        lang
+    );
     return (
         <div id={blockId} className="not-prose my-12 arborito-surface-tile rounded-3xl shadow-xl border p-6 md:p-8" data-mode="chips">
             <p className="arborito-eyebrow text-amber-500 mb-2">{ui.quizModeChips || 'Ordenar respuesta'}</p>
