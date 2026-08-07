@@ -83,9 +83,51 @@ export function ProgressGardenBody({ data }) {
             </section>
 
             <div className="mochila-v2__stats" role="group" aria-label={progressTitle || 'Mochila'}>
-                <article className="mochila-v2__stat" title={streakTip || undefined}>
+                <article
+                    className={`mochila-v2__stat${
+                        studiedToday
+                            ? ' mochila-v2__trail-item--streak-done'
+                            : ' mochila-v2__trail-item--streak-pending'
+                    }`}
+                    title={streakTip || undefined}
+                    aria-label={`${streakDays}. ${
+                        studiedToday
+                            ? ui.streakTodayDone || ui.streakKept || 'Hoy ok'
+                            : ui.streakTodayPending || 'Falta hoy'
+                    }. ${streakTip}`}
+                >
                     <p className="mochila-v2__stat-lb">
-                        <ChromeEmoji emoji="💧" size={14} /> {habitLabel}
+                        <span
+                            className={`mochila-v2__trail-ic${
+                                studiedToday
+                                    ? ' mochila-v2__trail-ic--streak-ok'
+                                    : ' mochila-v2__trail-ic--streak-open'
+                            }`}
+                            aria-hidden="true"
+                        >
+                            <ChromeEmoji emoji="💧" size={14} />
+                            {studiedToday ? (
+                                <svg
+                                    className="mochila-v2__trail-check"
+                                    viewBox="0 0 16 16"
+                                    width="12"
+                                    height="12"
+                                    focusable="false"
+                                >
+                                    <path
+                                        d="M3.2 8.2 6.4 11.4 12.8 4.6"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2.2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                            ) : (
+                                <span className="mochila-v2__trail-mark">!</span>
+                            )}
+                        </span>{' '}
+                        {habitLabel}
                     </p>
                     <p className="mochila-v2__stat-val mochila-v2__stat-val--with-extra">
                         <span>{streakDays}</span>
@@ -104,7 +146,7 @@ export function ProgressGardenBody({ data }) {
                             {ui.streakTodayDone || ui.streakKept || 'Hoy ok'}
                         </p>
                     ) : (
-                        <p className="mochila-v2__stat-sub mochila-v2__stat-sub--muted">
+                        <p className="mochila-v2__stat-sub">
                             {ui.streakTodayPending || 'Falta hoy'}
                         </p>
                     )}

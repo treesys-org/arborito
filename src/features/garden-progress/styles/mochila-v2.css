@@ -56,9 +56,15 @@
     box-shadow: var(--arborito-theme-garden-mochila-v2__trail-item--streak-pending-box-shadow);
 }
 
-.mochila-v2__trail-item--streak-pending .mochila-v2__trail-lb {
+.mochila-v2__trail-item--streak-pending .mochila-v2__trail-lb,
+.mochila-v2__stat.mochila-v2__trail-item--streak-pending .mochila-v2__stat-sub {
     color: var(--arborito-theme-garden-mochila-v2__trail-item--streak-pending-label-color);
     font-weight: 800;
+}
+
+.mochila-v2__stat-lb .mochila-v2__trail-ic {
+    display: inline-flex;
+    flex-shrink: 0;
 }
 
 .mochila-v2__streak-nudge {
