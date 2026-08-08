@@ -126,8 +126,8 @@ export function ProgressGardenBody({ data }) {
                             ) : (
                                 <span className="mochila-v2__trail-mark">!</span>
                             )}
-                        </span>{' '}
-                        {habitLabel}
+                        </span>
+                        <span>{habitLabel}</span>
                     </p>
                     <p className="mochila-v2__stat-val mochila-v2__stat-val--with-extra">
                         <span>{streakDays}</span>
@@ -154,7 +154,8 @@ export function ProgressGardenBody({ data }) {
 
                 <article className="mochila-v2__stat" title={ui.lumensBadgeHint || undefined}>
                     <p className="mochila-v2__stat-lb">
-                        <ChromeEmoji emoji="☀️" size={14} /> {packLabel}
+                        <ChromeEmoji emoji="☀️" size={14} />
+                        <span>{packLabel}</span>
                     </p>
                     <p className="mochila-v2__stat-val">{lumensBalance}</p>
                     {arcadeScore > 0 ? (
