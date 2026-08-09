@@ -8,7 +8,10 @@ import {
     GardenShop,
     GardenRankingSection,
 } from '../../garden-progress/components/GardenWidgets.jsx';
-import { collectOpenTreeLeafIds } from '../../garden-progress/api/care-reminders.js';
+import {
+    collectOpenTreeLeafIds,
+    nodeIsCareWaterable,
+} from '../../garden-progress/api/care-reminders.js';
 
 export function ArcadeGarden({ ui }) {
     const { userStore, arcadeActions, hasNetworkSocialConsent, data } = useArcade();
@@ -27,6 +30,8 @@ export function ArcadeGarden({ ui }) {
 
     for (const [id, item] of Object.entries(memoryData)) {
         if (!openLeafIds.has(String(id))) continue;
+        const node = findNode?.(id);
+        if (node && !nodeIsCareWaterable(node)) continue;
         if (now >= item.dueDate) dueIds.push(id);
         else healthyIds.push({ id, ...item });
     }

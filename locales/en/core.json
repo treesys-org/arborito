@@ -61,6 +61,7 @@
   "certificatesTitle": "Certificates",
   "clear": "Clear",
   "close": "Close",
+  "toastDismiss": "Dismiss notice",
   "codeTerminalLabel": "Terminal",
   "completed": "completed",
   "confirmCloseGame": "Are you sure you want to exit the game? Any unsaved progress will be lost.",

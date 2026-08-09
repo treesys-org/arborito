@@ -2,8 +2,6 @@
  * Cuidados: mapeo resultado de cuestionario → calidad SM-2 (0-5).
  */
 
-import { lessonContentHasCompleteQuiz } from '../../learning/api/quiz-status.js';
-
 function mapQuizRateToQuality(rate) {
     const r = Math.max(0, Math.min(1, Number(rate) || 0));
     if (r <= 0) return 1;
@@ -26,12 +24,11 @@ export function updateCareFromQuiz(store, nodeId, correct, total) {
 }
 
 /**
+ * Reading / intro leaves without a playable questionnaire must NOT enter the
+ * watering (SRS) queue. Care is only scheduled from quiz results via
+ * `updateCareFromQuiz`. Kept as a no-op so call sites stay stable.
  * @param {import('../../../core/store.js' ).default} store
  */
-export function updateCareOnLessonCompleteFallback(store, nodeId) {
-    if (!nodeId) return;
-    const node = typeof store.findNode === 'function' ? store.findNode(nodeId) : null;
-    if (!node) return;
-    if (lessonContentHasCompleteQuiz(node.content || '')) return;
-    store.userStore.reportMemory(nodeId, 4);
+export function updateCareOnLessonCompleteFallback(_store, _nodeId) {
+    /* intentionally empty — see care-reminders getCareDueNodeIds */
 }

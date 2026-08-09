@@ -98,14 +98,14 @@ export function ProgressGardenBody({ data }) {
                 >
                     <p className="mochila-v2__stat-lb">
                         <span
-                            className={`mochila-v2__trail-ic${
+                            className={`mochila-v2__stat-ic mochila-v2__trail-ic${
                                 studiedToday
                                     ? ' mochila-v2__trail-ic--streak-ok'
                                     : ' mochila-v2__trail-ic--streak-open'
                             }`}
                             aria-hidden="true"
                         >
-                            <ChromeEmoji emoji="💧" size={14} />
+                            <ChromeEmoji emoji="💧" size={16} />
                             {studiedToday ? (
                                 <svg
                                     className="mochila-v2__trail-check"
@@ -136,7 +136,7 @@ export function ProgressGardenBody({ data }) {
                                 className="mochila-v2__stat-shield"
                                 title={ui.streakShieldHint || undefined}
                             >
-                                <ChromeEmoji emoji="☂️" size={16} />
+                                <ChromeEmoji emoji="☂️" size={14} />
                                 <span className="mochila-v2__stat-shield-n">{shields}</span>
                             </span>
                         ) : null}
@@ -154,7 +154,9 @@ export function ProgressGardenBody({ data }) {
 
                 <article className="mochila-v2__stat" title={ui.lumensBadgeHint || undefined}>
                     <p className="mochila-v2__stat-lb">
-                        <ChromeEmoji emoji="☀️" size={14} />
+                        <span className="mochila-v2__stat-ic" aria-hidden="true">
+                            <ChromeEmoji emoji="☀️" size={16} />
+                        </span>
                         <span>{packLabel}</span>
                     </p>
                     <p className="mochila-v2__stat-val">{lumensBalance}</p>
@@ -163,7 +165,7 @@ export function ProgressGardenBody({ data }) {
                             className="mochila-v2__stat-sub mochila-v2__stat-sub--row"
                             title={ui.arcadeScoreHint || undefined}
                         >
-                            <ChromeEmoji emoji="🎮" size={12} /> {arcadeScore}
+                            <ChromeEmoji emoji="🎮" size={13} /> {arcadeScore}
                         </p>
                     ) : dailyCapLine ? (
                         <p className="mochila-v2__stat-sub">{dailyCapLine}</p>

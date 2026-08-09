@@ -61,6 +61,7 @@
   "certificatesTitle": "Certificados",
   "clear": "Limpiar",
   "close": "Cerrar",
+  "toastDismiss": "Cerrar aviso",
   "codeTerminalLabel": "Terminal",
   "completed": "completado",
   "confirmCloseGame": "¿Seguro que quieres salir del juego? Se perderá el progreso no guardado.",

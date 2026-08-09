@@ -118,7 +118,7 @@ traps:
 | \`concept:\` + \`answer:\` | Recall (recordar) |
 | \`definition:\` con \`{palabras}\` | Cloze (rellenar huecos) |
 | \`question:\` + \`answer:\` + \`traps:\` | Opción múltiple |
-| \`answer:\` con varias palabras | Chips (ordenar palabras) |
+| \`answer:\` con varias palabras | Chips (ordenar palabras; hace falta \`answer:\` explícito, no solo \`definition:\`) |
 | \`steps:\` (lista con 2+ ítems) | Pasos en orden |
 
 \`modes:\` limita qué modos usar (valores: \`cloze\`, \`multiple\`, \`recall\`, \`chips\`, \`steps\`).
@@ -325,7 +325,7 @@ traps:
 | \`concept:\` + \`answer:\` | Recall |
 | \`definition:\` with \`{words}\` | Cloze (fill blanks) |
 | \`question:\` + \`answer:\` + \`traps:\` | Multiple choice |
-| \`answer:\` with several words | Chips (word order) |
+| \`answer:\` with several words | Chips (word order; needs an explicit \`answer:\`, not definition-only flashcards) |
 | \`steps:\` (2+ list items) | Step order |
 
 \`modes:\` limits which modes run (\`cloze\`, \`multiple\`, \`recall\`, \`chips\`, \`steps\`).

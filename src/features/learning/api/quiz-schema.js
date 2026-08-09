@@ -209,6 +209,7 @@ function modeIsPlayable(c, mode) {
             /* Question+answer alone is enough (topic/definition are optional extras). */
             return !!(c.correct_answer && (c.core_concept || c.main_question));
         case QUIZ_MODE_CHIPS: {
+            if (c.skip_ordering) return false;
             const wc = tokenizeQuizAnswerChips(c.correct_answer).length;
             /* Chips need a prompt (question or topic) so the learner knows what to build. */
             if (!(c.core_concept || c.main_question)) return false;
@@ -216,6 +217,7 @@ function modeIsPlayable(c, mode) {
             return wc >= 2 && wc <= 6;
         }
         case QUIZ_MODE_STEPS:
+            if (c.skip_ordering) return false;
             /* Fewer than 2 steps → mode omitted. */
             return c.steps.length >= 2;
         default:
@@ -223,10 +225,26 @@ function modeIsPlayable(c, mode) {
     }
 }
 
+/**
+ * Word-order chips need an authored `answer:` line.
+ * Flashcards that only have concept + definition fill `correct_answer` from the
+ * definition for recall — that must NOT become "order the synonyms" chips
+ * (e.g. stur → terco/a + tozudo/a).
+ * @param {import('./quiz-schema.js').QuizChallenge} raw
+ */
+function hasAuthoredChipAnswer(raw) {
+    return !!String(raw?.correct_answer || '').trim();
+}
+
 /** @param {import('./quiz-schema.js').QuizChallenge} c */
 export function getPlayableModes(c) {
-    const n = challengeForPlay(c);
-    const derived = ALL_QUIZ_MODES.filter((m) => modeIsPlayable(n, m));
+    const raw = normalizeChallenge(c);
+    const authoredChips = hasAuthoredChipAnswer(raw);
+    const n = challengeForPlay(raw);
+    const derived = ALL_QUIZ_MODES.filter((m) => {
+        if (m === QUIZ_MODE_CHIPS && !authoredChips) return false;
+        return modeIsPlayable(n, m);
+    });
     if (n.modes && n.modes.length) {
         return derived.filter((m) => n.modes.includes(m));
     }
@@ -383,11 +401,16 @@ export function expandQuizBlock(block) {
     const items = Array.isArray(block.items) ? block.items : [];
     if (items.length) {
         const parentConcept = String(block.core_concept || '').trim();
+        const parentModes = Array.isArray(block.modes) ? block.modes : null;
         return items.map((item, i) => {
-            const merged =
+            let merged =
                 parentConcept && !String(item?.core_concept || '').trim()
                     ? { ...item, core_concept: parentConcept }
                     : item;
+            const itemModes = Array.isArray(merged?.modes) ? merged.modes : null;
+            if (parentModes?.length && !(itemModes && itemModes.length)) {
+                merged = { ...merged, modes: parentModes };
+            }
             return {
                 ...challengeToQuizBlock(merged, `${baseId}:${i}`),
                 pass_rate: block.pass_rate,

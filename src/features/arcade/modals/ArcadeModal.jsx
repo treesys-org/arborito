@@ -10,7 +10,11 @@ import {
 import { runArcadeAction } from '../api/modals/logic/arcade-actions/index.js';
 import { hydrateArcadeGameMetrics } from '../api/arcade-local-storage.js';
 import { refreshArcadeGameVotesFromNetwork } from '../api/arcade-vote-network.js';
-import { getModuleStaticGameReadiness, resolveModuleStaticGameReadiness } from '../../learning/api/quiz-status.js';
+import {
+    getModuleStaticGameReadiness,
+    resolveModuleStaticGameReadiness,
+    lessonBodyHasPlayableQuiz,
+} from '../../learning/api/quiz-status.js';
 import {
     hasOfflineGameBundle,
     downloadAndCacheGame,
@@ -277,10 +281,19 @@ export function ModalArcade({ embed, dockEmbed = false, dockEmbedActive = false 
                 if (forgetOrphanCareMemory(userStore, id)) bumpArcade();
                 return;
             }
+            const body = node.content;
+            if (body && String(body).trim() && !lessonBodyHasPlayableQuiz(body)) {
+                if (forgetOrphanCareMemory(userStore, id)) bumpArcade();
+                notify(
+                    ui.arcadeStaticNoQuizWarn ||
+                        'No complete questionnaires in this module. Finish a lesson questionnaire or switch to dynamic mode.'
+                );
+                return;
+            }
             setWateringTargetId(id);
             setActiveTab('games');
         },
-        [findNode, userStore, bumpArcade]
+        [findNode, userStore, bumpArcade, notify, ui]
     );
 
     const launchGame = useCallback(async () => {
