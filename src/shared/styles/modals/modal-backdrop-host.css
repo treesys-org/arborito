@@ -1,7 +1,7 @@
 /* =============================================================================
    ARBORITO MODALS — merged modal system (backdrop, hosts, root, dock, sheets)
    ============================================================================= */
-/* Backdrop fill is owned by system-root-variants.css (`--arborito-modal-overlay`). */
+/* Backdrop fill is owned by system-root-variants/ (`--arborito-modal-overlay`). */
 
 @media (max-width: 767px) {
 #modal-backdrop:not(.arborito-modal--immersive):not(.arborito-modal--onboarding):not(.arborito-modal--mobile-fullbleed) {  

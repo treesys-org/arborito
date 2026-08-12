@@ -1,0 +1,241 @@
+/* --- system-root headers, back/close, snackbar --- */
+/* Header bars inside modals — subtle separation */
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-700,
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-800 {
+    border-bottom-color: var(--arborito-theme-modal-head-border-slate) !important;
+}
+
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-100,
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) .border-b.border-slate-200 {
+    border-bottom-color: var(--arborito-theme-modal-head-border-light) !important;
+}
+
+/*
+ * slideInBottom (html.force-mobile #modal-backdrop .animate-in) sets transform on the sheet.
+ * Any non-none transform on an ancestor makes position:fixed descendants relative to that sheet — back buttons jump.
+ */
+@media (max-width: 767px) {
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile > div:first-child,
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile > #modal-panel {
+        animation: none !important;
+        transform: none !important;
+    }
+}
+
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile > div:first-child,
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal-root.arborito-modal--mobile > #modal-panel {
+    animation: none !important;
+    transform: none !important;
+}
+
+/* Canonical modal / sheet back chip — round ← dismiss (not plain .btn-close).
+ * Touch-size overrides for #modal-backdrop live below. */
+.arborito-mmenu-back {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--arborito-theme-mmenu-back-fg);
+    background: var(--arborito-theme-mmenu-back-bg);
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s ease, transform 0.12s ease;
+}
+
+.arborito-mmenu-back svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+}
+.arborito-mmenu-back:active {
+    transform: scale(0.94);
+    background: var(--arborito-theme-mmenu-back-active-bg);
+}
+
+.arborito-mmenu-back:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none;
+}
+
+/* Primary dismiss in modals — 44px target (use .arborito-mmenu-back on real back buttons; not plain .btn-close) */
+#modal-backdrop.arborito-modal-root button.arborito-mmenu-back {
+    min-width: 2.75rem !important;
+    min-height: 2.75rem !important;
+    border-radius: 9999px !important;
+}
+
+/* Explicit × close (popup) — same touch size as back */
+#modal-backdrop .arborito-modal-window-x,
+arborito-sage.arborito-sage--open .arborito-modal-window-x,
+#progress-dock-sheet .arborito-modal-window-x,
+.arborito-nested-form-card .arborito-modal-window-x {
+    box-sizing: border-box;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    min-width: 2.75rem !important;
+    min-height: 2.75rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 9999px !important;
+    border: 1px solid var(--arborito-theme-modal-window-x-border) !important;
+    background: var(--arborito-theme-modal-window-x-background) !important;
+    color: var(--arborito-theme-modal-window-x-color) !important;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+#modal-backdrop .arborito-modal-window-x:hover,
+arborito-sage.arborito-sage--open .arborito-modal-window-x:hover,
+.arborito-nested-form-card .arborito-modal-window-x:hover {
+    border-color: var(--arborito-theme-modal-close-hover-border) !important;
+    background: var(--arborito-theme-modal-close-hover-bg) !important;
+    color: var(--arborito-theme-modal-close-hover-fg) !important;
+}
+
+#modal-backdrop .arborito-modal-window-x:disabled,
+arborito-sage.arborito-sage--open .arborito-modal-window-x:disabled,
+#progress-dock-sheet .arborito-modal-window-x:disabled,
+.arborito-nested-form-card .arborito-modal-window-x:disabled {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+#modal-backdrop .arborito-modal-window-x:disabled:hover,
+arborito-sage.arborito-sage--open .arborito-modal-window-x:disabled:hover,
+.arborito-nested-form-card .arborito-modal-window-x:disabled:hover {
+    border-color: var(--arborito-theme-modal-window-x-border) !important;
+    background: var(--arborito-theme-modal-window-x-background) !important;
+    color: var(--arborito-theme-modal-window-x-color) !important;
+}
+
+/* Cabeceras oscuras / gradiente (Sage escritorio, game-player) */
+.arborito-modal-window-x.arborito-modal-window-x--inverse {
+    border-color: rgb(255 255 255 / 0.35) !important;
+    background: rgb(0 0 0 / 0.22) !important;
+    color: rgb(248 250 252) !important;
+}
+
+.arborito-modal-window-x.arborito-modal-window-x--inverse:hover {
+    border-color: rgb(255 255 255 / 0.5) !important;
+    background: rgb(0 0 0 / 0.35) !important;
+}
+
+/*
+ * × on mobile sheets: hide only on narrow viewport.
+ * Do not use html.force-mobile here: on wide landscape (e.g. ≥768px) HTML may omit ×
+ * unless showOnMobile; forcing display:none broke Welcome / sheets that render it.
+ */
+@media (max-width: 767px) {
+    .arborito-modal-window-x {
+        display: none !important;
+    }
+}
+
+/* Mobile modals: back stays in layout (avoids transform/fixed bugs); optional sticky chrome */
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile > div:first-child,
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile > #modal-panel {
+    position: relative !important;
+}
+
+/* Tree info modal: CC banner should be full width inside the narrow modal */
+arborito-modal-tree-info .arborito-tree-pres-cc-wrap,
+arborito-modal-tree-info.arborito-modal-tree-info .arborito-tree-pres-cc-wrap {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+/* Profile sub-modals (backup, privacy, QR): keep profile mounted underneath. */
+.arborito-modal-profile-stack {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+}
+
+.arborito-modal-profile-stack__base {
+    visibility: hidden;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.arborito-modal-profile-stack__overlay {
+    position: relative;
+    z-index: 1;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Snackbar — tap to dismiss. Above the dock on mobile so it never covers the header. */
+.arborito-toast-stack {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: calc(var(--arborito-chrome-dock-gap, 4.25rem) + 0.65rem + env(safe-area-inset-bottom, 0px));
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    padding: 0 0.75rem;
+    pointer-events: none;
+}
+
+html.arborito-desktop .arborito-toast-stack {
+    bottom: 1.25rem;
+}
+
+.arborito-toast {
+    appearance: none;
+    pointer-events: auto;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 26rem;
+    margin: 0;
+    padding: 0.8rem 1.05rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--arborito-moss-border);
+    background: var(--arborito-chrome-tile);
+    color: var(--arborito-bark-ink);
+    box-shadow: var(--arborito-theme-float-card-shadow);
+    text-align: left;
+    font: inherit;
+}
+
+.arborito-toast:focus-visible {
+    outline: 2px solid var(--arborito-theme-form-focus-border);
+    outline-offset: 2px;
+}
+
+.arborito-toast--error {
+    border-color: var(--arborito-theme-danger-border);
+    background: var(--arborito-theme-danger-bg);
+    color: var(--arborito-theme-danger-fg);
+}
+
+.arborito-toast__msg {
+    margin: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.875rem;
+    font-weight: 650;
+    line-height: 1.35;
+}

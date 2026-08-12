@@ -1,0 +1,440 @@
+/* --- system-root surfaces + float cards --- */
+/* =============================================================================
+   ARBORITO MODAL SYSTEM — surfaces, float cards, dock hub, certs, onboarding
+   ============================================================================= */
+/* Explicit semantic backgrounds (modal gradients; not only arbitrary utilities) */
+.arborito-sage-desk-scrim {
+    background: var(--arborito-theme-scrim-sage) !important;
+}
+
+.arborito-game-immersive-scrim {
+    background: var(--arborito-theme-scrim-game) !important;
+}
+
+/* Sage "External download": don't stretch like a wide card. */
+arborito-sage.arborito-sage--open .arborito-sage-external-download-card {
+    width: min(22rem, calc(100vw - 2rem)) !important;
+    max-width: min(22rem, calc(100vw - 2rem)) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+:root {
+    /* Full-viewport modal dim — translucent forest; focus via opacity (no backdrop-blur). */
+    --arborito-modal-overlay: var(--arborito-theme-modal-scrim);
+    --arborito-modal-radius: 1.5rem;
+    --arborito-modal-shadow: 0 24px 56px -16px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(255 255 255 / 0.06);
+    --arborito-modal-shadow-light: 0 22px 48px -12px rgb(15 23 42 / 0.12), 0 0 0 1px rgb(167 243 208 / 0.35);
+    /* Modal surface — mint gradient (app standard, no blur) */
+    --arborito-modal-surface-gradient-light: linear-gradient(
+        180deg,
+        rgb(240 253 250) 0%,
+        rgb(236 253 245) 32%,
+        rgb(209 250 229) 100%
+    );
+    /* Dark: ink charcoal panels (professional). Emerald is accent-only, not fill. */
+    --arborito-modal-surface-gradient-dark: linear-gradient(
+        180deg,
+        rgb(20 24 32) 0%,
+        rgb(14 17 24) 55%,
+        rgb(10 12 18) 100%
+    );
+    --arborito-surface-tile-light: rgb(236 253 245);
+    --arborito-surface-tile-dark: rgb(28 33 44);
+    --arborito-surface-tile-border-light: rgb(167 243 208 / 0.65);
+    --arborito-surface-tile-border-dark: rgb(255 255 255 / 0.08);
+    --arborito-surface-panel-border-light: rgb(167 243 208 / 0.55);
+    --arborito-surface-panel-border-dark: rgb(255 255 255 / 0.08);
+}
+
+/* Canonical surface — modals, popovers, tiles (use in JS shells instead of bg-white) */
+.arborito-surface-panel {
+    background: var(--arborito-theme-surface-bg);
+    border-color: var(--arborito-theme-surface-border);
+}
+
+.arborito-surface-panel-border {
+    border-color: var(--arborito-theme-surface-border);
+}
+
+.arborito-surface-tile {
+    background: var(--arborito-theme-tile-bg);
+    border-color: var(--arborito-theme-tile-border);
+}
+
+/* Forest consolidación — every modal root (incl. portaled switcher / sage). */
+.arborito-modal-root:not(.arborito-modal--immersive) {
+    background: var(--arborito-modal-overlay) !important;
+}
+
+/* Host already dims; nested settings backdrop must not stack a second plate. */
+arborito-sage.arborito-sage--open.arborito-sage-desk-scrim .arborito-modal-root {
+    background: transparent !important;
+}
+
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive) {
+    align-items: center !important;
+    justify-content: center !important;
+    padding: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(0.75rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left)) !important;
+}
+
+/* Ventana flotante escritorio: alto fijo; el scroll vive en el cuerpo (tabs / listas) */
+.arborito-float-modal-card {
+    width: min(92vw, 72rem);
+    max-width: min(92vw, 72rem);
+    height: min(86vh, 720px);
+    min-height: min(86vh, 720px);
+    max-height: min(86vh, 720px);
+    flex-shrink: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.arborito-float-modal-card__inner {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Desktop: surface aligned with mobile dock (soft gradient) */
+@media (min-width: 768px) {
+    /* Shadow + capillary ring for every floating modal. Reemplaza al
+     * flat Tailwind `shadow-2xl` with a tri-part shadow for more
+     * profundidad y un ring de 1px que separa el panel del scrim. `!important`
+     * depth vs Tailwind `shadow-2xl` (injected AFTER in main.css).
+     * `--lift-soft/strong` variants carry their own richer shadow;
+     * las tarjetas de certificado se excluyen para no romper aspect-ratio. */
+    .arborito-float-modal-card:not(.arborito-float-modal-card--certificate):not(.arborito-float-modal-card--lift-soft):not(.arborito-float-modal-card--lift-strong) {
+        box-shadow: var(--arborito-theme-float-card-shadow) !important;
+    }
+
+    /* Outer shell only — nested form/confirm cards use their own surface chrome. */
+    #modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive)
+        > .arborito-float-modal-card:not(.arborito-float-modal-card--certificate) {
+        background: var(--arborito-theme-surface-bg) !important;
+    }
+
+    /* Sage (host propio, no #modal-backdrop) */
+    arborito-sage.arborito-sage--open .arborito-float-modal-card {
+        background: var(--arborito-theme-surface-bg) !important;
+    }
+}
+
+/* Dialogs / language / compact cards: height from content, max cap */
+.arborito-float-modal-card.arborito-float-modal-card--auto-h {
+    height: auto;
+    min-height: 0;
+    max-height: var(--arborito-modal-max-height-auto);
+}
+
+/* --- Width tiers (canonical) --- */
+.arborito-float-modal-card.arborito-float-modal-card--compact {
+    width: var(--arborito-modal-width-compact);
+    max-width: var(--arborito-modal-width-compact);
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--standard {
+    width: var(--arborito-modal-width-standard);
+    max-width: var(--arborito-modal-width-standard);
+}
+
+/* In-hub nested sheets — width comes from .arborito-nested-confirm-card / form-card in dialog-content.css */
+
+.arborito-float-modal-card.arborito-float-modal-card--content {
+    width: var(--arborito-modal-width-content);
+    max-width: var(--arborito-modal-width-content);
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--xs {
+    width: var(--arborito-modal-width-xs);
+    max-width: var(--arborito-modal-width-xs);
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--xl {
+    width: var(--arborito-modal-width-xl);
+    max-width: var(--arborito-modal-width-xl);
+}
+
+/* Dock hub modals (Arcade, Biblioteca, Logros, Foro, Progreso…) — shared size + chrome */
+.arborito-float-modal-card.arborito-float-modal-card--dock-hub {
+    width: var(--arborito-dock-hub-width);
+    max-width: var(--arborito-dock-hub-width);
+    height: var(--arborito-dock-hub-height);
+    min-height: var(--arborito-dock-hub-height);
+    max-height: var(--arborito-dock-hub-height);
+}
+
+/* Desktop hub: pin width/height while chunk/content loads (flex chain can shrink the card). */
+@media (min-width: 768px) {
+    #modal-backdrop.arborito-modal-root > .arborito-float-modal-card--dock-hub {
+        width: var(--arborito-dock-hub-width) !important;
+        max-width: var(--arborito-dock-hub-width) !important;
+        min-width: min(96vw, 40rem);
+        height: var(--arborito-dock-hub-height) !important;
+        min-height: var(--arborito-dock-hub-height) !important;
+        max-height: var(--arborito-dock-hub-height) !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+/* Mobile dock hub: fill the sheet above the dock (not viewport takeover). */
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal-root.arborito-modal--forum
+    .arborito-float-modal-card--dock-hub,
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal-root.arborito-modal--certificates-hub
+    .arborito-float-modal-card,
+:is(html.arborito-shell-mobile, html.force-mobile)
+    #modal-backdrop.arborito-modal-root.arborito-modal--construction-dock-hub
+    .arborito-float-modal-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+}
+
+/* "Lift" — outer ring + richer shadow. Adds depth without backdrop-blur
+ * (which is globally disabled — see app-flex-and-pointer-hosts.css).
+ * `--soft` is subtle; `--strong` matches the forum/master-detail aesthetic. */
+@media (min-width: 768px) {
+    .arborito-float-modal-card--lift-soft {
+        box-shadow: var(--arborito-theme-float-card-lift-soft) !important;
+    }
+
+    .arborito-float-modal-card--lift-strong {
+        box-shadow: var(--arborito-theme-float-card-lift-strong) !important;
+    }
+}
+
+/* Diploma / certificate view — height from hero + toolbar + frame + disclaimer (no outer aspect-ratio). */
+.arborito-float-modal-card.arborito-float-modal-card--certificate {
+    width: min(92vw, 56rem);
+    max-width: min(92vw, 56rem);
+    height: auto;
+    min-height: 0;
+    max-height: min(92vh, 880px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--certificate-view .arborito-float-modal-card--certificate {
+    padding: 0;
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--certificate-view .arborito-dock-hub-shell,
+#modal-backdrop.arborito-modal-root.arborito-modal--certificate-view .arborito-dock-hub-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--certificate-view .arborito-cert-view {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Mobile / short landscape: aspect-ratio clipped footer and text; smooth scroll + reading shadows */
+.arborito-cert-view h2,
+.arborito-cert-view h3,
+.arborito-cert-view p {
+    text-shadow: var(--arborito-theme-cert-text-shadow);
+}
+
+.arborito-cert-view__watermark {
+    opacity: 0.07;
+    filter: drop-shadow(0 4px 18px rgb(0 0 0 / 0.5));
+}
+
+.arborito-cert-view__frame {
+    box-shadow: var(--arborito-theme-cert-frame-shadow);
+    box-sizing: border-box;
+    min-height: 18rem;
+}
+
+.arborito-cert-view__medallion {
+    box-shadow:
+        0 4px 6px rgb(0 0 0 / 0.2),
+        0 12px 28px rgb(0 0 0 / 0.35);
+}
+
+.arborito-cert-view__accent {
+    box-shadow: 0 1px 8px rgb(234 179 8 / 0.45);
+}
+
+.arborito-cert-view__print {
+    box-shadow:
+        0 2px 8px rgb(0 0 0 / 0.35),
+        0 4px 20px rgb(0 0 0 / 0.25);
+}
+
+@media (max-width: 767px) {
+    .arborito-float-modal-card.arborito-float-modal-card--certificate {
+        aspect-ratio: auto;
+        max-height: min(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px), 920px);
+        width: 100%;
+        max-width: 100%;
+        border-radius: 0;
+        height: 100%;
+    }
+
+    #modal-backdrop.arborito-modal-root.arborito-modal--certificate-view {
+        padding: 0 !important;
+    }
+
+    #modal-backdrop.arborito-modal-root.arborito-modal--certificate-view .arborito-cert-view {
+        padding: 0.75rem;
+    }
+
+    #modal-backdrop.arborito-modal-root.arborito-modal--certificate-view .arborito-cert-view__frame {
+        border-radius: 1rem;
+    }
+}
+
+:is(html.force-mobile, html.arborito-shell-mobile) .arborito-float-modal-card.arborito-float-modal-card--certificate {
+    aspect-ratio: auto;
+    max-height: min(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px), 920px);
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+}
+
+:is(html.force-mobile, html.arborito-shell-mobile) #modal-backdrop.arborito-modal-root.arborito-modal--certificate-view {
+    padding: 0 !important;
+}
+
+/* Contributor (team) modal: content-width centered card on desktop. */
+@media (min-width: 768px) {
+    .arborito-contributor-modal-shell {
+        width: var(--arborito-modal-width-content) !important;
+        max-width: var(--arborito-modal-width-content) !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: min(86vh, 640px) !important;
+        flex-shrink: 0;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border-radius: var(--arborito-modal-radius);
+    }
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--certs {
+    width: var(--arborito-modal-width-certs);
+    max-width: var(--arborito-modal-width-certs);
+}
+
+.arborito-float-modal-card.arborito-float-modal-card--readme {
+    width: var(--arborito-modal-width-readme);
+    max-width: var(--arborito-modal-width-readme);
+}
+
+/* Header row: aligns multiline title with × */
+.arborito-float-modal-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.arborito-float-modal-head .arborito-modal-window-x {
+    align-self: center;
+}
+
+/* Header ↔ content spacing (skip if border-b already present) */
+#modal-backdrop.arborito-modal-root .arborito-float-modal-head.arborito-dock-modal-hero:not(.border-b) {
+    border-bottom: 1px solid var(--arborito-theme-modal-head-border);
+}
+
+/* Phones: layout only — fill stays `--arborito-modal-overlay` (forest consolidación). */
+@media (max-width: 767px) {
+    #modal-backdrop.arborito-modal-root:not(.arborito-modal--onboarding):not(.arborito-modal--immersive) {
+        padding: 0 !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+    }
+}
+
+:is(html.force-mobile, html.arborito-shell-mobile) #modal-backdrop.arborito-modal-root:not(.arborito-modal--onboarding):not(.arborito-modal--immersive),
+:is(html.force-mobile, html.arborito-shell-mobile) #sage-lesson-backdrop.arborito-modal-root,
+:is(html.force-mobile, html.arborito-shell-mobile) #sage-settings-backdrop.arborito-modal-root {
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+}
+
+/* Inner card: first direct child panel.
+ *
+ * IMPORTANT: `:not(.arborito-modal--mobile-fullbleed)` keeps this rule from beating
+ * the fullbleed rule on specificity (which sets border-radius:0 and border:none).
+ * Previously the forum / sources / tree-info mobile panel got the rounded corner
+ * + light-green border + white background "on top of" the fullbleed look, leaving
+ * a visible margin around the hero. With the `:not()` mobile-fullbleed modals lose
+ * this inner card and stay truly edge-to-edge. */
+#modal-backdrop.arborito-modal-root:not(.arborito-modal--immersive):not(.arborito-modal--search):not(.arborito-modal--arcade):not(.arborito-modal--forum):not(.arborito-modal--certificates-hub):not(.arborito-modal--construction-dock-hub):not(.arborito-modal--mobile-fullbleed) > div:first-child {
+    border-radius: var(--arborito-modal-radius) !important;
+    overflow: hidden !important;
+    box-shadow: var(--arborito-theme-modal-inner-shadow) !important;
+    border: 1px solid var(--arborito-theme-modal-inner-border) !important;
+    background: var(--arborito-theme-surface-bg) !important;
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--onboarding > .arborito-onboarding-shell {
+    background: var(--arborito-theme-surface-bg) !important;
+    border-color: var(--arborito-theme-surface-border) !important;
+}
+
+@media (min-width: 768px) {
+    #modal-backdrop.arborito-modal-root.arborito-modal--onboarding > .arborito-onboarding-shell {
+        box-shadow: var(--arborito-theme-onboarding-shell-shadow) !important;
+    }
+}
+
+/* Onboarding mobile fullbleed — edge-to-edge sheet (paired with --mobile-fullbleed). */
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile-fullbleed.arborito-modal--onboarding {
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile-fullbleed.arborito-modal--onboarding > .arborito-onboarding-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-width: 100% !important;
+    width: 100% !important;
+    max-height: 100dvh !important;
+    height: 100dvh !important;
+    border-radius: 0 !important;
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--onboarding .arborito-onboarding-inner {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile-fullbleed.arborito-modal--onboarding .arborito-onboarding-inner {
+    -webkit-overflow-scrolling: touch;
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile-fullbleed.arborito-modal--onboarding .arborito-onboarding-hero {
+    padding-top: max(1.25rem, env(safe-area-inset-top, 0px));
+}
+
+#modal-backdrop.arborito-modal-root.arborito-modal--mobile-fullbleed.arborito-modal--onboarding .arborito-onboarding-inner--step1 .arborito-onboarding-actions {
+    padding-bottom: 0;
+}
+
