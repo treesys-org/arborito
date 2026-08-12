@@ -51,7 +51,7 @@ export function OnboardingWelcome({
                 </div>
                 <h1 className="arborito-onboarding-welcome">{welcome}</h1>
                 {tagline ? <p className="arborito-onboarding-tagline">{tagline}</p> : null}
-                <OnboardingMiniPreview ui={ui} lang={lang} />
+                <OnboardingMiniPreview ui={ui} />
             </div>
 
             <OnboardingLanguage lang={lang} onPick={onPickLanguage} />

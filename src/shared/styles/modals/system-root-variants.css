@@ -991,4 +991,63 @@ arborito-modal-tree-info.arborito-modal-tree-info .arborito-tree-pres-cc-wrap {
     flex-direction: column;
 }
 
+/* Snackbar — tap to dismiss. Above the dock on mobile so it never covers the header. */
+.arborito-toast-stack {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: calc(var(--arborito-chrome-dock-gap, 4.25rem) + 0.65rem + env(safe-area-inset-bottom, 0px));
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    padding: 0 0.75rem;
+    pointer-events: none;
+}
+
+html.arborito-desktop .arborito-toast-stack {
+    bottom: 1.25rem;
+}
+
+.arborito-toast {
+    appearance: none;
+    pointer-events: auto;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 26rem;
+    margin: 0;
+    padding: 0.8rem 1.05rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--arborito-moss-border);
+    background: var(--arborito-chrome-tile);
+    color: var(--arborito-bark-ink);
+    box-shadow: var(--arborito-theme-float-card-shadow);
+    text-align: left;
+    font: inherit;
+}
+
+.arborito-toast:focus-visible {
+    outline: 2px solid var(--arborito-theme-form-focus-border);
+    outline-offset: 2px;
+}
+
+.arborito-toast--error {
+    border-color: var(--arborito-theme-danger-border);
+    background: var(--arborito-theme-danger-bg);
+    color: var(--arborito-theme-danger-fg);
+}
+
+.arborito-toast__msg {
+    margin: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.875rem;
+    font-weight: 650;
+    line-height: 1.35;
+}
+
+
+
 

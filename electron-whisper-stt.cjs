@@ -6,7 +6,8 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { spawnSync, spawn } = require('child_process');
+const { spawn } = require('child_process');
+const { extractArchive } = require('./electron-extract-archive.cjs');
 const {
   resolveUserDataDir,
   detectPlatformKey,
@@ -78,25 +79,6 @@ function filterWhisperStderr(stderr) {
     .filter((line) => !/deprecated|whisper-cli instead/i.test(line))
     .join('\n')
     .trim();
-}
-
-function extractArchive(archivePath, destDir, kind) {
-  mkdirp(destDir);
-  if (kind === 'tar') {
-    const r = spawnSync('tar', ['-xzf', archivePath, '-C', destDir], { encoding: 'utf8' });
-    if (r.status !== 0) throw new Error((r.stderr || r.stdout || 'tar extract failed').trim());
-    return;
-  }
-  if (kind === 'zip') {
-    const r = spawnSync('unzip', ['-o', archivePath, '-d', destDir], { encoding: 'utf8' });
-    if (r.status !== 0) {
-      const ps = spawnSync('powershell', [
-        '-NoProfile', '-Command',
-        `Expand-Archive -Path '${archivePath.replace(/'/g, "''")}' -DestinationPath '${destDir.replace(/'/g, "''")}' -Force`,
-      ], { encoding: 'utf8' });
-      if (ps.status !== 0) throw new Error((ps.stderr || ps.stdout || 'zip extract failed').trim());
-    }
-  }
 }
 
 function resolveDarwinWhisperCli() {

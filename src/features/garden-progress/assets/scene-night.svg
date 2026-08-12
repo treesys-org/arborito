@@ -19,8 +19,8 @@
  <stop offset="100%" stop-color="#0f1f2a"/>
  </linearGradient>
  <radialGradient id="moonGlow" cx="86%" cy="16%" r="38%">
- <stop offset="0%" stop-color="#c7d2fe" stop-opacity="0.45"/>
- <stop offset="32%" stop-color="#a5b4fc" stop-opacity="0.20"/>
+ <stop offset="0%" stop-color="#c7d2fe" stop-opacity="0.18"/>
+ <stop offset="32%" stop-color="#a5b4fc" stop-opacity="0.08"/>
  <stop offset="100%" stop-color="#818cf8" stop-opacity="0"/>
  </radialGradient>
  <radialGradient id="moonBody" cx="42%" cy="38%" r="55%">
@@ -46,7 +46,7 @@
  <rect width="1920" height="1080" fill="url(#moonGlow)"/>
 
  <!-- Star field (varied size+opacity for parallax illusion) -->
- <g fill="#f8fafc">
+ <g fill="#f8fafc" opacity="0.45">
  <circle cx="80" cy="100" r="1.2" opacity="0.85"/>
  <circle cx="222" cy="58" r="1.5" opacity="0.7"/>
  <circle cx="354" cy="178" r="1.0" opacity="0.9"/>
@@ -87,9 +87,9 @@
  <circle cx="1492" cy="448" r="1.9" opacity="0.78"/>
  </g>
 
- <!-- Moon (crescent: silver disc with shadow circle) -->
- <circle cx="1640" cy="172" r="56" fill="url(#moonBody)" opacity="0.95"/>
- <circle cx="1672" cy="160" r="48" fill="#142640" opacity="0.62"/>
+ <!-- Moon -->
+ <circle cx="1640" cy="172" r="56" fill="url(#moonBody)" opacity="0.42"/>
+ <circle cx="1672" cy="160" r="48" fill="#142640" opacity="0.55"/>
 
  <!-- Hills (far to near, dark green silhouettes — landscape, not sky) -->
  <path d="M-50,742 C300,672 600,712 920,702 C1200,694 1500,720 1980,688 L1980,1080 L-50,1080 Z"
@@ -99,47 +99,17 @@
  <path d="M-50,915 C220,870 500,880 800,905 C1100,930 1450,900 1980,920 L1980,1080 L-50,1080 Z"
  fill="url(#nHillNear)" opacity="0.95"/>
 
- <!-- Sparse indigo clouds -->
- <g opacity="0.5">
- <g fill="#6366f1">
+ <!-- Sparse cool clouds -->
+ <g opacity="0.22">
+ <g fill="#94a3b8">
  <ellipse cx="280" cy="284" rx="88" ry="18"/>
  <ellipse cx="220" cy="278" rx="48" ry="14"/>
  </g>
- <g fill="#4f46e5" opacity="0.6">
+ <g fill="#64748b" opacity="0.6">
  <ellipse cx="1282" cy="424" rx="78" ry="18"/>
  <ellipse cx="1342" cy="416" rx="48" ry="14"/>
  </g>
  </g>
 
- <!-- Grass strip + tufts -->
- <rect x="0" y="1042" width="1920" height="38" fill="#0a1f15" opacity="0.7"/>
-
- <g fill="#13422a" opacity="0.95">
- <path d="M40,1080 L42,1048 L37,1048 Z"/>
- <path d="M48,1080 L51,1054 L44,1054 Z"/>
- <path d="M152,1080 L154,1044 L148,1044 Z"/>
- <path d="M160,1080 L163,1052 L156,1052 Z"/>
- <path d="M276,1080 L278,1050 L272,1050 Z"/>
- <path d="M308,1080 L310,1046 L304,1046 Z"/>
- <path d="M422,1080 L424,1043 L418,1043 Z"/>
- <path d="M448,1080 L452,1052 L444,1052 Z"/>
- <path d="M572,1080 L574,1048 L568,1048 Z"/>
- <path d="M608,1080 L611,1054 L604,1054 Z"/>
- <path d="M734,1080 L736,1046 L730,1046 Z"/>
- <path d="M778,1080 L780,1050 L774,1050 Z"/>
- <path d="M892,1080 L894,1044 L888,1044 Z"/>
- <path d="M922,1080 L925,1054 L918,1054 Z"/>
- <path d="M1044,1080 L1046,1048 L1040,1048 Z"/>
- <path d="M1082,1080 L1084,1046 L1078,1046 Z"/>
- <path d="M1198,1080 L1200,1050 L1194,1050 Z"/>
- <path d="M1238,1080 L1241,1052 L1234,1052 Z"/>
- <path d="M1358,1080 L1360,1044 L1354,1044 Z"/>
- <path d="M1392,1080 L1394,1050 L1388,1050 Z"/>
- <path d="M1512,1080 L1514,1046 L1508,1046 Z"/>
- <path d="M1548,1080 L1551,1054 L1544,1054 Z"/>
- <path d="M1672,1080 L1674,1048 L1668,1048 Z"/>
- <path d="M1712,1080 L1714,1052 L1708,1052 Z"/>
- <path d="M1828,1080 L1830,1044 L1824,1044 Z"/>
- <path d="M1872,1080 L1874,1050 L1868,1050 Z"/>
- </g>
+ <rect x="0" y="1042" width="1920" height="38" fill="#0a1f15" opacity="0.4"/>
 </svg>

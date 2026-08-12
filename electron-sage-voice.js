@@ -10,6 +10,7 @@ const path = require('path');
 const os = require('os');
 const { spawnSync } = require('child_process');
 const { app } = require('electron');
+const { extractArchive } = require('./electron-extract-archive.cjs');
 const {
   resolveUserDataDir,
   isFileReady,
@@ -215,25 +216,6 @@ async function ensurePiperVoice(locale, onProgress, signal) {
     if (onProgress) onProgress(0.5 + p * 0.5, null);
   }, signal);
   return { onnxPath, jsonPath };
-}
-
-function extractArchive(archivePath, destDir, kind) {
-  mkdirp(destDir);
-  if (kind === 'tar') {
-    const r = spawnSync('tar', ['-xzf', archivePath, '-C', destDir], { encoding: 'utf8' });
-    if (r.status !== 0) throw new Error((r.stderr || r.stdout || 'tar extract failed').trim());
-    return;
-  }
-  if (kind === 'zip') {
-    const r = spawnSync('unzip', ['-o', archivePath, '-d', destDir], { encoding: 'utf8' });
-    if (r.status !== 0) {
-      const ps = spawnSync('powershell', [
-        '-NoProfile', '-Command',
-        `Expand-Archive -Path '${archivePath.replace(/'/g, "''")}' -DestinationPath '${destDir.replace(/'/g, "''")}' -Force`,
-      ], { encoding: 'utf8' });
-      if (ps.status !== 0) throw new Error((ps.stderr || ps.stdout || 'zip extract failed').trim());
-    }
-  }
 }
 
 function isValidWavBuffer(buf) {

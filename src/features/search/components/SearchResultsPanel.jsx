@@ -39,10 +39,10 @@ function bookmarkSectionPositionLabel(ui, index, total) {
 
 function tagForResult(res, ui, listKind) {
     let tag = ui.tagModule || 'MODULE';
-    let tone = 'blue';
+    let tone = 'emerald';
     if (res.type === 'leaf') {
         tag = ui.tagLesson || 'LESSON';
-        tone = 'sky';
+        tone = 'green';
     } else if (res.type === 'exam') {
         tag = ui.tagExam || 'EXAM';
         tone = 'red';
@@ -218,7 +218,7 @@ function ResultsList({ results, ui, listKind, query, onPick, onDeleteBookmark, s
 /**
  * Shared search results body for modal + desktop inline search.
  */
-export function SearchResultsPanel({ state, ui, lightChrome = false, onPick, onRefresh }) {
+export function SearchResultsPanel({ state, ui, onPick, onRefresh }) {
     const {
         confirm,
         removeBookmark,
@@ -247,7 +247,7 @@ export function SearchResultsPanel({ state, ui, lightChrome = false, onPick, onR
 
     const exploreCta = (
         <div className="flex flex-col items-center gap-3 px-3 py-2">
-            <p className="text-center text-sm text-slate-600 dark:text-slate-400 m-0 max-w-[18rem]">
+            <p className="arborito-empty__body m-0 max-w-[18rem]">
                 {query.length >= 2
                     ? ui.searchNoResultsExplore || ui.noResults
                     : ui.searchEmptyExploreHint || ui.searchBookmarksEmpty}

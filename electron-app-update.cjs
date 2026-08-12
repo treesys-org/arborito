@@ -94,20 +94,22 @@ function fetchJson(url) {
  * @returns {Promise<{ tag_name?: string, name?: string }|null>}
  */
 async function fetchNewestGithubRelease() {
+  const list = await fetchJson(GITHUB_RELEASES_LIST_API);
+  const rows = Array.isArray(list) ? list : [];
+  const usable = rows.filter((r) => r && !r.draft && (r.tag_name || r.name));
+  if (usable.length) {
+    usable.sort((a, b) =>
+      compareSemverLike(String(b.tag_name || b.name || ''), String(a.tag_name || a.name || ''))
+    );
+    return usable[0];
+  }
   try {
     const latest = await fetchJson(GITHUB_RELEASES_LATEST_API);
     if (latest && (latest.tag_name || latest.name)) return latest;
   } catch {
-    /* /latest omits prereleases — fall through */
+    /* /latest omits prereleases */
   }
-  const list = await fetchJson(GITHUB_RELEASES_LIST_API);
-  const rows = Array.isArray(list) ? list : [];
-  const usable = rows.filter((r) => r && !r.draft && (r.tag_name || r.name));
-  if (!usable.length) return null;
-  usable.sort((a, b) =>
-    compareSemverLike(String(b.tag_name || b.name || ''), String(a.tag_name || a.name || ''))
-  );
-  return usable[0];
+  return null;
 }
 
 /**

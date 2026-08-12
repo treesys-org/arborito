@@ -99,6 +99,11 @@
  </keywords>
 
  <releases>
+ <release version="0.1.3-alpha" date="2026-08-13">
+ <description>
+ <p>Faster loading, clearer UI copy, quiz fixes, and Sage on Windows. Welcome preview and download links point at the current release.</p>
+ </description>
+ </release>
  <release version="0.1.2-alpha" date="2026-08-01">
  <description>
  <p>Clearer Courses / playlist naming, more reliable default Nostr relays, and catalog UX polish. Removing a course never leaves an empty map; private drafts stay deleted across devices.</p>

@@ -169,8 +169,7 @@ export const DataProcessor = {
             rawGraphData: json,
             loading: false, 
             path: [langData], 
-            lastActionMessage:
-                carryOverSelection || suppressReadmeAutoOpen ? null : ui.sourceSwitchSuccess,
+            lastActionMessage: null,
             // Same curriculum: re-resolve node ids so lesson/preview stay valid after load (local CRUD, etc.).
             // Different source: drop refs so stale pointers cannot survive a version switch.
             selectedNode: nextSelected,
@@ -199,8 +198,6 @@ export const DataProcessor = {
                 }
             });
         }
-
-            setTimeout(() => store.update({ lastActionMessage: null }), 3000);
 
         if (!suppressReadmeAutoOpen && !store.state.constructionMode) {
             setTimeout(() => {

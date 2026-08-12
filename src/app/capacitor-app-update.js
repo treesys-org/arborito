@@ -52,26 +52,23 @@ async function fetchLatestRelease() {
         Accept: 'application/vnd.github+json',
         'User-Agent': 'Arborito',
     };
-    try {
-        const res = await fetch(GITHUB_RELEASES_LATEST_API, { headers });
-        if (res.ok) {
-            const data = await res.json();
-            if (data?.tag_name || data?.name) return data;
-        }
-        /* 404 when every release is a prerelease — continue to list. */
-    } catch {
-        /* network / CORS — try list */
-    }
     const listRes = await fetch(GITHUB_RELEASES_LIST_API, { headers });
-    if (!listRes.ok) throw new Error(`HTTP ${listRes.status}`);
-    const list = await listRes.json();
-    const rows = Array.isArray(list) ? list : [];
-    const usable = rows.filter((r) => r && !r.draft && (r.tag_name || r.name));
-    if (!usable.length) throw new Error('No GitHub releases found');
-    usable.sort((a, b) =>
-        compareSemverLike(String(b.tag_name || b.name || ''), String(a.tag_name || a.name || ''))
-    );
-    return usable[0];
+    if (listRes.ok) {
+        const list = await listRes.json();
+        const rows = Array.isArray(list) ? list : [];
+        const usable = rows.filter((r) => r && !r.draft && (r.tag_name || r.name));
+        if (usable.length) {
+            usable.sort((a, b) =>
+                compareSemverLike(String(b.tag_name || b.name || ''), String(a.tag_name || a.name || ''))
+            );
+            return usable[0];
+        }
+    }
+    const res = await fetch(GITHUB_RELEASES_LATEST_API, { headers });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data?.tag_name || data?.name) return data;
+    throw new Error('No GitHub releases found');
 }
 
 /**

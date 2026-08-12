@@ -33,15 +33,14 @@ function SearchBody({
     const inputRadius = dockChrome ? 'rounded-lg' : 'rounded-xl';
     const inputClass = `arborito-input arborito-input--search h-11 py-0 font-semibold ${inputRadius} pr-4 shadow-sm transition-all`;
     const listShell = dockChrome
-        ? 'flex-1 overflow-y-auto custom-scrollbar min-h-0 border-0 shadow-none bg-transparent rounded-none arborito-search-results-list arborito-search-results-list--dock-light pt-1'
-        : 'flex-1 overflow-y-auto custom-scrollbar min-h-0 rounded-xl border border-slate-200 dark:border-slate-600 arborito-surface-tile shadow-inner arborito-search-results-list arborito-search-results-list--dock-light';
+        ? 'flex-1 overflow-y-auto custom-scrollbar min-h-0 border-0 shadow-none bg-transparent rounded-none arborito-search-results-list pt-1'
+        : 'flex-1 overflow-y-auto custom-scrollbar min-h-0 rounded-xl border arborito-surface-tile arborito-surface-panel-border shadow-inner arborito-search-results-list';
 
     const { isSearching } = searchState;
     const panel = (
         <SearchResultsPanel
             state={searchState}
             ui={ui}
-            lightChrome
             onPick={onPick}
             onRefresh={onRefresh}
         />
@@ -104,12 +103,12 @@ function SearchBody({
             <div
                 ref={bannerRef}
                 id="search-index-banner"
-                className="hidden text-center text-xs font-semibold text-amber-800 dark:text-amber-200 bg-amber-500/10 dark:bg-amber-500/15 rounded-xl px-3 py-2 mb-2 border border-amber-200/80 dark:border-amber-700/50"
+                className="hidden arborito-callout arborito-callout--amber arborito-callout--sm arborito-callout--centered mb-2"
                 aria-live="polite"
             />
             <div
                 id="search-msg-area"
-                className={`text-center text-slate-600 dark:text-slate-400 py-4 font-medium text-sm transition-opacity duration-300${showMsg ? '' : ' hidden'}`}
+                className={`arborito-empty text-center py-4 font-medium text-sm transition-opacity duration-300${showMsg ? '' : ' hidden'}`}
             >
                 {showMsg ? ui.searchKeepTyping : ''}
             </div>

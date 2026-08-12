@@ -1,23 +1,15 @@
+import { useEffect, useState } from 'react';
 import { useVersionUpdates } from '../hooks/useVersionUpdates.js';
 import { shouldShowMobileUI } from '../../../shared/ui/breakpoints.js';
 import { DockModalShell, ModalCenteredShell } from '../../../app/components/ModalShell.jsx';
 import { ModalHubHero } from '../../../app/components/ModalHero.jsx';
 import { CommunityBrandIcon } from '../../../shared/ui/CommunityBrandIcon.jsx';
 import { isElectronDesktop, isCapacitorNative } from '../../learning/api/electron-bridge.js';
-import { getReleaseDownloadPlatforms, GITHUB_RELEASES } from '../../../shared/lib/release-downloads.js';
+import { getReleaseDownloadPlatforms, GITHUB_RELEASES, fetchNewestGithubReleaseTag } from '../../../shared/lib/release-downloads.js';
+import { ARBORITO_APP_VERSION } from '../../../core/version.js';
 import { PRODUCT_SCREENSHOT_FILES, productScreenshotSrc } from '../../../shared/lib/product-screenshots.js';
 import { useShellModalLang } from '../../../app/hooks/useHookShell.js';
 import { ModalBinaryFooter } from '../../../shared/ui/ModalBinaryFooter.jsx';
-
-function resolveVersion(state) {
-    try {
-        const v = state?.appVersion || state?.version;
-        if (v) return String(v);
-    } catch {
-        /* ignore */
-    }
-    return '0.1.1-alpha';
-}
 
 function DownloadScreenshotStrip({ lang }) {
     const files = PRODUCT_SCREENSHOT_FILES.slice(0, 4);
@@ -73,8 +65,22 @@ function DownloadAppCompare({ ui }) {
     );
 }
 
-function DownloadAppPanel({ ui, state }) {
-    const version = resolveVersion(state);
+function DownloadAppPanel({ ui }) {
+    const [version, setVersion] = useState(ARBORITO_APP_VERSION);
+
+    useEffect(() => {
+        let cancelled = false;
+        fetchNewestGithubReleaseTag()
+            .then((tag) => {
+                if (!cancelled && tag) setVersion(tag);
+            })
+            .catch(() => {
+                /* keep ARBORITO_APP_VERSION */
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, []);
     const platforms = getReleaseDownloadPlatforms(version);
     const title = ui.downloadVignetteTitle || ui.downloadAppChip || 'Get the app';
     const hint = ui.downloadVignetteHint || ui.downloadAppChipHint || '';
@@ -118,7 +124,7 @@ function DownloadAppPanel({ ui, state }) {
 
 export function ModalDownloadApp() {
     const version = useVersionUpdates();
-    const { ui, dismissModal, state } = version;
+    const { ui, dismissModal } = version;
     const { lang, modal } = useShellModalLang();
 
     const mobile = shouldShowMobileUI();
@@ -153,7 +159,7 @@ export function ModalDownloadApp() {
             <DownloadScreenshotStrip lang={lang || 'EN'} />
             <DownloadAppCompare ui={ui} />
             <p className="arborito-download-modal__platforms-label">{ui.downloadModalPlatformsLabel || 'Choose your platform'}</p>
-            <DownloadAppPanel ui={ui} state={state} />
+            <DownloadAppPanel ui={ui} />
         </div>
     );
 

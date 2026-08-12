@@ -35,6 +35,7 @@ async function walk(dir) {
 
 const files = [
     ...(await walk(join(ROOT, 'src'))),
+    join(ROOT, 'electron-extract-archive.cjs'),
     join(ROOT, 'electron-main.js'),
     join(ROOT, 'electron-sage-voice.js'),
     join(ROOT, 'electron-llama-bin.cjs'),

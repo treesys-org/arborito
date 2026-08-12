@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { resolveStableUserDataDir } = require('./electron-app-paths.cjs');
-const { spawnSync } = require('child_process');
+const { extractArchive } = require('./electron-extract-archive.cjs');
 
 const LLAMA_RELEASE = 'b9733';
 
@@ -208,17 +208,6 @@ async function downloadFile(url, destPath, onProgress, signal) {
   } finally {
     if (signal) signal.removeEventListener('abort', onAbort);
   }
-}
-
-function extractArchive(archivePath, destDir, kind) {
-  mkdirp(destDir);
-  if (kind === 'tar') {
-    const r = spawnSync('tar', ['-xzf', archivePath, '-C', destDir], { encoding: 'utf8' });
-    if (r.status !== 0) throw new Error((r.stderr || r.stdout || 'tar extract failed').trim());
-    return;
-  }
-  const r = spawnSync('unzip', ['-o', archivePath, '-d', destDir], { encoding: 'utf8' });
-  if (r.status !== 0) throw new Error((r.stderr || r.stdout || 'zip extract failed').trim());
 }
 
 function findExecutable(rootDir, names) {

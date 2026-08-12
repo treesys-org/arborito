@@ -4,6 +4,24 @@ All notable changes to Arborito are documented here.
 
 Arborito ships as **web** ([arborito.org](https://arborito.org), continuous deploys from `main`) and as **optional installs** (Linux Flatpak, Windows, Android) cut on [GitHub Releases](https://github.com/treesys-org/arborito/releases). Tagged versions below describe those installable cuts and the product state at that tag; the live site may already include later fixes from `main`.
 
+## 0.1.3-alpha — 2026-08-13
+
+### Changed
+
+- Loading of maps, playlists, and other screens is faster and uses less waiting.
+- UI copy and layout in several places are clearer and easier to follow.
+- Welcome screen: subject names slide past (languages, computing, cooking, biology, and open-ended courses).
+
+### Fixed
+
+- Lesson quizzes: several questionnaire bugs.
+- Windows: Sage can unpack the llama.cpp engine (zip extract no longer fails when `unzip` is missing).
+- Download links on arborito.org and treesys.org resolve the current GitHub release, including alpha tags.
+
+### Notes
+
+- Windows continues to update via GitHub Releases (`latest.yml`). Android remains a direct APK from Releases. Web users on arborito.org keep receiving site deploys independently of this tag.
+
 ## 0.1.2-alpha — 2026-08-01
 
 ### Changed

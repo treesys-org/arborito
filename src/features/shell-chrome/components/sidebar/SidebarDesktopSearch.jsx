@@ -90,7 +90,6 @@ export function SidebarDesktopSearch({
         <SearchResultsPanel
             state={deskSearch}
             ui={ui}
-            lightChrome
             onPick={handlePick}
             onRefresh={onRefresh}
         />
@@ -159,7 +158,7 @@ export function SidebarDesktopSearch({
             {showIndexBanner ? (
                 <div
                     id="arborito-desk-search-index-banner"
-                    className="arborito-desktop-search-inline__index-banner px-2 py-1.5 mb-1 text-center text-[11px] font-semibold leading-snug rounded-lg bg-amber-500/15 text-amber-900 dark:text-amber-200 dark:bg-amber-500/10"
+                    className="arborito-desktop-search-inline__index-banner arborito-callout arborito-callout--amber arborito-callout--sm arborito-callout--centered"
                     role={indexStatus === 'error' ? 'alert' : 'status'}
                     aria-live="polite"
                 >

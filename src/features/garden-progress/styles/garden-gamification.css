@@ -592,13 +592,11 @@
 .arborito-garden-bg__particle--glow {
     animation: gardenBgGlow 4s ease-in-out infinite;
     font-size: clamp(1.1rem, 3.2vw, 1.85rem);
-    opacity: 0.85;
 }
 
 .arborito-garden-bg__particle--sparkle {
     animation: gardenBgSparkle 5s ease-in-out infinite;
     font-size: clamp(1.25rem, 3.5vw, 2rem);
-    opacity: 0.65;
 }
 
 .arborito-garden-bg__particle--deco-fountain {
@@ -630,8 +628,8 @@
 }
 
 @keyframes gardenBgTwinkle {
-    0%, 100% { opacity: 0.35; transform: translate(-50%, -50%) scale(0.85); }
-    50% { opacity: 0.95; transform: translate(-50%, -58%) scale(1.1); }
+    0%, 100% { opacity: 0.18; transform: translate(-50%, -50%) scale(0.85); }
+    50% { opacity: 0.4; transform: translate(-50%, -58%) scale(1.05); }
 }
 
 @keyframes gardenBgFlutter {
@@ -642,18 +640,18 @@
 
 @keyframes gardenBgGlow {
     0%, 100% {
-        opacity: 0.55;
-        filter: drop-shadow(0 0 6px rgb(250 204 21 / 0.35)) drop-shadow(0 0 14px rgb(251 146 60 / 0.2));
+        opacity: 0.22;
+        filter: drop-shadow(0 0 4px rgb(250 204 21 / 0.18));
     }
     50% {
-        opacity: 0.95;
-        filter: drop-shadow(0 0 12px rgb(250 204 21 / 0.65)) drop-shadow(0 0 22px rgb(251 146 60 / 0.35));
+        opacity: 0.38;
+        filter: drop-shadow(0 0 8px rgb(250 204 21 / 0.28));
     }
 }
 
 @keyframes gardenBgSparkle {
-    0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(0.92); }
-    50% { opacity: 0.85; transform: translate(-50%, -54%) scale(1.06); }
+    0%, 100% { opacity: 0.2; transform: translate(-50%, -50%) scale(0.92); }
+    50% { opacity: 0.36; transform: translate(-50%, -54%) scale(1.04); }
 }
 
 .garden-ranking__head {
