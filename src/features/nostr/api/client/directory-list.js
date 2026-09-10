@@ -185,11 +185,32 @@ export const directoryListMixin = {
         const crawlDelists = new Set();
 
         if (q.length >= 3) {
-            const tagRows = await this.searchGlobalDirectoryByTrigrams({
+            let tagRows = await this.searchGlobalDirectoryByTrigrams({
                 query: q,
                 limit,
                 excludeKeys: seen,
             });
+            /*
+             * `#t` hits come from whichever relay still stores the tagged listing.
+             * The owner's delist replaceable carries no `t` tags and may only have
+             * reached other relays, so the trigram path alone resurrects retired
+             * courses. Reconcile by `d` tag like snapshots and crawl pages do.
+             */
+            if (tagRows.length) {
+                try {
+                    const triDelists = await this._collectLiveDirectoryDelistKeys(tagRows);
+                    if (triDelists.size) {
+                        tagRows = this._purgeDirectoryDelistKeys(tagRows, seen, triDelists);
+                        if (Array.isArray(this._trigramSearchCacheRows)) {
+                            this._trigramSearchCacheRows = this._trigramSearchCacheRows.filter(
+                                (r) => !triDelists.has(directoryRowKey(r?.ownerPub, r?.universeId))
+                            );
+                        }
+                    }
+                } catch {
+                    /* relay probe failed — keep tagged rows; bundle filter still runs */
+                }
+            }
             for (const r of this._filterMaintainerBlockedDirectoryRows(tagRows)) {
                 if (this._isKnownDeadDirectoryKey(r?.ownerPub, r?.universeId)) continue;
                 const k = directoryRowKey(r.ownerPub, r.universeId);

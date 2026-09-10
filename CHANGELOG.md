@@ -4,6 +4,12 @@ All notable changes to Arborito are documented here.
 
 Arborito ships as **web** ([arborito.org](https://arborito.org), continuous deploys from `main`) and as **optional installs** (Linux Flatpak, Windows, Android) cut on [GitHub Releases](https://github.com/treesys-org/arborito/releases). Tagged versions below describe those installable cuts and the product state at that tag; the live site may already include later fixes from `main`.
 
+## Unreleased
+
+### Fixed
+
+- Discover search: courses their owner retired no longer reappear in text search results when the retirement notice has not reached every relay yet.
+
 ## 0.1.3-alpha — 2026-08-13
 
 ### Changed
