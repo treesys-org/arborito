@@ -165,7 +165,7 @@ function wireEmojiImgFallback() {
  * one-shot via `emojifyLessonEditor` (and Twemoji insert); save round-trips
  * imgs → Unicode via `data-emoji-fallback`. */
 const EMOJIFY_SKIP_SELECTOR =
-    'script,style,textarea,input,select,code,pre,[contenteditable],[contenteditable="true"],.arborito-no-emojify,.arborito-onboarding-lang-grid,#mobile-tree-ui,#mobile-knots-container,.graph-container,.mobile-tree-ui';
+    'script,style,textarea,input,select,code,pre,[contenteditable],[contenteditable="true"],.arborito-no-emojify,.arborito-onboarding-lang-grid,#mobile-tree-ui,#mobile-knots-container,.graph-container,.mobile-tree-ui,.garden-care-panel,.garden-howto,.garden-ranking';
 
 function makeTwemojiImgEl(ch) {
     const candidates = emojiToTwemojiCandidates(ch);
@@ -258,7 +258,9 @@ function startEmojifyObserver() {
     if (emojifyObserverStarted || typeof document === 'undefined' || typeof MutationObserver === 'undefined') {
         return;
     }
-    const root = document.getElementById('app') || document.body || document.documentElement;
+    /* Dock modals portal next to #app, still under #root. Watching only #app
+     * left course titles as raw Unicode, which paints blank without a color font. */
+    const root = document.getElementById('root') || document.body || document.documentElement;
     if (!root) return;
     emojifyObserverStarted = true;
 

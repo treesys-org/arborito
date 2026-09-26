@@ -4,6 +4,7 @@ import { formatNostrTreeUrl, parseNostrTreeUrl } from '../../../nostr/api/nostr-
 import { findCommunitySourceByUrl } from '../../api/modals/logic/sources-helpers.js';
 import { computeDirectoryRowState } from '../../api/modals/logic/sources-directory-row-state.js';
 import { resolveDirectoryRowTitle, resolveCatalogDescription } from '../../../../shared/lib/catalog-titles.js';
+import { leadingTitleEmoji, stripLeadingTitleEmoji } from '../../../../shared/lib/emoji-twemoji.js';
 import { SourcesPill } from './SourcesPill.jsx';
 import { LanguagePills } from './LanguagePills.jsx';
 import {
@@ -129,7 +130,7 @@ export function SourcesInternetRow({
     const editOwnLbl = ui.sourcesGlobalEditOwnTree || ui.navConstruct || 'Edit';
     const primaryLbl = isOwner ? editOwnLbl : isCommunityInstalled ? catalogRemoveLbl : catalogAddLbl;
     const internetLangs = Array.isArray(row?.languages) ? row.languages : [];
-    const displayTitle = resolveDirectoryRowTitle(row, shell.lang);
+    const rawTitle = resolveDirectoryRowTitle(row, shell.lang);
     const localBranch = localInfo?.id
         ? shell.userStore?.state?.branches?.find((b) => String(b?.id) === String(localInfo.id))
         : null;
@@ -145,7 +146,10 @@ export function SourcesInternetRow({
         ownerPub,
         localBranch,
         treeJson: activeMatches ? store.state?.rawGraphData : null,
+        title: rawTitle,
     });
+    const lead = leadingTitleEmoji(rawTitle);
+    const displayTitle = lead && lead === titleEmoji ? stripLeadingTitleEmoji(rawTitle) : rawTitle;
     const shareOpts = row?.shareCode
         ? {
               name: displayTitle || '',

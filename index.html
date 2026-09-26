@@ -532,15 +532,20 @@
         '<span class="arborito-boot-error-hint">Try Ctrl+Shift+R or run <code>npm run dev</code> from the project folder.</span></p>';
     };
     function __arboritoLooksLikeStaleChunk(msg) {
-      return /Failed to fetch dynamically imported module|Loading chunk|error loading dynamically imported module|Importing a module script failed|ChunkLoadError|404/i.test(
+      return /Failed to fetch dynamically imported module|Loading chunk|error loading dynamically imported module|Importing a module script failed|ChunkLoadError/i.test(
         String(msg || '')
       );
     }
     function __arboritoReloadStaleChunkOnce(reason) {
       try {
+        var host = String(location.hostname || '');
+        if (host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]') return false;
+        if (new URL(location.href).searchParams.has('_ab')) return false;
         if (sessionStorage.getItem('arborito-chunk-reload') === '1') return false;
         sessionStorage.setItem('arborito-chunk-reload', '1');
-      } catch (e) { /* ignore */ }
+      } catch (e) {
+        return false;
+      }
       try {
         var u = new URL(location.href);
         u.searchParams.set('_ab', String(Date.now()).slice(-16));

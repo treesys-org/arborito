@@ -227,10 +227,14 @@ export function GardenRankingList({ rows, ui, weekKey }) {
                         className={`garden-ranking__row${row.isSelf ? ' garden-ranking__row--self' : ''}`}
                     >
                         <span className="garden-ranking__rank">
-                            {row.rank <= 3 ? medals[row.rank - 1] : row.rank}
+                            {row.rank <= 3 ? (
+                                <ChromeEmoji emoji={medals[row.rank - 1]} size={16} />
+                            ) : (
+                                row.rank
+                            )}
                         </span>
                         <span className="garden-ranking__avatar" aria-hidden="true">
-                            {row.avatar}
+                            <ChromeEmoji emoji={row.avatar || '🌱'} size={16} />
                         </span>
                         <span className="garden-ranking__name">{row.displayName}</span>
                         <span className="garden-ranking__score">

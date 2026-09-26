@@ -6,9 +6,19 @@ Arborito ships as **web** ([arborito.org](https://arborito.org), continuous depl
 
 ## Unreleased
 
+## 0.1.4-alpha — 2026-09-27
+
 ### Fixed
 
-- Discover search: courses their owner retired no longer reappear in text search results when the retirement notice has not reached every relay yet.
+- Explore lists published courses again, including ones published before this release. Each card shows the emoji that course was published with, instead of a generic leaf. New publishes are labeled so other activity on the same channel does not push them out of the list.
+- Emoji that were missing from the small built-in set now use the same bundled images as the rest of the app.
+- Watering stays available after the garden updates. Care icons are drawn as images the screen owns, so Regar is not removed.
+- Explore search no longer brings back a course after its owner retired it, when that retirement notice has not reached every relay yet.
+- A failed script load on a local preview no longer refreshes the page in a loop.
+
+### Notes
+
+- Windows continues to update via GitHub Releases (`latest.yml`). Android remains a direct APK from Releases. Web users on arborito.org keep receiving site deploys independently of this tag.
 
 ## 0.1.3-alpha — 2026-08-13
 

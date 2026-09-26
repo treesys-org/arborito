@@ -195,10 +195,16 @@ export function installStaleChunkReloadGuard() {
 
     const tryReload = (reason) => {
         try {
+            const host = String(window.location.hostname || '');
+            if (host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]') {
+                return false;
+            }
+            const current = new URL(window.location.href);
+            if (current.searchParams.has(SHELL_BUILD_URL_PARAM)) return false;
             if (sessionStorage.getItem(CHUNK_RELOAD_KEY) === '1') return false;
             sessionStorage.setItem(CHUNK_RELOAD_KEY, '1');
         } catch {
-            /* ignore */
+            return false;
         }
         console.warn('[Arborito] stale asset after deploy, reloading', reason);
         try {

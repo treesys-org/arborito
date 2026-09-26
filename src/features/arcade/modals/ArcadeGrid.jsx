@@ -1,3 +1,4 @@
+import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import { useArcade } from '../hooks/useArcade.js';
 import { ListRowEnter, ListRowSkeleton } from '../../../shared/ui/ListRowEnter.jsx';
 import { ArcadeCard } from './ArcadeCard.jsx';
@@ -40,7 +41,7 @@ export function ArcadeGrid({
                 <div className="arborito-cta-blue p-4 rounded-xl shadow-lg mb-4 flex items-center justify-center md:justify-between animate-in slide-in-from-top-2 flex-wrap gap-2">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center text-xl">
-                            💧
+                            <ChromeEmoji emoji="💧" size={22} />
                         </div>
                         <div>
                             <p className="text-[10px] uppercase font-bold opacity-80">{ui.arcadeWateringMission}</p>

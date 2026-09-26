@@ -25,3 +25,22 @@ export function emojiToTwemojiCandidates(emoji) {
 export function emojiToTwemojiPrimaryFile(emoji) {
     return emojiToTwemojiCandidates(emoji)[0];
 }
+
+/** First emoji when the string starts with one (catalog titles often do). */
+export function leadingTitleEmoji(text) {
+    const s = String(text || '').trim();
+    if (!s) return '';
+    EMOJI_IN_TEXT_RE.lastIndex = 0;
+    const m = EMOJI_IN_TEXT_RE.exec(s);
+    if (!m || m.index !== 0) return '';
+    return m[0];
+}
+
+/** Drop a leading emoji so the card glyph is not repeated in the title. */
+export function stripLeadingTitleEmoji(text) {
+    const s = String(text || '').trim();
+    const em = leadingTitleEmoji(s);
+    if (!em) return s;
+    const rest = s.slice(em.length).replace(/^[\s.:|-]+/, '').trim();
+    return rest || s;
+}

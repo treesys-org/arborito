@@ -8,6 +8,7 @@ import {
     getConfiguredDirectoryIndexPublishers,
 } from '../../../p2p-webtorrent/api/directory-index-config.js';
 import {
+    DIRECTORY_CATALOG_TAG,
     directoryTrigramTagsForRow,
 } from '../directory-trigram-index.js';
 import {
@@ -197,7 +198,12 @@ export const directoryMixin = {
         const d = directoryDTag(pair.pub, universeId);
         const ev = await this._finalize(pair, {
             kind: KIND_TREE_DIRECTORY,
-            tags: [['d', d], arbRootTag(pair.pub, universeId), [TAG_APP, TAG_APP_VALUE]],
+            tags: [
+                ['d', d],
+                arbRootTag(pair.pub, universeId),
+                [TAG_APP, TAG_APP_VALUE],
+                ['t', DIRECTORY_CATALOG_TAG],
+            ],
             content: JSON.stringify(body)
         });
         await this._publish(ev);

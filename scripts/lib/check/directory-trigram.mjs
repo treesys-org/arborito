@@ -31,6 +31,7 @@ const tags = directoryTrigramTagsForRow({
 });
 check('directoryTrigramTagsForRow non-empty', tags.length >= 3, String(tags.length));
 check('tags capped at 40', tags.length <= 40);
+check('catalog sentinel is indexed', tags[0] === 'arborito');
 
 const ranked = rankTrigramsForSearch(['ing', 'alg', 'xyz']);
 check('rankTrigrams prefers rare', ranked[0] === 'xyz' || ranked[0] === 'alg', ranked.join(','));

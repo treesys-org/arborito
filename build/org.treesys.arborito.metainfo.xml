@@ -99,6 +99,11 @@
  </keywords>
 
  <releases>
+ <release version="0.1.4-alpha" date="2026-09-27">
+ <description>
+ <p>Explore lists published courses again, with each course's icon. Retired courses stay out of search. A failed script load on a local preview no longer reloads forever.</p>
+ </description>
+ </release>
  <release version="0.1.3-alpha" date="2026-08-13">
  <description>
  <p>Faster loading, clearer UI copy, quiz fixes, and Sage on Windows. Welcome preview and download links point at the current release.</p>

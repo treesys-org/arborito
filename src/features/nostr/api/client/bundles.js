@@ -22,6 +22,7 @@ import {
     forumPackDTag,
     revokeDTag,
 } from '../nostr-spec.js';
+import { DIRECTORY_CATALOG_TAG } from '../directory-trigram-index.js';
 import { hasArbRoot, splitUtf8Chunks, tagValue, QUERY_MS_LONG } from './_shared.js';
 import {
     bundleMainChunkDTagGen,
@@ -684,7 +685,12 @@ export const bundlesMixin = {
         const headerEv = this._finalize(pair, {
             kind: KIND_BUNDLE_HEADER,
             created_at: Math.floor(Date.now() / 1000),
-            tags: [['d', bundleHeaderDTag(pair.pub, universeId)], arbRootTag(pair.pub, universeId), [TAG_APP, TAG_APP_VALUE]],
+            tags: [
+                ['d', bundleHeaderDTag(pair.pub, universeId)],
+                arbRootTag(pair.pub, universeId),
+                [TAG_APP, TAG_APP_VALUE],
+                ['t', DIRECTORY_CATALOG_TAG],
+            ],
             content: JSON.stringify(meta)
         });
         const mainChunkEvents = parts.map((content, i) =>

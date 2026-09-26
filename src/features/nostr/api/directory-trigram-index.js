@@ -124,13 +124,29 @@ const COMMON_TRIGRAMS = new Set([
 export const DIRECTORY_TRIGRAM_TAG_CAP = 40;
 
 /**
+ * Indexed single-letter tag for the Arborito catalog.
+ * Relays index `#t` and refuse or ignore the multi-letter `#app` filter, so
+ * Discover queries `{kinds:[30100], "#t":["arborito"]}` instead of the raw
+ * kind. Always present, and it does not compete with title trigrams for a slot
+ * that a later slice could drop.
+ */
+export const DIRECTORY_CATALOG_TAG = 'arborito';
+
+/**
  * Nostr `t` tags for a directory row (publish-time index).
  * @param {{ title?: string, description?: string, authorName?: string }} row
  * @returns {string[]}
  */
 export function directoryTrigramTagsForRow(row) {
-    const tris = trigramsFromCatalogRow(row).filter((t) => t.length >= 3);
-    return tris.slice(0, DIRECTORY_TRIGRAM_TAG_CAP);
+    const tris = trigramsFromCatalogRow(row).filter(
+        (t) => t.length >= 3 && t !== DIRECTORY_CATALOG_TAG
+    );
+    const out = [DIRECTORY_CATALOG_TAG];
+    for (const t of tris) {
+        if (out.length >= DIRECTORY_TRIGRAM_TAG_CAP) break;
+        out.push(t);
+    }
+    return out;
 }
 
 /**

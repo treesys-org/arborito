@@ -213,7 +213,7 @@ if (existsSync(distDir)) {
     else console.log(' (sin binarios : revisa logs arriba)');
 }
 
-let version = '0.1.3-alpha';
+let version = '0.1.4-alpha';
 try {
     version = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version || version;
 } catch {

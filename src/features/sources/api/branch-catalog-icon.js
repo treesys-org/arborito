@@ -1,4 +1,5 @@
 import { parseFolderReadme } from '../../../shared/lib/arborito-archive.js';
+import { leadingTitleEmoji } from '../../../shared/lib/emoji-twemoji.js';
 import { BRANCH_CHIP_ICON } from '../../tree-graph/api/node-property-emojis.js';
 import { kindEmoji, listingKind } from './sources-kind-ui.js';
 
@@ -212,6 +213,12 @@ export function resolveOnlineListingIcon(opts = {}) {
     }
     if (stickyKey !== '/' && ONLINE_ICON_STICKY.has(stickyKey)) {
         return ONLINE_ICON_STICKY.get(stickyKey);
+    }
+    /* Publishers often put the course emoji in the title and leave `icon` empty. */
+    const fromTitle = leadingTitleEmoji(opts.title);
+    if (fromTitle && !isGenericCatalogIcon(fromTitle)) {
+        if (stickyKey !== '/') ONLINE_ICON_STICKY.set(stickyKey, fromTitle);
+        return fromTitle;
     }
     if (wire) return wire;
     return kindEmoji(listingKind(opts.contentKind, opts.universeId));

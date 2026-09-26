@@ -1,5 +1,6 @@
 import { useArcade } from '../hooks/useArcade.js';
 import { useEffect, useMemo, useState } from 'react';
+import { ChromeEmoji } from '../../../app/components/ChromeEmoji.jsx';
 import { Callout } from '../../../shared/ui/Callout.jsx';
 import { ListRowEnter } from '../../../shared/ui/ListRowEnter.jsx';
 import {
@@ -88,7 +89,9 @@ export function ArcadeGarden({ ui }) {
 
                 {dueIds.length === 0 && healthyIds.length === 0 ? (
                     <div className="arborito-empty arborito-empty--card mx-auto max-w-md p-10 mb-4">
-                        <div className="arborito-empty__icon">🪴</div>
+                        <div className="arborito-empty__icon">
+                            <ChromeEmoji emoji="🪴" size={28} />
+                        </div>
                         <p className="arborito-empty__title text-lg">
                             {ui.arcadeGardenEmptyTitle || 'Empty garden'}
                         </p>
@@ -125,7 +128,9 @@ export function ArcadeGarden({ ui }) {
                                     <ListRowEnter key={id} index={idx}>
                                         <div className="arborito-surface-card flex items-center justify-between gap-2 p-3 rounded-xl hover:border-red-400 transition-colors">
                                             <div className="flex items-center gap-3 min-w-0">
-                                                <div className="arborito-icon-tile w-10 h-10 text-xl">{icon}</div>
+                                                <div className="arborito-icon-tile w-10 h-10 text-xl">
+                                                    <ChromeEmoji emoji={icon} size={22} />
+                                                </div>
                                                 <div className="min-w-0">
                                                     <h4 className="font-bold text-sm arborito-text-strong truncate m-0">
                                                         {nameRaw}
@@ -140,7 +145,7 @@ export function ArcadeGarden({ ui }) {
                                                 data-id={id}
                                                 className="arborito-cta-blue px-3 py-2 text-xs font-bold rounded-lg shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 shrink-0 js-arcade-water-node"
                                             >
-                                                <span aria-hidden="true">💧</span> {ui.arcadeWaterBtn || 'Water'}
+                                                <ChromeEmoji emoji="💧" size={14} /> {ui.arcadeWaterBtn || 'Water'}
                                             </button>
                                         </div>
                                     </ListRowEnter>
@@ -191,7 +196,7 @@ export function ArcadeGarden({ ui }) {
                                         <div className="arborito-surface-card flex items-center justify-between gap-2 p-3 rounded-xl">
                                             <div className="flex items-center gap-3 min-w-0">
                                                 <div className="w-8 h-8 rounded-lg arborito-garden-thumb-icon flex items-center justify-center text-lg shrink-0">
-                                                    {icon}
+                                                    <ChromeEmoji emoji={icon} size={18} />
                                                 </div>
                                                 <div className="min-w-0">
                                                     <h4 className="font-bold text-sm arborito-text-strong truncate m-0">

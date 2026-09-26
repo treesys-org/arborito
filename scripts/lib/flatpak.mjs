@@ -112,7 +112,7 @@ export function buildScreenshotsXml() {
 export function buildReleaseXml(version, dateIso) {
     return `    <release version="${version}" date="${dateIso}">
       <description>
-        <p>Linux Flatpak install ref and remote so Software/Discover can update the desktop app. Modal dialog fixes. Windows and Android builds updated in the same release.</p>
+        <p>Explore lists published courses again, with each course's icon. Retired courses stay out of search. A failed script load on a local preview no longer reloads forever.</p>
       </description>
     </release>`;
 }
