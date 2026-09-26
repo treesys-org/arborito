@@ -101,6 +101,10 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # cmdline-tools 16 dropped the obsolete "tools" package. The action
+          # default still asks for it and sdkmanager exits 1.
+          packages: platform-tools platforms;android-35 build-tools;35.0.0
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
