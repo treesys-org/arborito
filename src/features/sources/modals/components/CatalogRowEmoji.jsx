@@ -1,4 +1,4 @@
-import { chromeEmojiHtml } from '../../../../shared/lib/emoji-display.js';
+import { ChromeEmoji } from '../../../../app/components/ChromeEmoji.jsx';
 
 /**
  * Course/catalog glyph. Uses the same Twemoji PNGs as the rest of the chrome
@@ -8,14 +8,12 @@ import { chromeEmojiHtml } from '../../../../shared/lib/emoji-display.js';
 export function CatalogRowEmoji({ emoji, size = 22, className = '' }) {
     const ch = String(emoji || '').trim() || '🌿';
     const px = Math.max(12, Number(size) || 22);
-    const html = chromeEmojiHtml(ch, px);
 
     return (
-        <span
+        <ChromeEmoji
+            emoji={ch}
+            size={px}
             className={`arborito-sources-row-title__emoji ${className}`.trim()}
-            aria-hidden="true"
-            style={{ width: px, height: px }}
-            dangerouslySetInnerHTML={{ __html: html }}
         />
     );
 }
