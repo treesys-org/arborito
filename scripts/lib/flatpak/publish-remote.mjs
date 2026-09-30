@@ -248,16 +248,9 @@ function main() {
         die(`Refusing to publish: summary signature is not valid.\n${summarySig.out}`);
     }
 
-    const show = spawnSync('ostree', [`--repo=${repoDir}`, 'show', commit], {
-        encoding: 'utf8',
-        maxBuffer: 4 * 1024 * 1024,
-    });
-    const showOut = `${show.stdout || ''}\n${show.stderr || ''}`;
-    if (show.status !== 0 || !/Good signature/.test(showOut) || /BAD signature/.test(showOut)) {
-        die(
-            `ostree show does not report a good commit signature for ${commit}.\n${showOut.slice(0, 1500)}`
-        );
-    }
+    /* gpgv checks the same public key embedded in the flatpakref. `ostree show`
+     * only looks at keyrings inside the repo, so in CI it reports
+     * "public key not found" even when the signature is valid. */
     console.log(`[publish-flatpak-remote] gpgv Good signature on ${commit.slice(0, 12)}… and summary`);
 
     fs.rmSync(keyringPath, { force: true });
